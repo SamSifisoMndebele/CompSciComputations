@@ -10,7 +10,6 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.EditorInfo
 import androidx.core.widget.doOnTextChanged
 import com.ssmnd.karnaughmap.databinding.Karnaugh4VariablesBinding
 import com.ssmnd.karnaughmap.logic.Karnaugh4Variables
@@ -122,20 +121,20 @@ class Karnaugh4Fragment : KarnaughFragment() {
             executeKarnaugh(iArr, iArr2)
         }
 
-        binding.keyboard.setInputConnection(binding.expressionEditText.onCreateInputConnection(
+        /*binding.keyboard.setInputConnection(binding.expressionEditText.onCreateInputConnection(
             EditorInfo()
-        ))
-        binding.btnHideKeyboard.setOnClickListener {
+        ))*/
+        /*binding.btnHideKeyboard.setOnClickListener {
             binding.expressionEditText.clearFocus()
             binding.keyboardLayout.visibility = View.GONE
-        }
+        }*/
         binding.expressionEditText.showSoftInputOnFocus = false
-        binding.expressionEditText.setOnFocusChangeListener { _, z ->
+        /*binding.expressionEditText.setOnFocusChangeListener { _, z ->
             if (z && binding.keyboardLayout.visibility != View.VISIBLE)
                 binding.keyboardLayout.visibility = View.VISIBLE
             else if (!z && binding.keyboardLayout.visibility == View.VISIBLE)
                 binding.keyboardLayout.visibility = View.GONE
-        }
+        }*/
         binding.expressionEditText.doOnTextChanged { text, _, _, _ ->
             val expression = text.toString()
             if (text != null &&

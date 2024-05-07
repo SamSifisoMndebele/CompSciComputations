@@ -112,6 +112,7 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.constraintlayout.compose)
     implementation(libs.ktor.client)
+    implementation(project(":KarnaughMap"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -119,12 +120,4 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-
-    //implementation(libs.androidx.appcompat)
-    //implementation(libs.material)
-    implementation(libs.androidx.constraintlayout)
-    implementation(libs.androidx.recyclerview)
-
-    //noinspection GradlePath
-    //implementation(files("D:/IdeaProjects/MathsLib/build/libs/MathsLib-1.0.0-beta.jar"))
 }

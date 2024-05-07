@@ -1,4 +1,4 @@
-package com.compscicomputations.ui
+package com.ssmnd.mathslib.components
 
 import android.annotation.SuppressLint
 import android.webkit.WebView

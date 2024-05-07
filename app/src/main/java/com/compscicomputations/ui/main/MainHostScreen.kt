@@ -10,6 +10,7 @@ import androidx.navigation.compose.composable
 import com.compscicomputations.MainActivity
 import com.compscicomputations.ui.main.dashboard.DashboardScreen
 import com.compscicomputations.ui.main.dashboard.DashboardViewModel
+import com.compscicomputations.ui.main.karnaugh.KarnaughScreen
 import com.compscicomputations.ui.main.num_system.NumSystemsScreen
 import com.compscicomputations.ui.main.profile.ProfileScreen
 
@@ -32,7 +33,7 @@ fun MainHostScreen(
 ) {
     NavHost(
         navController = navController,
-        startDestination = MainNavigation.DASHBOARD.route //todo change to DASHBOARD
+        startDestination = MainNavigation.KARNAUGH.route //todo change to DASHBOARD
     ) {
         composable(MainNavigation.DASHBOARD.route) {
             val dashboardViewModel: DashboardViewModel = viewModel()
@@ -88,7 +89,11 @@ fun MainHostScreen(
 
         }
         composable(MainNavigation.KARNAUGH.route) {
-
+            KarnaughScreen(
+                navigateUp = {
+                    navController.navigateUp()
+                }
+            )
         }
         composable(MainNavigation.MATRIX.route) {
 
