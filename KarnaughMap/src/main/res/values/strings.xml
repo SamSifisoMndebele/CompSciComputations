@@ -1,0 +1,13 @@
+<resources>
+    <string name="sEquals">S =</string>
+    <string name="karnaugh_maps">Karnaugh Maps</string>
+    <string name="karnaugh_map_4var"><b>Karnaugh Map</b> 4 Var</string>
+    <string name="karnaugh_map_3var"><b>Karnaugh Map</b> 3 Var</string>
+    <string name="karnaugh_map_2var"><b>Karnaugh Map</b> 2 Var</string>
+    <string name="d">D</string>
+    <string name="c">C</string>
+    <string name="or">OR</string>
+    <string name="not">NOT</string>
+    <string name="simply_boolean_expression">Simply Boolean Expression</string>
+    <string name="clear_list">Clear List</string>
+</resources>

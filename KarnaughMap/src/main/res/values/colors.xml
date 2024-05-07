@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<!--    <color name="teal">#FF018786</color>-->
+<!--    <color name="black">#FF000000</color>-->
+<!--    <color name="white">#FFFFFFFF</color>-->
+<!--    <color name="colorPrimary">#4A5353</color>-->
+<!--    <color name="colorPrimaryDark">#202323</color>-->
+<!--    <color name="ic_launcher_background">#FFFFFF</color>-->
+
+<!--    <color name="red">#f44336</color>-->
+<!--    <color name="green2">#8bc34a</color>-->
+<!--    <color name="transparent">#00FFFFFF</color>-->
+<!--    <color name="light_transparent">#26FFFFFF</color>-->
+<!--    <color name="dark_transparent">#26000000</color>-->
+
+<!--    <color name="colorDarkBlue">#3498db</color>-->
+<!--    <color name="colorDarkGreen">#2ecc71</color>-->
+<!--    <color name="colorDarkOrange">#e67e22</color>-->
+<!--    <color name="colorDarkPink">#e74c3c</color>-->
+<!--    <color name="colorGray">#e4e1e1</color>-->
+<!--    <color name="colorGrayText">#494848</color>-->
+
+<!--    <color name="colorGreen">#66AAFFAA</color>-->
+<!--    <color name="colorBlue">#66A9D8FF</color>-->
+<!--    <color name="colorOrange">#66FFDCAA</color>-->
+    <color name="colorPurple">#66FFAAAA</color>
+
+<!--    <color name="blue">#80DEEA</color>-->
+<!--    <color name="green">#A5D6A7</color>-->
+<!--    <color name="orange">#FFCC80</color>-->
+<!--    <color name="pink">#F48FB1</color>-->
+
+<!--    <color name="button_color">#0D858585</color>-->
+<!--    <color name="button_color_dark">#12858585</color>-->
+
+
+<!--    <color name="colorGreen">#66C2FFC2</color>-->
+<!--    <color name="colorBlue">#66C1E3FF</color>-->
+<!--    <color name="colorOrange">#66FFE7C4</color>-->
+<!--    <color name="colorPurple">#66FFC1C1</color>-->
+
+<!--    <color name="fadedGrayText">#928f8f</color>-->
+<!--    <color name="primaryDarkColor">#000a12</color>-->
+<!--    <color name="primaryLightColor">#4f5b62</color>-->
+<!--    <color name="primaryTextColor">#ffffff</color>-->
+<!--    <color name="smokeWhite">#fafafa</color>-->
+</resources>

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "664742874802",
+    "project_id": "compsci-computations",
+    "storage_bucket": "compsci-computations.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:664742874802:android:8f9f2034cc3ac6080ac3ab",
+        "android_client_info": {
+          "package_name": "com.compscicomputations"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBPqb13Lq-2ZtwXFNKAhjBkhEr5brGvmlc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
