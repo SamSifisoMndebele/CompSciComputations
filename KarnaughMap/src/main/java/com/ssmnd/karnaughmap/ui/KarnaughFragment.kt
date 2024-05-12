@@ -1,12 +1,13 @@
-package com.ssmnd.karnaughmap
+package com.ssmnd.karnaughmap.ui
 
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Spinner
 import androidx.fragment.app.Fragment
+import com.ssmnd.karnaughmap.MinTermTextView
+import com.ssmnd.karnaughmap.R
 import com.ssmnd.karnaughmap.kMapView.KMapVariablesImageView
-import com.ssmnd.karnaughmap.kMapView.KMapVariablesImageView.OnKmapAnimationListener
 import com.ssmnd.karnaughmap.utils.ListOfMinterms
 
 open class KarnaughFragment : Fragment() {
@@ -25,7 +26,8 @@ open class KarnaughFragment : Fragment() {
         setAnswerTextView(i)
         selectedAnswer = answers!![i]
         kMapVariablesImageView.setDrawGroups(answers!![i])
-        kMapVariablesImageView.setOnKmapAnimationListener(object : OnKmapAnimationListener {
+        kMapVariablesImageView.setOnKmapAnimationListener(object :
+            KMapVariablesImageView.OnKmapAnimationListener {
             override fun onAnimate() {
                 minTermTextView.setAnimation(true)
                 minTermTextView.setAnimationPart(0)

@@ -5,13 +5,13 @@ import com.ssmnd.mathslib.utils.Latex
 import kotlin.math.pow
 
 /**
- * The `Variable` class represents a mathematical variable with a character base and an exponent.
+ * The `Variable` class represents a mathematical variable with a character base_convert and an exponent.
  * All mathematical variables, such as `x, y^2, x^y or 2^n`, are
  * implemented as instances of this class.
  */
 interface Variable : Comparable<Variable> {
     /**
-     * The base of Variable
+     * The base_convert of Variable
      */
     val base: Any //Char or Double
     val baseDouble: Double
@@ -67,7 +67,7 @@ interface Variable : Comparable<Variable> {
     }
     /**
      * Returns the value of this variable if it is Polynomial or Exponential.
-     * @param x base or exponent value.
+     * @param x base_convert or exponent value.
      * @return [Double]
      * @throws IllegalStateException if this Variable is not a Polynomial or Exponential.
      */
@@ -84,7 +84,7 @@ interface Variable : Comparable<Variable> {
 
     /**
      * Returns the value of this variable.
-     * @param b base value
+     * @param b base_convert value
      * @param e exponent value.
      * @return [Double]
      */
@@ -195,7 +195,7 @@ interface Variable : Comparable<Variable> {
 
     companion object {
         /**
-         * The `Number Variable` class represents a mathematical variable with a base and an exponent.
+         * The `Number Variable` class represents a mathematical variable with a base_convert and an exponent.
          * All mathematical variables, such as `2^(-2), 3^2`, are
          * implemented as instances of this class.
          */
@@ -203,14 +203,14 @@ interface Variable : Comparable<Variable> {
             VariableImpl(base.toDouble().pow(exponent.toDouble()), 1.0, VariableType.NUMBER)
 
         /**
-         * The `Number Variable` class represents a mathematical variable with a base and an exponent of 1.
+         * The `Number Variable` class represents a mathematical variable with a base_convert and an exponent of 1.
          * All mathematical variables, such as `2, -3`, are
          * implemented as instances of this class.
          */
         fun variableOf(number: Number) : Variable =
             VariableImpl(number.toDouble(), 1.0, VariableType.NUMBER)
         /**
-         * The `Variable` class represents a mathematical variable with a character base and a character exponent.
+         * The `Variable` class represents a mathematical variable with a character base_convert and a character exponent.
          * All mathematical variables, such as `x^y`, are
          * implemented as instances of this class.
          */
@@ -218,21 +218,21 @@ interface Variable : Comparable<Variable> {
             VariableImpl(base, exponent, VariableType.NATURAL)
 
         /**
-         * The `Polynomial Variable` class represents a mathematical variable with a character base and an exponent.
+         * The `Polynomial Variable` class represents a mathematical variable with a character base_convert and an exponent.
          * All mathematical variables, such as `y^2, x^1.5`, are
          * implemented as instances of this class.
          */
         fun variableOf(base: Char, exponent: Number) : Variable =
             VariableImpl(base, exponent.toDouble(), VariableType.POLYNOMIAL)
         /**
-         * The `Polynomial Variable` class represents a mathematical variable with a character base and an exponent of 1.
+         * The `Polynomial Variable` class represents a mathematical variable with a character base_convert and an exponent of 1.
          * All mathematical variables, such as `x, y`, are
          * implemented as instances of this class.
          */
         fun variableOf(base: Char) : Variable =
             VariableImpl(base, 1.0, VariableType.POLYNOMIAL)
         /**
-         * The `Exponential Variable` class represents a mathematical variable with a base and a character exponent.
+         * The `Exponential Variable` class represents a mathematical variable with a base_convert and a character exponent.
          * All mathematical variables, such as `3^y or 2^n`, are
          * implemented as instances of this class.
          */

@@ -11,4 +11,6 @@
     <string name="simply_boolean_expression">Simply Boolean Expression</string>
     <string name="clear_list">Clear List</string>
     <string name="title_activity_main">MainActivity</string>
+    <string name="boolean_expression">Boolean Expression</string>
+    <string name="simplied_boolean_expression">Simplied Boolean Expression</string>
 </resources>

@@ -116,7 +116,7 @@ interface Term : Comparable<Term> {
         }
 
 
-        //return PolynomialTerm(coefficient * exp, variables.also { it[base] = exp - 1 })
+        //return PolynomialTerm(coefficient * exp, variables.also { it[base_convert] = exp - 1 })
         TODO()
     }*/
 

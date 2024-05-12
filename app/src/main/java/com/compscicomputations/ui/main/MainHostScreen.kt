@@ -10,9 +10,14 @@ import androidx.navigation.compose.composable
 import com.compscicomputations.MainActivity
 import com.compscicomputations.ui.main.dashboard.DashboardScreen
 import com.compscicomputations.ui.main.dashboard.DashboardViewModel
+import com.compscicomputations.ui.main.feedback.FeedbackScreen
+import com.compscicomputations.ui.main.help.HelpScreen
 import com.compscicomputations.ui.main.karnaugh.KarnaughScreen
-import com.compscicomputations.ui.main.num_system.NumSystemsScreen
+import com.compscicomputations.ui.main.matrix.MatrixScreen
+import com.compscicomputations.ui.main.num_systems.NumSystemsScreen
+import com.compscicomputations.ui.main.polish.PolishScreen
 import com.compscicomputations.ui.main.profile.ProfileScreen
+import com.compscicomputations.ui.main.settings.SettingsScreen
 
 enum class MainNavigation(val route: String) {
     DASHBOARD("dashboard_route"),
@@ -33,7 +38,7 @@ fun MainHostScreen(
 ) {
     NavHost(
         navController = navController,
-        startDestination = MainNavigation.KARNAUGH.route //todo change to DASHBOARD
+        startDestination = MainNavigation.NUMBER_SYSTEMS.route //todo change to DASHBOARD
     ) {
         composable(MainNavigation.DASHBOARD.route) {
             val dashboardViewModel: DashboardViewModel = viewModel()
@@ -86,7 +91,11 @@ fun MainHostScreen(
             )
         }
         composable(MainNavigation.POLISH.route) {
-
+            PolishScreen(
+                navigateUp = {
+                    navController.navigateUp()
+                }
+            )
         }
         composable(MainNavigation.KARNAUGH.route) {
             KarnaughScreen(
@@ -96,7 +105,17 @@ fun MainHostScreen(
             )
         }
         composable(MainNavigation.MATRIX.route) {
-
+            MatrixScreen(
+                navigateUp = {
+                    navController.navigateUp()
+                },
+                navigateCramer = {
+                    //navController.navigate(MainNavigation.NUMBER_SYSTEMS.route)
+                },
+                navigateGauss = {
+                    //navController.navigate(MainNavigation.POLISH.route)
+                },
+            )
         }
         /*composable(
             MainNavigation.KARNAUGH.route,
@@ -108,13 +127,25 @@ fun MainHostScreen(
 
         }*/
         composable(MainNavigation.HELP.route) {
-
+            HelpScreen(
+                navigateUp = {
+                    navController.navigateUp()
+                }
+            )
         }
         composable(MainNavigation.FEEDBACK.route) {
-
+            FeedbackScreen(
+                navigateUp = {
+                    navController.navigateUp()
+                }
+            )
         }
         composable(MainNavigation.SETTINGS.route) {
-
+            SettingsScreen(
+                navigateUp = {
+                    navController.navigateUp()
+                }
+            )
         }
     }
 }

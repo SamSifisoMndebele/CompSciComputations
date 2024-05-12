@@ -1,183 +1,138 @@
 package com.ssmnd.karnaughmap
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
+import android.annotation.SuppressLint
+import android.content.Context
+import android.content.SharedPreferences
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.KeyboardCapitalization
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
-import com.ssmnd.karnaughmap.kMapView.KMap4VariablesImageView
-import com.ssmnd.karnaughmap.keyboard.Keyboard
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.ssmnd.karnaughmap.logic.Karnaugh4Variables
+import com.ssmnd.karnaughmap.utils.binaryToDecimal
 
-@Composable
-fun Karnaugh4() {
+private fun executeKarnaugh(viewModel: Karnaugh4ViewModel, iArr: IntArray, iArr2: IntArray?) {
+    viewModel.setAnswers(Karnaugh4Variables(iArr, iArr2).executeKarnaugh())
+}
+private fun Char.position(): Int{
+    return if (this=='A') 0
+    else if (this=='B') 1
+    else if (this=='C') 2
+    else if (this=='D') 3
+    else -1
+}
 
-    var showKeyboard by rememberSaveable { mutableStateOf(false) }
-    Column(
-        modifier = Modifier
-            .padding(top = 8.dp)
-            .fillMaxSize(),
-    ) {
-        val text = remember { mutableStateOf(TextFieldValue()) }
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-        ) {
-            item {
-                Card(
-                    modifier = Modifier
-                        .padding(8.dp)
-                        .fillMaxWidth()
-                        .wrapContentHeight(),
-                    shape = RoundedCornerShape(24.dp)
-                ) {
-                    AndroidView(
-                        modifier = Modifier
-                            .padding(vertical = 8.dp)
-                            .fillMaxWidth()
-                            .wrapContentHeight(),
-                        factory = {
-                        KMap4VariablesImageView(it)
-                    })
-                    Text(text = "answers Dropdown")
-                    AndroidView(factory = {
-                        MinTermTextView(it)
-                    })
+private fun simplifyExpression(exp : String): IntArray {
+    val list = mutableListOf<String>()
 
-                    /*AndroidView(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 4.dp),
-                        factory = { context ->
-                            AppCompatEditText(context).apply {
-                                isFocusable = true
-                                isFocusableInTouchMode = true
-                                showSoftInputOnFocus = false
-                                onFocusChangeListener = View.OnFocusChangeListener { _, hasFocus -> 
-                                    showKeyboard = hasFocus
-                                }
-                            }
-                        },
-                        update = { view ->
-                            view.setText("ABC + uiState")
-                            //view.setTextColor(textColor)
-                            //view.setSelection(text.length)
-                        }
-                    )*/
-                    val focusRequester = remember { FocusRequester() }
-                    val keyboardController = LocalSoftwareKeyboardController.current
-                    Box {
-                        OutlinedTextField(
-//                            readOnly = true,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 4.dp)
-                                .focusRequester(focusRequester)
-                                .onFocusChanged {
-                                    keyboardController?.hide()
-                                }
-                                /*.focusProperties {
-                                    canFocus = false
-                                }*/,
-                            value = text.value,
-                            onValueChange = {
-                                text.value = it
-                            },
-                            label = {
-                                Text(text = stringResource(id = R.string.simply_boolean_expression))
-                            },
-                            shape = RoundedCornerShape(22.dp),
-                            keyboardOptions = KeyboardOptions(
-                                capitalization = KeyboardCapitalization.Characters,
-                                keyboardType = KeyboardType.Text,
-                                autoCorrect = false
-                            ),
-                            keyboardActions = KeyboardActions(
+    val split = exp.split("+")
+    for (each in split){
+        val product = each.trim()
 
-                            )
-                            //isError = uiState.errors contain FieldType.EMAIL,
-                            //supportingText = uiState.errors getMessage FieldType.EMAIL
-                        )
-                        //Box(modifier = Modifier.fillMaxWidth().fillParentMaxWidth())
-                    }
-
-                    /**/
-
-                    Card(
-                        shape = RoundedCornerShape(20.dp),
-                        modifier = Modifier
-                            .padding(8.dp)
-                            .fillMaxWidth(),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.25f)
-                        )
-                    ) {
-                        /*AndroidView(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .wrapContentHeight(),
-                            factory = { context ->
-                                Karnaugh4Fragment().rootView
-                            }
-                        )*/
-                        Button(onClick = { showKeyboard = true; focusRequester.requestFocus() }) {
-                            Text(text = "Show Keyboard")
-                        }
-                    }
-                }
+        val charArray = charArrayOf('-','-','-','-')
+        for (i in product.indices){
+            if(product[i] == '\''){
+                charArray[product[i-1].position()] = '0'
+            } else {
+                charArray[product[i].position()] = '1'
             }
         }
-        Spacer(modifier = Modifier.weight(1f))
-        AnimatedVisibility(visible = showKeyboard,
-            Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()) {
-            Column(
-                Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()) {
-                Keyboard(textFieldState = text) {
 
+        var arr = arrayOf("0000", "0001", "0010", "0011", "0100", "0101", "0110", "0111", "1000", "1001", "1010", "1011", "1100", "1101", "1110", "1111")
+
+        val bin = charArray.joinToString("")
+        for (j in 0..3){
+            if (bin[j].isDigit()){
+                val temp = mutableListOf<String>()
+                for (elem in arr){
+                    if (bin[j] == elem[j]){
+                        temp.add(elem)
+                    }
                 }
-                IconButton(onClick = { showKeyboard = false }) {
-                    Icon(imageVector = Icons.Default.KeyboardArrowDown, contentDescription = "Close keyboard",
-                        tint = MaterialTheme.colorScheme.primary)
-                }
+                arr = temp.toTypedArray()
             }
+        }
+
+        for (elem in arr.distinct()){
+            list.add(elem)
         }
     }
+
+    val decimal = try {
+        list.distinct().joinToString(" ").binaryToDecimal.trim().split(" ")
+    } catch (e: Exception) {
+        listOf()
+    }
+
+    val listOfMinTerms = mutableListOf<Int>()
+    for (int in decimal){
+        try {
+            listOfMinTerms.add(int.toInt())
+        } catch (e: Exception){}
+    }
+
+    val minTerms = listOfMinTerms.toIntArray()
+    //minTermsDao.insert(MinTerms(minTerms.joinToString(" "), 4))
+
+    return minTerms
+//    binding.kMap.setMinTerms(minTerms, iArr2)
+//    executeKarnaugh(minTerms, iArr2)
 }
+
+@SuppressLint("ClickableViewAccessibility")
+@Composable
+fun Karnaugh4() {
+    val viewModel: Karnaugh4ViewModel = viewModel()
+    val prefs : SharedPreferences = LocalContext.current.getSharedPreferences("KarnaughMaps", Context.MODE_PRIVATE)
+    Karnaugh(
+        viewModel.booleanExp, 4,
+        answers = viewModel.answers,
+        selectedAnswer = viewModel.selectedAnswer
+    )  {
+        Image(
+            modifier = Modifier.fillMaxWidth().wrapContentHeight(),
+            painter = painterResource(id = R.drawable.kmap_4_var_cdab),
+            contentDescription = "4 Var K Map",
+            contentScale = ContentScale.FillWidth
+        )
+       /*AndroidView(
+           modifier = Modifier
+               .padding(vertical = 8.dp)
+               .fillMaxWidth()
+               .focusable(true)
+               .wrapContentHeight(),
+           factory = {
+               val map = KMap4VariablesImageView(it).apply {
+                   adjustViewBounds = true
+               }
+               *//*map.setOnTouchListener {  kMap, motionEvent ->
+                   if (motionEvent.action == 0) {
+                       true
+                   } else if (motionEvent.action != 1) {
+                       false
+                   } else {
+                       val x = motionEvent.x / kMap.width.toDouble()
+                       val y = motionEvent.y / kMap.height.toDouble()
+                       map.checkInversionBtn(x, y)
+                       val findClosestMinTerm = map.findClosestMinterm(x, y)
+                       if (findClosestMinTerm > -1) {
+                           map.setMinterms(findClosestMinTerm)
+
+                           //executeKarnaugh(viewModel, map.minterms, map.dontCares)
+                       }
+                       false
+                   }
+               }*//*
+
+               map
+           }
+       ) {
+
+       }*/
+   }
+}
+

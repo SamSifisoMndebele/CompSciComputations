@@ -55,15 +55,15 @@ class TermImpl(coefficient: Double, variables: Set<Variable>) : Term {
         val exponent = value - n
         return Triple(coefficient, key, exponent)
     }
-    private infix fun partial(base: Char) : PolynomialTerm{
-        val exp = variables[base]!!
-        return PolynomialTerm(coefficient * exp, variables.also { it[base] = exp - 1 })
+    private infix fun partial(base_convert: Char) : PolynomialTerm{
+        val exp = variables[base_convert]!!
+        return PolynomialTerm(coefficient * exp, variables.also { it[base_convert] = exp - 1 })
     }
     override fun derivative(): Expression {
         var derivative : Expression = ExpressionImpl.ZERO
 
-        for (base in variables.keys) {
-            derivative += this partial base
+        for (base_convert in variables.keys) {
+            derivative += this partial base_convert
         }
         return derivative
     }*/
@@ -74,7 +74,7 @@ class TermImpl(coefficient: Double, variables: Set<Variable>) : Term {
         val removed = variables.removeIf {
             removeVar = it
             when(it) {
-                is PVar -> variable == it.base
+                is PVar -> variable == it.base_convert
                 is EVar -> variable == it.exponent
                 else -> false
             }
@@ -88,7 +88,7 @@ class TermImpl(coefficient: Double, variables: Set<Variable>) : Term {
                     val exp = it.exponent
                 }
                 is EVar -> {
-                    val base = it.base
+                    val base_convert = it.base_convert
 
                 }
             }

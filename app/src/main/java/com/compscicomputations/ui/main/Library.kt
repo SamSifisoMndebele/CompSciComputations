@@ -10,6 +10,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -19,16 +20,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.compscicomputations.logic.main.num_systems.bases.BaseError
 import com.compscicomputations.ui.theme.comicNeueFamily
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppBar(
+    modifier: Modifier = Modifier,
     title: String,
     navigateUp: () -> Unit,
     actions: @Composable (RowScope.() -> Unit) = {}
 ) {
-    Card(shape = RoundedCornerShape(24.dp)) {
+    Card(modifier, shape = RoundedCornerShape(24.dp)) {
         CenterAlignedTopAppBar(
             colors = TopAppBarDefaults.topAppBarColors(
                 containerColor = MaterialTheme.colorScheme.secondaryContainer,
@@ -57,5 +60,12 @@ fun AppBar(
             },
             actions = actions
         )
+    }
+}
+
+infix fun BaseError?.errorTextIf(isSelected: Boolean): @Composable (() -> Unit)? {
+    if (!isSelected || this == null) return null
+    return {
+        Text(text = this.message, color = OutlinedTextFieldDefaults.colors().errorLabelColor)
     }
 }

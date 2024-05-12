@@ -616,7 +616,7 @@ public class KMapVariablesImageView extends AppCompatImageView {
                     this.minTermIntegersMapRight.add(intValue);
                 }
             }
-            if (this.minTermIntegersMapLeft.size() > 0) {
+            if (!this.minTermIntegersMapLeft.isEmpty()) {
                 int[] findCorners = findCorners(this.minTermIntegersMapLeft);
                 drawCircleArc(canvas, this.paint, findCorners[0], 1);
                 drawCircleArc(canvas, this.paint, findCorners[1], 2);
@@ -624,7 +624,7 @@ public class KMapVariablesImageView extends AppCompatImageView {
                 drawCircleArc(canvas, this.paint, findCorners[3], 4);
                 drawLines(canvas, this.paint, findCorners);
             }
-            if (this.minTermIntegersMapRight.size() > 0) {
+            if (!this.minTermIntegersMapRight.isEmpty()) {
                 int[] findCorners2 = findCorners(this.minTermIntegersMapRight);
                 drawCircleArc(canvas, this.paint, findCorners2[0], 1);
                 drawCircleArc(canvas, this.paint, findCorners2[1], 2);

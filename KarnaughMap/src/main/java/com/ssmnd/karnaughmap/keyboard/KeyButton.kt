@@ -15,19 +15,22 @@ import androidx.compose.ui.res.painterResource
 fun KeyButton(
     modifier: Modifier = Modifier,
     key: Key = Key.A,
+    enabled: Boolean = true,
     onClick: (key: Key) -> Unit
 ) {
     Button(
         modifier = modifier,
+        enabled = enabled,
         onClick = { onClick(key) },
         contentPadding = PaddingValues(),
         shape = MaterialTheme.shapes.small,
         colors = ButtonDefaults.buttonColors(
             containerColor = Color.Transparent,
-            contentColor = MaterialTheme.colorScheme.primary
+            contentColor = MaterialTheme.colorScheme.primary,
+            disabledContainerColor = Color.Transparent
         )
     ) {
-        Icon(painter = painterResource(id = key.iconId), contentDescription = key.value)
+        Icon(painter = painterResource(id = key.iconId), contentDescription = key.value.toString())
         if (key is Key.Or) { Text(text = "Or") }
         else if (key is Key.Not) { Text(text = "Not") }
     }

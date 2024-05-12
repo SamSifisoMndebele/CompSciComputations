@@ -1,4 +1,4 @@
-package com.ssmnd.karnaughmap
+package com.ssmnd.karnaughmap.ui
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -11,17 +11,18 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.widget.doOnTextChanged
-import com.ssmnd.karnaughmap.databinding.Karnaugh2VariablesBinding
-import com.ssmnd.karnaughmap.logic.Karnaugh2Variables
+import com.ssmnd.karnaughmap.R
+import com.ssmnd.karnaughmap.databinding.Karnaugh4VariablesBinding
+import com.ssmnd.karnaughmap.logic.Karnaugh4Variables
 import com.ssmnd.karnaughmap.utils.binaryToDecimal
 
-class Karnaugh2Fragment : KarnaughFragment() {
+class Karnaugh4Fragment : KarnaughFragment() {
 
-    private lateinit var binding: Karnaugh2VariablesBinding
-    private lateinit var prefs :SharedPreferences
+    private lateinit var binding: Karnaugh4VariablesBinding
+    private lateinit var prefs : SharedPreferences
     
     private fun executeKarnaugh(iArr: IntArray, iArr2: IntArray?) {
-        answers = Karnaugh2Variables(iArr, iArr2).executeKarnaugh()
+        answers = Karnaugh4Variables(iArr, iArr2).executeKarnaugh()
         setAnswersSpinner()
         setAnswerView(0)
     }
@@ -31,7 +32,7 @@ class Karnaugh2Fragment : KarnaughFragment() {
         viewGroup: ViewGroup?,
         bundle: Bundle?
     ): View {
-        binding = Karnaugh2VariablesBinding.inflate(layoutInflater, viewGroup, false)
+        binding = Karnaugh4VariablesBinding.inflate(layoutInflater, viewGroup, false)
         rootView = binding.root
         setHasOptionsMenu(true)
         return binding.root
@@ -40,16 +41,19 @@ class Karnaugh2Fragment : KarnaughFragment() {
     private fun Char.position(): Int{
         return if (this=='A') 0
         else if (this=='B') 1
+        else if (this=='C') 2
+        else if (this=='D') 3
         else -1
     }
+
     private fun simplifyExpression( exp : String) {
         val list = mutableListOf<String>()
 
-        val split = exp.uppercase().split("+")
+        val split = exp.split("+")
         for (each in split){
             val product = each.trim()
 
-            val charArray = charArrayOf('-','-')
+            val charArray = charArrayOf('-','-','-','-')
             for (i in product.indices){
                 if(product[i] == '\''){
                     charArray[product[i-1].position()] = '0'
@@ -58,10 +62,10 @@ class Karnaugh2Fragment : KarnaughFragment() {
                 }
             }
 
-            var arr = arrayOf("00", "01", "10", "11")
+            var arr = arrayOf("0000", "0001", "0010", "0011", "0100", "0101", "0110", "0111", "1000", "1001", "1010", "1011", "1100", "1101", "1110", "1111")
 
             val bin = charArray.joinToString("")
-            for (j in 0..1){
+            for (j in 0..3){
                 if (bin[j].isDigit()){
                     val temp = mutableListOf<String>()
                     for (elem in arr){
@@ -93,7 +97,7 @@ class Karnaugh2Fragment : KarnaughFragment() {
 
         val minTerms = listOfMinTerms.toIntArray()
         val iArr2 = IntArray(0)
-        prefs.edit().putString("min_terms_2var", minTerms.joinToString(" ")).apply()
+        prefs.edit().putString("min_terms_4var", minTerms.joinToString(" ")).apply()
         binding.kMap.setMinTerms(minTerms, iArr2)
         executeKarnaugh(minTerms, iArr2)
     }
@@ -103,7 +107,7 @@ class Karnaugh2Fragment : KarnaughFragment() {
         super.onViewCreated(view, savedInstanceState)
         prefs = requireContext().getSharedPreferences("KarnaughMaps", Context.MODE_PRIVATE)
 
-        val initArrayString = prefs.getString("min_terms_2var", null)
+        val initArrayString = prefs.getString("min_terms_4var", null)
         if (initArrayString != null){
             val initArray = initArrayString.split(" ")
             val list = mutableListOf<Int>()
@@ -120,13 +124,13 @@ class Karnaugh2Fragment : KarnaughFragment() {
 
         /*binding.keyboard.setInputConnection(binding.expressionEditText.onCreateInputConnection(
             EditorInfo()
-        ))*/
-        /*binding.btnHideKeyboard.setOnClickListener {
+        ))
+        binding.btnHideKeyboard.setOnClickListener {
             binding.expressionEditText.clearFocus()
             binding.keyboardLayout.visibility = View.GONE
-        }*/
+        }
         binding.expressionEditText.showSoftInputOnFocus = false
-        /*binding.expressionEditText.setOnFocusChangeListener { _, z ->
+        binding.expressionEditText.setOnFocusChangeListener { _, z ->
             if (z && binding.keyboardLayout.visibility != View.VISIBLE)
                 binding.keyboardLayout.visibility = View.VISIBLE
             else if (!z && binding.keyboardLayout.visibility == View.VISIBLE)
@@ -146,20 +150,23 @@ class Karnaugh2Fragment : KarnaughFragment() {
             }
         }
 
-        binding.kMap.setOnTouchListener { kMap, motionEvent ->
+        binding.kMap.setOnTouchListener {  kMap, motionEvent ->
             if (motionEvent.action == 0) {
                 true
             } else if (motionEvent.action != 1) {
                 false
             } else {
-                val findClosestMinTerm = binding.kMap.findClosestMinterm(
-                    (motionEvent.x / kMap.width.toFloat()).toDouble(),
-                    (motionEvent.y / kMap.height.toFloat()).toDouble()
-                )
+                val x = (motionEvent.x / kMap.width.toFloat()).toDouble()
+                val y = (motionEvent.y / kMap.height.toFloat()).toDouble()
+                binding.kMap.checkInversionBtn(x, y)
+                val findClosestMinTerm = binding.kMap.findClosestMinterm(x, y)
                 if (findClosestMinTerm > -1) {
                     binding.kMap.setMinterms(findClosestMinTerm)
-                    prefs.edit().putString("min_terms_2var", binding.kMap.minterms.joinToString(" ")).apply()
-                    executeKarnaugh(binding.kMap.minterms, binding.kMap.dontCares)
+                    prefs.edit().putString("min_terms_4var", binding.kMap.minterms.joinToString(" ")).apply()
+                    executeKarnaugh(
+                        binding.kMap.minterms,
+                        binding.kMap.dontCares
+                    )
                 }
                 false
             }
@@ -183,7 +190,7 @@ class Karnaugh2Fragment : KarnaughFragment() {
                 binding.kMap.noMinterms,
                 binding.kMap.noMinterms
             )
-            prefs.edit().putString("min_terms_2var", null).apply()
+            prefs.edit().putString("min_terms_4var", null).apply()
             executeKarnaugh(binding.kMap.minterms, binding.kMap.dontCares)
         }
         return super.onOptionsItemSelected(menuItem)

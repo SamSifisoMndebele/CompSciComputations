@@ -1,7 +1,5 @@
 package com.compscicomputations.ui.auth.register
 
-import android.Manifest
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -59,9 +57,6 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat
-import androidx.core.content.FileProvider
-import androidx.core.content.PermissionChecker.PERMISSION_GRANTED
 import androidx.documentfile.provider.DocumentFile
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
@@ -72,7 +67,6 @@ import com.bumptech.glide.integration.compose.CrossFade
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
-import com.compscicomputations.BuildConfig
 import com.compscicomputations.R
 import com.compscicomputations.ui.auth.FieldType
 import com.compscicomputations.ui.auth.UserType
@@ -115,15 +109,15 @@ fun RegisterScreen(
     }
     val context = LocalContext.current
     val file = context.createImageFile()
-    val uri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", file)
-    val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) {
+    //val uri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", file)
+    /*val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) {
         if (!it) return@rememberLauncherForActivityResult
         else onEvent(RegisterUiEvent.OnImageUriChange(uri))
-    }
-    val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
+    }*/
+    /*val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
         if (it) cameraLauncher.launch(uri)
         else Toast.makeText(context, "Permission Denied", Toast.LENGTH_SHORT).show()
-    }
+    }*/
 
     Box(
         modifier = Modifier
@@ -319,10 +313,10 @@ fun RegisterScreen(
                             DropdownMenuItem(
                                 text = { Text(text = "Take a new picture.") },
                                 onClick = {
-                                    val permissionCheckResult = ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
+                                    /*val permissionCheckResult = ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
                                     if (permissionCheckResult == PERMISSION_GRANTED) cameraLauncher.launch(uri)
                                     else permissionLauncher.launch(Manifest.permission.CAMERA)
-                                    imageExpanded = false
+                                    imageExpanded = false*/
                                 }
                             )
                         }

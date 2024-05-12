@@ -41,7 +41,7 @@ fun AuthHostScreen(
 ) {
     NavHost(
         navController = navController,
-        startDestination = AuthNavigation.LOGIN.route //todo change to LOGIN
+        startDestination = AuthNavigation.WELCOME.route //todo change to LOGIN
     ) {
         composable(AuthNavigation.WELCOME.route) {
             WelcomeScreen {

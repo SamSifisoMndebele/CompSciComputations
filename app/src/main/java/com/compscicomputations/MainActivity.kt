@@ -14,8 +14,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.compscicomputations.ui.main.MainHostScreen
 import com.compscicomputations.ui.theme.CompSciComputationsTheme
-import com.google.mlkit.vision.text.TextRecognition
-import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 
 class MainActivity : ComponentActivity() {
 
@@ -25,7 +23,9 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+        //val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+
+        //val text = NumSystemsLib.fromDecimal("64 65").toString()
 
         setContent {
             navController = rememberNavController()
@@ -34,6 +34,9 @@ class MainActivity : ComponentActivity() {
             ) {
                 Surface {
                     MainHostScreen(this, navController)
+                    
+//                    Text(text = text)
+                    
                 }
             }
         }
@@ -41,14 +44,8 @@ class MainActivity : ComponentActivity() {
         onBackPressedMethod()
     }
 
-    /**
-     * A native method that is implemented by the 'compscicomputations' native library,
-     * which is packaged with this application.
-     */
-    external fun stringFromJNI(): String
-
     companion object {
-        // Used to load the 'compscicomputations' library on application startup.
+        // Used to load the 'compscicomputations' c++ library on application startup.
         init {
             System.loadLibrary("compscicomputations")
         }

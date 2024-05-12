@@ -79,7 +79,7 @@ fun WelcomeScreen(
                 .height(80.dp),
             shape = RoundedCornerShape(32.dp)
         ) {
-            Text(text = "Get Started", fontSize = 24.sp, fontFamily = comicNeueFamily)
+            Text(text = "Getting Started", fontSize = 24.sp, fontFamily = comicNeueFamily)
         }
     }
 }
