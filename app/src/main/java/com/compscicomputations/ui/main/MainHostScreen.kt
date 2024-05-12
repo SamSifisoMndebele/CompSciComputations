@@ -38,7 +38,7 @@ fun MainHostScreen(
 ) {
     NavHost(
         navController = navController,
-        startDestination = MainNavigation.NUMBER_SYSTEMS.route //todo change to DASHBOARD
+        startDestination = MainNavigation.DASHBOARD.route //todo change to DASHBOARD
     ) {
         composable(MainNavigation.DASHBOARD.route) {
             val dashboardViewModel: DashboardViewModel = viewModel()

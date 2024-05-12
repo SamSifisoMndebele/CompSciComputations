@@ -1,6 +1,5 @@
-package com.ssmnd.util
+package com.ssmnd.mathslib.utils
 
-import com.ssmnd.utils.toFraction
 import kotlin.math.min
 import kotlin.math.pow
 

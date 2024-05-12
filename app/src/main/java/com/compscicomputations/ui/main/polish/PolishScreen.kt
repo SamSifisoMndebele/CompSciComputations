@@ -24,7 +24,7 @@ fun PolishScreen(
     navigateUp: () -> Unit,
 ) {
     var selectedItem by rememberSaveable { mutableIntStateOf(0) }
-    val items = listOf("Conversion", "Tree Diagram", "Table")
+    val items = listOf("Conversion", "Tree Diagram", "Trace Table")
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -59,6 +59,34 @@ fun PolishScreen(
         val padding = PaddingValues(start = 8.dp, end = 8.dp,
             top = innerPadding.calculateTopPadding(),
             bottom = innerPadding.calculateBottomPadding())
+        val postfixData = listOf(
+            RowData('A', "", "A"),
+            RowData('+', "+", "A"),
+            RowData('(', "+(", "AB"),
+            RowData('B', "+(", "AB"),
+            RowData('-', "+(-", "AB"),
+            RowData('C', "+(-", "ABC"),
+            RowData(')', "+", "ABC-"),
+            RowData('*', "+*", "ABC-"),
+            RowData('A', "+*", "ABC-A"),
+            RowData('-', "-", "ABC-A*+"),
+            RowData('C', "-", "ABC-A*+C"),
+            RowData(' ', "", "ABC-A*+C-"),
+        )
+        val prefixData = listOf(
+            RowData('C', "", "C"),
+            RowData('-', "-", "C"),
+            RowData('A', "-", "AC"),
+            RowData('*', "-*", "AC"),
+            RowData(')', "-*)", "AC"),
+            RowData('C', "-*)", "CAC"),
+            RowData('-', "-*)-", "CAC"),
+            RowData('B', "-*)-", "BCAC"),
+            RowData('(', "-*", "-BCAC"),
+            RowData('+', "-+", "*-BCAC"),
+            RowData('A', "-+", "A*-BCAC"),
+            RowData(' ', "", "-+A*-BCAC"),
+        )
 
         when(selectedItem){
             0 -> {
@@ -67,9 +95,8 @@ fun PolishScreen(
             1 -> {
                 Text(modifier = Modifier.padding(padding), text = "Tree Diagram")
             }
-            2 -> {
-                Text(modifier = Modifier.padding(padding), text = "Table")
-            }
+            2 -> TraceTablesScreen(modifier = Modifier.padding(padding),
+                postfixData = postfixData, prefixData = prefixData)
         }
     }
 }
