@@ -81,7 +81,6 @@ fun MainHostScreen(
                 },
                 navigateSettings = {
                     navController.navigate(MainNavigation.SETTINGS.route)
-                    throw RuntimeException("Test Crash") // Force a crash
                 },
                 navigateAuth = {
                     activity.startActivity(Intent(activity, AuthActivity::class.java))
