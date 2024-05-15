@@ -25,6 +25,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,6 +40,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.bumptech.glide.integration.compose.CrossFade
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
@@ -49,17 +52,28 @@ import com.compscicomputations.ui.theme.comicNeueFamily
 @Composable
 fun DashboardScreen(
     padding: PaddingValues = PaddingValues(start = 8.dp, end = 8.dp, top = 2.dp, bottom = 8.dp),
+    viewModel: DashboardViewModel = hiltViewModel(),
+    navigateAuth: () -> Unit,
     navigateProfile: () -> Unit,
-    navigateNumStystems: () -> Unit,
+    navigateNumSystems: () -> Unit,
     navigatePolish: () -> Unit,
     navigateKarnaugh: () -> Unit,
     navigateMatrix: () -> Unit,
     navigateHelp: () -> Unit,
     navigateFeedback: () -> Unit,
-    navigateSettings: () -> Unit,
-    uiState: DashboardUiState,
-    onEvent: (DashboardUiEvent) -> Unit,
+    navigateSettings: () -> Unit
 ) {
+//    val firebaseUser by viewModel.firebaseUser.collectAsState()
+    val userType by viewModel.userType.collectAsState()
+    val displayName by viewModel.displayName.collectAsState()
+    val email by viewModel.email.collectAsState()
+    val photoUrl by viewModel.photoUrl.collectAsState()
+
+    if (viewModel.userSignedOut.collectAsState().value) {
+        navigateAuth()
+        return
+    }
+
     Column(
         modifier = Modifier.padding(padding),
     ) {
@@ -93,7 +107,9 @@ fun DashboardScreen(
             )
         }
         LazyColumn(
-            modifier = Modifier.fillMaxWidth().fillMaxHeight()
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight()
         ) {
             item {
                 Card(
@@ -109,6 +125,8 @@ fun DashboardScreen(
                             containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.25f)
                         )
                     ) {
+
+
                         Row (
                             modifier = Modifier.padding(end = 8.dp),
                             verticalAlignment = Alignment.CenterVertically
@@ -118,7 +136,7 @@ fun DashboardScreen(
                                     .size(128.dp)
                                     .padding(10.dp)
                                     .clip(CircleShape),
-                                model = uiState.imageUri,
+                                model = photoUrl,
                                 contentScale = ContentScale.FillBounds,
                                 loading = placeholder(R.drawable.img_profile),
                                 failure = placeholder(R.drawable.img_profile),
@@ -129,9 +147,12 @@ fun DashboardScreen(
                                 Modifier
                                     .padding(end = 4.dp, start = 6.dp)
                                     .weight(1f)) {
-                                Text(text = uiState.names +" "+uiState.lastname, fontSize = 18.sp,
+                                Text(text = userType.name, fontSize = 18.sp,
+                                    color = MaterialTheme.colorScheme.primary,
                                     fontWeight = FontWeight.Bold, fontFamily = comicNeueFamily,)
-                                Text(text = uiState.email, fontSize = 13.sp)
+                                Text(text = displayName, fontSize = 18.sp,
+                                    fontWeight = FontWeight.Bold, fontFamily = comicNeueFamily,)
+                                Text(text = email, fontSize = 13.sp)
                             }
                         }
                     }
@@ -140,7 +161,7 @@ fun DashboardScreen(
                         padding = optionPadding,
                         painter = painterResource(id = R.drawable.ic_number_64),
                         text = "Number Systems",
-                        onClick = navigateNumStystems
+                        onClick = navigateNumSystems
                     )
                     DashboardOption(
                         padding = optionPadding,
@@ -208,6 +229,7 @@ fun DashboardScreen(
             }
         }
     }
+
 }
 
 @Composable

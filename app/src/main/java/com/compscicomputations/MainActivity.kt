@@ -1,5 +1,6 @@
 package com.compscicomputations
 
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -14,7 +15,11 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.compscicomputations.ui.main.MainHostScreen
 import com.compscicomputations.ui.theme.CompSciComputationsTheme
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     private var exit = false
@@ -22,10 +27,11 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        if (Firebase.auth.currentUser==null) {
+            startActivity(Intent(this, AuthActivity::class.java))
+            finishAffinity()
+        }
         //val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
-
-        //val text = NumSystemsLib.fromDecimal("64 65").toString()
 
         setContent {
             navController = rememberNavController()
@@ -42,13 +48,6 @@ class MainActivity : ComponentActivity() {
         }
 
         onBackPressedMethod()
-    }
-
-    companion object {
-        // Used to load the 'compscicomputations' c++ library on application startup.
-        init {
-            System.loadLibrary("compscicomputations")
-        }
     }
 
     private fun onBackPressedMethod() {

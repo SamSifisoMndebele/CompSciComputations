@@ -3,8 +3,11 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    alias(libs.plugins.jetbrains.kotlin.plugin.serialization)
     alias(libs.plugins.google.gms.google.services)
-    kotlin("plugin.serialization") version libs.versions.kotlin
+    id("com.google.firebase.crashlytics")
+    alias(libs.plugins.google.dagger.hilt.android)
+    id("kotlin-kapt")
 }
 
 android {
@@ -23,26 +26,25 @@ android {
             useSupportLibrary = true
         }
 
+        val properties = Properties()
+        properties.load(project.rootProject.file("local.properties").inputStream())
+
+        buildConfigField("String", "SUPABASE_URL", "\"${properties.getProperty("supabase_url")}\"")
+        buildConfigField("String", "SUPABASE_KEY", "\"${properties.getProperty("supabase_key")}\"")
+        buildConfigField("String", "WEB_CLIENT_ID", "\"${properties.getProperty("web_google_client_id")}\"")
     }
 
     buildTypes {
-        val properties = Properties()
         release {
-            properties.load(project.rootProject.file("local.properties").inputStream())
-
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            buildConfigField("String",
-                "SUPABASE_KEY", "\"${properties.getProperty("supabase_key")}\"")
         }
         debug {
             isMinifyEnabled = false
-            buildConfigField("String",
-                "SUPABASE_KEY", "\"${properties.getProperty("supabase_key")}\"")
         }
     }
     compileOptions {
@@ -52,15 +54,8 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
-    externalNativeBuild {
-        cmake {
-            path = file("src/main/cpp/CMakeLists.txt")
-            version = "3.22.1"
-        }
-    }
     buildFeatures {
         buildConfig = true
-        viewBinding = true
         compose = true
     }
     composeOptions {
@@ -74,29 +69,41 @@ android {
 }
 
 dependencies {
+
+    implementation(libs.hilt.android)
+    kapt(libs.hilt.android.compiler)
+    implementation(libs.androidx.hilt.navigation.compose)
+
+    //Machine Learning
     //implementation (libs.tensorflow.lite.task.vision.play.services)
     //implementation (libs.play.services.tflite.gpu)
-    implementation(libs.text.recognition)
     //implementation("com.google.android.gms:play-services-mlkit-text-recognition:19.0.0")
+    implementation(libs.text.recognition)
 
+    //Firebase DB
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics.ktx)
+    implementation(libs.firebase.crashlytics.ktx)
+    implementation(libs.firebase.auth.ktx)
+    implementation(libs.firebase.storage.ktx)
+    implementation(libs.firebase.firestore.ktx)
 
+    //Supabase DB
     implementation(platform(libs.supabase.bom))
-    implementation(libs.supabase.compose.auth)
     implementation(libs.supabase.storage.kt)
-    implementation(libs.supabase.gotrue.kt)
+//    implementation(libs.supabase.gotrue.kt)
     implementation(libs.supabase.postgrest.kt)
     implementation(libs.supabase.realtime.kt)
+
+    //Local SQLite DB
+    implementation (libs.androidx.room.runtime)
+    annotationProcessor (libs.androidx.room.compiler)
+    testImplementation (libs.androidx.room.testing)
 
     implementation(libs.ktor.client.android)
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services.auth)
     implementation(libs.googleid)
-
-//    implementation ("androidx.room:room-runtime:2.6.1")
-//    annotationProcessor ("androidx.room:room-compiler:2.6.1")
-//    testImplementation ("androidx.room:room-testing:2.6.1")
 
     implementation(libs.glide.compose)
     implementation(libs.coil.compose)
@@ -108,7 +115,7 @@ dependencies {
 
     implementation(libs.gson)
     implementation(libs.androidx.core.ktx)
-//    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
@@ -129,4 +136,9 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+}
+
+// Allow references to generated code
+kapt {
+    correctErrorTypes = true
 }

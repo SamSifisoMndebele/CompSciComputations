@@ -1,15 +1,13 @@
 package com.compscicomputations.ui.main
 
+import android.content.Intent
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.compscicomputations.AuthActivity
 import com.compscicomputations.MainActivity
 import com.compscicomputations.ui.main.dashboard.DashboardScreen
-import com.compscicomputations.ui.main.dashboard.DashboardViewModel
 import com.compscicomputations.ui.main.feedback.FeedbackScreen
 import com.compscicomputations.ui.main.help.HelpScreen
 import com.compscicomputations.ui.main.karnaugh.KarnaughScreen
@@ -36,24 +34,38 @@ fun MainHostScreen(
     activity: MainActivity,
     navController: NavHostController
 ) {
+//    val userInfo = SupabaseModule.provideSupabaseClient().auth.currentSessionOrNull()?.user
+    /*var userInfo by remember {
+        mutableStateOf<UserInfo?>(null)
+    }
+    val coroutineScope = rememberCoroutineScope()
+    LaunchedEffect(Unit) {
+        coroutineScope.launch {
+            try {
+                userInfo = SupabaseObject.supabase.auth.currentSessionOrNull()?.user
+            } catch (e: Exception) {
+                activity.startActivity(Intent(activity, AuthActivity::class.java))
+                activity.finishAffinity()
+            }
+        }
+    }*/
+
+
+
     NavHost(
         navController = navController,
         startDestination = MainNavigation.DASHBOARD.route //todo change to DASHBOARD
     ) {
         composable(MainNavigation.DASHBOARD.route) {
-            val dashboardViewModel: DashboardViewModel = viewModel()
-            val dashboardUiState by dashboardViewModel.uiState.collectAsStateWithLifecycle()
             DashboardScreen(
-                uiState = dashboardUiState,
                 navigateProfile = {
                     navController.navigate(MainNavigation.PROFILE.route)
                 },
-                navigateNumStystems = {
+                navigateNumSystems = {
                     navController.navigate(MainNavigation.NUMBER_SYSTEMS.route)
                 },
                 navigatePolish = {
                     navController.navigate(MainNavigation.POLISH.route)
-
                 },
                 navigateKarnaugh = {
                     navController.navigate(MainNavigation.KARNAUGH.route)
@@ -69,19 +81,24 @@ fun MainHostScreen(
                 },
                 navigateSettings = {
                     navController.navigate(MainNavigation.SETTINGS.route)
+                    throw RuntimeException("Test Crash") // Force a crash
+                },
+                navigateAuth = {
+                    activity.startActivity(Intent(activity, AuthActivity::class.java))
+                    activity.finishAffinity()
                 }
-            ) {
-                dashboardViewModel.onEvent(it)
-            }
+            )
         }
         composable(MainNavigation.PROFILE.route) {
             ProfileScreen(
                 navigateUp = {
                     navController.navigateUp()
+                },
+                navigateAuth = {
+                    activity.startActivity(Intent(activity, AuthActivity::class.java))
+                    activity.finishAffinity()
                 }
-            ) {
-
-            }
+            )
         }
         composable(MainNavigation.NUMBER_SYSTEMS.route) {
             NumSystemsScreen(

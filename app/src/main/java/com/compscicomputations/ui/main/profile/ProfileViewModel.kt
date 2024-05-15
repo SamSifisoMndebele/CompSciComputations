@@ -1,4 +1,4 @@
-package com.compscicomputations.ui.main.dashboard
+package com.compscicomputations.ui.main.profile
 
 import android.net.Uri
 import androidx.lifecycle.ViewModel
@@ -11,13 +11,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 @HiltViewModel
-class DashboardViewModel @Inject constructor(
+class ProfileViewModel @Inject constructor(
     val auth: FirebaseAuth,
     private val userRepository: UserRepository
 ) : ViewModel() {
-
-//    private val _firebaseUser = MutableStateFlow<FirebaseUser?>(null)
-//    private val firebaseUser = _firebaseUser.asStateFlow()
     private val _userSignedOut = MutableStateFlow(false)
     val userSignedOut = _userSignedOut.asStateFlow()
 
@@ -34,13 +31,17 @@ class DashboardViewModel @Inject constructor(
     init {
         val currentUser = auth.currentUser
         _userSignedOut.value = currentUser == null
-        auth.addAuthStateListener {
-            _userSignedOut.value = it.currentUser == null
-        }
         if (currentUser != null) {
+//          currentUser?.metadata[""]?.also { _userType.value = it }
             _email.value = currentUser.email!!
             currentUser.displayName?.also { _displayName.value = it }
             currentUser.photoUrl?.also { _photoUrl.value = it }
         }
     }
+
+    fun signOut() {
+        auth.signOut()
+        _userSignedOut.value = true
+    }
+
 }

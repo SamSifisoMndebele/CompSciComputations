@@ -12,7 +12,12 @@
           "package_name": "com.compscicomputations"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "664742874802-n43kqqd3fbap710oi7627r35qvom6uho.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBPqb13Lq-2ZtwXFNKAhjBkhEr5brGvmlc"
@@ -20,7 +25,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "664742874802-n43kqqd3fbap710oi7627r35qvom6uho.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

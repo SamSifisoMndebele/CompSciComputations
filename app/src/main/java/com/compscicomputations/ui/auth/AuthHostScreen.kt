@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -15,9 +16,7 @@ import androidx.navigation.navArgument
 import com.compscicomputations.AuthActivity
 import com.compscicomputations.MainActivity
 import com.compscicomputations.ui.auth.login.LoginScreen
-import com.compscicomputations.ui.auth.login.LoginViewModel
 import com.compscicomputations.ui.auth.register.RegisterScreen
-import com.compscicomputations.ui.auth.register.RegisterUiEvent
 import com.compscicomputations.ui.auth.register.RegisterViewModel
 import com.compscicomputations.ui.auth.register.TermsScreen
 import com.compscicomputations.ui.auth.reset.PasswordResetScreen
@@ -39,9 +38,16 @@ fun AuthHostScreen(
     activity: AuthActivity,
     navController : NavHostController = rememberNavController()
 ) {
+    /*val supabase = createSupabaseClient(
+        supabaseUrl = "https://qgidphztnqzgabsvvxmf.supabase.co",
+        supabaseKey = BuildConfig.SUPABASE_KEY
+    ) {
+        install(Auth)
+    }*/
+
     NavHost(
         navController = navController,
-        startDestination = AuthNavigation.WELCOME.route //todo change to LOGIN
+        startDestination = AuthNavigation.LOGIN.route //todo change to LOGIN
     ) {
         composable(AuthNavigation.WELCOME.route) {
             WelcomeScreen {
@@ -49,14 +55,10 @@ fun AuthHostScreen(
             }
         }
         composable(AuthNavigation.LOGIN.route) {
-            val loginViewModel: LoginViewModel = viewModel()
-            val loginUiState by loginViewModel.uiState.collectAsStateWithLifecycle()
             LoginScreen(
-                uiState = loginUiState,
-                onEvent = { loginViewModel.onEvent(it) },
                 navigateRegister = { navController.navigate(AuthNavigation.REGISTER.route) },
-                navigateResetPassword = {
-                    val bundle = Bundle().apply { putString("email", loginUiState.email.ifBlank { null }) }
+                navigateResetPassword = { email ->
+                    val bundle = Bundle().apply { putString("email", email) }
                     navController.navigate(route = AuthNavigation.PASSWORD_RESET.route, args = bundle)
                 },
                 navigateMain = {
@@ -66,16 +68,14 @@ fun AuthHostScreen(
             )
         }
         composable(AuthNavigation.REGISTER.route) {
-            val registerViewModel: RegisterViewModel = viewModel()
-            val registerUiState by registerViewModel.uiState.collectAsStateWithLifecycle()
+            val viewModel: RegisterViewModel = hiltViewModel()
             val accepted = navController.currentBackStackEntry?.savedStateHandle?.get<Boolean>("accepted")
             if (accepted != null) {
-                registerViewModel.onEvent(RegisterUiEvent.OnTermsAcceptChange(accepted))
+                viewModel.setTermsAccepted(accepted)
                 navController.currentBackStackEntry!!.savedStateHandle["accepted"] = null
             }
             RegisterScreen(
-                uiState = registerUiState,
-                onEvent = { registerViewModel.onEvent(it) },
+                viewModel = viewModel,
                 navigateUp = { navController.navigateUp() },
                 navigateTerms = { navController.navigate(AuthNavigation.TERMS.route) }
             )

@@ -41,9 +41,8 @@ fun KarnaughScreen(
     padding: PaddingValues = PaddingValues(start = 8.dp, end = 8.dp, top = 2.dp),
     navigateUp: () -> Unit,
 ) {
-    var numVariables by rememberSaveable {
-        mutableStateOf(NumVariables.FOUR)
-    }
+    var numVariables by rememberSaveable { mutableStateOf(NumVariables.FOUR) }
+
     Column(
         modifier = Modifier.padding(padding),
     ) {

@@ -92,14 +92,14 @@ class DoubleMatrix : Matrix<Double> {
             DoubleMatrix(result)
         }
 //        assert(rows == matrix.rows && cols == matrix.cols)
-        val result = this.entries.zip(matrix.entries) { A, B ->
-            A.zip(B) {a, b -> a + b}.toTypedArray()
-        }.toTypedArray()
+//        val result = this.entries.zip(matrix.entries) { A, B ->
+//            A.zip(B) {a, b -> a + b}.toTypedArray()
+//        }.toTypedArray()
 
 //        for (r in 0 until rows)
 //            for (c in 0 until cols)
 //                result[r][c] = entries[r][c] + matrix.entries[r][c]
-        return DoubleMatrix(result)
+//        return DoubleMatrix(result)
     }
 
     override fun combine(matrix: Matrix<Double>): Matrix<Double> {

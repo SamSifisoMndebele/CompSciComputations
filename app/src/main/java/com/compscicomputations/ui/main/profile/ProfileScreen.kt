@@ -1,35 +1,31 @@
 package com.compscicomputations.ui.main.profile
 
-import android.Manifest
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.Help
+import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,18 +37,17 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
-import androidx.core.content.PermissionChecker.PERMISSION_GRANTED
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.bumptech.glide.integration.compose.CrossFade
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
 import com.compscicomputations.BuildConfig
 import com.compscicomputations.R
-import com.compscicomputations.ui.auth.register.RegisterUiEvent
 import com.compscicomputations.ui.main.AppBar
 import com.compscicomputations.ui.main.dashboard.DashboardOption
+import com.compscicomputations.ui.theme.comicNeueFamily
 import com.compscicomputations.utils.createImageFile
 
 @OptIn(ExperimentalGlideComposeApi::class, ExperimentalMaterial3Api::class,
@@ -61,23 +56,49 @@ import com.compscicomputations.utils.createImageFile
 @Composable
 fun ProfileScreen(
     padding: PaddingValues = PaddingValues(start = 8.dp, end = 8.dp, top = 2.dp, bottom = 8.dp),
+    viewModel: ProfileViewModel = hiltViewModel(),
     navigateUp: () -> Unit,
-    onEvent: (RegisterUiEvent) -> Unit,
+    navigateAuth: () -> Unit
 ) {
     val photoPickerLauncher = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         if (uri == null) return@rememberLauncherForActivityResult
-        onEvent(RegisterUiEvent.OnImageUriChange(uri))
+//        onEvent(RegisterUiEvent.OnImageUriChange(uri))
     }
     val context = LocalContext.current
     val file = context.createImageFile()
     val uri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", file)
     val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) {
         if (!it) return@rememberLauncherForActivityResult
-        else onEvent(RegisterUiEvent.OnImageUriChange(uri))
+//        else onEvent(RegisterUiEvent.OnImageUriChange(uri))
     }
     val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
         if (it) cameraLauncher.launch(uri)
         else Toast.makeText(context, "Permission Denied", Toast.LENGTH_SHORT).show()
+    }
+
+    val userType by viewModel.userType.collectAsState()
+    val displayName by viewModel.displayName.collectAsState()
+    val email by viewModel.email.collectAsState()
+    val photoUrl by viewModel.photoUrl.collectAsState()
+
+    var logoutAlertDialog by remember { mutableStateOf(false) }
+    if (logoutAlertDialog) {
+        AlertDialog(
+            icon = { Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = "Alert Icon") },
+            title = { Text(text = "LOGOUT", fontFamily = comicNeueFamily) },
+            text = { Text(text = "Do you want to logout?", fontFamily = comicNeueFamily) },
+            onDismissRequest = { logoutAlertDialog = false },
+            confirmButton = {
+                TextButton(onClick = { viewModel.signOut(); logoutAlertDialog = false; navigateAuth() }) {
+                    Text("Logout", fontFamily = comicNeueFamily)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { logoutAlertDialog = false }) {
+                    Text("Dismiss", fontFamily = comicNeueFamily)
+                }
+            }
+        )
     }
 
     Column(
@@ -109,22 +130,22 @@ fun ProfileScreen(
                         )
                     ) {
                         Row (
-                            modifier = Modifier.padding(end = 8.dp),
+                            modifier = Modifier.padding(end = 8.dp).fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             GlideImage(
                                 modifier = Modifier
-                                    .size(400.dp)
-                                    .padding(10.dp)
-                                    .clip(RoundedCornerShape(24.dp)),
-                                model = "uiState.imageUri",
+                                    .size(180.dp)
+                                    .padding(8.dp)
+                                    .clip(RoundedCornerShape(16.dp)),
+                                model = photoUrl,
                                 contentScale = ContentScale.FillBounds,
                                 loading = placeholder(R.drawable.img_profile),
                                 failure = placeholder(R.drawable.img_profile),
                                 transition = CrossFade,
                                 contentDescription = "Profile"
                             )
-                            var imageExpanded by remember { mutableStateOf(false) }
+                            /*var imageExpanded by remember { mutableStateOf(false) }
                             ExposedDropdownMenuBox(
                                 expanded = imageExpanded,
                                 onExpandedChange = { imageExpanded = !imageExpanded }
@@ -162,7 +183,7 @@ fun ProfileScreen(
                                     }
                                 }
 
-                            }
+                            }*/
                             /*TextButton(
                                 onClick = {},
                                 modifier = Modifier
@@ -177,32 +198,35 @@ fun ProfileScreen(
                     DashboardOption(
                         padding = optionPadding,
                         painter = painterResource(id = R.drawable.ic_number_64),
-                        text = "Number Systems",
+                        text = displayName,
                         onClick = {  }
                     )
                     DashboardOption(
                         padding = optionPadding,
                         painter = painterResource(id = R.drawable.ic_abc),
-                        text = "Polish Expressions",
+                        text = email,
                         onClick = {  }
                     )
                     DashboardOption(
                         padding = optionPadding,
                         painter = painterResource(id = R.drawable.ic_grid),
-                        text = "Karnaugh Maps",
+                        text = userType.name,
                         onClick = {  }
                     )
 
                 }
             }
-            item { Spacer(modifier = Modifier.height(8.dp)) }
             item {
                 DashboardOption(
-                    iconVector = Icons.AutoMirrored.Outlined.Help,
-                    text = "Help",
-                    onClick = {  }
+                    padding = PaddingValues(vertical = 8.dp),
+                    iconVector = Icons.AutoMirrored.Filled.Logout,
+                    text = "Logout",
+                    onClick = { logoutAlertDialog = true }
                 )
             }
         }
     }
+
+
+
 }

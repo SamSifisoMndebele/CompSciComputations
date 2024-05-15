@@ -1,5 +1,6 @@
 package com.compscicomputations.ui.auth.login
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,15 +20,21 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
@@ -35,15 +42,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.compscicomputations.R
-import com.compscicomputations.ui.auth.FieldType
-import com.compscicomputations.ui.auth.contain
-import com.compscicomputations.ui.auth.getMessage
+import com.compscicomputations.ui.LoadingDialog
+import com.compscicomputations.ui.auth.isError
+import com.compscicomputations.ui.auth.showMessage
 import com.compscicomputations.ui.theme.comicNeueFamily
 import com.compscicomputations.ui.theme.hintEmail
 import com.compscicomputations.ui.theme.hintPassword
@@ -51,11 +59,10 @@ import com.compscicomputations.ui.theme.hintPassword
 @Composable
 fun LoginScreen(
     padding: PaddingValues = PaddingValues(8.dp),
-    uiState: LoginUiState,
-    onEvent: (LoginUiEvent) -> Unit,
-    navigateRegister: () -> Unit = {},
-    navigateResetPassword: () -> Unit = {},
-    navigateMain: () -> Unit = {}
+    viewModel: LoginViewModel = hiltViewModel(),
+    navigateRegister: () -> Unit,
+    navigateResetPassword: (email: String?) -> Unit,
+    navigateMain: () -> Unit
 ) {
     val preloaderLottieComposition by rememberLottieComposition(
         LottieCompositionSpec.RawRes(
@@ -68,130 +75,168 @@ fun LoginScreen(
         isPlaying = true
     )
 
-    Column(
-        Modifier.padding(padding).fillMaxSize()
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Image(
-                painter = painterResource(id = R.drawable.img_logo_name),
-                contentDescription = stringResource(id = R.string.app_name),
-                contentScale = ContentScale.FillWidth,
-                modifier = Modifier
-                    .width(128.dp)
-                    .padding(start = 8.dp),
-            )
-            Spacer(modifier = Modifier.weight(1f))
-            IconButton(onClick = { /*TODO*/ }) {
-                Icon(imageVector = Icons.Default.MoreVert, contentDescription = "Menu")
-            }
+    val userSignedIn by viewModel.userSignedIn.collectAsState()
+    val name by viewModel.name.collectAsState()
+    val context =  LocalContext.current
+    LaunchedEffect(userSignedIn) {
+        if (userSignedIn) {
+            navigateMain()
+            Toast.makeText(context, if (name != null) "$name, signed in successfully!"
+                else "Signed in successfully!", Toast.LENGTH_SHORT).show()
         }
-        Text(
-            text = "Login",
-            fontFamily = comicNeueFamily,
-            fontWeight = FontWeight.Bold,
-            fontStyle = FontStyle.Italic,
-            fontSize = 52.sp,
-            modifier = Modifier.padding(start = 8.dp, top=8.dp)
-        )
+    }
+    val showProgress by viewModel.showProgress.collectAsState()
 
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight(),
-            contentAlignment = Alignment.BottomStart
+    Box(
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            Modifier
+                .padding(padding)
+                .fillMaxSize()
         ) {
-            LottieAnimation(
-                composition = preloaderLottieComposition,
-                progress = preloaderProgress,
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Image(
+                    painter = painterResource(id = R.drawable.img_logo_name),
+                    contentDescription = stringResource(id = R.string.app_name),
+                    contentScale = ContentScale.FillWidth,
+                    modifier = Modifier
+                        .width(128.dp)
+                        .padding(start = 8.dp),
+                )
+                Spacer(modifier = Modifier.weight(1f))
+                IconButton(onClick = { /*TODO*/ }) {
+                    Icon(imageVector = Icons.Default.MoreVert, contentDescription = "Menu")
+                }
+            }
+            Text(
+                text = "Login",
+                fontFamily = comicNeueFamily,
+                fontWeight = FontWeight.Bold,
+                fontStyle = FontStyle.Italic,
+                fontSize = 52.sp,
+                modifier = Modifier.padding(start = 8.dp, top=8.dp)
+            )
+
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(260.dp),
-                contentScale = ContentScale.FillWidth
-            )
-            Text(
-                text = "Login into your account using your email.",
-                Modifier.fillMaxWidth().padding(horizontal = 8.dp),
-            )
-        }
-
-        OutlinedTextField(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 4.dp),
-            value = uiState.email,
-            onValueChange = { onEvent(LoginUiEvent.OnEmailChange(it)) },
-            label = {
-                Text(text = hintEmail)
-            },
-            shape = RoundedCornerShape(22.dp),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-            isError = uiState.errors contain FieldType.EMAIL,
-            supportingText = uiState.errors getMessage FieldType.EMAIL
-        )
-        OutlinedTextField(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 4.dp),
-            value = uiState.password,
-            onValueChange = { onEvent(LoginUiEvent.OnPasswordChange(it)) },
-            label = {
-                Text(text = hintPassword)
-            },
-            shape = RoundedCornerShape(22.dp),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            isError = uiState.errors contain FieldType.PASSWORD,
-            supportingText = uiState.errors getMessage FieldType.PASSWORD
-        )
-
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .padding(top = .25.dp, bottom = 8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            TextButton(onClick = { navigateResetPassword() }) {
-                Text(text = "Forgot Password", fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp, fontFamily = comicNeueFamily)
-            }
-            Spacer(modifier = Modifier.weight(1f))
-            TextButton(onClick = { navigateRegister() }) {
-                Text(text = "Register", fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp, fontFamily = comicNeueFamily)
-            }
-        }
-
-        Button(
-            onClick = navigateMain,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(68.dp)
-                .padding(bottom = 8.dp),
-            shape = RoundedCornerShape(24.dp),
-            contentPadding = PaddingValues(vertical = 18.dp)
-        ) {
-            Text(text = "LOGIN", fontWeight = FontWeight.Bold, fontSize = 22.sp,
-                fontFamily = comicNeueFamily)
-        }
-
-        OutlinedButton(onClick = navigateMain,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(68.dp)
-                .padding(bottom = 8.dp),
-            shape = RoundedCornerShape(24.dp),
-            contentPadding = PaddingValues(vertical = 18.dp)
+                    .wrapContentHeight(),
+                contentAlignment = Alignment.BottomStart
             ) {
-            Text(text = "Continue with Google", fontWeight = FontWeight.Bold, fontSize = 22.sp,
-                fontFamily = comicNeueFamily)
+                LottieAnimation(
+                    composition = preloaderLottieComposition,
+                    progress = preloaderProgress,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(260.dp),
+                    contentScale = ContentScale.FillWidth
+                )
+                Text(
+                    text = "Login into your account using your email.",
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp),
+                )
+            }
+
+            val email by viewModel.email.collectAsState()
+            val password by viewModel.password.collectAsState()
+
+            OutlinedTextField(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp),
+                value = email,
+                onValueChange = { viewModel.onEmailChange(it) },
+                label = {
+                    Text(text = hintEmail)
+                },
+                shape = RoundedCornerShape(22.dp),
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                isError = viewModel.emailError.isError,
+                supportingText = viewModel.emailError.showMessage()
+            )
+            OutlinedTextField(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp),
+                value = password,
+                onValueChange = { viewModel.onPasswordChange(it) },
+                label = {
+                    Text(text = hintPassword)
+                },
+                singleLine = true,
+                shape = RoundedCornerShape(22.dp),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                isError = viewModel.passwordError.isError,
+                supportingText = viewModel.passwordError.showMessage()
+            )
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(top = .25.dp, bottom = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                TextButton(onClick = { navigateResetPassword(viewModel.email.value.ifBlank { null }) }) {
+                    Text(text = "Forgot Password", fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp, fontFamily = comicNeueFamily)
+                }
+                Spacer(modifier = Modifier.weight(1f))
+                TextButton(onClick = { navigateRegister() }) {
+                    Text(text = "Register", fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp, fontFamily = comicNeueFamily)
+                }
+            }
+
+            /*AnimatedVisibility(visible = viewModel.error.isError) {
+                viewModel.error?.let { Text(text = it, Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp),
+                    color = OutlinedTextFieldDefaults.colors().errorLabelColor,
+                    textAlign = TextAlign.Center,
+                    fontSize = 18.sp) }
+            }*/
+
+            SnackbarHost(hostState = viewModel.snackBarHostState,
+                modifier = Modifier
+                    .fillMaxWidth()) {
+                Snackbar(
+                    snackbarData = it,
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                )
+            }
+
+            Button(
+                enabled = email.isNotBlank() && password.isNotBlank(),
+                onClick = { viewModel.onSignIn() },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(68.dp)
+                    .padding(bottom = 8.dp),
+                shape = RoundedCornerShape(24.dp),
+                contentPadding = PaddingValues(vertical = 18.dp)
+            ) {
+                Text(text = "LOGIN", fontWeight = FontWeight.Bold, fontSize = 22.sp,
+                    fontFamily = comicNeueFamily)
+            }
+
+            OutlinedButton(onClick = { viewModel.continueWithGoogle(context) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(68.dp)
+                    .padding(bottom = 8.dp),
+                shape = RoundedCornerShape(24.dp),
+                contentPadding = PaddingValues(vertical = 18.dp)
+            ) {
+                Text(text = "Continue with Google", fontWeight = FontWeight.Bold, fontSize = 22.sp,
+                    fontFamily = comicNeueFamily)
+            }
+
         }
 
-
-        /*val context = LocalContext.current
-        LaunchedEffect(key1 = uiState.errorMessage) {
-            if (uiState.errorMessage != null) {
-                Toast.makeText(context, uiState.errorMessage, Toast.LENGTH_SHORT).show()
-                onEvent(UiEvent.ClearError)
-            }
-        }*/
+        LoadingDialog(show = showProgress, message = "Signing...")
     }
 }

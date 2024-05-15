@@ -1,5 +1,7 @@
 package com.compscicomputations.ui.auth.register
 
+import android.Manifest
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -33,14 +35,17 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -54,10 +59,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.documentfile.provider.DocumentFile
+import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
+import androidx.core.content.PermissionChecker.PERMISSION_GRANTED
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
@@ -67,11 +73,9 @@ import com.bumptech.glide.integration.compose.CrossFade
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
+import com.compscicomputations.BuildConfig
 import com.compscicomputations.R
-import com.compscicomputations.ui.auth.FieldType
 import com.compscicomputations.ui.auth.UserType
-import com.compscicomputations.ui.auth.contain
-import com.compscicomputations.ui.auth.getMessage
 import com.compscicomputations.ui.theme.comicNeueFamily
 import com.compscicomputations.ui.theme.hintAdminCode
 import com.compscicomputations.ui.theme.hintEmail
@@ -82,16 +86,16 @@ import com.compscicomputations.ui.theme.hintPasswordConfirm
 import com.compscicomputations.ui.theme.hintUserImage
 import com.compscicomputations.ui.theme.hintUserType
 import com.compscicomputations.utils.createImageFile
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
 @Composable
 fun RegisterScreen(
     padding: PaddingValues = PaddingValues(8.dp),
     contentPadding: PaddingValues = PaddingValues(),
-    uiState: RegisterUiState,
-    onEvent: (RegisterUiEvent) -> Unit,
-    navigateUp: () -> Unit = {},
-    navigateTerms: () -> Unit = {}
+    viewModel: RegisterViewModel,
+    navigateUp: () -> Unit,
+    navigateTerms: () -> Unit
 ) {
     val preloaderLottieComposition by rememberLottieComposition(
         LottieCompositionSpec.RawRes(
@@ -105,19 +109,21 @@ fun RegisterScreen(
     )
     val photoPickerLauncher = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         if (uri == null) return@rememberLauncherForActivityResult
-        onEvent(RegisterUiEvent.OnImageUriChange(uri))
+//        onEvent(RegisterUiEvent.OnImageUriChange(uri))
     }
     val context = LocalContext.current
     val file = context.createImageFile()
-    //val uri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", file)
-    /*val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) {
+    val uri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", file)
+    val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) {
         if (!it) return@rememberLauncherForActivityResult
-        else onEvent(RegisterUiEvent.OnImageUriChange(uri))
-    }*/
-    /*val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
+//        else onEvent(RegisterUiEvent.OnImageUriChange(uri))
+    }
+    val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
         if (it) cameraLauncher.launch(uri)
         else Toast.makeText(context, "Permission Denied", Toast.LENGTH_SHORT).show()
-    }*/
+    }
+    val coroutineScope = rememberCoroutineScope()
+    val snackBarHostState = remember { SnackbarHostState() }
 
     Box(
         modifier = Modifier
@@ -165,6 +171,9 @@ fun RegisterScreen(
                 modifier = Modifier.padding(start = 8.dp)
             )
 
+//            val email = viewModel.email.collectAsState(initial = "")
+//            val password = viewModel.password.collectAsState()
+
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
@@ -184,7 +193,7 @@ fun RegisterScreen(
                                 .clickable { userTypesExpanded = !userTypesExpanded }
                                 .focusable(false)
                                 .padding(vertical = 4.dp),
-                            value = uiState.userType.name,
+                            value = "uiState.userType.name",
                             onValueChange = {},
                             label = {
                                 Text(text = hintUserType)
@@ -192,8 +201,8 @@ fun RegisterScreen(
                             readOnly = true,
                             shape = RoundedCornerShape(18.dp),
                             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = userTypesExpanded) },
-                            isError = uiState.errors contain FieldType.USER_TYPE,
-                            supportingText = uiState.errors getMessage FieldType.USER_TYPE
+//                            isError = uiState.errors contain FieldType.USER_TYPE,
+//                            supportingText = uiState.errors getMessage FieldType.USER_TYPE
                         )
                         ExposedDropdownMenu(
                             expanded = userTypesExpanded,
@@ -203,7 +212,7 @@ fun RegisterScreen(
                                 DropdownMenuItem(
                                     text = { Text(text = it.name) },
                                     onClick = {
-                                        onEvent(RegisterUiEvent.OnUserTypeChange(it))
+//                                        onEvent(RegisterUiEvent.OnUserTypeChange(it))
                                         userTypesExpanded = false
                                     }
                                 )
@@ -212,14 +221,14 @@ fun RegisterScreen(
                     }
                 }
                 item {
-                    AnimatedVisibility(uiState.userType == UserType.ADMIN) {
+                    AnimatedVisibility(true/*uiState.userType == UserType.ADMIN*/) {
                         var showCode by remember { mutableStateOf(false) }
                         OutlinedTextField(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(vertical = 4.dp),
-                            value = uiState.adminCode ?: "",
-                            onValueChange = { onEvent(RegisterUiEvent.OnAdminPinChange(it)) },
+                            value = "uiState.adminCode ?: ",
+                            onValueChange = { /*onEvent(RegisterUiEvent.OnAdminPinChange(it))*/ },
                             label = {
                                 Text(text = hintAdminCode)
                             },
@@ -232,8 +241,8 @@ fun RegisterScreen(
                             },
                             shape = RoundedCornerShape(18.dp),
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
-                            isError = uiState.errors contain FieldType.ADMIN_CODE,
-                            supportingText = uiState.errors getMessage FieldType.ADMIN_CODE
+//                            isError = uiState.errors contain FieldType.ADMIN_CODE,
+//                            supportingText = uiState.errors getMessage FieldType.ADMIN_CODE
                         )
                     }
                     /*if (uiState.userType == UserType.ADMIN) {
@@ -263,7 +272,7 @@ fun RegisterScreen(
                 }
                 item {
                     var imageExpanded by remember { mutableStateOf(false) }
-                    val imageName = uiState.imageUri?.let { DocumentFile.fromSingleUri(LocalContext.current, it)?.name } ?: ""
+//                    val imageName = uiState.imageUri?.let { DocumentFile.fromSingleUri(LocalContext.current, it)?.name } ?: ""
                     ExposedDropdownMenuBox(
                         expanded = imageExpanded,
                         onExpandedChange = { imageExpanded = !imageExpanded }
@@ -274,7 +283,7 @@ fun RegisterScreen(
                                 .menuAnchor()
                                 .focusable(false)
                                 .padding(vertical = 4.dp),
-                            value = imageName,
+                            value = "imageName",
                             onValueChange = {},
                             label = {
                                 Text(text = hintUserImage)
@@ -285,7 +294,7 @@ fun RegisterScreen(
                             trailingIcon = {
                                 IconButton(onClick = {}, modifier = Modifier.padding(end = 4.dp)) {
                                     GlideImage(
-                                        model = uiState.imageUri,
+                                        model = "uiState.imageUri",
                                         contentScale = ContentScale.FillBounds,
                                         loading = placeholder(R.drawable.img_profile),
                                         failure = placeholder(R.drawable.img_profile),
@@ -294,8 +303,8 @@ fun RegisterScreen(
                                     )
                                 }
                             },
-                            isError = uiState.errors contain FieldType.IMAGE,
-                            supportingText = uiState.errors getMessage FieldType.IMAGE
+//                            isError = uiState.errors contain FieldType.IMAGE,
+//                            supportingText = uiState.errors getMessage FieldType.IMAGE
                         )
                         ExposedDropdownMenu(
                             expanded = imageExpanded,
@@ -313,10 +322,10 @@ fun RegisterScreen(
                             DropdownMenuItem(
                                 text = { Text(text = "Take a new picture.") },
                                 onClick = {
-                                    /*val permissionCheckResult = ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
+                                    val permissionCheckResult = ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
                                     if (permissionCheckResult == PERMISSION_GRANTED) cameraLauncher.launch(uri)
                                     else permissionLauncher.launch(Manifest.permission.CAMERA)
-                                    imageExpanded = false*/
+                                    imageExpanded = false
                                 }
                             )
                         }
@@ -327,16 +336,16 @@ fun RegisterScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 4.dp),
-                        value = uiState.names,
-                        onValueChange = { onEvent(RegisterUiEvent.OnNamesChange(it)) },
+                        value = "uiState.names",
+                        onValueChange = { /*onEvent(RegisterUiEvent.OnNamesChange(it))*/ },
                         label = {
                             Text(text = hintNames)
                         },
                         singleLine = true,
                         shape = RoundedCornerShape(18.dp),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                        isError = uiState.errors contain FieldType.NAMES,
-                        supportingText = uiState.errors getMessage FieldType.NAMES
+//                        isError = uiState.errors contain FieldType.NAMES,
+//                        supportingText = uiState.errors getMessage FieldType.NAMES
                     )
                 }
                 item {
@@ -344,43 +353,45 @@ fun RegisterScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 4.dp),
-                        value = uiState.lastname,
-                        onValueChange = { onEvent(RegisterUiEvent.OnLastnameChange(it)) },
+                        value = "uiState.lastname",
+                        onValueChange = { /*onEvent(RegisterUiEvent.OnLastnameChange(it))*/ },
                         label = {
                             Text(text = hintLastname)
                         },
                         singleLine = true,
                         shape = RoundedCornerShape(18.dp),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                        isError = uiState.errors contain FieldType.LASTNAME,
-                        supportingText = uiState.errors getMessage FieldType.LASTNAME
+//                        isError = uiState.errors contain FieldType.LASTNAME,
+//                        supportingText = uiState.errors getMessage FieldType.LASTNAME
                     )
                 }
                 item {
+                    val email by viewModel.email.collectAsState()
                     OutlinedTextField(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 4.dp),
-                        value = uiState.email,
-                        onValueChange = { onEvent(RegisterUiEvent.OnEmailChange(it)) },
+                        value = email,
+                        onValueChange = { /*viewModel.onEmailChange(it)*/ },
                         label = {
                             Text(text = hintEmail)
                         },
                         singleLine = true,
                         shape = RoundedCornerShape(18.dp),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                        isError = uiState.errors contain FieldType.EMAIL,
-                        supportingText = uiState.errors getMessage FieldType.EMAIL
+//                        isError = uiState.errors contain FieldType.EMAIL,
+//                        supportingText = uiState.errors getMessage FieldType.EMAIL
                     )
                 }
                 item {
+                    val password by viewModel.password.collectAsState()
                     var showPassword by remember { mutableStateOf(false) }
                     OutlinedTextField(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 4.dp),
-                        value = uiState.password,
-                        onValueChange = { onEvent(RegisterUiEvent.OnPasswordChange(it)) },
+                        value = password,
+                        onValueChange = { /*viewModel.onPasswordChange(it)*/ },
                         label = {
                             Text(text = hintPassword)
                         },
@@ -393,8 +404,8 @@ fun RegisterScreen(
                         },
                         shape = RoundedCornerShape(18.dp),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                        isError = uiState.errors contain FieldType.PASSWORD,
-                        supportingText = uiState.errors getMessage FieldType.PASSWORD
+//                        isError = uiState.errors contain FieldType.PASSWORD,
+//                        supportingText = uiState.errors getMessage FieldType.PASSWORD
                     )
                 }
                 item {
@@ -403,8 +414,8 @@ fun RegisterScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 4.dp),
-                        value = uiState.passwordConfirm,
-                        onValueChange = { onEvent(RegisterUiEvent.OnPasswordConfirmChange(it)) },
+                        value = "uiState.passwordConfirm",
+                        onValueChange = { /*onEvent(RegisterUiEvent.OnPasswordConfirmChange(it))*/ },
                         label = {
                             Text(text = hintPasswordConfirm)
                         },
@@ -417,37 +428,47 @@ fun RegisterScreen(
                         },
                         shape = RoundedCornerShape(18.dp),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                        isError = uiState.errors contain FieldType.PASSWORD_CONFIRM,
-                        supportingText = uiState.errors getMessage FieldType.PASSWORD_CONFIRM
+//                        isError = uiState.errors contain FieldType.PASSWORD_CONFIRM,
+//                        supportingText = uiState.errors getMessage FieldType.PASSWORD_CONFIRM
                     )
                 }
                 item {
+                    val termsAccepted by viewModel.termsAccepted.collectAsState()
                     Row(
                         modifier = Modifier.padding(top = 4.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Switch(
-                            checked = uiState.termsAccepted,
-                            onCheckedChange = { onEvent(RegisterUiEvent.OnTermsAcceptChange(it)) }
+                            checked = termsAccepted,
+                            onCheckedChange = { viewModel.setTermsAccepted(it) }
                         )
                         Text(text = "I accept the", Modifier.padding(start = 10.dp), fontSize = 16.sp)
                         TextButton(onClick = navigateTerms, contentPadding = PaddingValues(horizontal = 3.dp)) {
                             Text(text = "Terms and Conditions.", fontWeight = FontWeight.Bold, fontSize = 16.sp)
                         }
                     }
-                    if (uiState.errors contain FieldType.TERMS) {
+                    /*if (uiState.errors contain FieldType.TERMS) {
                         val error = uiState.errors.find { it.fieldType == FieldType.TERMS }
                         Text(
-                            modifier = Modifier.padding(bottom = 4.dp).fillMaxWidth(),
+                            modifier = Modifier
+                                .padding(bottom = 4.dp)
+                                .fillMaxWidth(),
                             text = error!!.errorMessage,
                             textAlign = TextAlign.Center,
                             color = OutlinedTextFieldDefaults.colors().errorLabelColor,
                             fontSize = 12.sp
                         )
-                    }
+                    }*/
                 }
                 item {
-                    Button(onClick = { onEvent(RegisterUiEvent.Register) },
+                    Button(onClick = {
+                        //viewModel.onSignUp()
+                        coroutineScope.launch {
+                            snackBarHostState.showSnackbar(
+                                message = "Create account successfully. Sign in now!",
+                                duration = SnackbarDuration.Long
+                            )
+                        }},
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = 8.dp, bottom = 16.dp),
