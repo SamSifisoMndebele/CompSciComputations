@@ -15,14 +15,11 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.Text
@@ -43,11 +40,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.airbnb.lottie.LottieComposition
 import com.airbnb.lottie.compose.LottieAnimation
-import com.airbnb.lottie.compose.LottieCompositionSpec
-import com.airbnb.lottie.compose.LottieConstants
-import com.airbnb.lottie.compose.animateLottieCompositionAsState
-import com.airbnb.lottie.compose.rememberLottieComposition
 import com.compscicomputations.R
 import com.compscicomputations.ui.LoadingDialog
 import com.compscicomputations.ui.auth.isError
@@ -60,29 +54,20 @@ import com.compscicomputations.ui.theme.hintPassword
 fun LoginScreen(
     padding: PaddingValues = PaddingValues(8.dp),
     viewModel: LoginViewModel = hiltViewModel(),
+    lottieComposition: LottieComposition?,
+    lottieProgress: Float,
     navigateRegister: () -> Unit,
     navigateResetPassword: (email: String?) -> Unit,
     navigateMain: () -> Unit
 ) {
-    val preloaderLottieComposition by rememberLottieComposition(
-        LottieCompositionSpec.RawRes(
-            R.raw.login_anim
-        )
-    )
-    val preloaderProgress by animateLottieCompositionAsState(
-        preloaderLottieComposition,
-        iterations = LottieConstants.IterateForever,
-        isPlaying = true
-    )
-
-    val userSignedIn by viewModel.userSignedIn.collectAsState()
+    val userLogged by viewModel.userLogged.collectAsState()
     val name by viewModel.name.collectAsState()
     val context =  LocalContext.current
-    LaunchedEffect(userSignedIn) {
-        if (userSignedIn) {
+    LaunchedEffect(userLogged) {
+        if (userLogged) {
             navigateMain()
-            Toast.makeText(context, if (name != null) "$name, signed in successfully!"
-                else "Signed in successfully!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, if (name != null) "$name, logged in successfully!"
+                else "Logged in successfully!", Toast.LENGTH_SHORT).show()
         }
     }
     val showProgress by viewModel.showProgress.collectAsState()
@@ -104,10 +89,10 @@ fun LoginScreen(
                         .width(128.dp)
                         .padding(start = 8.dp),
                 )
-                Spacer(modifier = Modifier.weight(1f))
-                IconButton(onClick = { /*TODO*/ }) {
-                    Icon(imageVector = Icons.Default.MoreVert, contentDescription = "Menu")
-                }
+//                Spacer(modifier = Modifier.weight(1f))
+//                IconButton(onClick = { /*TODO*/ }) {
+//                    Icon(imageVector = Icons.Default.MoreVert, contentDescription = "Menu")
+//                }
             }
             Text(
                 text = "Login",
@@ -125,8 +110,8 @@ fun LoginScreen(
                 contentAlignment = Alignment.BottomStart
             ) {
                 LottieAnimation(
-                    composition = preloaderLottieComposition,
-                    progress = preloaderProgress,
+                    composition = lottieComposition,
+                    progress = lottieProgress,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(260.dp),
@@ -190,28 +175,19 @@ fun LoginScreen(
                 }
             }
 
-            /*AnimatedVisibility(visible = viewModel.error.isError) {
-                viewModel.error?.let { Text(text = it, Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 8.dp),
-                    color = OutlinedTextFieldDefaults.colors().errorLabelColor,
-                    textAlign = TextAlign.Center,
-                    fontSize = 18.sp) }
-            }*/
-
             SnackbarHost(hostState = viewModel.snackBarHostState,
                 modifier = Modifier
                     .fillMaxWidth()) {
                 Snackbar(
                     snackbarData = it,
-                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    containerColor = OutlinedTextFieldDefaults.colors().errorLabelColor,
                     contentColor = MaterialTheme.colorScheme.onSecondaryContainer
                 )
             }
 
             Button(
                 enabled = email.isNotBlank() && password.isNotBlank(),
-                onClick = { viewModel.onSignIn() },
+                onClick = { viewModel.onLogin() },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(68.dp)
@@ -237,6 +213,6 @@ fun LoginScreen(
 
         }
 
-        LoadingDialog(show = showProgress, message = "Signing...")
+        LoadingDialog(show = showProgress, message = "Login...")
     }
 }

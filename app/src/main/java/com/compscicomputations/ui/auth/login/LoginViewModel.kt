@@ -35,18 +35,17 @@ class LoginViewModel @Inject constructor(
 
     private val _password = MutableStateFlow("")
     val password = _password.asStateFlow()
-    val passwordError by mutableStateOf<String?>(null)
+    var passwordError by mutableStateOf<String?>(null)
 
     val snackBarHostState = SnackbarHostState()
-
     private val _showProgress = MutableStateFlow(false)
     val showProgress = _showProgress.asStateFlow()
 
     private val _name = MutableStateFlow<String?>(null)
     val name = _name.asStateFlow()
 
-    private val _userSignedIn = MutableStateFlow(false)
-    val userSignedIn = _userSignedIn.asStateFlow()
+    private val _userLogged = MutableStateFlow(false)
+    val userLogged = _userLogged.asStateFlow()
 
     fun onEmailChange(email: String) {
         _email.value = email
@@ -56,14 +55,14 @@ class LoginViewModel @Inject constructor(
         _password.value = password
     }
 
-    fun onSignIn() {
+    fun onLogin() {
         _showProgress.value = true
         auth.signInWithEmailAndPassword(_email.value, _password.value)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     Log.d("LoginViewModel", "onSignIn:success")
                     _name.value = task.result?.user?.displayName
-                    _userSignedIn.value = true
+                    _userLogged.value = true
                 } else {
                     Log.w("LoginViewModel", "onSignIn:failure", task.exception)
                     viewModelScope.launch {
@@ -71,8 +70,8 @@ class LoginViewModel @Inject constructor(
                             snackBarHostState.showSnackbar(it, duration = SnackbarDuration.Long)
                         }
                     }
+                    _showProgress.value = false
                 }
-                _showProgress.value = false
             }
     }
 
@@ -120,7 +119,7 @@ class LoginViewModel @Inject constructor(
                     if (task.isSuccessful) {
                         Log.d("LoginViewModel", "continueWithGoogle:success")
                         _name.value = task.result?.user?.displayName
-                        _userSignedIn.value = true
+                        _userLogged.value = true
                     } else {
                         Log.w("LoginViewModel", "continueWithGoogle:failure", task.exception)
                         viewModelScope.launch {
@@ -128,8 +127,8 @@ class LoginViewModel @Inject constructor(
                                 snackBarHostState.showSnackbar(it, duration = SnackbarDuration.Long)
                             }
                         }
+                        _showProgress.value = false
                     }
-                    _showProgress.value = false
                 }
         }
     }

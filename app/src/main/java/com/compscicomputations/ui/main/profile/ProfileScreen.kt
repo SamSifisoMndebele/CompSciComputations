@@ -18,7 +18,6 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -50,9 +49,7 @@ import com.compscicomputations.ui.main.dashboard.DashboardOption
 import com.compscicomputations.ui.theme.comicNeueFamily
 import com.compscicomputations.utils.createImageFile
 
-@OptIn(ExperimentalGlideComposeApi::class, ExperimentalMaterial3Api::class,
-    ExperimentalMaterial3Api::class
-)
+@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun ProfileScreen(
     padding: PaddingValues = PaddingValues(start = 8.dp, end = 8.dp, top = 2.dp, bottom = 8.dp),
@@ -130,7 +127,9 @@ fun ProfileScreen(
                         )
                     ) {
                         Row (
-                            modifier = Modifier.padding(end = 8.dp).fillMaxWidth(),
+                            modifier = Modifier
+                                .padding(end = 8.dp)
+                                .fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             GlideImage(

@@ -82,11 +82,11 @@ dependencies {
 
     //Firebase DB
     implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.analytics.ktx)
-    implementation(libs.firebase.crashlytics.ktx)
-    implementation(libs.firebase.auth.ktx)
-//    implementation(libs.firebase.storage.ktx)
-//    implementation(libs.firebase.firestore.ktx)
+    implementation(libs.firebase.analytics)
+    implementation(libs.firebase.crashlytics)
+    implementation(libs.firebase.auth)
+//    implementation(libs.firebase.storage)
+//    implementation(libs.firebase.firestore)
 
     //Supabase DB
     implementation(platform(libs.supabase.bom))

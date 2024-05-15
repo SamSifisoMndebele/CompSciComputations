@@ -50,7 +50,6 @@ androidx-material-icons-extended = { module = "androidx.compose.material:materia
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomRuntime" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
 androidx-room-testing = { module = "androidx.room:room-testing", version.ref = "roomRuntime" }
-firebase-crashlytics-ktx = { module = "com.google.firebase:firebase-crashlytics-ktx" }
 googleid = { module = "com.google.android.libraries.identity.googleid:googleid", version.ref = "googleid" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
 hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltAndroid" }
@@ -66,10 +65,11 @@ supabase-realtime-kt = { module = "io.github.jan-tennert.supabase:realtime-kt", 
 supabase-compose-auth = { module = "io.github.jan-tennert.supabase:compose-auth", name = "compose-auth"}
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
-firebase-analytics-ktx = { module = "com.google.firebase:firebase-analytics-ktx", name = "firebase-analytics-ktx"}
-firebase-auth-ktx = { module = "com.google.firebase:firebase-auth-ktx", name = "firebase-auth-ktx"}
-firebase-firestore-ktx = { module = "com.google.firebase:firebase-firestore-ktx", name = "firebase-firestore-ktx"}
-firebase-storage-ktx = { module = "com.google.firebase:firebase-storage-ktx", name = "firebase-storage-ktx"}
+firebase-analytics = { module = "com.google.firebase:firebase-analytics", name = "firebase-analytics"}
+firebase-auth = { module = "com.google.firebase:firebase-auth", name = "firebase-auth"}
+firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
+firebase-firestore = { module = "com.google.firebase:firebase-firestore", name = "firebase-firestore"}
+firebase-storage = { module = "com.google.firebase:firebase-storage", name = "firebase-storage"}
 glide-compose = { module = "com.github.bumptech.glide:compose", version.ref = "glide" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
