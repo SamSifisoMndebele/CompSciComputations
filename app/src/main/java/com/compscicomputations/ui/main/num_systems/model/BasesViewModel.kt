@@ -2,8 +2,6 @@ package com.compscicomputations.ui.main.num_systems.model
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import com.compscicomputations.logic.main.num_systems.bases.BaseConverter
-import com.compscicomputations.logic.main.num_systems.bases.BaseError
 
 class BasesViewModel : ViewModel() {
     var decimal = mutableStateOf("")
@@ -17,11 +15,11 @@ class BasesViewModel : ViewModel() {
     var ascii = mutableStateOf("")
         private set
 
-    var error = mutableStateOf<BaseError?>(null)
+    var error = mutableStateOf<com.compscicomputations.logic.num_systems.bases.BaseError?>(null)
         private set
 
     fun fromDecimal(decimalStr: String) {
-        val fromDecimal = BaseConverter.fromDecimal(decimalStr.removeSuffix("-"))
+        val fromDecimal = com.compscicomputations.logic.num_systems.bases.BaseConverter.fromDecimal(decimalStr.removeSuffix("-"))
 
         decimal.value = decimalStr
         binary.value = fromDecimal.binary
@@ -32,7 +30,7 @@ class BasesViewModel : ViewModel() {
     }
 
     fun fromBinary(binaryStr: String) {
-        val fromBinary = BaseConverter.fromBinary(binaryStr)
+        val fromBinary = com.compscicomputations.logic.num_systems.bases.BaseConverter.fromBinary(binaryStr)
 
         decimal.value = fromBinary.decimal
         binary.value = binaryStr
@@ -43,7 +41,7 @@ class BasesViewModel : ViewModel() {
     }
 
     fun fromOctal(octalStr: String) {
-        val fromOctal = BaseConverter.fromOctal(octalStr)
+        val fromOctal = com.compscicomputations.logic.num_systems.bases.BaseConverter.fromOctal(octalStr)
 
         decimal.value = fromOctal.decimal
         binary.value = fromOctal.binary
@@ -55,7 +53,7 @@ class BasesViewModel : ViewModel() {
 
 
     fun fromHex(hexadecimalStr: String) {
-        val fromHex = BaseConverter.fromHex(hexadecimalStr)
+        val fromHex = com.compscicomputations.logic.num_systems.bases.BaseConverter.fromHex(hexadecimalStr)
 
         decimal.value = fromHex.decimal
         binary.value = fromHex.binary
@@ -65,7 +63,7 @@ class BasesViewModel : ViewModel() {
         error.value = fromHex.error
     }
     fun fromAscii(asciiStr: String) {
-        val fromAscii = BaseConverter.fromCharSeq(asciiStr)
+        val fromAscii = com.compscicomputations.logic.num_systems.bases.BaseConverter.fromCharSeq(asciiStr)
 
         decimal.value = fromAscii.decimal
         binary.value = fromAscii.binary

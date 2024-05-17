@@ -5,7 +5,7 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.jetbrains.kotlin.plugin.serialization)
     alias(libs.plugins.google.gms.google.services)
-    id("com.google.firebase.crashlytics")
+    alias(libs.plugins.google.firebase.crashlytics)
     alias(libs.plugins.google.dagger.hilt.android)
     id("kotlin-kapt")
 }
@@ -71,6 +71,7 @@ android {
 dependencies {
 
     implementation(libs.hilt.android)
+    implementation(libs.core)
     kapt(libs.hilt.android.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
 
@@ -78,7 +79,6 @@ dependencies {
     //implementation (libs.tensorflow.lite.task.vision.play.services)
     //implementation (libs.play.services.tflite.gpu)
     //implementation("com.google.android.gms:play-services-mlkit-text-recognition:19.0.0")
-    implementation(libs.text.recognition)
 
     //Firebase DB
     implementation(platform(libs.firebase.bom))
@@ -126,9 +126,9 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.navigation.compose)
-//    implementation(libs.androidx.constraintlayout.compose)
-    implementation(project(":KarnaughMap"))
     implementation(project(":MathsLib"))
+    implementation(project(":logic"))
+    implementation(project(":KarnaughMaps"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

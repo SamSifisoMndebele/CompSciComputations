@@ -39,7 +39,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.airbnb.lottie.LottieComposition
 import com.airbnb.lottie.compose.LottieAnimation
 import com.compscicomputations.R
@@ -53,7 +52,7 @@ import com.compscicomputations.ui.theme.hintPassword
 @Composable
 fun LoginScreen(
     padding: PaddingValues = PaddingValues(8.dp),
-    viewModel: LoginViewModel = hiltViewModel(),
+    viewModel: LoginViewModel,
     lottieComposition: LottieComposition?,
     lottieProgress: Float,
     navigateRegister: () -> Unit,

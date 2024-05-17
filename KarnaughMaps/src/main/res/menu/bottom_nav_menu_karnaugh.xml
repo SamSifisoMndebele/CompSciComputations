@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navigation_karnaugh4"
+        android:icon="@drawable/ic_grid_9"
+        android:title="@string/_4_variables" />
+
+    <item
+        android:id="@+id/navigation_karnaugh3"
+        android:icon="@drawable/ic_grid_6"
+        android:title="@string/_3_variables" />
+
+    <item
+        android:id="@+id/navigation_karnaugh2"
+        android:icon="@drawable/ic_grid_3"
+        android:title="@string/_2_variables" />
+
+    <item
+        android:id="@+id/navigation_info"
+        android:icon="@drawable/ic_info"
+        android:title="@string/more_info" />
+
+</menu>

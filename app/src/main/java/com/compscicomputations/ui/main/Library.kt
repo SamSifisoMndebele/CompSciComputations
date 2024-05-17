@@ -20,7 +20,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.compscicomputations.logic.main.num_systems.bases.BaseError
 import com.compscicomputations.ui.theme.comicNeueFamily
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -63,7 +62,7 @@ fun AppBar(
     }
 }
 
-infix fun BaseError?.errorTextIf(isSelected: Boolean): @Composable (() -> Unit)? {
+infix fun com.compscicomputations.logic.num_systems.bases.BaseError?.errorTextIf(isSelected: Boolean): @Composable (() -> Unit)? {
     if (!isSelected || this == null) return null
     return {
         Text(text = this.message, color = OutlinedTextFieldDefaults.colors().errorLabelColor)

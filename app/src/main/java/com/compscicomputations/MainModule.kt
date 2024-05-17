@@ -19,4 +19,6 @@ object MainModule {
     fun provideUserRepository(auth: FirebaseAuth, postgrest: Postgrest) : UserRepository {
         return UserRepositoryImpl(auth, postgrest)
     }
+
+
 }

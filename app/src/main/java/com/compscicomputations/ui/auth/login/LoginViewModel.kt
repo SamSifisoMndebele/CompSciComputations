@@ -15,8 +15,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
+import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.auth.actionCodeSettings
+import com.google.firebase.auth.auth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -131,5 +134,45 @@ class LoginViewModel @Inject constructor(
                     }
                 }
         }
+    }
+
+    fun onSendSignInLink() {
+        val actionCodeSettings = actionCodeSettings {
+            // URL you want to redirect back to. The domain (www.example.com) for this
+            // URL must be whitelisted in the Firebase Console.
+            url = "https://www.example.com/finishSignUp?cartId=1234"
+            handleCodeInApp = true // This must be true
+            setAndroidPackageName(
+                "com.compscicomputations",
+                true, // installIfNotAvailable
+                "1", // minimumVersion
+            )
+        }
+        Firebase.auth.sendSignInLinkToEmail(_email.value, actionCodeSettings)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    Log.d("TAG", "Email sent.")
+                }
+            }
+    }
+
+    fun onLinkLogin(emailLink: String): Boolean {
+        val isLinkSignIn = auth.isSignInWithEmailLink(emailLink)
+        if (isLinkSignIn)
+            auth.signInWithEmailLink(_email.value, emailLink)
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        Log.d("TAG", "Successfully signed in with email link!")
+                        val result = task.result
+                        // You can access the new user via result.getUser()
+                        // Additional user info profile *not* available via:
+                        // result.getAdditionalUserInfo().getProfile() == null
+                        // You can check if the user is new or existing:
+                        // result.getAdditionalUserInfo().isNewUser()
+                    } else {
+                        Log.e("TAG", "Error signing in with email link", task.exception)
+                    }
+                }
+        return isLinkSignIn
     }
 }

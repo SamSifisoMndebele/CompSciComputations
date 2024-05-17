@@ -9,9 +9,10 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/KarnaughMap" />
+            <option value="$PROJECT_DIR$/KarnaughMaps" />
             <option value="$PROJECT_DIR$/MathsLib" />
             <option value="$PROJECT_DIR$/app" />
+            <option value="$PROJECT_DIR$/logic" />
           </set>
         </option>
         <option name="resolveExternalAnnotations" value="false" />

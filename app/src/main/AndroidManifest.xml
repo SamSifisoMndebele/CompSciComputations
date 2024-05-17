@@ -19,19 +19,6 @@
         android:theme="@style/Theme.CompSciComputations"
         tools:targetApi="31">
         <activity
-            android:name=".DeepLinkHandlerActivity"
-            android:exported="true"
-            android:theme="@style/Theme.CompSciComputations">
-            <intent-filter android:autoVerify="true">
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data
-                    android:host="supabase.com"
-                    android:scheme="app" />
-            </intent-filter>
-        </activity>
-        <activity
             android:name=".AuthActivity"
             android:exported="true"
             android:theme="@style/Theme.CompSciComputations">

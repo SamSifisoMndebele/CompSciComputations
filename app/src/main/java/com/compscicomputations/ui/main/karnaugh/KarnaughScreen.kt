@@ -25,9 +25,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.compscicomputations.ui.main.AppBar
-import com.ssmnd.karnaughmap.Karnaugh2
-import com.ssmnd.karnaughmap.Karnaugh3
-import com.ssmnd.karnaughmap.Karnaugh4
 
 enum class NumVariables(val string: String) {
     TWO("2 variables"),
@@ -85,11 +82,11 @@ fun KarnaughScreen(
                 }
             }
         }
-        when(numVariables) {
+        /*when(numVariables) {
             NumVariables.TWO -> Karnaugh2()
             NumVariables.THREE -> Karnaugh3()
             NumVariables.FOUR -> Karnaugh4()
-        }
+        }*/
 
     }
 }

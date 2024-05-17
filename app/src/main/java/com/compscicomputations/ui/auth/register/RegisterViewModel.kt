@@ -106,6 +106,10 @@ class RegisterViewModel @Inject constructor(
                         .addOnCompleteListener { task2 ->
                             if (task2.isSuccessful) {
                                 Log.d("RegisterViewModel", "onSignIn:User profile updated.")
+
+//                                user.metadata?.creationTimestamp
+//                                user.metadata?.lastSignInTimestamp
+//                                user.uid
                             } else {
                                 Log.e("RegisterViewModel", "onSignIn:failure profile updated", task.exception)
                                 viewModelScope.launch {

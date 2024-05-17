@@ -3,8 +3,6 @@ package com.compscicomputations.ui.main.num_systems.model
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import com.compscicomputations.logic.main.num_systems.excess.ExcessConverter
-import com.compscicomputations.logic.main.num_systems.excess.ExcessError
 
 class ExcessViewModel : ViewModel() {
     var decimal = mutableStateOf("")
@@ -15,7 +13,7 @@ class ExcessViewModel : ViewModel() {
         private set
     var excessBits = mutableIntStateOf(8)
         private set
-    var error = mutableStateOf<ExcessError?>(null)
+    var error = mutableStateOf<com.compscicomputations.logic.num_systems.excess.ExcessError?>(null)
         private set
 
     fun setExcessBits(excessBits: String) {
@@ -23,12 +21,12 @@ class ExcessViewModel : ViewModel() {
             this.excessBits.intValue = excessBits.toInt()
             error.value = null
         } catch (e: Exception) {
-            error.value = ExcessError.INVALID_EXCESS_BITS
+            error.value = com.compscicomputations.logic.num_systems.excess.ExcessError.INVALID_EXCESS_BITS
         }
     }
 
     fun fromDecimal(decimal: String) {
-        val fromDecimal = ExcessConverter.fromDecimal(decimal, excessBits.intValue)
+        val fromDecimal = com.compscicomputations.logic.num_systems.excess.ExcessConverter.fromDecimal(decimal, excessBits.intValue)
 
         this.decimal.value = decimal
         excess.value = fromDecimal.excess
@@ -37,7 +35,7 @@ class ExcessViewModel : ViewModel() {
     }
 
     fun fromExcess(excess: String) {
-        val fromExcess = ExcessConverter.fromExcess(excess, excessBits.intValue)
+        val fromExcess = com.compscicomputations.logic.num_systems.excess.ExcessConverter.fromExcess(excess, excessBits.intValue)
 
         this.excess.value = excess
         decimal.value = fromExcess.decimal

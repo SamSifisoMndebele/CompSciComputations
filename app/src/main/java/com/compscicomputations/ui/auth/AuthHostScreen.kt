@@ -20,6 +20,7 @@ import com.compscicomputations.AuthActivity
 import com.compscicomputations.MainActivity
 import com.compscicomputations.R
 import com.compscicomputations.ui.auth.login.LoginScreen
+import com.compscicomputations.ui.auth.login.LoginViewModel
 import com.compscicomputations.ui.auth.register.RegisterScreen
 import com.compscicomputations.ui.auth.register.RegisterViewModel
 import com.compscicomputations.ui.auth.register.TermsScreen
@@ -60,7 +61,6 @@ fun AuthHostScreen(
         startDestination = AuthNavigation.LOGIN.route
     ) {
         composable(AuthNavigation.WELCOME.route) {
-
             WelcomeScreen {
                 navController.navigate(AuthNavigation.LOGIN.route)
                 preferences.edit().putBoolean(firstTime, false).apply()
@@ -72,8 +72,12 @@ fun AuthHostScreen(
                 navController.navigate(route = AuthNavigation.WELCOME.route)
                 return@composable
             }
+            val viewModel: LoginViewModel = hiltViewModel()
+            val emailLink = activity.intent.data?.toString()
+            if (emailLink != null) viewModel.onLinkLogin(emailLink)
 
             LoginScreen(
+                viewModel = viewModel,
                 lottieComposition = lottieComposition,
                 lottieProgress = lottieProgress,
                 navigateRegister = { navController.navigate(AuthNavigation.REGISTER.route) },
