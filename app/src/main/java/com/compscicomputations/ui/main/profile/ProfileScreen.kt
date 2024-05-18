@@ -24,6 +24,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -57,6 +58,13 @@ fun ProfileScreen(
     navigateUp: () -> Unit,
     navigateAuth: () -> Unit
 ) {
+    val userSignedOut by viewModel.userSignedOut.collectAsState()
+    LaunchedEffect(userSignedOut) {
+        if (userSignedOut) {
+            navigateAuth()
+        }
+    }
+
     val photoPickerLauncher = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         if (uri == null) return@rememberLauncherForActivityResult
 //        onEvent(RegisterUiEvent.OnImageUriChange(uri))
@@ -86,7 +94,7 @@ fun ProfileScreen(
             text = { Text(text = "Do you want to logout?", fontFamily = comicNeueFamily) },
             onDismissRequest = { logoutAlertDialog = false },
             confirmButton = {
-                TextButton(onClick = { viewModel.signOut(); logoutAlertDialog = false; navigateAuth() }) {
+                TextButton(onClick = { viewModel.logout(); logoutAlertDialog = false; navigateAuth() }) {
                     Text("Logout", fontFamily = comicNeueFamily)
                 }
             },

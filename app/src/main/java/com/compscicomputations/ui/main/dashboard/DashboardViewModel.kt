@@ -2,9 +2,8 @@ package com.compscicomputations.ui.main.dashboard
 
 import android.net.Uri
 import androidx.lifecycle.ViewModel
+import com.compscicomputations.data.repository.UserRepository
 import com.compscicomputations.ui.auth.UserType
-import com.compscicomputations.ui.main.api.UserRepository
-import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -12,7 +11,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
-    val auth: FirebaseAuth,
     private val userRepository: UserRepository
 ) : ViewModel() {
 
@@ -32,15 +30,14 @@ class DashboardViewModel @Inject constructor(
     val photoUrl = _photoUrl.asStateFlow()
 
     init {
-        val currentUser = auth.currentUser
-        _userSignedOut.value = currentUser == null
-        auth.addAuthStateListener {
-            _userSignedOut.value = it.currentUser == null
-        }
-        if (currentUser != null) {
-            _email.value = currentUser.email!!
-            currentUser.displayName?.also { _displayName.value = it }
-            currentUser.photoUrl?.also { _photoUrl.value = it }
-        }
+        val isUserSigned = userRepository.isUserSigned()
+        _userSignedOut.value = !isUserSigned
+        if (isUserSigned) userRepository.getUser()
+            .addOnSuccessListener { user ->
+                _userType.value = user.userType
+                _displayName.value = user.displayName
+                _email.value = user.email
+                _photoUrl.value = user.photoUrl
+            }
     }
 }

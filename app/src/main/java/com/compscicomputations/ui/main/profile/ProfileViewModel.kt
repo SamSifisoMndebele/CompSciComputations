@@ -2,8 +2,8 @@ package com.compscicomputations.ui.main.profile
 
 import android.net.Uri
 import androidx.lifecycle.ViewModel
+import com.compscicomputations.data.repository.UserRepository
 import com.compscicomputations.ui.auth.UserType
-import com.compscicomputations.ui.main.api.UserRepository
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,35 +29,24 @@ class ProfileViewModel @Inject constructor(
     val photoUrl = _photoUrl.asStateFlow()
 
     init {
-        val currentUser = auth.currentUser
-        _userSignedOut.value = currentUser == null
-        if (currentUser != null) {
-//          currentUser?.metadata[""]?.also { _userType.value = it }
-            _email.value = currentUser.email!!
-            currentUser.displayName?.also { _displayName.value = it }
-            currentUser.photoUrl?.also { _photoUrl.value = it }
-
-            currentUser.let {
-                // Name, email address, and profile photo Url
-                val name = it.displayName
-                val email = it.email
-                val photoUrl = it.photoUrl
-
-                // Check if user's email is verified
-                val emailVerified = it.isEmailVerified
-
-                // The user's ID, unique to the Firebase project. Do NOT use this value to
-                // authenticate with your backend server, if you have one. Use
-                // FirebaseUser.getIdToken() instead.
-                val uid = it.uid
+        val isUserSigned = userRepository.isUserSigned()
+        _userSignedOut.value = !isUserSigned
+        if (isUserSigned) userRepository.getUser()
+            .addOnSuccessListener { user ->
+                _userType.value = user.userType
+                _displayName.value = user.displayName
+                _email.value = user.email
+                _photoUrl.value = user.photoUrl
             }
-        }
 
+//        val emailVerified = auth.currentUser.isEmailVerified
     }
 
-    fun signOut() {
-        auth.signOut()
-        _userSignedOut.value = true
+    fun logout() {
+        userRepository.logout()
+            .addOnSuccessListener {
+                _userSignedOut.value = true
+            }
     }
 
 }

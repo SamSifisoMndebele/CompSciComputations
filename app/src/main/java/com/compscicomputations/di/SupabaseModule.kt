@@ -1,5 +1,6 @@
-package com.compscicomputations
+package com.compscicomputations.di
 
+import com.compscicomputations.BuildConfig
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -25,6 +26,7 @@ object SupabaseModule {
     ) {
         install(Postgrest)
         install(Storage)
+        install(Realtime)
     }
 
     @Provides

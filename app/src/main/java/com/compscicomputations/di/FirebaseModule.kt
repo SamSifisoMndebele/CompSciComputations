@@ -1,8 +1,9 @@
-package com.compscicomputations
+package com.compscicomputations.di
 
 import android.content.Context
 import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
+import com.compscicomputations.BuildConfig
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth

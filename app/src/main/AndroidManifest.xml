@@ -7,7 +7,7 @@
     <uses-feature android:name="android.hardware.camera.any" />
 
     <application
-        android:name=".ApplicationCompSci"
+        android:name=".CompSciComputationsApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"

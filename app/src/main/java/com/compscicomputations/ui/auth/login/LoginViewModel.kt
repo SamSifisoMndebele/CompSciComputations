@@ -13,6 +13,8 @@ import androidx.credentials.GetCredentialRequest
 import androidx.credentials.exceptions.NoCredentialException
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.compscicomputations.data.repository.UserRepository
+import com.compscicomputations.ui.auth.UserType
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import com.google.firebase.Firebase
@@ -24,13 +26,15 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val auth: FirebaseAuth,
     private val credentialManager: CredentialManager,
-    private val credentialRequest: GetCredentialRequest
+    private val credentialRequest: GetCredentialRequest,
+    private val userRepository: UserRepository
 ) : ViewModel() {
     private val _email = MutableStateFlow("")
     val email = _email.asStateFlow()
@@ -121,8 +125,36 @@ class LoginViewModel @Inject constructor(
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
                         Log.d("LoginViewModel", "continueWithGoogle:success")
-                        _name.value = task.result?.user?.displayName
-                        _userLogged.value = true
+                        val user = task.result.user!!
+                        _name.value = user.displayName
+                        userRepository.checkUser(user.uid)
+                            .addOnSuccessListener { _showProgress.value = false }
+                            .addOnFailureListener {
+                                Log.e("RegisterViewModel", "checkUser: user does not exits", it)
+                                userRepository.createUser(
+                                    uid = user.uid,
+                                    displayName = user.displayName.toString(),
+                                    email = user.email!!,
+                                    photoUrl = user.photoUrl?.toString(),
+                                    userType = UserType.STUDENT.name,
+                                    createdAt = if (user.metadata?.creationTimestamp != null)
+                                        Date(user.metadata?.creationTimestamp!!) else Date(),
+                                    lastSeenAt = if (user.metadata?.lastSignInTimestamp != null)
+                                        Date(user.metadata?.lastSignInTimestamp!!) else Date()
+                                ).addOnCompleteListener { task2->
+                                    if (task2.isSuccessful) {
+                                        Log.d("RegisterViewModel", "createUser:User profile created.")
+                                    } else {
+                                        Log.e("RegisterViewModel", "createUser:failure profile create user", task2.exception)
+                                        viewModelScope.launch {
+                                            task.exception?.message?.let {
+                                                snackBarHostState.showSnackbar(it, duration = SnackbarDuration.Long)
+                                            }
+                                        }
+                                    }
+                                    _userLogged.value = true
+                                }
+                            }
                     } else {
                         Log.w("LoginViewModel", "continueWithGoogle:failure", task.exception)
                         viewModelScope.launch {

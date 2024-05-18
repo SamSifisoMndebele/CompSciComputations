@@ -69,7 +69,8 @@ fun DashboardScreen(
     val email by viewModel.email.collectAsState()
     val photoUrl by viewModel.photoUrl.collectAsState()
 
-    if (viewModel.userSignedOut.collectAsState().value) {
+    val userSignedOut by viewModel.userSignedOut.collectAsState()
+    if (userSignedOut) {
         navigateAuth()
         return
     }
