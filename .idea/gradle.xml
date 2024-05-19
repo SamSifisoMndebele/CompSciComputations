@@ -12,6 +12,8 @@
             <option value="$PROJECT_DIR$/KarnaughMaps" />
             <option value="$PROJECT_DIR$/MathsLib" />
             <option value="$PROJECT_DIR$/app" />
+            <option value="$PROJECT_DIR$/features" />
+            <option value="$PROJECT_DIR$/features/karnaugh_maps" />
             <option value="$PROJECT_DIR$/logic" />
           </set>
         </option>

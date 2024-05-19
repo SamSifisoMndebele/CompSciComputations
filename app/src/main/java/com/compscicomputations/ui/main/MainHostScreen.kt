@@ -35,23 +35,6 @@ fun MainHostScreen(
     activity: MainActivity,
     navController: NavHostController
 ) {
-//    val userInfo = SupabaseModule.provideSupabaseClient().auth.currentSessionOrNull()?.user
-    /*var userInfo by remember {
-        mutableStateOf<UserInfo?>(null)
-    }
-    val coroutineScope = rememberCoroutineScope()
-    LaunchedEffect(Unit) {
-        coroutineScope.launch {
-            try {
-                userInfo = SupabaseObject.supabase.auth.currentSessionOrNull()?.user
-            } catch (e: Exception) {
-                activity.startActivity(Intent(activity, AuthActivity::class.java))
-                activity.finishAffinity()
-            }
-        }
-    }*/
-
-
 
     NavHost(
         navController = navController,
@@ -71,6 +54,7 @@ fun MainHostScreen(
                 navigateKarnaugh = {
 //                    navController.navigate(MainNavigation.KARNAUGH.route)
                     activity.startActivity(Intent(activity, KarnaughActivity::class.java))
+//                    activity.startActivity(Intent(activity, SampleActivity::class.java))
                 },
                 navigateMatrix = {
                     navController.navigate(MainNavigation.MATRIX.route)

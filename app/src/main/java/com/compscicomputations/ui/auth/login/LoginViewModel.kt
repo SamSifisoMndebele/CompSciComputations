@@ -2,7 +2,6 @@ package com.compscicomputations.ui.auth.login
 
 import android.content.Context
 import android.util.Log
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -14,6 +13,7 @@ import androidx.credentials.exceptions.NoCredentialException
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.compscicomputations.data.repository.UserRepository
+import com.compscicomputations.ui.ExceptionData
 import com.compscicomputations.ui.auth.UserType
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
@@ -48,6 +48,8 @@ class LoginViewModel @Inject constructor(
     private val _showProgress = MutableStateFlow(false)
     val showProgress = _showProgress.asStateFlow()
 
+    val exceptionData = mutableStateOf<ExceptionData?>(null)
+
     private val _name = MutableStateFlow<String?>(null)
     val name = _name.asStateFlow()
 
@@ -72,11 +74,7 @@ class LoginViewModel @Inject constructor(
                     _userLogged.value = true
                 } else {
                     Log.w("LoginViewModel", "onSignIn:failure", task.exception)
-                    viewModelScope.launch {
-                        task.exception?.message?.let {
-                            snackBarHostState.showSnackbar(it, duration = SnackbarDuration.Long)
-                        }
-                    }
+                    exceptionData.value = ExceptionData(task.exception?.message)
                     _showProgress.value = false
                 }
             }
@@ -92,34 +90,33 @@ class LoginViewModel @Inject constructor(
                 )
             } catch (e: NoCredentialException) {
                 Log.e("LoginViewModel", e.message, e)
+                exceptionData.value = ExceptionData(e.message)
                 _showProgress.value = false
                 return@launch
             } catch (e: Exception) {
                 Log.e("LoginViewModel", e.message, e)
+                exceptionData.value = ExceptionData(e.message)
                 _showProgress.value = false
                 return@launch
             }
-
-            val googleIdToken = when (val credential = result.credential) {
-                is CustomCredential -> if (credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
-                    try {
-                        GoogleIdTokenCredential.createFrom(credential.data).idToken
-                    } catch (e: GoogleIdTokenParsingException) {
-                        Log.e("LoginViewModel", "Received an invalid google id token response", e)
-                        _showProgress.value = false
-                        null
-                    }
-                } else {
-                    Log.e("LoginViewModel", "Unexpected type of credential")
+            val credential = result.credential
+            val googleIdToken = if (credential is CustomCredential &&
+                credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
+                try {
+                    GoogleIdTokenCredential.createFrom(credential.data).idToken
+                } catch (e: GoogleIdTokenParsingException) {
+                    Log.e("LoginViewModel", "Received an invalid google id token response", e)
+                    exceptionData.value = ExceptionData("Received an invalid google id token response")
                     _showProgress.value = false
                     null
                 }
-                else -> {
-                    Log.e("LoginViewModel", "Unexpected type of credential")
-                    _showProgress.value = false
-                    null
-                }
+            } else {
+                Log.e("LoginViewModel", "Unexpected type of credential")
+                exceptionData.value = ExceptionData("Unexpected type of credential")
+                _showProgress.value = false
+                null
             }
+
             val firebaseCredential = GoogleAuthProvider.getCredential(googleIdToken, null)
             auth.signInWithCredential(firebaseCredential)
                 .addOnCompleteListener { task ->
@@ -128,7 +125,7 @@ class LoginViewModel @Inject constructor(
                         val user = task.result.user!!
                         _name.value = user.displayName
                         userRepository.checkUser(user.uid)
-                            .addOnSuccessListener { _showProgress.value = false }
+                            .addOnSuccessListener { _userLogged.value = true }
                             .addOnFailureListener {
                                 Log.e("RegisterViewModel", "checkUser: user does not exits", it)
                                 userRepository.createUser(
@@ -144,24 +141,18 @@ class LoginViewModel @Inject constructor(
                                 ).addOnCompleteListener { task2->
                                     if (task2.isSuccessful) {
                                         Log.d("RegisterViewModel", "createUser:User profile created.")
+                                        _userLogged.value = true
                                     } else {
                                         Log.e("RegisterViewModel", "createUser:failure profile create user", task2.exception)
-                                        viewModelScope.launch {
-                                            task.exception?.message?.let {
-                                                snackBarHostState.showSnackbar(it, duration = SnackbarDuration.Long)
-                                            }
-                                        }
+                                        exceptionData.value = ExceptionData(task.exception?.message, 2000)
+                                        _showProgress.value = false
                                     }
-                                    _userLogged.value = true
                                 }
                             }
-                    } else {
+                    }
+                    else {
                         Log.w("LoginViewModel", "continueWithGoogle:failure", task.exception)
-                        viewModelScope.launch {
-                            task.exception?.message?.let {
-                                snackBarHostState.showSnackbar(it, duration = SnackbarDuration.Long)
-                            }
-                        }
+                        exceptionData.value = ExceptionData(task.exception?.message)
                         _showProgress.value = false
                     }
                 }

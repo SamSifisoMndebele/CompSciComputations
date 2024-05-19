@@ -19,7 +19,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.Text
@@ -42,6 +41,7 @@ import androidx.compose.ui.unit.sp
 import com.airbnb.lottie.LottieComposition
 import com.airbnb.lottie.compose.LottieAnimation
 import com.compscicomputations.R
+import com.compscicomputations.ui.ExceptionDialog
 import com.compscicomputations.ui.LoadingDialog
 import com.compscicomputations.ui.auth.isError
 import com.compscicomputations.ui.auth.showMessage
@@ -69,7 +69,6 @@ fun LoginScreen(
                 else "Logged in successfully!", Toast.LENGTH_SHORT).show()
         }
     }
-    val showProgress by viewModel.showProgress.collectAsState()
 
     Box(
         contentAlignment = Alignment.Center
@@ -179,7 +178,7 @@ fun LoginScreen(
                     .fillMaxWidth()) {
                 Snackbar(
                     snackbarData = it,
-                    containerColor = OutlinedTextFieldDefaults.colors().errorLabelColor,
+                    containerColor = MaterialTheme.colorScheme.errorContainer,
                     contentColor = MaterialTheme.colorScheme.onSecondaryContainer
                 )
             }
@@ -212,6 +211,8 @@ fun LoginScreen(
 
         }
 
+        val showProgress by viewModel.showProgress.collectAsState()
         LoadingDialog(show = showProgress, message = "Login...")
+        ExceptionDialog(exceptionState = viewModel.exceptionData)
     }
 }

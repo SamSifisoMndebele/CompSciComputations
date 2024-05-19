@@ -1,7 +1,7 @@
 package com.compscicomputations
 
-import android.app.Application
+import com.google.android.play.core.splitcompat.SplitCompatApplication
 import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
-class CompSciComputationsApplication : Application()
+class CompSciComputationsApplication : SplitCompatApplication()
