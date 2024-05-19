@@ -16,7 +16,6 @@ import com.compscicomputations.ui.main.num_systems.NumSystemsScreen
 import com.compscicomputations.ui.main.polish.PolishScreen
 import com.compscicomputations.ui.main.profile.ProfileScreen
 import com.compscicomputations.ui.main.settings.SettingsScreen
-import com.ssmnd.karnaughmaps.KarnaughActivity
 
 enum class MainNavigation(val route: String) {
     DASHBOARD("dashboard_route"),
@@ -44,6 +43,10 @@ fun MainHostScreen(
             DashboardScreen(
                 navigateProfile = {
                     navController.navigate(MainNavigation.PROFILE.route)
+//                    {
+//                        popUpTo(navController.graph.startDestinationId)
+//                        launchSingleTop = true
+//                    }
                 },
                 navigateNumSystems = {
                     navController.navigate(MainNavigation.NUMBER_SYSTEMS.route)
@@ -53,8 +56,7 @@ fun MainHostScreen(
                 },
                 navigateKarnaugh = {
 //                    navController.navigate(MainNavigation.KARNAUGH.route)
-                    activity.startActivity(Intent(activity, KarnaughActivity::class.java))
-//                    activity.startActivity(Intent(activity, SampleActivity::class.java))
+//                    activity.startActivity(Intent(activity, KarnaughActivity::class.java))
                 },
                 navigateMatrix = {
                     navController.navigate(MainNavigation.MATRIX.route)

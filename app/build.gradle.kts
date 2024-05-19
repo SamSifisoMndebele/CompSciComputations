@@ -67,7 +67,12 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
-    dynamicFeatures += setOf(":karnaugh_maps")
+    dynamicFeatures += setOf(
+        ":features:karnaugh_maps",
+        ":features:number_systems",
+        ":features:polish_expressions",
+        ":features:matrix_methods"
+    )
 }
 
 dependencies {
@@ -131,9 +136,8 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.navigation.compose)
-    implementation(project(":MathsLib"))
+    implementation(project(":maths_lib"))
     implementation(project(":logic"))
-    implementation(project(":KarnaughMaps"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

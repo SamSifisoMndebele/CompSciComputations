@@ -9,12 +9,14 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/KarnaughMaps" />
-            <option value="$PROJECT_DIR$/MathsLib" />
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/features" />
             <option value="$PROJECT_DIR$/features/karnaugh_maps" />
+            <option value="$PROJECT_DIR$/features/matrix_methods" />
+            <option value="$PROJECT_DIR$/features/number_systems" />
+            <option value="$PROJECT_DIR$/features/polish_expressions" />
             <option value="$PROJECT_DIR$/logic" />
+            <option value="$PROJECT_DIR$/maths_lib" />
           </set>
         </option>
         <option name="resolveExternalAnnotations" value="false" />

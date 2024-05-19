@@ -22,6 +22,8 @@ dependencyResolutionManagement {
 rootProject.name = "CompSci Computations"
 include(":app")
 include(":logic")
-include(":MathsLib")
-include(":KarnaughMaps")
+include(":maths_lib")
 include(":features:karnaugh_maps")
+include(":features:number_systems")
+include(":features:polish_expressions")
+include(":features:matrix_methods")

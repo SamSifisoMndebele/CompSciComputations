@@ -29,8 +29,7 @@ import dagger.hilt.android.AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     companion object {
         private const val TAG = "DynamicFeatures"
-        private const val FEATURES_PACKAGE = "${BuildConfig.APPLICATION_ID}.features"
-        private const val kMapSampleClassActivity = "$FEATURES_PACKAGE.karnaughmaps.SampleActivity"
+        private const val KARNAUGH_ACTIVITY_CLASS = "${BuildConfig.APPLICATION_ID}.karnaughmaps.KarnaughActivity"
     }
     /** Listener used to handle changes in state for install requests. */
     private val listener = SplitInstallStateUpdatedListener { state ->
@@ -143,7 +142,7 @@ class MainActivity : ComponentActivity() {
     private fun onSuccessfulLoad(moduleName: String, launch: Boolean) {
         if (launch) {
             when (moduleName) {
-                moduleKMaps -> launchActivity(kMapSampleClassActivity)
+                moduleKMaps -> launchActivity(KARNAUGH_ACTIVITY_CLASS)
 //                moduleAssets -> displayAssets()
             }
         }
