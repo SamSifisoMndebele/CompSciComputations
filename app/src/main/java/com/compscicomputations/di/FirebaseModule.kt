@@ -6,6 +6,7 @@ import androidx.credentials.GetCredentialRequest
 import com.compscicomputations.BuildConfig
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import dagger.Module
 import dagger.Provides
@@ -33,7 +34,7 @@ object FirebaseModule {
                 .build()
     @Provides
     @Singleton
-    fun provideFirebaseAuth() = Firebase.auth
+    fun provideFirebaseAuth(): FirebaseAuth = Firebase.auth
 
 
 //    @Provides

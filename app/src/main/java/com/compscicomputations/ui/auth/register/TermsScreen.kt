@@ -28,7 +28,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.viewinterop.AndroidView
-import com.compscicomputations.utils.pdfviewer.PDFView
+import com.ssmnd.pdf_viewer.PDFView
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

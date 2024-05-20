@@ -46,7 +46,7 @@ import com.bumptech.glide.integration.compose.placeholder
 import com.compscicomputations.BuildConfig
 import com.compscicomputations.R
 import com.compscicomputations.ui.main.AppBar
-import com.compscicomputations.ui.main.dashboard.DashboardOption
+import com.compscicomputations.ui.main.OptionButton
 import com.compscicomputations.ui.theme.comicNeueFamily
 import com.compscicomputations.utils.createImageFile
 
@@ -202,19 +202,19 @@ fun ProfileScreen(
                         }
                     }
                     val optionPadding = PaddingValues(start = 8.dp, end = 8.dp, bottom = 8.dp)
-                    DashboardOption(
+                    OptionButton(
                         padding = optionPadding,
                         painter = painterResource(id = R.drawable.ic_number_64),
                         text = displayName,
                         onClick = {  }
                     )
-                    DashboardOption(
+                    OptionButton(
                         padding = optionPadding,
                         painter = painterResource(id = R.drawable.ic_abc),
                         text = email,
                         onClick = {  }
                     )
-                    DashboardOption(
+                    OptionButton(
                         padding = optionPadding,
                         painter = painterResource(id = R.drawable.ic_grid),
                         text = userType.name,
@@ -224,7 +224,7 @@ fun ProfileScreen(
                 }
             }
             item {
-                DashboardOption(
+                OptionButton(
                     padding = PaddingValues(vertical = 8.dp),
                     iconVector = Icons.AutoMirrored.Filled.Logout,
                     text = "Logout",

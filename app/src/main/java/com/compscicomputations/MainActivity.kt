@@ -17,13 +17,13 @@ import androidx.navigation.compose.rememberNavController
 import com.compscicomputations.ui.main.MainHostScreen
 import com.compscicomputations.ui.theme.CompSciComputationsTheme
 import com.google.android.play.core.splitinstall.SplitInstallManager
-import com.google.android.play.core.splitinstall.SplitInstallManagerFactory
 import com.google.android.play.core.splitinstall.SplitInstallRequest
 import com.google.android.play.core.splitinstall.SplitInstallStateUpdatedListener
 import com.google.android.play.core.splitinstall.model.SplitInstallSessionStatus
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -64,11 +64,14 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private val moduleKMaps by lazy { getString(R.string.module_karnaugh_maps) }
-    private lateinit var splitInstallManager: SplitInstallManager
+    @Inject
+    lateinit var splitInstallManager: SplitInstallManager
 
     private var exit = false
     private lateinit var navController: NavHostController
+
+//    @Inject
+//    private val auth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -77,8 +80,6 @@ class MainActivity : ComponentActivity() {
             finishAffinity()
             return
         }
-        //val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
-        splitInstallManager = SplitInstallManagerFactory.create(this)
 
         setContent {
             navController = rememberNavController()
@@ -144,7 +145,7 @@ class MainActivity : ComponentActivity() {
     private fun onSuccessfulLoad(moduleName: String, launch: Boolean) {
         if (launch) {
             when (moduleName) {
-                moduleKMaps -> launchActivity(KARNAUGH_ACTIVITY_CLASS)
+                "karnaugh_maps" -> launchActivity(KARNAUGH_ACTIVITY_CLASS)
 //                moduleAssets -> displayAssets()
             }
         }

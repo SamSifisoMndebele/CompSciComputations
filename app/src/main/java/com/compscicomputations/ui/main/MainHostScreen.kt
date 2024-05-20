@@ -11,23 +11,22 @@ import com.compscicomputations.MainActivity
 import com.compscicomputations.ui.main.dashboard.DashboardScreen
 import com.compscicomputations.ui.main.feedback.FeedbackScreen
 import com.compscicomputations.ui.main.help.HelpScreen
-import com.compscicomputations.ui.main.karnaugh.KarnaughScreen
-import com.compscicomputations.ui.main.matrix.MatrixScreen
-import com.compscicomputations.ui.main.num_systems.NumSystemsScreen
-import com.compscicomputations.ui.main.polish.PolishScreen
 import com.compscicomputations.ui.main.profile.ProfileScreen
 import com.compscicomputations.ui.main.settings.SettingsScreen
+import com.compscicomputations.utils.loadDynamicFeatureComposable
 
 enum class MainNavigation(val route: String) {
     DASHBOARD("dashboard_route"),
     PROFILE("profile_route"),
+    HELP("help_route"),
+    FEEDBACK("feedback_route"),
+    SETTINGS("settings_route"),
+
+    //Dynamic features
     NUMBER_SYSTEMS("num_systems_route"),
     POLISH("polish_route"),
     KARNAUGH("karnaugh_route"),
     MATRIX("matrix_route"),
-    HELP("help_route"),
-    FEEDBACK("feedback_route"),
-    SETTINGS("settings_route"),
 }
 
 @Composable
@@ -49,22 +48,6 @@ fun MainHostScreen(
 //                        launchSingleTop = true
 //                    }
                 },
-                navigateNumSystems = {
-                    navController.navigate(MainNavigation.NUMBER_SYSTEMS.route)
-                },
-                navigatePolish = {
-                    navController.navigate(MainNavigation.POLISH.route)
-                },
-                navigateKarnaugh = {
-//                    navController.navigate(MainNavigation.KARNAUGH.route)
-//                    activity.startActivity(Intent(activity, KarnaughActivity::class.java))
-                    val packageName = BuildConfig.APPLICATION_ID
-                    val className = "${BuildConfig.APPLICATION_ID}.karnaughmaps.KarnaughActivity"
-                    activity.startActivity(Intent().setClassName(packageName, className))
-                },
-                navigateMatrix = {
-                    navController.navigate(MainNavigation.MATRIX.route)
-                },
                 navigateHelp = {
                     navController.navigate(MainNavigation.HELP.route)
                 },
@@ -77,7 +60,23 @@ fun MainHostScreen(
                 navigateAuth = {
                     activity.startActivity(Intent(activity, AuthActivity::class.java))
                     activity.finishAffinity()
-                }
+                },
+
+                //navigateDynamicFeature
+                navigateNumSystems = {
+                    navController.navigate(MainNavigation.NUMBER_SYSTEMS.route)
+                },
+                navigatePolish = {
+                    navController.navigate(MainNavigation.POLISH.route)
+                },
+                navigateKarnaugh = {
+                    val packageName = BuildConfig.APPLICATION_ID
+                    val className = "$packageName.karnaughmaps.KarnaughActivity"
+                    activity.startActivity(Intent().setClassName(packageName, className))
+                },
+                navigateMatrix = {
+                    navController.navigate(MainNavigation.MATRIX.route)
+                },
             )
         }
         composable(MainNavigation.PROFILE.route) {
@@ -91,49 +90,6 @@ fun MainHostScreen(
                 }
             )
         }
-        composable(MainNavigation.NUMBER_SYSTEMS.route) {
-            NumSystemsScreen(
-                navigateUp = {
-                    navController.navigateUp()
-                }
-            )
-        }
-        composable(MainNavigation.POLISH.route) {
-            PolishScreen(
-                navigateUp = {
-                    navController.navigateUp()
-                }
-            )
-        }
-        composable(MainNavigation.KARNAUGH.route) {
-            KarnaughScreen(
-                navigateUp = {
-                    navController.navigateUp()
-                }
-            )
-        }
-        composable(MainNavigation.MATRIX.route) {
-            MatrixScreen(
-                navigateUp = {
-                    navController.navigateUp()
-                },
-                navigateCramer = {
-                    //navController.navigate(MainNavigation.NUMBER_SYSTEMS.route)
-                },
-                navigateGauss = {
-                    //navController.navigate(MainNavigation.POLISH.route)
-                },
-            )
-        }
-        /*composable(
-            MainNavigation.KARNAUGH.route,
-            arguments = listOf(navArgument("email"){
-                type = NavType.StringType
-                nullable = true
-            })
-        ) {backStackEntry ->
-
-        }*/
         composable(MainNavigation.HELP.route) {
             HelpScreen(
                 navigateUp = {
@@ -150,6 +106,51 @@ fun MainHostScreen(
         }
         composable(MainNavigation.SETTINGS.route) {
             SettingsScreen(
+                navigateUp = {
+                    navController.navigateUp()
+                }
+            )
+        }
+
+
+        composable(MainNavigation.NUMBER_SYSTEMS.route) {
+            val packageName = BuildConfig.APPLICATION_ID
+            val className = "$packageName.number_systems.NumberSystemsKt"
+            val composeMethodName = "NumberSystemsScreen"
+            loadDynamicFeatureComposable(
+                className = className,
+                methodName = composeMethodName,
+                navigateUp = {
+                    navController.navigateUp()
+                }
+            )
+        }
+        composable(MainNavigation.POLISH.route) {
+            val packageName = BuildConfig.APPLICATION_ID
+            val className = "$packageName.polish_expressions.PolishExpressionsKt"
+            val composeMethodName = "PolishExpressionsScreen"
+            loadDynamicFeatureComposable(
+                className = className,
+                methodName = composeMethodName,
+                navigateUp = {
+                    navController.navigateUp()
+                }
+            )
+        }
+        composable(MainNavigation.KARNAUGH.route) {
+//            com.compscicomputations.karnaughmaps.KarnaughScreen(
+//                navigateUp = {
+//                    navController.navigateUp()
+//                }
+//            )
+        }
+        composable(MainNavigation.MATRIX.route) {
+            val packageName = BuildConfig.APPLICATION_ID
+            val className = "$packageName.matrix_methods.MatrixMethodsKt"
+            val composeMethodName = "MatrixMethodsScreen"
+            loadDynamicFeatureComposable(
+                className = className,
+                methodName = composeMethodName,
                 navigateUp = {
                     navController.navigateUp()
                 }

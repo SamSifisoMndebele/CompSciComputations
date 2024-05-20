@@ -31,7 +31,6 @@ import androidx.compose.ui.unit.sp
 import com.compscicomputations.R
 import kotlinx.coroutines.delay
 
-
 @Composable
 fun LoadingDialog(
     show: Boolean,
@@ -71,7 +70,6 @@ fun LoadingDialog(
         }
     }
 }
-
 
 data class ExceptionData(
     var message: String?,

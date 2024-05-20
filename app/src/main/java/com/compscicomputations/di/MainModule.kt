@@ -1,11 +1,15 @@
 package com.compscicomputations.di
 
+import android.content.Context
 import com.compscicomputations.data.repository.UserRepository
 import com.compscicomputations.data.repository.impl.UserRepositoryImpl
+import com.google.android.play.core.splitinstall.SplitInstallManager
+import com.google.android.play.core.splitinstall.SplitInstallManagerFactory
 import com.google.firebase.auth.FirebaseAuth
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.storage.Storage
@@ -17,9 +21,15 @@ object MainModule {
 
     @Provides
     @Singleton
-    fun provideUserRepository(auth: FirebaseAuth, postgrest: Postgrest, storage: Storage) : UserRepository {
-        return UserRepositoryImpl(auth, postgrest, storage)
-    }
+    fun provideUserRepository(auth: FirebaseAuth, postgrest: Postgrest, storage: Storage) :
+            UserRepository = UserRepositoryImpl(auth, postgrest, storage)
 
+    @Provides
+    @Singleton
+    fun provideSplitInstallManager(@ApplicationContext context: Context):
+            SplitInstallManager = SplitInstallManagerFactory.create(context)
 
+//    @Provides
+//    @Singleton
+//    fun provideTextRecogniser() = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
 }
