@@ -75,7 +75,7 @@ fun LoadingDialog(
 
 data class ExceptionData(
     var message: String?,
-    val delayMillis: Long = 4000,
+    val delayMillis: Long = 5000,
     val onCancel: (() -> Unit)? = null,
 )
 @Composable

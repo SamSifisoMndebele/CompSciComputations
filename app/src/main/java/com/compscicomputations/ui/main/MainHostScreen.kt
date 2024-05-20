@@ -6,6 +6,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.compscicomputations.AuthActivity
+import com.compscicomputations.BuildConfig
 import com.compscicomputations.MainActivity
 import com.compscicomputations.ui.main.dashboard.DashboardScreen
 import com.compscicomputations.ui.main.feedback.FeedbackScreen
@@ -57,6 +58,9 @@ fun MainHostScreen(
                 navigateKarnaugh = {
 //                    navController.navigate(MainNavigation.KARNAUGH.route)
 //                    activity.startActivity(Intent(activity, KarnaughActivity::class.java))
+                    val packageName = BuildConfig.APPLICATION_ID
+                    val className = "${BuildConfig.APPLICATION_ID}.karnaughmaps.KarnaughActivity"
+                    activity.startActivity(Intent().setClassName(packageName, className))
                 },
                 navigateMatrix = {
                     navController.navigate(MainNavigation.MATRIX.route)

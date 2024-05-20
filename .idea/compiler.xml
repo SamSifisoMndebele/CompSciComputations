@@ -2,7 +2,6 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <bytecodeTargetLevel target="1.8">
-      <module name="CompSci_Computations.features.matrix_methods" target="17" />
       <module name="CompSci_Computations.karnaugh_maps" target="17" />
       <module name="CompSci_Computations.KarnaughMaps" target="17" />
     </bytecodeTargetLevel>

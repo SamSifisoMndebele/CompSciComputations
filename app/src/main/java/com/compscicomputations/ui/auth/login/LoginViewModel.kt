@@ -23,6 +23,7 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.actionCodeSettings
 import com.google.firebase.auth.auth
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -82,80 +83,83 @@ class LoginViewModel @Inject constructor(
 
     fun continueWithGoogle(context: Context) {
         _showProgress.value = true
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             val result = try {
                 credentialManager.getCredential(
                     request = credentialRequest,
                     context = context,
                 )
             } catch (e: NoCredentialException) {
-                Log.e("LoginViewModel", e.message, e)
+                Log.e("LoginViewModel", "NoCredentialException: "+e.message, e)
                 exceptionData.value = ExceptionData(e.message)
                 _showProgress.value = false
-                return@launch
+                null
             } catch (e: Exception) {
-                Log.e("LoginViewModel", e.message, e)
+                Log.e("LoginViewModel", "Exception: "+ e.message, e)
+                if (e.message == "activity is cancelled by the user.") return@launch
                 exceptionData.value = ExceptionData(e.message)
-                _showProgress.value = false
-                return@launch
-            }
-            val credential = result.credential
-            val googleIdToken = if (credential is CustomCredential &&
-                credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
-                try {
-                    GoogleIdTokenCredential.createFrom(credential.data).idToken
-                } catch (e: GoogleIdTokenParsingException) {
-                    Log.e("LoginViewModel", "Received an invalid google id token response", e)
-                    exceptionData.value = ExceptionData("Received an invalid google id token response")
-                    _showProgress.value = false
-                    null
-                }
-            } else {
-                Log.e("LoginViewModel", "Unexpected type of credential")
-                exceptionData.value = ExceptionData("Unexpected type of credential")
                 _showProgress.value = false
                 null
             }
+            if (result != null) {
+                val credential = result.credential
+                val googleIdToken = if (credential is CustomCredential &&
+                    credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
+                    try {
+                        GoogleIdTokenCredential.createFrom(credential.data).idToken
+                    } catch (e: GoogleIdTokenParsingException) {
+                        Log.e("LoginViewModel", "Received an invalid google id token response", e)
+                        exceptionData.value = ExceptionData("Received an invalid google id token response")
+                        _showProgress.value = false
+                        null
+                    }
+                } else {
+                    Log.e("LoginViewModel", "Unexpected type of credential")
+                    exceptionData.value = ExceptionData("Unexpected type of credential")
+                    _showProgress.value = false
+                    null
+                }
 
-            val firebaseCredential = GoogleAuthProvider.getCredential(googleIdToken, null)
-            auth.signInWithCredential(firebaseCredential)
-                .addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        Log.d("LoginViewModel", "continueWithGoogle:success")
-                        val user = task.result.user!!
-                        _name.value = user.displayName
-                        userRepository.checkUser(user.uid)
-                            .addOnSuccessListener { _userLogged.value = true }
-                            .addOnFailureListener {
-                                Log.e("RegisterViewModel", "checkUser: user does not exits", it)
-                                userRepository.createUser(
-                                    uid = user.uid,
-                                    displayName = user.displayName.toString(),
-                                    email = user.email!!,
-                                    photoUrl = user.photoUrl?.toString(),
-                                    userType = UserType.STUDENT.name,
-                                    createdAt = if (user.metadata?.creationTimestamp != null)
-                                        Date(user.metadata?.creationTimestamp!!) else Date(),
-                                    lastSeenAt = if (user.metadata?.lastSignInTimestamp != null)
-                                        Date(user.metadata?.lastSignInTimestamp!!) else Date()
-                                ).addOnCompleteListener { task2->
-                                    if (task2.isSuccessful) {
-                                        Log.d("RegisterViewModel", "createUser:User profile created.")
-                                        _userLogged.value = true
-                                    } else {
-                                        Log.e("RegisterViewModel", "createUser:failure profile create user", task2.exception)
-                                        exceptionData.value = ExceptionData(task.exception?.message, 2000)
-                                        _showProgress.value = false
+                if (googleIdToken != null)
+                    auth.signInWithCredential(GoogleAuthProvider.getCredential(googleIdToken, null))
+                        .addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            Log.d("LoginViewModel", "continueWithGoogle:success")
+                            val user = task.result.user!!
+                            _name.value = user.displayName
+                            userRepository.checkUser(user.uid)
+                                .addOnSuccessListener { _userLogged.value = true }
+                                .addOnFailureListener {
+                                    Log.e("RegisterViewModel", "checkUser: user does not exits", it)
+                                    userRepository.createUser(
+                                        uid = user.uid,
+                                        displayName = user.displayName.toString(),
+                                        email = user.email!!,
+                                        photoUrl = user.photoUrl?.toString(),
+                                        userType = UserType.STUDENT.name,
+                                        createdAt = if (user.metadata?.creationTimestamp != null)
+                                            Date(user.metadata?.creationTimestamp!!) else Date(),
+                                        lastSeenAt = if (user.metadata?.lastSignInTimestamp != null)
+                                            Date(user.metadata?.lastSignInTimestamp!!) else Date()
+                                    ).addOnCompleteListener { task2->
+                                        if (task2.isSuccessful) {
+                                            Log.d("RegisterViewModel", "createUser:User profile created.")
+                                            _userLogged.value = true
+                                        } else {
+                                            Log.e("RegisterViewModel", "createUser:failure profile create user", task2.exception)
+                                            exceptionData.value = ExceptionData(task.exception?.message, 2000)
+                                            _showProgress.value = false
+                                        }
                                     }
                                 }
-                            }
+                        }
+                        else {
+                            Log.w("LoginViewModel", "continueWithGoogle:failure", task.exception)
+                            exceptionData.value = ExceptionData(task.exception?.message)
+                            _showProgress.value = false
+                        }
                     }
-                    else {
-                        Log.w("LoginViewModel", "continueWithGoogle:failure", task.exception)
-                        exceptionData.value = ExceptionData(task.exception?.message)
-                        _showProgress.value = false
-                    }
-                }
+            }
         }
     }
 

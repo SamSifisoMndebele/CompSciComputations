@@ -88,13 +88,15 @@ class MainActivity : ComponentActivity() {
                 Surface {
                     MainHostScreen(this, navController)
                     
-//                    Text(text = text)
+//                    Text(text = splitInstallManager.installedModules.joinToString("\n"))
                     
                 }
             }
         }
 
-        loadAndLaunchModule(moduleKMaps)
+        //loadAndLaunchModule(moduleKMaps)
+
+
 
         onBackPressedMethod()
     }
