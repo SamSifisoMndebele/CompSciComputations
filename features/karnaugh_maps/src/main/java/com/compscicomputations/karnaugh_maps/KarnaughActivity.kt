@@ -1,4 +1,4 @@
-package com.compscicomputations.karnaughmaps
+package com.compscicomputations.karnaugh_maps
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
@@ -6,7 +6,7 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
-import com.compscicomputations.karnaughmaps.databinding.ActivityKarnaughBinding
+import com.compscicomputations.karnaugh_maps.databinding.ActivityKarnaughBinding
 
 class KarnaughActivity : AppCompatActivity() {
 

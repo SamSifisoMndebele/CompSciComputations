@@ -1,4 +1,4 @@
-package com.compscicomputations.karnaughmaps.kMapView
+package com.compscicomputations.karnaugh_maps.kMapView
 
 class Alignment {
     @JvmField

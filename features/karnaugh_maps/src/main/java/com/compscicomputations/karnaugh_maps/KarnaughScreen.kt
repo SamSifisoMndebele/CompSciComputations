@@ -1,4 +1,4 @@
-package com.compscicomputations.karnaughmaps
+package com.compscicomputations.karnaugh_maps
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable

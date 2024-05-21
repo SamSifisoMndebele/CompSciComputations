@@ -95,10 +95,6 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        //loadAndLaunchModule(moduleKMaps)
-
-
-
         onBackPressedMethod()
     }
 

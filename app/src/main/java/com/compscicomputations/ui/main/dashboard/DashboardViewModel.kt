@@ -4,6 +4,7 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import com.compscicomputations.data.repository.UserRepository
 import com.compscicomputations.ui.auth.UserType
+import com.google.android.play.core.splitinstall.SplitInstallManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -11,7 +12,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
-    private val userRepository: UserRepository
+    userRepository: UserRepository,
+    val splitInstallManager: SplitInstallManager
 ) : ViewModel() {
 
 //    private val _firebaseUser = MutableStateFlow<FirebaseUser?>(null)
@@ -23,6 +25,7 @@ class DashboardViewModel @Inject constructor(
     private val _displayName = MutableStateFlow("Complete your profile.")
     private val _email = MutableStateFlow("")
     private val _photoUrl = MutableStateFlow<Uri?>(null)
+
 
     val userType = _userType.asStateFlow()
     val displayName = _displayName.asStateFlow()
@@ -39,5 +42,10 @@ class DashboardViewModel @Inject constructor(
                 _email.value = user.email
                 _photoUrl.value = user.photoUrl
             }
+
+        /*splitInstallManager.deferredUninstall(listOf("polish_expressions", "matrix_methods"))
+            .addOnSuccessListener {
+                Toast.makeText(context, "Done remove polish_expressions", Toast.LENGTH_SHORT).show()
+            }*/
     }
 }

@@ -1,19 +1,20 @@
 package com.compscicomputations.ui.main
 
 import android.content.Intent
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.compscicomputations.AuthActivity
-import com.compscicomputations.BuildConfig
 import com.compscicomputations.MainActivity
 import com.compscicomputations.ui.main.dashboard.DashboardScreen
 import com.compscicomputations.ui.main.feedback.FeedbackScreen
 import com.compscicomputations.ui.main.help.HelpScreen
 import com.compscicomputations.ui.main.profile.ProfileScreen
 import com.compscicomputations.ui.main.settings.SettingsScreen
-import com.compscicomputations.utils.loadDynamicFeatureComposable
+import com.compscicomputations.utils.LoadDynamicFeature
 
 enum class MainNavigation(val route: String) {
     DASHBOARD("dashboard_route"),
@@ -21,12 +22,7 @@ enum class MainNavigation(val route: String) {
     HELP("help_route"),
     FEEDBACK("feedback_route"),
     SETTINGS("settings_route"),
-
-    //Dynamic features
-    NUMBER_SYSTEMS("num_systems_route"),
-    POLISH("polish_route"),
-    KARNAUGH("karnaugh_route"),
-    MATRIX("matrix_route"),
+    DYNAMIC_FEATURE("dynamic_feature_route"),
 }
 
 @Composable
@@ -62,20 +58,18 @@ fun MainHostScreen(
                     activity.finishAffinity()
                 },
 
-                //navigateDynamicFeature
-                navigateNumSystems = {
-                    navController.navigate(MainNavigation.NUMBER_SYSTEMS.route)
-                },
-                navigatePolish = {
-                    navController.navigate(MainNavigation.POLISH.route)
-                },
-                navigateKarnaugh = {
-                    val packageName = BuildConfig.APPLICATION_ID
-                    val className = "$packageName.karnaughmaps.KarnaughActivity"
-                    activity.startActivity(Intent().setClassName(packageName, className))
-                },
-                navigateMatrix = {
-                    navController.navigate(MainNavigation.MATRIX.route)
+                navigateDynamicFeature = { packageName, className, composeMethodName ->
+                    try {
+                        if (composeMethodName == null) {
+                            activity.startActivity(Intent().setClassName(packageName, className))
+                        } else {
+                            navController.navigate(MainNavigation.DYNAMIC_FEATURE.route
+                                    + "/$className/$composeMethodName")
+                        }
+                    } catch (e: Exception) {
+                        Toast.makeText(activity, e.message, Toast.LENGTH_LONG).show()
+                        Log.e("MainHostScreen", "navigateDynamicFeature:error", e)
+                    }
                 },
             )
         }
@@ -112,45 +106,10 @@ fun MainHostScreen(
             )
         }
 
-
-        composable(MainNavigation.NUMBER_SYSTEMS.route) {
-            val packageName = BuildConfig.APPLICATION_ID
-            val className = "$packageName.number_systems.NumberSystemsKt"
-            val composeMethodName = "NumberSystemsScreen"
-            loadDynamicFeatureComposable(
-                className = className,
-                methodName = composeMethodName,
-                navigateUp = {
-                    navController.navigateUp()
-                }
-            )
-        }
-        composable(MainNavigation.POLISH.route) {
-            val packageName = BuildConfig.APPLICATION_ID
-            val className = "$packageName.polish_expressions.PolishExpressionsKt"
-            val composeMethodName = "PolishExpressionsScreen"
-            loadDynamicFeatureComposable(
-                className = className,
-                methodName = composeMethodName,
-                navigateUp = {
-                    navController.navigateUp()
-                }
-            )
-        }
-        composable(MainNavigation.KARNAUGH.route) {
-//            com.compscicomputations.karnaughmaps.KarnaughScreen(
-//                navigateUp = {
-//                    navController.navigateUp()
-//                }
-//            )
-        }
-        composable(MainNavigation.MATRIX.route) {
-            val packageName = BuildConfig.APPLICATION_ID
-            val className = "$packageName.matrix_methods.MatrixMethodsKt"
-            val composeMethodName = "MatrixMethodsScreen"
-            loadDynamicFeatureComposable(
-                className = className,
-                methodName = composeMethodName,
+        composable(MainNavigation.DYNAMIC_FEATURE.route+"/{class_name}/{method_name}") {
+            LoadDynamicFeature(
+                className = it.arguments!!.getString("class_name")!!,
+                methodName = it.arguments!!.getString("method_name")!!,
                 navigateUp = {
                     navController.navigateUp()
                 }

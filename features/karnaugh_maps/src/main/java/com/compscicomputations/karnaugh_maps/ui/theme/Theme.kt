@@ -1,4 +1,4 @@
-package com.compscicomputations.karnaughmaps.ui.theme
+package com.compscicomputations.karnaugh_maps.ui.theme
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme

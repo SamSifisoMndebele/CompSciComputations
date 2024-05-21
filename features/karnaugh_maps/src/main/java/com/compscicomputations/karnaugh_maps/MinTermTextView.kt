@@ -1,4 +1,4 @@
-package com.compscicomputations.karnaughmaps
+package com.compscicomputations.karnaugh_maps
 
 import android.content.Context
 import android.text.Html

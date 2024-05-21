@@ -1,13 +1,13 @@
-package com.compscicomputations.karnaughmaps
+package com.compscicomputations.karnaugh_maps
 
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Spinner
 import androidx.fragment.app.Fragment
-import com.compscicomputations.karnaughmaps.kMapView.KMapVariablesImageView
-import com.compscicomputations.karnaughmaps.kMapView.KMapVariablesImageView.OnKmapAnimationListener
-import com.compscicomputations.karnaughmaps.utils.ListOfMinterms
+import com.compscicomputations.karnaugh_maps.kMapView.KMapVariablesImageView
+import com.compscicomputations.karnaugh_maps.kMapView.KMapVariablesImageView.OnKmapAnimationListener
+import com.compscicomputations.karnaugh_maps.utils.ListOfMinterms
 
 open class KarnaughFragment : Fragment() {
     var answers: ArrayList<ListOfMinterms>? = null

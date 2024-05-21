@@ -1,9 +1,9 @@
-package com.compscicomputations.karnaughmaps.kMapView
+package com.compscicomputations.karnaugh_maps.kMapView
 
 import android.content.Context
 import android.util.AttributeSet
-import com.compscicomputations.karnaughmaps.R
-import com.compscicomputations.karnaughmaps.utils.ListOfMinterms
+import com.compscicomputations.karnaugh_maps.R
+import com.compscicomputations.karnaugh_maps.utils.ListOfMinterms
 
 class KMap3VariablesImageView :
     KMapVariablesImageView {

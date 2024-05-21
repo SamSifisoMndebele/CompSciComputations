@@ -18,7 +18,7 @@ import java.lang.reflect.Method
 import java.lang.reflect.Modifier
 
 @Composable
-fun loadDynamicFeatureComposable(
+fun LoadDynamicFeature(
     className: String,
     methodName: String,
     objectInstance: Any = Any(),

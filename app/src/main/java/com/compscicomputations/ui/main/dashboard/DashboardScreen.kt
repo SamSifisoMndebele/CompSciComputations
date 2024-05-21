@@ -43,7 +43,10 @@ import com.bumptech.glide.integration.compose.CrossFade
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
+import com.compscicomputations.BuildConfig
 import com.compscicomputations.R
+import com.compscicomputations.data.featuresIcons
+import com.compscicomputations.data.featuresList
 import com.compscicomputations.ui.main.OptionButton
 import com.compscicomputations.ui.theme.comicNeueFamily
 
@@ -54,13 +57,10 @@ fun DashboardScreen(
     viewModel: DashboardViewModel = hiltViewModel(),
     navigateAuth: () -> Unit,
     navigateProfile: () -> Unit,
-    navigateNumSystems: () -> Unit,
-    navigatePolish: () -> Unit,
-    navigateKarnaugh: () -> Unit,
-    navigateMatrix: () -> Unit,
     navigateHelp: () -> Unit,
     navigateFeedback: () -> Unit,
-    navigateSettings: () -> Unit
+    navigateSettings: () -> Unit,
+    navigateDynamicFeature: (packageName: String, className: String, composeMethodName: String?) -> Unit
 ) {
 //    val firebaseUser by viewModel.firebaseUser.collectAsState()
     val userType by viewModel.userType.collectAsState()
@@ -125,8 +125,6 @@ fun DashboardScreen(
                             containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.25f)
                         )
                     ) {
-
-
                         Row (
                             modifier = Modifier.padding(end = 8.dp),
                             verticalAlignment = Alignment.CenterVertically
@@ -156,25 +154,24 @@ fun DashboardScreen(
                             }
                         }
                     }
+//                    Text(text = viewModel.splitInstallManager.installedModules.joinToString("\n"))
                     val optionPadding = PaddingValues(start = 8.dp, end = 8.dp, bottom = 8.dp)
-                    OptionButton(
-                        padding = optionPadding,
-                        painter = painterResource(id = R.drawable.ic_number_64),
-                        text = "Number Systems",
-                        onClick = navigateNumSystems
-                    )
-                    OptionButton(
-                        padding = optionPadding,
-                        painter = painterResource(id = R.drawable.ic_abc),
-                        text = "Polish Expressions",
-                        onClick = navigatePolish
-                    )
-                    OptionButton(
-                        padding = optionPadding,
-                        painter = painterResource(id = R.drawable.ic_grid),
-                        text = "Karnaugh Maps",
-                        onClick = navigateKarnaugh
-                    )
+                    val installedFeatures = featuresList.toMutableSet()
+                    val installedModules = viewModel.splitInstallManager.installedModules
+                    installedFeatures.retainAll { installedModules.contains(it.module) }
+                    installedFeatures.forEach {
+                        OptionButton(
+                            padding = optionPadding,
+                            painter = painterResource(id = featuresIcons[it.id]),
+                            text = it.title,
+                            onClick = {
+                                val packageName = BuildConfig.APPLICATION_ID
+                                val className = "$packageName.${it.module}.${it.className}"
+                                navigateDynamicFeature(packageName, className, it.methodName)
+                            }
+                        )
+                    }
+
                     /*DashboardOption(
                         padding = optionPadding,
                         painter = painterResource(id = R.drawable.ic_software),
@@ -196,13 +193,6 @@ fun DashboardScreen(
                     ) {
 
                     }*/
-                    OptionButton(
-                        padding = optionPadding,
-                        painter = painterResource(id = R.drawable.ic_matrix),
-                        text = "Matrix Methods",
-                        onClick = navigateMatrix
-                    )
-
                 }
             }
             item { Spacer(modifier = Modifier.height(8.dp)) }

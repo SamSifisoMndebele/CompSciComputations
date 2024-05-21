@@ -1,4 +1,4 @@
-package com.compscicomputations.karnaughmaps
+package com.compscicomputations.karnaugh_maps
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -12,9 +12,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import androidx.core.widget.doOnTextChanged
-import com.compscicomputations.karnaughmaps.databinding.Karnaugh4VariablesBinding
-import com.compscicomputations.karnaughmaps.logic.Karnaugh4Variables
-import com.compscicomputations.karnaughmaps.utils.binaryToDecimalList
+import com.compscicomputations.karnaugh_maps.databinding.Karnaugh4VariablesBinding
+import com.compscicomputations.karnaugh_maps.logic.Karnaugh4Variables
+import com.compscicomputations.karnaugh_maps.utils.binaryToDecimalList
 
 class Karnaugh4Fragment : KarnaughFragment() {
 

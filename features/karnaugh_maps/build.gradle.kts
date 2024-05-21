@@ -3,7 +3,7 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.android)
 }
 android {
-    namespace = "com.compscicomputations.karnaughmaps"
+    namespace = "com.compscicomputations.karnaugh_maps"
     compileSdk = 34
 
     defaultConfig {

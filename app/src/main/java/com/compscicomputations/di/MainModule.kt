@@ -1,5 +1,6 @@
 package com.compscicomputations.di
 
+import android.app.Application
 import android.content.Context
 import com.compscicomputations.data.repository.UserRepository
 import com.compscicomputations.data.repository.impl.UserRepositoryImpl
@@ -18,6 +19,10 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object MainModule {
+
+    @Provides
+    @Singleton
+    fun provideContext(app: Application) : Context = app.applicationContext
 
     @Provides
     @Singleton

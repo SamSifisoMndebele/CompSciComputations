@@ -1,4 +1,4 @@
-package com.compscicomputations.karnaughmaps.kMapView;
+package com.compscicomputations.karnaugh_maps.kMapView;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -18,9 +18,9 @@ import android.view.animation.LinearInterpolator;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.core.app.NotificationManagerCompat;
 
-import com.compscicomputations.karnaughmaps.Config;
-import com.compscicomputations.karnaughmaps.utils.ListOfMinterms;
-import com.compscicomputations.karnaughmaps.utils.MinTerm;
+import com.compscicomputations.karnaugh_maps.Config;
+import com.compscicomputations.karnaugh_maps.utils.ListOfMinterms;
+import com.compscicomputations.karnaugh_maps.utils.MinTerm;
 
 import java.util.ArrayList;
 

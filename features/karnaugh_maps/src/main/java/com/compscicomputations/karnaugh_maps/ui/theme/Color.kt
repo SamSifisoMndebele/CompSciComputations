@@ -1,4 +1,4 @@
-package com.compscicomputations.karnaughmaps.ui.theme
+package com.compscicomputations.karnaugh_maps.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

@@ -45,6 +45,8 @@ android {
             )
         }
         debug {
+//            isMinifyEnabled = true
+//            isShrinkResources = true
             isMinifyEnabled = false
         }
     }

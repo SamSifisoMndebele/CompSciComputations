@@ -1,4 +1,4 @@
-package com.compscicomputations.karnaughmaps.utils;
+package com.compscicomputations.karnaugh_maps.utils;
 
 import androidx.annotation.NonNull;
 
