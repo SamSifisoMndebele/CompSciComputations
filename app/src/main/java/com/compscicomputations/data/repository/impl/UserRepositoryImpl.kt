@@ -1,7 +1,7 @@
 package com.compscicomputations.data.repository.impl
 
 import com.compscicomputations.BuildConfig
-import com.compscicomputations.data.api.Task
+import com.compscicomputations.data.Task
 import com.compscicomputations.data.dto.UserDto
 import com.compscicomputations.data.dto.UserDto.Companion.toDateString
 import com.compscicomputations.data.model.User
@@ -45,7 +45,7 @@ class UserRepositoryImpl @Inject constructor(
         return try {
             runBlocking(Dispatchers.IO) {
                 val result = postgrest.from("user").select().decodeList<UserDto>()
-                Task.successfulTask(result.map { it.user })
+                Task.successfulTask(result.map { it.asUser })
             }
         } catch (e: Exception) {
             Task.failedTask(e)
@@ -56,13 +56,20 @@ class UserRepositoryImpl @Inject constructor(
         return auth.currentUser != null
     }
 
-    override fun getUser(uid: String?): Task<User> {
+    override suspend fun getUser(uid: String?): User {
+        val user = postgrest.from("user").select {
+            filter { eq("uid", uid ?: auth.currentUser!!.uid) }
+        }.decodeSingle<UserDto>()
+        return user.asUser
+    }
+
+    fun getUser2(uid: String?): Task<User> {
         return try {
-            runBlocking(Dispatchers.IO) {
+            runBlocking {
                 val result = postgrest.from("user").select {
                     filter { eq("uid", uid ?: auth.currentUser!!.uid) }
                 }.decodeSingle<UserDto>()
-                Task.successfulTask(result.user)
+                Task.successfulTask(result.asUser)
             }
         } catch (e: Exception) {
             Task.failedTask(e)

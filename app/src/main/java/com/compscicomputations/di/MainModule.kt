@@ -14,6 +14,9 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.storage.Storage
+import kotlinx.coroutines.ExecutorCoroutineDispatcher
+import kotlinx.coroutines.asCoroutineDispatcher
+import java.util.concurrent.Executors
 import javax.inject.Singleton
 
 @Module
@@ -23,6 +26,12 @@ object MainModule {
     @Provides
     @Singleton
     fun provideContext(app: Application) : Context = app.applicationContext
+
+
+    @Provides
+    @Singleton
+    fun provideCoroutineDispatcher() :
+            ExecutorCoroutineDispatcher = Executors.newCachedThreadPool().asCoroutineDispatcher()
 
     @Provides
     @Singleton

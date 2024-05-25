@@ -20,6 +20,11 @@
         android:theme="@style/Theme.CompSciComputations"
         tools:targetApi="31">
         <activity
+            android:name=".SplitInstallActivity"
+            android:exported="false"
+            android:label="@string/title_activity_split_install"
+            android:theme="@style/Theme.CompSciComputations" />
+        <activity
             android:name=".FeaturesActivity"
             android:exported="false"
             android:label="@string/title_activity_features"

@@ -1,6 +1,6 @@
 package com.compscicomputations.data.repository
 
-import com.compscicomputations.data.api.Task
+import com.compscicomputations.data.Task
 import com.compscicomputations.data.model.User
 import java.io.File
 import java.util.Date
@@ -18,7 +18,7 @@ interface UserRepository {
     fun getUsers(): Task<List<User>>
 
     fun isUserSigned() : Boolean
-    fun getUser(uid: String? = null): Task<User>
+    suspend fun getUser(uid: String? = null): User
     fun checkUser(uid: String? = null): Task<Unit>
     fun logout(): Task<Unit>
     fun deleteUser(uid: String): Task<Unit>

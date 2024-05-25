@@ -1,9 +1,9 @@
 package com.compscicomputations.karnaugh_maps
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -24,6 +24,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import com.compscicomputations.ui.main.AppBar
 
 enum class NumVariables(val string: String) {
@@ -35,13 +36,12 @@ enum class NumVariables(val string: String) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun KarnaughScreen(
-    padding: PaddingValues = PaddingValues(start = 8.dp, end = 8.dp, top = 2.dp),
     navigateUp: () -> Unit,
 ) {
     var numVariables by rememberSaveable { mutableStateOf(NumVariables.FOUR) }
 
     Column(
-        modifier = Modifier.padding(padding),
+        modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 2.dp),
     ) {
         AppBar(title = "Karnaugh Maps", navigateUp = navigateUp) {
             //TODO Menu
@@ -82,6 +82,8 @@ fun KarnaughScreen(
                 }
             }
         }
+
+        Karnaugh4FragmentInCompose()
         /*when(numVariables) {
             NumVariables.TWO -> Karnaugh2()
             NumVariables.THREE -> Karnaugh3()
@@ -89,4 +91,19 @@ fun KarnaughScreen(
         }*/
 
     }
+}
+
+@SuppressLint("ClickableViewAccessibility")
+@Composable
+fun Karnaugh4FragmentInCompose() {
+    AndroidView(factory = {
+//        val inflater = LayoutInflater.from(context)
+//        val binding = Karnaugh4VariablesBinding.inflate(inflater)
+
+        val karnaugh4Fragment = Karnaugh4Fragment()
+
+
+
+        karnaugh4Fragment.rootView
+    })
 }

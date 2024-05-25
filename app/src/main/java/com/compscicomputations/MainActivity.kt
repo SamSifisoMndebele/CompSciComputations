@@ -20,8 +20,7 @@ import com.google.android.play.core.splitinstall.SplitInstallManager
 import com.google.android.play.core.splitinstall.SplitInstallRequest
 import com.google.android.play.core.splitinstall.SplitInstallStateUpdatedListener
 import com.google.android.play.core.splitinstall.model.SplitInstallSessionStatus
-import com.google.firebase.Firebase
-import com.google.firebase.auth.auth
+import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -64,18 +63,19 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+
+    @Inject
+    lateinit var auth: FirebaseAuth
     @Inject
     lateinit var splitInstallManager: SplitInstallManager
 
     private var exit = false
     private lateinit var navController: NavHostController
 
-//    @Inject
-//    private val auth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (Firebase.auth.currentUser==null) {
+        if (auth.currentUser==null) {
             startActivity(Intent(this, AuthActivity::class.java))
             finishAffinity()
             return

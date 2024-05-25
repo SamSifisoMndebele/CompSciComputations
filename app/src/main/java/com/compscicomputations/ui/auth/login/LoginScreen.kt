@@ -16,11 +16,8 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Snackbar
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -173,15 +170,15 @@ fun LoginScreen(
                 }
             }
 
-            SnackbarHost(hostState = viewModel.snackBarHostState,
-                modifier = Modifier
-                    .fillMaxWidth()) {
-                Snackbar(
-                    snackbarData = it,
-                    containerColor = MaterialTheme.colorScheme.errorContainer,
-                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-                )
-            }
+//            SnackbarHost(hostState = viewModel.snackBarHostState,
+//                modifier = Modifier
+//                    .fillMaxWidth()) {
+//                Snackbar(
+//                    snackbarData = it,
+//                    containerColor = MaterialTheme.colorScheme.errorContainer,
+//                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+//                )
+//            }
 
             Button(
                 enabled = email.isNotBlank() && password.isNotBlank(),

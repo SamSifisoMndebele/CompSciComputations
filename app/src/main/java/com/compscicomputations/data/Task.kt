@@ -1,4 +1,4 @@
-package com.compscicomputations.data.api
+package com.compscicomputations.data
 class Task<TResult>(
     isComplete: Boolean = false,
     isSuccessful: Boolean = false,

@@ -22,26 +22,14 @@ fun NavController.navigate(
     }
 }
 
-fun buildMaterialName(materialTitle: String, materialNumber: String?, materialYear: String?) : String{
-    return if (materialNumber == null) {
-        if (materialYear == null) materialTitle
-        else "$materialTitle $materialYear"
-    }
-    else {
-        if (materialYear == null) "$materialTitle $materialNumber"
-        else "$materialTitle $materialNumber $materialYear"
-    }
-}
-
 fun cardXXGen(cardNumber: String):String{
     return "**** **** **** ${cardNumber.takeLast(4)}"
 }
 
-fun Float.to2DecimalString() : String {
-    val number : Int = (this * 100f).roundToInt()
-    if (number == 0) return "0.00"
+fun Double.toRandString() : String {
+    val number : Int = (this * 100).roundToInt()
+    if (number == 0) return "R0.00"
     val wholeNum = number/100
-    val decNum = number.toString().padStart(2,'0').takeLast(2)
-
-    return "$wholeNum.$decNum"
+    val decNum = "0$number".takeLast(2)
+    return "R$wholeNum.$decNum"
 }

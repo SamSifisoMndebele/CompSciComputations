@@ -20,7 +20,7 @@ data class UserDto(
     @SerialName("last_seen_at") val lastSeenAt: String
 ) {
 
-    val user get() = User(uid, displayName, email,
+    val asUser get() = User(uid, displayName, email,
         Uri.parse(photoUrl), UserType.valueOf(userType), createdAt.toDate(), lastSeenAt.toDate())
 
     companion object {

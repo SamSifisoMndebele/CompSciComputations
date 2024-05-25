@@ -30,4 +30,5 @@
     <string name="title_matrix_methods">Matrix Method</string>
     <string name="title_activity_main">MainActivity</string>
     <string name="title_activity_main2">MainActivity2</string>
+    <string name="title_activity_split_install">SplitInstallActivity</string>
 </resources>

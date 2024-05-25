@@ -1,48 +1,85 @@
 package com.compscicomputations.ui.main.dashboard
 
 import android.net.Uri
+import android.util.Log
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.compscicomputations.data.featuresList
+import com.compscicomputations.data.model.Feature
 import com.compscicomputations.data.repository.UserRepository
 import com.compscicomputations.ui.auth.UserType
-import com.google.android.play.core.splitinstall.SplitInstallManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
-    userRepository: UserRepository,
-    val splitInstallManager: SplitInstallManager
+    private val userRepository: UserRepository
 ) : ViewModel() {
-
-//    private val _firebaseUser = MutableStateFlow<FirebaseUser?>(null)
-//    private val firebaseUser = _firebaseUser.asStateFlow()
-    private val _userSignedOut = MutableStateFlow(false)
-    val userSignedOut = _userSignedOut.asStateFlow()
-
-    private val _userType = MutableStateFlow(UserType.STUDENT)
-    private val _displayName = MutableStateFlow("Complete your profile.")
+    private val _userType = MutableStateFlow<UserType?>(null)
+    private val _displayName = MutableStateFlow("")
     private val _email = MutableStateFlow("")
     private val _photoUrl = MutableStateFlow<Uri?>(null)
-
-
+    private val _installedFeatures = MutableStateFlow<Set<Feature>?>(null)
+    private val _showProgress = MutableStateFlow(true)
     val userType = _userType.asStateFlow()
     val displayName = _displayName.asStateFlow()
     val email = _email.asStateFlow()
     val photoUrl = _photoUrl.asStateFlow()
+    val installedFeatures = _installedFeatures.asStateFlow()
+    val showProgress = _showProgress.asStateFlow()
 
-    init {
-        val isUserSigned = userRepository.isUserSigned()
-        _userSignedOut.value = !isUserSigned
-        if (isUserSigned) userRepository.getUser()
-            .addOnSuccessListener { user ->
+    val snackBarHostState = SnackbarHostState()
+    var gotoProfile by mutableStateOf(false)
+
+    private fun updateUserInfo(retry: Int = 3) {
+        viewModelScope.launch {
+            try {
+                val user = userRepository.getUser()
                 _userType.value = user.userType
                 _displayName.value = user.displayName
                 _email.value = user.email
                 _photoUrl.value = user.photoUrl
+                _showProgress.value = false
+            } catch (e: NoSuchElementException) {
+                Log.e("DashboardViewModel", "updateUser:NoSuchElementException", e)
+                _showProgress.value = false
+                _displayName.value = "Complete your profile."
+                snackBarHostState.showSnackbar(
+                    message = "User information does not exits.",
+                    actionLabel = "Goto profile",
+                    duration = SnackbarDuration.Long
+                ).also {
+                    if (it == SnackbarResult.ActionPerformed) {
+                        gotoProfile = true
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("DashboardViewModel", "updateUser:Exception", e)
+                if (retry > 0) updateUserInfo(retry-1)
+                else _showProgress.value = false
+                _showProgress.value = false
             }
+        }
+    }
+    private fun updateInstalledFeatures() {
+        val features = featuresList.toMutableSet()
+//        val installedModules = splitInstallManager.installedModules
+//        features.retainAll { installedModules.contains(it.module) }
+        _installedFeatures.value = features.toSet()
+    }
 
+    init {
+        updateInstalledFeatures()
+        updateUserInfo()
         /*splitInstallManager.deferredUninstall(listOf("polish_expressions", "matrix_methods"))
             .addOnSuccessListener {
                 Toast.makeText(context, "Done remove polish_expressions", Toast.LENGTH_SHORT).show()

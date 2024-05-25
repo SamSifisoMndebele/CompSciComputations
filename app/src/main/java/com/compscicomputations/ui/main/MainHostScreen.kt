@@ -8,6 +8,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.compscicomputations.AuthActivity
+import com.compscicomputations.BuildConfig
 import com.compscicomputations.MainActivity
 import com.compscicomputations.ui.main.dashboard.DashboardScreen
 import com.compscicomputations.ui.main.feedback.FeedbackScreen
@@ -53,18 +54,16 @@ fun MainHostScreen(
                 navigateSettings = {
                     navController.navigate(MainNavigation.SETTINGS.route)
                 },
-                navigateAuth = {
-                    activity.startActivity(Intent(activity, AuthActivity::class.java))
-                    activity.finishAffinity()
-                },
 
-                navigateDynamicFeature = { packageName, className, composeMethodName ->
+                navigateDynamicFeature = { feature ->
+                    val packageName = BuildConfig.APPLICATION_ID
+                    val className = "$packageName.${feature.module}.${feature.className}"
                     try {
-                        if (composeMethodName == null) {
+                        if (feature.methodName == null) {
                             activity.startActivity(Intent().setClassName(packageName, className))
                         } else {
                             navController.navigate(MainNavigation.DYNAMIC_FEATURE.route
-                                    + "/$className/$composeMethodName")
+                                    + "/$className/${feature.methodName}")
                         }
                     } catch (e: Exception) {
                         Toast.makeText(activity, e.message, Toast.LENGTH_LONG).show()

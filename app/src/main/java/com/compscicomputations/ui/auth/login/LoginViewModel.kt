@@ -2,7 +2,6 @@ package com.compscicomputations.ui.auth.login
 
 import android.content.Context
 import android.util.Log
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -45,7 +44,7 @@ class LoginViewModel @Inject constructor(
     val password = _password.asStateFlow()
     var passwordError by mutableStateOf<String?>(null)
 
-    val snackBarHostState = SnackbarHostState()
+//    val snackBarHostState = SnackbarHostState()
     private val _showProgress = MutableStateFlow(false)
     val showProgress = _showProgress.asStateFlow()
 

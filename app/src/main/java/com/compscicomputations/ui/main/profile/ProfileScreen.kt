@@ -3,7 +3,6 @@ package com.compscicomputations.ui.main.profile
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -33,6 +32,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -45,8 +45,8 @@ import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
 import com.compscicomputations.BuildConfig
 import com.compscicomputations.R
-import com.compscicomputations.ui.main.AppBar
-import com.compscicomputations.ui.main.OptionButton
+import com.compscicomputations.ui.CompSciScaffold
+import com.compscicomputations.ui.OptionButton
 import com.compscicomputations.ui.theme.comicNeueFamily
 import com.compscicomputations.utils.createImageFile
 
@@ -106,25 +106,24 @@ fun ProfileScreen(
         )
     }
 
-    Column(
-        modifier = Modifier.padding(padding),
-    ) {
-        AppBar(title = "Profile", navigateUp = navigateUp) {
+    CompSciScaffold(
+        title = "Profile",
+        navigateUp = navigateUp,
+        menuActions = {
             //TODO Menu
             IconButton(onClick = { /*TODO*/ }) {
-                Icon(imageVector = Icons.Default.MoreVert, contentDescription = "Menu")
+                Icon(imageVector = Icons.Default.MoreVert, contentDescription = "Menu", tint = Color.White)
             }
         }
+    ) { contentPadding ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight()
+                .fillMaxHeight(),
+            contentPadding = contentPadding
         ) {
             item {
-                Card(
-                    modifier = Modifier.padding(vertical = 8.dp),
-                    shape = RoundedCornerShape(24.dp)
-                ) {
+                Card(shape = RoundedCornerShape(24.dp)) {
                     Card(
                         shape = RoundedCornerShape(20.dp),
                         modifier = Modifier
@@ -233,7 +232,4 @@ fun ProfileScreen(
             }
         }
     }
-
-
-
 }

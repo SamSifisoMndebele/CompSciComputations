@@ -1,13 +1,16 @@
 package com.compscicomputations.ui.main.profile
 
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.compscicomputations.data.repository.UserRepository
 import com.compscicomputations.ui.auth.UserType
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -31,13 +34,17 @@ class ProfileViewModel @Inject constructor(
     init {
         val isUserSigned = userRepository.isUserSigned()
         _userSignedOut.value = !isUserSigned
-        if (isUserSigned) userRepository.getUser()
-            .addOnSuccessListener { user ->
+        viewModelScope.launch {
+            try {
+                val user = userRepository.getUser()
                 _userType.value = user.userType
                 _displayName.value = user.displayName
                 _email.value = user.email
                 _photoUrl.value = user.photoUrl
+            } catch (e: Exception) {
+                Log.e("ProfileViewModel", "updateUser:Exception", e)
             }
+        }
 
 //        val emailVerified = auth.currentUser.isEmailVerified
     }
