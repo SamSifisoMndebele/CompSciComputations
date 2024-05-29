@@ -14,13 +14,13 @@ import androidx.activity.compose.setContent
 import androidx.compose.material3.Surface
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.compscicomputations.core.database.dao.AuthDao
 import com.compscicomputations.ui.main.MainHostScreen
 import com.compscicomputations.ui.theme.CompSciComputationsTheme
 import com.google.android.play.core.splitinstall.SplitInstallManager
 import com.google.android.play.core.splitinstall.SplitInstallRequest
 import com.google.android.play.core.splitinstall.SplitInstallStateUpdatedListener
 import com.google.android.play.core.splitinstall.model.SplitInstallSessionStatus
-import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -65,7 +65,7 @@ class MainActivity : ComponentActivity() {
 
 
     @Inject
-    lateinit var auth: FirebaseAuth
+    lateinit var authDao: AuthDao
     @Inject
     lateinit var splitInstallManager: SplitInstallManager
 
@@ -75,7 +75,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (auth.currentUser==null) {
+        if (!authDao.isUserSigned()) {
             startActivity(Intent(this, AuthActivity::class.java))
             finishAffinity()
             return

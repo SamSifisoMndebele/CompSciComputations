@@ -10,12 +10,14 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
-            <option value="$PROJECT_DIR$/features" />
-            <option value="$PROJECT_DIR$/features/karnaugh_maps" />
-            <option value="$PROJECT_DIR$/features/matrix_methods" />
-            <option value="$PROJECT_DIR$/features/number_systems" />
-            <option value="$PROJECT_DIR$/features/polish_expressions" />
-            <option value="$PROJECT_DIR$/maths_lib" />
+            <option value="$PROJECT_DIR$/core" />
+            <option value="$PROJECT_DIR$/core/common" />
+            <option value="$PROJECT_DIR$/core/database" />
+            <option value="$PROJECT_DIR$/feature" />
+            <option value="$PROJECT_DIR$/feature/karnaugh_maps" />
+            <option value="$PROJECT_DIR$/feature/matrix_methods" />
+            <option value="$PROJECT_DIR$/feature/number_systems" />
+            <option value="$PROJECT_DIR$/feature/polish_expressions" />
             <option value="$PROJECT_DIR$/pdf_viewer" />
           </set>
         </option>

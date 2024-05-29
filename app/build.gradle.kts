@@ -70,20 +70,15 @@ android {
         }
     }
     dynamicFeatures += setOf(
-        ":features:karnaugh_maps",
-        ":features:number_systems",
-        ":features:polish_expressions",
-        ":features:matrix_methods"
+        ":feature:karnaugh_maps",
+        ":feature:number_systems",
+        ":feature:polish_expressions",
+        ":feature:matrix_methods"
     )
 }
 
 dependencies {
-
     implementation(libs.hilt.android)
-    implementation(libs.core)
-    implementation(libs.androidx.appcompat)
-    implementation(libs.material)
-    implementation(libs.androidx.activity)
     kapt(libs.hilt.android.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
 
@@ -96,26 +91,6 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.crashlytics)
-    implementation(libs.firebase.auth)
-//    implementation(libs.firebase.storage)
-//    implementation(libs.firebase.firestore)
-
-    //Supabase DB
-    implementation(platform(libs.supabase.bom))
-    implementation(libs.supabase.storage.kt)
-//    implementation(libs.supabase.gotrue.kt)
-    implementation(libs.supabase.postgrest.kt)
-    implementation(libs.supabase.realtime.kt)
-
-    //Local SQLite DB
-    implementation (libs.androidx.room.runtime)
-    annotationProcessor (libs.androidx.room.compiler)
-    testImplementation (libs.androidx.room.testing)
-
-    implementation(libs.ktor.client.android)
-    implementation(libs.androidx.credentials)
-    implementation(libs.androidx.credentials.play.services.auth)
-    implementation(libs.googleid)
 
     implementation(libs.glide.compose)
     implementation(libs.coil.compose)
@@ -124,6 +99,7 @@ dependencies {
     implementation(libs.zoomlayout)
 
     implementation(libs.gson)
+    implementation(libs.android.play.core)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -137,6 +113,8 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.navigation.compose)
 //    implementation(project(":maths_lib"))
+    implementation(project(":core:common"))
+    implementation(project(":core:database"))
     implementation(project(":pdf_viewer"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

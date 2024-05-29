@@ -3,19 +3,25 @@ package com.compscicomputations.ui.main
 import android.content.Intent
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.compscicomputations.AuthActivity
 import com.compscicomputations.BuildConfig
 import com.compscicomputations.MainActivity
+import com.compscicomputations.ui.ConnectionState
+import com.compscicomputations.ui.connectivityState
 import com.compscicomputations.ui.main.dashboard.DashboardScreen
 import com.compscicomputations.ui.main.feedback.FeedbackScreen
 import com.compscicomputations.ui.main.help.HelpScreen
 import com.compscicomputations.ui.main.profile.ProfileScreen
 import com.compscicomputations.ui.main.settings.SettingsScreen
 import com.compscicomputations.utils.LoadDynamicFeature
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 enum class MainNavigation(val route: String) {
     DASHBOARD("dashboard_route"),
@@ -26,12 +32,12 @@ enum class MainNavigation(val route: String) {
     DYNAMIC_FEATURE("dynamic_feature_route"),
 }
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @Composable
 fun MainHostScreen(
     activity: MainActivity,
     navController: NavHostController
 ) {
-
     NavHost(
         navController = navController,
         startDestination = MainNavigation.DASHBOARD.route //todo change to DASHBOARD
@@ -54,7 +60,6 @@ fun MainHostScreen(
                 navigateSettings = {
                     navController.navigate(MainNavigation.SETTINGS.route)
                 },
-
                 navigateDynamicFeature = { feature ->
                     val packageName = BuildConfig.APPLICATION_ID
                     val className = "$packageName.${feature.module}.${feature.className}"
@@ -115,4 +120,9 @@ fun MainHostScreen(
             )
         }
     }
+
+    val connection by connectivityState()
+    val isConnected = connection === ConnectionState.Available
+
+    Text(text = if (isConnected) "Online" else "Offline", color = if (isConnected) Color.Green else Color.Red)
 }

@@ -4,9 +4,9 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.compscicomputations.data.repository.UserRepository
-import com.compscicomputations.ui.auth.UserType
-import com.google.firebase.auth.FirebaseAuth
+import com.compscicomputations.core.database.UserType
+import com.compscicomputations.core.database.dao.AuthDao
+import com.compscicomputations.core.database.dao.UserDao
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -15,8 +15,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
-    val auth: FirebaseAuth,
-    private val userRepository: UserRepository
+    private val userDao: UserDao,
+    private val authDao: AuthDao
 ) : ViewModel() {
     private val _userSignedOut = MutableStateFlow(false)
     val userSignedOut = _userSignedOut.asStateFlow()
@@ -32,11 +32,11 @@ class ProfileViewModel @Inject constructor(
     val photoUrl = _photoUrl.asStateFlow()
 
     init {
-        val isUserSigned = userRepository.isUserSigned()
+        val isUserSigned = authDao.isUserSigned()
         _userSignedOut.value = !isUserSigned
         viewModelScope.launch {
             try {
-                val user = userRepository.getUser()
+                val user = userDao.getUser() ?: return@launch
                 _userType.value = user.userType
                 _displayName.value = user.displayName
                 _email.value = user.email
@@ -50,10 +50,10 @@ class ProfileViewModel @Inject constructor(
     }
 
     fun logout() {
-        userRepository.logout()
-            .addOnSuccessListener {
-                _userSignedOut.value = true
-            }
+        viewModelScope.launch {
+            authDao.logout()
+            _userSignedOut.value = true
+        }
     }
 
 }

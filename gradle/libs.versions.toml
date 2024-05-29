@@ -1,8 +1,8 @@
 [versions]
-agp = "8.4.0"
+agp = "8.4.1"
 credentials = "1.2.2"
 googleid = "1.1.0"
-playServicesAuth = "21.1.1"
+playServicesAuth = "21.2.0"
 hiltAndroid = "2.49"
 hiltNavigationCompose = "1.2.0"
 kotlin = "1.9.0" #The version (1.5.1) of the Compose Compiler requires Kotlin version 1.9.0
@@ -108,7 +108,7 @@ androidx-constraintlayout = { group = "androidx.constraintlayout", name = "const
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 androidx-navigation-fragment-ktx = { group = "androidx.navigation", name = "navigation-fragment-ktx", version.ref = "navigationFragmentKtx" }
 androidx-navigation-ui-ktx = { group = "androidx.navigation", name = "navigation-ui-ktx", version.ref = "navigationUiKtx" }
-core = { group = "com.google.android.play", name = "core", version.ref = "core" }
+android-play-core = { group = "com.google.android.play", name = "core", version.ref = "core" }
 androidx-ui-viewbinding = { group = "androidx.compose.ui", name = "ui-viewbinding", version.ref = "uiViewbinding" }
 
 [plugins]

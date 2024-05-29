@@ -2,7 +2,6 @@ package com.compscicomputations.ui.auth.register
 
 import android.net.Uri
 import android.util.Log
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -10,24 +9,21 @@ import androidx.compose.runtime.setValue
 import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.compscicomputations.data.repository.UserRepository
-import com.compscicomputations.ui.auth.UserType
+import com.compscicomputations.core.database.UserType
+import com.compscicomputations.core.database.dao.AuthDao
 import com.compscicomputations.ui.theme.emailRegex
 import com.compscicomputations.ui.theme.namesRegex
 import com.compscicomputations.ui.theme.strongPasswordRegex
 import com.compscicomputations.utils.notMatches
-import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
 class RegisterViewModel @Inject constructor(
-    private val auth: FirebaseAuth,
-    private val userRepository: UserRepository
+    private val authDao: AuthDao
 ) : ViewModel() {
     private val _userType = MutableStateFlow(UserType.STUDENT)
     val userType = _userType.asStateFlow()
@@ -90,50 +86,21 @@ class RegisterViewModel @Inject constructor(
         _termsAccepted.value = accepted
     }
 
-
     fun onRegister() {
         if (fieldsErrors()) return
         _showProgress.value = true
-        auth.createUserWithEmailAndPassword(_email.value, _password.value)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    Log.d("RegisterViewModel", "onSignIn:success")
-                    val user = task.result.user!!
-                    userRepository.createUser(
-                        uid = user.uid,
-                        displayName = _displayName.value,
-                        email = user.email!!,
-                        photoUrl = _photoUri.value?.toString(),
-                        userType = _userType.value.name,
-                        createdAt = if (user.metadata?.creationTimestamp != null)
-                            Date(user.metadata?.creationTimestamp!!)  else Date(),
-                        lastSeenAt = if (user.metadata?.lastSignInTimestamp != null)
-                            Date(user.metadata?.lastSignInTimestamp!!) else Date()
-                    ).addOnCompleteListener { task2 ->
-                        if (task2.isSuccessful) {
-                            Log.d("RegisterViewModel", "createUser:User profile created.")
-                        } else {
-                            Log.e("RegisterViewModel", "createUser:failure profile updated", task.exception)
-                            viewModelScope.launch {
-                                task.exception?.message?.let {
-                                    snackBarHostState.showSnackbar(it, duration = SnackbarDuration.Long)
-                                }
-                            }
-                        }
-                        _userRegistered.value = true
-                    }
-                } else {
-                    Log.w("RegisterViewModel", "onSignIn:failure", task.exception)
-                    viewModelScope.launch {
-                        task.exception?.message?.let {
-                            snackBarHostState.showSnackbar(it)
-                        }
-                    }
-                    _showProgress.value = false
-                }
+        viewModelScope.launch {
+            try {
+                authDao.register(_email.value, _password.value, _displayName.value, _photoUri.value?.toString(), _userType.value)
+                _userRegistered.value = true
+                Log.d("RegisterViewModel", "createUser:User profile created.")
+            } catch (e: Exception) {
+                _showProgress.value = false
+                Log.e("RegisterViewModel", "insertUser:failure", e)
+                e.message?.let { snackBarHostState.showSnackbar(it) }
             }
+        }
     }
-
 
     private fun fieldsErrors() : Boolean {
         var errors = false

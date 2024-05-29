@@ -73,8 +73,8 @@ import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
 import com.compscicomputations.BuildConfig
 import com.compscicomputations.R
+import com.compscicomputations.core.database.UserType
 import com.compscicomputations.ui.LoadingDialog
-import com.compscicomputations.ui.auth.UserType
 import com.compscicomputations.ui.auth.isError
 import com.compscicomputations.ui.auth.showMessage
 import com.compscicomputations.ui.theme.comicNeueFamily

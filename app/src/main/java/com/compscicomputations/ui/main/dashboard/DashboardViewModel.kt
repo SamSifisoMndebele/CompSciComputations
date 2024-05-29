@@ -10,10 +10,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.compscicomputations.core.database.UserType
+import com.compscicomputations.core.database.dao.UserDao
+import com.compscicomputations.core.database.model.Feature
 import com.compscicomputations.data.featuresList
-import com.compscicomputations.data.model.Feature
-import com.compscicomputations.data.repository.UserRepository
-import com.compscicomputations.ui.auth.UserType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -22,7 +22,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
-    private val userRepository: UserRepository
+    private val userDao: UserDao
 ) : ViewModel() {
     private val _userType = MutableStateFlow<UserType?>(null)
     private val _displayName = MutableStateFlow("")
@@ -43,14 +43,14 @@ class DashboardViewModel @Inject constructor(
     private fun updateUserInfo(retry: Int = 3) {
         viewModelScope.launch {
             try {
-                val user = userRepository.getUser()
+                val user = userDao.getUser() ?: return@launch
                 _userType.value = user.userType
                 _displayName.value = user.displayName
                 _email.value = user.email
                 _photoUrl.value = user.photoUrl
                 _showProgress.value = false
             } catch (e: NoSuchElementException) {
-                Log.e("DashboardViewModel", "updateUser:NoSuchElementException", e)
+                Log.e("DashboardViewModel", "updateUserInfo:NoSuchElementException", e)
                 _showProgress.value = false
                 _displayName.value = "Complete your profile."
                 snackBarHostState.showSnackbar(
@@ -63,7 +63,7 @@ class DashboardViewModel @Inject constructor(
                     }
                 }
             } catch (e: Exception) {
-                Log.e("DashboardViewModel", "updateUser:Exception", e)
+                Log.e("DashboardViewModel", "updateUserInfo:Exception", e)
                 if (retry > 0) updateUserInfo(retry-1)
                 else _showProgress.value = false
                 _showProgress.value = false

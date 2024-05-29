@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.ssmnd.mathslib"
+    namespace = "com.ssmnd.maths_lib"
     compileSdk = 34
 
     defaultConfig {

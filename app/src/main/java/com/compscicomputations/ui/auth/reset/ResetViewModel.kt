@@ -8,7 +8,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.FirebaseAuth
+import com.compscicomputations.core.database.dao.AuthDao
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -17,7 +17,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ResetViewModel @Inject constructor(
-    private val auth: FirebaseAuth
+    private val authDao: AuthDao
 ): ViewModel() {
 
     private val _email = MutableStateFlow("")
@@ -38,21 +38,16 @@ class ResetViewModel @Inject constructor(
 
     fun onSendEmail() {
         _showProgress.value = true
-        auth.sendPasswordResetEmail(_email.value)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    Log.d("ResetViewModel", "onSendEmail:success")
-                    _emailSent.value = true
-                } else {
-
-                    Log.w("ResetViewModel", "onSendEmail:failure", task.exception)
-                    viewModelScope.launch {
-                        task.exception?.message?.let {
-                            snackBarHostState.showSnackbar(it, duration = SnackbarDuration.Short)
-                        }
-                    }
-                    _showProgress.value = false
-                }
+        viewModelScope.launch {
+            try {
+                authDao.sendResetEmail(_email.value)
+                _emailSent.value = true
+                Log.d("ResetViewModel", "onSendEmail:success")
+            } catch (e: Exception) {
+                _showProgress.value = false
+                Log.e("ResetViewModel", "onSendEmail:failure", e)
+                e.message?.let { snackBarHostState.showSnackbar(it, duration = SnackbarDuration.Short) }
             }
+        }
     }
 }

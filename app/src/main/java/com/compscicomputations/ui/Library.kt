@@ -1,5 +1,10 @@
 package com.compscicomputations.ui
 
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
+import android.net.NetworkRequest
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -35,7 +40,9 @@ import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,6 +50,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -51,7 +59,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.compscicomputations.R
 import com.compscicomputations.ui.theme.comicNeueFamily
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.callbackFlow
 
 @Composable
 fun LoadingDialog(
@@ -285,4 +296,72 @@ fun CompSciScaffold(
     }
 }
 
+sealed class ConnectionState {
+    data object Available : ConnectionState()
+    data object Unavailable : ConnectionState()
+}
 
+private fun getCurrentConnectivityState(
+    connectivityManager: ConnectivityManager
+): ConnectionState {
+    val connected = connectivityManager.allNetworks.any { network ->
+        connectivityManager.getNetworkCapabilities(network)
+            ?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+            ?: false
+    }
+
+    return if (connected) ConnectionState.Available else ConnectionState.Unavailable
+}
+
+private val Context.currentConnectivityState: ConnectionState
+    get() {
+        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        return getCurrentConnectivityState(connectivityManager)
+    }
+
+@ExperimentalCoroutinesApi
+private fun Context.observeConnectivityAsFlow() = callbackFlow {
+    val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+
+    val callback = NetworkCallback { connectionState -> trySend(connectionState) }
+
+    val networkRequest = NetworkRequest.Builder()
+        .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+        .build()
+
+    connectivityManager.registerNetworkCallback(networkRequest, callback)
+
+    // Set current state
+    val currentState = getCurrentConnectivityState(connectivityManager)
+    trySend(currentState)
+
+    // Remove callback when not used
+    awaitClose {
+        // Remove listeners
+        connectivityManager.unregisterNetworkCallback(callback)
+    }
+}
+
+private fun NetworkCallback(callback: (ConnectionState) -> Unit): ConnectivityManager.NetworkCallback {
+    return object : ConnectivityManager.NetworkCallback() {
+        override fun onAvailable(network: Network) {
+            callback(ConnectionState.Available)
+        }
+
+        override fun onLost(network: Network) {
+            callback(ConnectionState.Unavailable)
+        }
+    }
+}
+
+@ExperimentalCoroutinesApi
+@Composable
+fun connectivityState(): State<ConnectionState> {
+    val context = LocalContext.current
+
+    // Creates a State<ConnectionState> with current connectivity state as initial value
+    return produceState(initialValue = context.currentConnectivityState) {
+        // In a coroutine, can make suspend calls
+        context.observeConnectivityAsFlow().collect { value = it }
+    }
+}

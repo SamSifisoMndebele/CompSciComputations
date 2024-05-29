@@ -43,8 +43,8 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
 import com.compscicomputations.R
+import com.compscicomputations.core.database.model.Feature
 import com.compscicomputations.data.featuresIcons
-import com.compscicomputations.data.model.Feature
 import com.compscicomputations.ui.CompSciScaffold
 import com.compscicomputations.ui.OptionButton
 import com.compscicomputations.ui.theme.comicNeueFamily
