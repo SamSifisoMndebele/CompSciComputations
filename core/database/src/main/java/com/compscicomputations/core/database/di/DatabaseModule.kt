@@ -20,15 +20,12 @@ import javax.inject.Singleton
 object DatabaseModule {
     @Provides
     @Singleton
-    fun provideUserDao(auth: FirebaseAuth, postgrest: Postgrest, storage: Storage):
-            UserDao = UserDaoImpl(auth, postgrest, storage)
+    fun provideUserDao(auth: FirebaseAuth, postgrest: Postgrest, storage: Storage): UserDao =
+        UserDaoImpl(auth, postgrest, storage)
 
     @Provides
     @Singleton
-    fun provideAuthDao(
-        auth: FirebaseAuth,
-        credentialManager: CredentialManager,
-        credentialRequest: GetCredentialRequest,
-        userDao: UserDao):
-            AuthDao = AuthDaoImpl(auth, credentialManager, credentialRequest, userDao)
+    fun provideAuthDao(auth: FirebaseAuth, credentialManager: CredentialManager,
+                       credentialRequest: GetCredentialRequest, userDao: UserDao): AuthDao =
+        AuthDaoImpl(auth, credentialManager, credentialRequest, userDao)
 }

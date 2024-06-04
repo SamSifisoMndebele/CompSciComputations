@@ -25,7 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import com.compscicomputations.ui.main.AppBar
+import com.compscicomputations.presentation.main.AppBar
 
 enum class NumVariables(val string: String) {
     TWO("2 variables"),

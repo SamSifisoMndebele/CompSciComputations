@@ -8,9 +8,9 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-enum class UserType { STUDENT, ADMIN, PROFESSIONAL }
 
 private val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
+inline val Long?.asDate: Date get() = if (this == null) Date() else Date(this)
 val String.asDate: Date get() = dateFormat.parse(this.replace("T", " "))!!
 val Date.asString: String get() = dateFormat.format(this)
 

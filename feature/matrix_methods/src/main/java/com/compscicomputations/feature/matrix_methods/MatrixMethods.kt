@@ -8,8 +8,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.compscicomputations.ui.OptionButton
-import com.compscicomputations.ui.main.AppBar
+import com.compscicomputations.presentation.OptionButton
+import com.compscicomputations.presentation.main.AppBar
 
 @Composable
 fun MatrixMethodsScreen(navigateUp: () -> Unit) {

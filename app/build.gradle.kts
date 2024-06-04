@@ -1,4 +1,4 @@
-import java.util.Properties
+//import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
@@ -26,12 +26,9 @@ android {
             useSupportLibrary = true
         }
 
-        val properties = Properties()
-        properties.load(project.rootProject.file("local.properties").inputStream())
-
-        buildConfigField("String", "SUPABASE_URL", "\"${properties.getProperty("supabase_url")}\"")
-        buildConfigField("String", "SUPABASE_KEY", "\"${properties.getProperty("supabase_key")}\"")
-        buildConfigField("String", "WEB_CLIENT_ID", "\"${properties.getProperty("web_google_client_id")}\"")
+//        val properties = Properties()
+//        properties.load(project.rootProject.file("local.properties").inputStream())
+//        buildConfigField("String", "WEB_CLIENT_ID", "\"${properties.getProperty("web_google_client_id")}\"")
     }
 
     buildTypes {
@@ -78,16 +75,17 @@ android {
 }
 
 dependencies {
+    /**Hilt DI*/
     implementation(libs.hilt.android)
     kapt(libs.hilt.android.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
 
-    //Machine Learning
+    /**Machine Learning*/
     //implementation (libs.tensorflow.lite.task.vision.play.services)
     //implementation (libs.play.services.tflite.gpu)
     //implementation("com.google.android.gms:play-services-mlkit-text-recognition:19.0.0")
 
-    //Firebase DB
+    /**Firebase crashlytics*/
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.crashlytics)
@@ -98,6 +96,7 @@ dependencies {
     implementation(libs.lottie.compose)
     implementation(libs.zoomlayout)
 
+    implementation(libs.ktor.client.android)
     implementation(libs.gson)
     implementation(libs.android.play.core)
     implementation(libs.androidx.core.ktx)
@@ -113,7 +112,6 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.navigation.compose)
 //    implementation(project(":maths_lib"))
-    implementation(project(":core:common"))
     implementation(project(":core:database"))
     implementation(project(":pdf_viewer"))
     testImplementation(libs.junit)

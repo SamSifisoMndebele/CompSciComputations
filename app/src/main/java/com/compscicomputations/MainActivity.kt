@@ -15,7 +15,7 @@ import androidx.compose.material3.Surface
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.compscicomputations.core.database.dao.AuthDao
-import com.compscicomputations.ui.main.MainHostScreen
+import com.compscicomputations.presentation.main.MainHostScreen
 import com.compscicomputations.ui.theme.CompSciComputationsTheme
 import com.google.android.play.core.splitinstall.SplitInstallManager
 import com.google.android.play.core.splitinstall.SplitInstallRequest
@@ -75,7 +75,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (!authDao.isUserSigned()) {
+        if (authDao.currentUser() == null) {
             startActivity(Intent(this, AuthActivity::class.java))
             finishAffinity()
             return

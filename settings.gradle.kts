@@ -21,7 +21,6 @@ dependencyResolutionManagement {
 
 rootProject.name = "CompSci Computations"
 include(":app")
-include(":core:common")
 include(":core:database")
 include(":feature:karnaugh_maps")
 include(":feature:number_systems")
@@ -29,3 +28,4 @@ include(":feature:polish_expressions")
 include(":feature:matrix_methods")
 include(":pdf_viewer")
 //include(":maths_lib")
+include(":core:common")

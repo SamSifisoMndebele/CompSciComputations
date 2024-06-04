@@ -48,23 +48,25 @@ android {
 }
 
 dependencies {
-    //Hilt
-    implementation(libs.hilt.android)
-    kapt(libs.hilt.android.compiler)
+    /**Hilt DI*/
+    implementation (libs.hilt.android)
+    kapt (libs.hilt.android.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
 
-    //Local SQLite DB
+    /**SQLite Room DB*/
     implementation (libs.androidx.room.runtime)
     annotationProcessor (libs.androidx.room.compiler)
     testImplementation (libs.androidx.room.testing)
 
-    //Firebase DB
+    /**Firebase*/
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth)
+    implementation(libs.firebase.analytics)
+    implementation(libs.firebase.config)
 //    implementation(libs.firebase.storage)
 //    implementation(libs.firebase.firestore)
 
-    //Supabase DB
+    /**Supabase*/
     implementation(platform(libs.supabase.bom))
     implementation(libs.supabase.storage.kt)
 //    implementation(libs.supabase.gotrue.kt)
