@@ -64,15 +64,17 @@ class UserDaoImpl @Inject constructor(
         code: String
     ) {
         //call sql function: insert_admin_user
-        postgrest.rpc("insert_admin_user", mapOf(
-            "_uid" to uidOf(uid),
-            "_displayName" to displayName,
-            "_email" to email,
-            "_phone" to phone,
-            "_photoUrl" to photoUrl,
-            "_role_name" to role,
-            "_code_chars" to code
-        ))
+        postgrest.rpc("insert_admin_user",
+            mapOf(
+                "_uid" to uidOf(uid),
+                "_displayName" to displayName,
+                "_email" to email,
+                "_phone" to phone,
+                "_photoUrl" to photoUrl,
+                "_role_name" to role,
+                "_code_chars" to code
+            )
+        )
     }
 
     override suspend fun insertStudentUser(
@@ -86,15 +88,15 @@ class UserDaoImpl @Inject constructor(
     ) {
         //call sql function: insert_student_user
         postgrest.rpc("insert_student_user",
-            buildJsonObject {
-                put("_uid", uidOf(uid))
-                put("_displayName", displayName)
-                put("_email", email)
-                put("_phone", phone)
-                put("_photoUrl", photoUrl)
-                put("_course", course)
-                put("_school", school)
-            }
+            mapOf(
+                "_uid" to uidOf(uid),
+                "_displayName" to displayName,
+                "_email" to email,
+                "_phone" to phone,
+                "_photoUrl" to photoUrl,
+                "_role_name" to role,
+                "_code_chars" to code
+            )
         )
     }
 
