@@ -1,4 +1,4 @@
-package com.compscicomputations.core.database.model
+package com.compscicomputations.core.database.remote.model
 
 import java.util.Date
 

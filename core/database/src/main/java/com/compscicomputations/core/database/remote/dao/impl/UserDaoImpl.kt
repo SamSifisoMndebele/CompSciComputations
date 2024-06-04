@@ -1,24 +1,21 @@
-package com.compscicomputations.core.database.dao.impl
+package com.compscicomputations.core.database.remote.dao.impl
 
-import android.net.Uri
-import com.compscicomputations.core.database.asString
 import com.compscicomputations.core.database.buildImageUrl
-import com.compscicomputations.core.database.dao.UserDao
-import com.compscicomputations.core.database.dao.UserDao.Companion.CURRENT_USER_IMAGE
-import com.compscicomputations.core.database.dao.UserDao.Companion.CURRENT_USER_UID
-import com.compscicomputations.core.database.dto.UserDto
-import com.compscicomputations.core.database.model.User
-import com.compscicomputations.core.database.model.UserType
+import com.compscicomputations.core.database.remote.dao.UserDao
+import com.compscicomputations.core.database.remote.dao.UserDao.Companion.CURRENT_USER_IMAGE
+import com.compscicomputations.core.database.remote.dao.UserDao.Companion.CURRENT_USER_UID
+import com.compscicomputations.core.database.remote.dto.UserDto
+import com.compscicomputations.core.database.remote.model.User
+import com.compscicomputations.core.database.remote.model.UserType
 import com.google.firebase.auth.FirebaseAuth
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.postgrest.rpc
 import io.github.jan.supabase.storage.Storage
 import kotlinx.coroutines.tasks.await
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.put
 import java.io.File
 import java.util.Date
 import javax.inject.Inject
+
 
 class UserDaoImpl @Inject constructor(
     private val auth: FirebaseAuth,
@@ -29,10 +26,11 @@ class UserDaoImpl @Inject constructor(
         auth.currentUser!!.uid else uid.replace(Regex("[\"']"), "")
 
     override suspend fun getUser(uid: String): User? {
-        //call sql function: get_user(uid varchar(32)) returns user
-        val user = postgrest.rpc("get_user", mapOf("_uid" to uidOf(uid)))
-            .decodeAsOrNull<UserDto>()
-
+        val user = postgrest.from("user").select {
+            filter {
+                UserDto::uid eq uidOf(uid)
+            }
+        }.decodeSingleOrNull<UserDto>()
         return user?.asUser
     }
 
@@ -94,8 +92,8 @@ class UserDaoImpl @Inject constructor(
                 "_email" to email,
                 "_phone" to phone,
                 "_photoUrl" to photoUrl,
-                "_role_name" to role,
-                "_code_chars" to code
+                "_course" to course,
+                "_school" to school
             )
         )
     }

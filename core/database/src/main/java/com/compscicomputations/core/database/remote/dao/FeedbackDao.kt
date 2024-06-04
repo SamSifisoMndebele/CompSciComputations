@@ -1,6 +1,6 @@
-package com.compscicomputations.core.database.dao
+package com.compscicomputations.core.database.remote.dao
 
-import com.compscicomputations.core.database.model.Feedback
+import com.compscicomputations.core.database.remote.model.Feedback
 
 interface FeedbackDao {
     suspend fun createFeedback(feedback: Feedback): Boolean

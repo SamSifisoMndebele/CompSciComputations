@@ -1,8 +1,9 @@
-package com.compscicomputations.core.database.dao
+package com.compscicomputations.core.database.remote.dao
 
 import android.content.Context
-import com.compscicomputations.core.database.model.AuthUser
-import com.compscicomputations.core.database.model.UserType
+import com.compscicomputations.core.database.remote.model.AuthUser
+import com.compscicomputations.core.database.remote.model.UserType
+
 
 interface AuthDao {
     fun currentUser() : AuthUser?

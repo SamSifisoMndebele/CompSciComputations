@@ -1,4 +1,4 @@
-package com.compscicomputations.core.database.model
+package com.compscicomputations.core.database.remote.model
 
 enum class UserType(val sqlName: String) {
     ADMIN("Admin"), STUDENT("Student"), OTHER("Other");

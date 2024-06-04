@@ -12,7 +12,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.compscicomputations.core.database.dao.UserDao
 import com.compscicomputations.core.database.model.Feature
-import com.compscicomputations.core.database.model.UserType
+import com.compscicomputations.core.database.remote.model.UserType
 import com.compscicomputations.data.featuresList
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.ktor.client.plugins.HttpRequestTimeoutException

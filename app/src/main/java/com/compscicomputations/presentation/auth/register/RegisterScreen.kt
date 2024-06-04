@@ -73,7 +73,7 @@ import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
 import com.compscicomputations.BuildConfig
 import com.compscicomputations.R
-import com.compscicomputations.core.database.model.UserType
+import com.compscicomputations.core.database.remote.model.UserType
 import com.compscicomputations.presentation.LoadingDialog
 import com.compscicomputations.presentation.auth.isError
 import com.compscicomputations.presentation.auth.showMessage

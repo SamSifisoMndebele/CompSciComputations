@@ -1,10 +1,9 @@
-package com.compscicomputations.core.database.dao
+package com.compscicomputations.core.database.remote.dao
 
-import android.net.Uri
-import com.compscicomputations.core.database.model.User
-import com.compscicomputations.core.database.model.UserType
-import io.github.jan.supabase.exceptions.RestException
+import com.compscicomputations.core.database.remote.model.User
+import com.compscicomputations.core.database.remote.model.UserType
 import io.github.jan.supabase.exceptions.HttpRequestException
+import io.github.jan.supabase.exceptions.RestException
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import java.io.File
 import java.util.Date

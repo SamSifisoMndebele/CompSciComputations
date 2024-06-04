@@ -1,4 +1,4 @@
-package com.compscicomputations.core.database.di
+package com.compscicomputations.core.database.remote.di
 
 import com.compscicomputations.core.database.BuildConfig
 import dagger.Module

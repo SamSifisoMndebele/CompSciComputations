@@ -1,31 +1,24 @@
 
-CREATE OR REPLACE FUNCTION get_user (_uid VARCHAR(32))
-RETURNS "user"
+CREATE OR REPLACE PROCEDURE insert_user(
+    _uid TEXT,
+    _displayName TEXT,
+    _email TEXT,
+    _phone TEXT,
+    _photoUrl TEXT,
+    _userType TEXT
+)
 AS $$
-DECLARE
-    temp_user "user";
 BEGIN
-    SELECT * INTO temp_user FROM "user" u WHERE u.uid = _uid;
-    ASSERT temp_user.uid IS NOT NULL, 'NoSuchUserException=User is does not exists.';
-    RETURN temp_user;
+    call check_error(_uid, 'The UID field can not be null or empty.');
+    call check_error(_displayName, 'The DISPLAY NAME field can not be null or empty.');
+    call check_error(_email, 'The EMAIL field can not be null or empty.');
+    call check_error(_userType, 'The USER TYPE field can not be null or empty.');
+
+    INSERT INTO "user" VALUES (_uid, _displayName, _email, _phone, _photoUrl, _userType::USERTYPE);
+    INSERT INTO user_metadata VALUES (_uid);
 END $$
 LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION insert_user (
-    _uid VARCHAR,
-    _displayName VARCHAR,
-    _email VARCHAR,
-    _phone VARCHAR,
-    _photoUrl VARCHAR,
-    _userType VARCHAR
-) RETURNS BOOLEAN
-AS $$
-BEGIN
-    INSERT INTO "user" VALUES (_uid, _displayName, _email, _phone, _photoUrl, _userType::USERTYPE);
-    INSERT INTO user_metadata VALUES (_uid);
-    RETURN TRUE;
-END $$
-LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION insert_admin_user (
     _uid VARCHAR,
@@ -82,7 +75,7 @@ BEGIN
 END $$
 LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION update_last_seen(_uid VARCHAR)
+CREATE OR REPLACE FUNCTION update_last_seen(_uid TEXT)
 RETURNS TIMESTAMPTZ
 AS $$
 DECLARE TS TIMESTAMPTZ DEFAULT TIMESTAMPNOW();
@@ -94,7 +87,7 @@ BEGIN
 END $$
 LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION update_last_sign_in(_uid VARCHAR)
+CREATE OR REPLACE FUNCTION update_last_sign_in(_uid TEXT)
 RETURNS TIMESTAMPTZ
 AS $$
 DECLARE TS TIMESTAMPTZ DEFAULT TIMESTAMPNOW();

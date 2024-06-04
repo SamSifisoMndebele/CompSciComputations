@@ -1,15 +1,14 @@
-package com.compscicomputations.core.database.dao.impl
+package com.compscicomputations.core.database.remote.dao.impl
 
 import android.content.Context
 import android.util.Log
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
-import com.compscicomputations.core.database.asDate
-import com.compscicomputations.core.database.dao.AuthDao
 import com.compscicomputations.core.database.dao.UserDao
-import com.compscicomputations.core.database.model.AuthUser
-import com.compscicomputations.core.database.model.UserType
+import com.compscicomputations.core.database.remote.dao.AuthDao
+import com.compscicomputations.core.database.remote.model.AuthUser
+import com.compscicomputations.core.database.remote.model.UserType
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import com.google.firebase.auth.FirebaseAuth
@@ -18,8 +17,8 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.actionCodeSettings
 import io.github.jan.supabase.exceptions.UnknownRestException
 import kotlinx.coroutines.tasks.await
-import java.util.Date
 import javax.inject.Inject
+
 
 class AuthDaoImpl @Inject constructor(
     private val auth: FirebaseAuth,
@@ -27,7 +26,6 @@ class AuthDaoImpl @Inject constructor(
     private val credentialRequest: GetCredentialRequest,
     private val userDao: UserDao
 ) : AuthDao {
-
     private fun firebaseUser(firebaseUser: FirebaseUser?): AuthUser? {
         val user = firebaseUser ?: auth.currentUser ?: return null
         return AuthUser(

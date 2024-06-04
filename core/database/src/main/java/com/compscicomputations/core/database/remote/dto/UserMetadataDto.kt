@@ -1,10 +1,7 @@
-package com.compscicomputations.core.database.dto
+package com.compscicomputations.core.database.remote.dto
 
-import android.net.Uri
 import com.compscicomputations.core.database.asDate
-import com.compscicomputations.core.database.model.User
-import com.compscicomputations.core.database.model.UserMetadata
-import com.compscicomputations.core.database.model.UserType.Companion.asUserType
+import com.compscicomputations.core.database.remote.model.UserMetadata
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

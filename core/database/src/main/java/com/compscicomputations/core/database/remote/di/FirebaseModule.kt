@@ -1,4 +1,4 @@
-package com.compscicomputations.core.database.di
+package com.compscicomputations.core.database.remote.di
 
 import android.content.Context
 import androidx.credentials.CredentialManager

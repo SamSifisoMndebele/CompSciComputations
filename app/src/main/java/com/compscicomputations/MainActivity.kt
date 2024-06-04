@@ -14,7 +14,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.material3.Surface
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.compscicomputations.core.database.dao.AuthDao
+import com.compscicomputations.core.database.remote.dao.AuthDao
 import com.compscicomputations.presentation.main.MainHostScreen
 import com.compscicomputations.ui.theme.CompSciComputationsTheme
 import com.google.android.play.core.splitinstall.SplitInstallManager

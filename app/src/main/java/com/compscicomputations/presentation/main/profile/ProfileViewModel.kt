@@ -4,9 +4,9 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.compscicomputations.core.database.dao.AuthDao
 import com.compscicomputations.core.database.dao.UserDao
-import com.compscicomputations.core.database.model.UserType
+import com.compscicomputations.core.database.remote.dao.AuthDao
+import com.compscicomputations.core.database.remote.model.UserType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow

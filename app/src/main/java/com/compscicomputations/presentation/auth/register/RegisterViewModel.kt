@@ -9,8 +9,8 @@ import androidx.compose.runtime.setValue
 import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.compscicomputations.core.database.dao.AuthDao
-import com.compscicomputations.core.database.model.UserType
+import com.compscicomputations.core.database.remote.dao.AuthDao
+import com.compscicomputations.core.database.remote.model.UserType
 import com.compscicomputations.ui.theme.emailRegex
 import com.compscicomputations.ui.theme.namesRegex
 import com.compscicomputations.ui.theme.strongPasswordRegex

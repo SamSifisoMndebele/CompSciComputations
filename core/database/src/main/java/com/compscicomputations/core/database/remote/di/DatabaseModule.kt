@@ -1,11 +1,11 @@
-package com.compscicomputations.core.database.di
+package com.compscicomputations.core.database.remote.di
 
 import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
-import com.compscicomputations.core.database.dao.AuthDao
 import com.compscicomputations.core.database.dao.UserDao
-import com.compscicomputations.core.database.dao.impl.AuthDaoImpl
 import com.compscicomputations.core.database.dao.impl.UserDaoImpl
+import com.compscicomputations.core.database.remote.dao.AuthDao
+import com.compscicomputations.core.database.remote.dao.impl.AuthDaoImpl
 import com.google.firebase.auth.FirebaseAuth
 import dagger.Module
 import dagger.Provides

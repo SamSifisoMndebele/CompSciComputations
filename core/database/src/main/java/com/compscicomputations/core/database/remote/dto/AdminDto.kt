@@ -1,4 +1,4 @@
-package com.compscicomputations.core.database.dto
+package com.compscicomputations.core.database.remote.dto
 
 import kotlinx.serialization.SerialName
 

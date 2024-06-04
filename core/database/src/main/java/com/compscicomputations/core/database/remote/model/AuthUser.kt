@@ -1,7 +1,6 @@
-package com.compscicomputations.core.database.model
+package com.compscicomputations.core.database.remote.model
 
 import android.net.Uri
-import java.util.Date
 
 data class AuthUser(
     val uid: String,
