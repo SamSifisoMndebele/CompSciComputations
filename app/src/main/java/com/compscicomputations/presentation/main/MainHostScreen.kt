@@ -13,7 +13,7 @@ import androidx.navigation.compose.composable
 import com.compscicomputations.AuthActivity
 import com.compscicomputations.BuildConfig
 import com.compscicomputations.MainActivity
-import com.compscicomputations.presentation.ConnectionState
+import com.compscicomputations.core.database.network.ConnectionState
 import com.compscicomputations.presentation.connectivityState
 import com.compscicomputations.presentation.main.dashboard.DashboardScreen
 import com.compscicomputations.presentation.main.feedback.FeedbackScreen
@@ -121,8 +121,8 @@ fun MainHostScreen(
         }
     }
 
-    val connection by connectivityState()
-    val isConnected = connection === ConnectionState.Available
-
-    Text(text = if (isConnected) "Online" else "Offline", color = if (isConnected) Color.Green else Color.Red)
+//    val connection by connectivityState()
+//    val isConnected = connection === ConnectionState.Available
+//
+//    Text(text = if (isConnected) "Online" else "Offline", color = if (isConnected) Color.Green else Color.Red)
 }

@@ -1,47 +1,43 @@
 package com.compscicomputations.presentation.main.profile
 
-import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.compscicomputations.core.database.dao.UserDao
+import com.compscicomputations.core.database.remote.repo.UserRepo
 import com.compscicomputations.core.database.remote.dao.AuthDao
-import com.compscicomputations.core.database.remote.model.UserType
+import com.compscicomputations.core.database.model.Usertype
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
-    private val userDao: UserDao,
+    private val userRepo: UserRepo,
     private val authDao: AuthDao
 ) : ViewModel() {
-    private val _userSigned = MutableStateFlow(false)
+    private val _userSigned = MutableStateFlow(true)
     val userSigned = _userSigned.asStateFlow()
 
-    private val _userType = MutableStateFlow(UserType.STUDENT)
+    private val _usertype = MutableStateFlow(Usertype.STUDENT)
     private val _displayName = MutableStateFlow<String?>(null)
     private val _email = MutableStateFlow<String?>(null)
-    private val _photoUrl = MutableStateFlow<Uri?>(null)
+    private val _photoUrl = MutableStateFlow<String?>(null)
 
-    val userType = _userType.asStateFlow()
+    val userType = _usertype.asStateFlow()
     val displayName = _displayName.asStateFlow()
     val email = _email.asStateFlow()
     val photoUrl = _photoUrl.asStateFlow()
 
     init {
-        _userSigned.value = authDao.currentUser() != null
         viewModelScope.launch {
             try {
-                val user = userDao.getUser() ?: return@launch
-                _userType.value = user.userType
-                _displayName.value = user.displayName
+                val user = userRepo.getUser() ?: return@launch
+                _usertype.value = user.getUsertype
+                _displayName.value = user.metadata.displayName
                 _email.value = user.email
-                _photoUrl.value = user.photoUrl
+                _photoUrl.value = user.metadata.photoUrl
             } catch (e: Exception) {
                 Log.e("ProfileViewModel", "updateUser:Exception", e)
             }
@@ -52,13 +48,11 @@ class ProfileViewModel @Inject constructor(
 
     fun logout() {
         viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                try {
-                    authDao.logout()
-                    _userSigned.value = true
-                } catch (e: Exception) {
-                    Log.e("ProfileViewModel", "logout:Exception", e)
-                }
+            try {
+                authDao.logout()
+                _userSigned.value = true
+            } catch (e: Exception) {
+                Log.e("ProfileViewModel", "logout:Exception", e)
             }
         }
     }

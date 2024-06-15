@@ -33,9 +33,6 @@ class LoginViewModel @Inject constructor(
 
     val exceptionData = mutableStateOf<ExceptionData?>(null)
 
-    private val _name = MutableStateFlow<String?>(null)
-    val name = _name.asStateFlow()
-
     private val _userLogged = MutableStateFlow(false)
     val userLogged = _userLogged.asStateFlow()
 
@@ -51,7 +48,7 @@ class LoginViewModel @Inject constructor(
         _showProgress.value = true
         viewModelScope.launch {
             try {
-                _name.value = authDao.login(_email.value, _password.value).displayName
+                authDao.login(_email.value, _password.value)
                 _userLogged.value = true
                 Log.d("LoginViewModel", "onSignIn:success")
             } catch (e: Exception) {
@@ -62,11 +59,11 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    fun continueWithGoogle(context: Context) {
+    fun onLoginWithGoogle(context: Context) {
         _showProgress.value = true
         viewModelScope.launch {
             try {
-                _name.value = authDao.googleLogin(context).displayName
+                authDao.loginWithGoogle(context)
                 _userLogged.value = true
                 Log.d("LoginViewModel", "continueWithGoogle:success")
             } catch (e: Exception) {
@@ -78,33 +75,6 @@ class LoginViewModel @Inject constructor(
                 exceptionData.value = ExceptionData(e.message)
                 _showProgress.value = false
                 Log.w("LoginViewModel", "continueWithGoogle:failure", e)
-            }
-        }
-    }
-
-    fun onSendSignInLink() {
-        viewModelScope.launch {
-            try {
-                authDao.sendSignInLink(_email.value)
-                TODO("email sent message")
-            } catch (e: Exception) {
-                exceptionData.value = ExceptionData(e.message)
-                _showProgress.value = false
-                Log.e("LoginViewModel", "onSendSignInLink:failure", e)
-            }
-        }
-    }
-
-    fun onLinkLogin(emailLink: String) {
-        viewModelScope.launch {
-            try {
-                authDao.linkLogin(_email.value, emailLink)
-                _userLogged.value = true
-                Log.d("LoginViewModel", "onLinkLogin:success")
-            } catch (e: Exception) {
-                exceptionData.value = ExceptionData(e.message)
-                _showProgress.value = false
-                Log.e("LoginViewModel", "onLinkLogin:failure", e)
             }
         }
     }

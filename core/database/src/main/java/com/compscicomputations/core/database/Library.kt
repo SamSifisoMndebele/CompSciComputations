@@ -2,6 +2,8 @@ package com.compscicomputations.core.database
 
 import android.content.ContentResolver
 import android.net.Uri
+import io.ktor.client.plugins.ClientRequestException
+import io.ktor.client.plugins.ServerResponseException
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.text.SimpleDateFormat
@@ -9,7 +11,7 @@ import java.util.Date
 import java.util.Locale
 
 
-private val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
+private val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.US)
 inline val Long?.asDate: Date get() = if (this == null) Date() else Date(this)
 val String.asDate: Date get() = dateFormat.parse(this.replace("T", " "))!!
 val Date.asString: String get() = dateFormat.format(this)
@@ -47,3 +49,18 @@ private fun uriToByteArray(contentResolver: ContentResolver, uri: Uri): ByteArra
 // For better approach, you should create your bucket name without space symbol
 fun buildImageUrl(imageFileName: String) =
     "${BuildConfig.SUPABASE_URL}/storage/v1/object/public/${imageFileName}".replace(" ", "%20")
+
+
+//fun Exception.toCustomExceptions() = when (this) {
+//    is ServerResponseException -> Failure.HttpErrorInternalServerError(this)
+//    is ClientRequestException ->
+//        when (this.response.status.value) {
+//            400 -> Failure.HttpErrorBadRequest(this)
+//            401 -> Failure.HttpErrorUnauthorized(this)
+//            403 -> Failure.HttpErrorForbidden(this)
+//            404 -> Failure.HttpErrorNotFound(this)
+//            else -> Failure.HttpError(this)
+//        }
+//    is RedirectResponseException -> Failure.HttpError(this)
+//    else -> Failure.GenericError(this)
+//}

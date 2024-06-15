@@ -10,7 +10,7 @@ import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.compscicomputations.core.database.remote.dao.AuthDao
-import com.compscicomputations.core.database.remote.model.UserType
+import com.compscicomputations.core.database.model.Usertype
 import com.compscicomputations.ui.theme.emailRegex
 import com.compscicomputations.ui.theme.namesRegex
 import com.compscicomputations.ui.theme.strongPasswordRegex
@@ -25,8 +25,8 @@ import javax.inject.Inject
 class RegisterViewModel @Inject constructor(
     private val authDao: AuthDao
 ) : ViewModel() {
-    private val _userType = MutableStateFlow(UserType.STUDENT)
-    val userType = _userType.asStateFlow()
+    private val _usertype = MutableStateFlow(Usertype.STUDENT)
+    val userType = _usertype.asStateFlow()
 
     private val _adminCode = MutableStateFlow("")
     val adminCode = _adminCode.asStateFlow()
@@ -65,8 +65,8 @@ class RegisterViewModel @Inject constructor(
     private val _userRegistered = MutableStateFlow(false)
     val userRegistered = _userRegistered.asStateFlow()
 
-    fun setUserType(userType: UserType) {
-        _userType.value = userType
+    fun setUserType(userType: Usertype) {
+        _usertype.value = userType
     }
     fun setAdminCode(adminCode: String) {
         _adminCode.value = adminCode
@@ -98,7 +98,7 @@ class RegisterViewModel @Inject constructor(
         _showProgress.value = true
         viewModelScope.launch {
             try {
-                authDao.register(_email.value, _password.value, _displayName.value, _phone.value, _photoUri.value?.toString(), _userType.value)
+                authDao.register(_email.value, _password.value, _displayName.value, _phone.value, _photoUri.value?.toString(), _usertype.value)
                 _userRegistered.value = true
                 Log.d("RegisterViewModel", "createUser:User profile created.")
             } catch (e: Exception) {
@@ -111,7 +111,7 @@ class RegisterViewModel @Inject constructor(
 
     private fun fieldsErrors() : Boolean {
         var errors = false
-        if (_userType.value == UserType.ADMIN) {
+        if (_usertype.value == Usertype.ADMIN) {
             if (_adminCode.value.isBlank()) {
                 adminCodeError = "Enter your administration PIN."
                 errors = true

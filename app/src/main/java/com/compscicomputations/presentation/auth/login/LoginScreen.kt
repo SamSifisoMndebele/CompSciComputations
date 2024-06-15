@@ -35,6 +35,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.airbnb.lottie.LottieComposition
 import com.airbnb.lottie.compose.LottieAnimation
 import com.compscicomputations.R
@@ -49,7 +50,7 @@ import com.compscicomputations.ui.theme.hintPassword
 @Composable
 fun LoginScreen(
     padding: PaddingValues = PaddingValues(8.dp),
-    viewModel: LoginViewModel,
+    viewModel: LoginViewModel = hiltViewModel(),
     lottieComposition: LottieComposition?,
     lottieProgress: Float,
     navigateRegister: () -> Unit,
@@ -57,13 +58,11 @@ fun LoginScreen(
     navigateMain: () -> Unit
 ) {
     val userLogged by viewModel.userLogged.collectAsState()
-    val name by viewModel.name.collectAsState()
     val context =  LocalContext.current
     LaunchedEffect(userLogged) {
         if (userLogged) {
             navigateMain()
-            Toast.makeText(context, if (name != null) "$name, logged in successfully!"
-                else "Logged in successfully!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Logged in successfully!", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -194,7 +193,7 @@ fun LoginScreen(
                     fontFamily = comicNeueFamily)
             }
 
-            OutlinedButton(onClick = { viewModel.continueWithGoogle(context) },
+            OutlinedButton(onClick = { viewModel.onLoginWithGoogle(context) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(68.dp)
@@ -205,7 +204,6 @@ fun LoginScreen(
                 Text(text = "Continue with Google", fontWeight = FontWeight.Bold, fontSize = 22.sp,
                     fontFamily = comicNeueFamily)
             }
-
         }
 
         val showProgress by viewModel.showProgress.collectAsState()

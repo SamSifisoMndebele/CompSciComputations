@@ -65,16 +65,14 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.content.PermissionChecker.PERMISSION_GRANTED
 import androidx.documentfile.provider.DocumentFile
+import coil.compose.AsyncImage
 import com.airbnb.lottie.LottieComposition
 import com.airbnb.lottie.compose.LottieAnimation
-import com.bumptech.glide.integration.compose.CrossFade
-import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
-import com.bumptech.glide.integration.compose.GlideImage
-import com.bumptech.glide.integration.compose.placeholder
 import com.compscicomputations.BuildConfig
 import com.compscicomputations.R
-import com.compscicomputations.core.database.remote.model.UserType
+import com.compscicomputations.core.database.model.Usertype
 import com.compscicomputations.presentation.LoadingDialog
+import com.compscicomputations.presentation.auth.AuthDataStore
 import com.compscicomputations.presentation.auth.isError
 import com.compscicomputations.presentation.auth.showMessage
 import com.compscicomputations.ui.theme.comicNeueFamily
@@ -83,11 +81,12 @@ import com.compscicomputations.ui.theme.hintDisplayName
 import com.compscicomputations.ui.theme.hintEmail
 import com.compscicomputations.ui.theme.hintPassword
 import com.compscicomputations.ui.theme.hintPasswordConfirm
+import com.compscicomputations.ui.theme.hintPhone
 import com.compscicomputations.ui.theme.hintUserImage
 import com.compscicomputations.ui.theme.hintUserType
 import com.compscicomputations.utils.createImageFile
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegisterScreen(
     padding: PaddingValues = PaddingValues(8.dp),
@@ -98,11 +97,11 @@ fun RegisterScreen(
     navigateMain: () -> Unit,
     navigateTerms: () -> Unit
 ) {
+    val context = LocalContext.current
     val photoPickerLauncher = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         if (uri == null) return@rememberLauncherForActivityResult
         viewModel.setPhotoUri(uri)
     }
-    val context = LocalContext.current
     val file = context.createImageFile()
     val uri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", file)
     val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) {
@@ -114,15 +113,18 @@ fun RegisterScreen(
         else Toast.makeText(context, "Permission Denied", Toast.LENGTH_SHORT).show()
     }
     val showProgress by viewModel.showProgress.collectAsState()
+    val authDataStore = AuthDataStore(context)
 
     val userType by viewModel.userType.collectAsState()
     val adminCode by viewModel.adminCode.collectAsState()
     val displayName by viewModel.displayName.collectAsState()
     val email by viewModel.email.collectAsState()
+    val phone by viewModel.phone.collectAsState()
     val password by viewModel.password.collectAsState()
     val passwordConfirm by viewModel.passwordConfirm.collectAsState()
     val photoUri by viewModel.photoUri.collectAsState()
     val termsAccepted by viewModel.termsAccepted.collectAsState()
+    authDataStore.SetTermsAccepted(termsAccepted)
     val userRegistered by viewModel.userRegistered.collectAsState()
     LaunchedEffect(userRegistered) {
         if (userRegistered) {
@@ -206,7 +208,7 @@ fun RegisterScreen(
                             expanded = userTypesExpanded,
                             onDismissRequest = { userTypesExpanded = false }
                         ) {
-                            UserType.entries.forEach {
+                            Usertype.entries.forEach {
                                 DropdownMenuItem(
                                     text = { Text(text = it.sqlName) },
                                     onClick = {
@@ -219,7 +221,7 @@ fun RegisterScreen(
                     }
                 }
                 item {
-                    AnimatedVisibility(userType == UserType.ADMIN) {
+                    AnimatedVisibility(userType == Usertype.ADMIN) {
                         var showCode by remember { mutableStateOf(false) }
                         OutlinedTextField(
                             modifier = Modifier
@@ -263,13 +265,10 @@ fun RegisterScreen(
                             shape = RoundedCornerShape(18.dp),
                             trailingIcon = {
                                 IconButton(onClick = {}, modifier = Modifier.padding(end = 4.dp)) {
-                                    GlideImage(
+                                    AsyncImage(
                                         model = photoUri,
-                                        contentScale = ContentScale.FillBounds,
-                                        loading = placeholder(R.drawable.img_profile),
-                                        failure = placeholder(R.drawable.img_profile),
-                                        transition = CrossFade,
-                                        contentDescription = "Profile"
+                                        contentDescription = "Profile",
+                                        contentScale = ContentScale.FillBounds
                                     )
                                 }
                             },
@@ -329,6 +328,21 @@ fun RegisterScreen(
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                         isError = viewModel.emailError.isError,
                         supportingText = viewModel.emailError.showMessage()
+                    )
+                }
+                item {
+                    OutlinedTextField(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
+                        value = phone,
+                        onValueChange = { viewModel.setPhone(it); viewModel.phoneError = null },
+                        label = { Text(text = hintPhone) },
+                        singleLine = true,
+                        shape = RoundedCornerShape(18.dp),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                        isError = viewModel.phoneError.isError,
+                        supportingText = viewModel.phoneError.showMessage()
                     )
                 }
                 item {
@@ -403,6 +417,8 @@ fun RegisterScreen(
                 }
                 item {
                     Button(onClick = { viewModel.onRegister() },
+                        enabled = displayName.isNotBlank() && email.isNotBlank() &&
+                                password.isNotBlank() && passwordConfirm.isNotBlank(),
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = 8.dp, bottom = 16.dp),

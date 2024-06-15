@@ -1,6 +1,6 @@
 package com.compscicomputations.core.database.remote.dto
 
-import com.compscicomputations.core.database.remote.model.Feedback
+import com.compscicomputations.core.database.model.Feedback
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

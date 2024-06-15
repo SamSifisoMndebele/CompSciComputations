@@ -72,12 +72,7 @@ fun AuthHostScreen(
                 navController.navigate(route = AuthNavigation.WELCOME.route)
                 return@composable
             }
-            val viewModel: LoginViewModel = hiltViewModel()
-            val emailLink = activity.intent.data?.toString()
-            if (emailLink != null) viewModel.onLinkLogin(emailLink)
-
             LoginScreen(
-                viewModel = viewModel,
                 lottieComposition = lottieComposition,
                 lottieProgress = lottieProgress,
                 navigateRegister = { navController.navigate(AuthNavigation.REGISTER.route) },

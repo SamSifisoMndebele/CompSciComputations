@@ -1,5 +1,6 @@
 package com.compscicomputations.di
 
+import android.app.Application
 import android.content.Context
 import com.google.android.play.core.splitinstall.SplitInstallManager
 import com.google.android.play.core.splitinstall.SplitInstallManagerFactory

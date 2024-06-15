@@ -39,10 +39,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.bumptech.glide.integration.compose.CrossFade
-import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
-import com.bumptech.glide.integration.compose.GlideImage
-import com.bumptech.glide.integration.compose.placeholder
+import coil.compose.AsyncImage
 import com.compscicomputations.BuildConfig
 import com.compscicomputations.R
 import com.compscicomputations.presentation.CompSciScaffold
@@ -50,10 +47,8 @@ import com.compscicomputations.presentation.OptionButton
 import com.compscicomputations.ui.theme.comicNeueFamily
 import com.compscicomputations.utils.createImageFile
 
-@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun ProfileScreen(
-    padding: PaddingValues = PaddingValues(start = 8.dp, end = 8.dp, top = 2.dp, bottom = 8.dp),
     viewModel: ProfileViewModel = hiltViewModel(),
     navigateUp: () -> Unit,
     navigateAuth: () -> Unit
@@ -139,18 +134,22 @@ fun ProfileScreen(
                                 .fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            GlideImage(
+                            AsyncImage(
                                 modifier = Modifier
                                     .size(180.dp)
                                     .padding(8.dp)
                                     .clip(RoundedCornerShape(16.dp)),
                                 model = photoUrl,
                                 contentScale = ContentScale.FillBounds,
-                                loading = placeholder(R.drawable.img_profile),
-                                failure = placeholder(R.drawable.img_profile),
-                                transition = CrossFade,
                                 contentDescription = "Profile"
                             )
+//                            GlideImage(
+//                                model = photoUrl,
+//                                loading = placeholder(R.drawable.img_profile),
+//                                failure = placeholder(R.drawable.img_profile),
+//                                transition = CrossFade,
+//                                contentDescription = "Profile"
+//                            )
                             /*var imageExpanded by remember { mutableStateOf(false) }
                             ExposedDropdownMenuBox(
                                 expanded = imageExpanded,

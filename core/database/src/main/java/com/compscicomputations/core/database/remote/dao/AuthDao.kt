@@ -1,17 +1,16 @@
 package com.compscicomputations.core.database.remote.dao
 
 import android.content.Context
-import com.compscicomputations.core.database.remote.model.AuthUser
-import com.compscicomputations.core.database.remote.model.UserType
+import com.compscicomputations.core.database.model.Usertype
+import com.google.firebase.auth.FirebaseUser
 
 
 interface AuthDao {
-    fun currentUser() : AuthUser?
+    fun authUser() : FirebaseUser?
+
     suspend fun logout()
-    suspend fun login(email: String, password: String): AuthUser
-    suspend fun googleLogin(context: Context, userType: UserType = UserType.STUDENT): AuthUser
-    suspend fun sendSignInLink(email: String)
-    suspend fun linkLogin(email: String, link: String): AuthUser
+    suspend fun login(email: String, password: String)
+    suspend fun loginWithGoogle(context: Context, userType: Usertype = Usertype.STUDENT)
 
     suspend fun register(
         email: String,
@@ -19,8 +18,10 @@ interface AuthDao {
         displayName: String,
         phone: String,
         photoUrl: String?,
-        userType: UserType
+        userType: Usertype
     )
+
+    suspend fun sendEmailVerification()
 
     suspend fun sendResetEmail(email: String)
 }

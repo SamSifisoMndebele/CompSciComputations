@@ -29,6 +29,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,18 +42,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.bumptech.glide.integration.compose.CrossFade
-import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
-import com.bumptech.glide.integration.compose.GlideImage
-import com.bumptech.glide.integration.compose.placeholder
+import coil.compose.AsyncImage
 import com.compscicomputations.R
 import com.compscicomputations.core.database.model.Feature
-import com.compscicomputations.data.featuresIcons
 import com.compscicomputations.presentation.CompSciScaffold
 import com.compscicomputations.presentation.OptionButton
 import com.compscicomputations.ui.theme.comicNeueFamily
+import com.compscicomputations.utils.featuresIcons
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun DashboardScreen(
     viewModel: DashboardViewModel = hiltViewModel(),
@@ -70,12 +72,23 @@ fun DashboardScreen(
             navigateProfile()
         }
     }
-
+    val coroutineScope = rememberCoroutineScope()
+    val isLoading by viewModel.isLoading.collectAsState()
     CompSciScaffold(
         title = "Dashboard",
         snackBarHost = {
             SnackbarHost(hostState = viewModel.snackBarHostState)
-        }
+        },
+        menuActions = {
+            TextButton(onClick = navigateProfile) {
+                Text(text = "Refresh")
+            }
+        },
+        isRefreshing = isLoading,
+        onRefresh = {
+            viewModel.setIsLoading()
+            viewModel.updateUser()
+        },
     ) { contentPadding ->
         LazyColumn(
             modifier = Modifier
@@ -99,18 +112,14 @@ fun DashboardScreen(
                                 modifier = Modifier.padding(end = 8.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                GlideImage(
+                                AsyncImage(
                                     modifier = Modifier
                                         .size(128.dp)
                                         .padding(10.dp)
                                         .clip(CircleShape),
                                     model = photoUrl,
                                     contentScale = ContentScale.FillBounds,
-                                    loading = placeholder(R.drawable.img_profile),
-                                    failure = placeholder(R.drawable.img_profile),
-                                    transition = CrossFade,
-                                    contentDescription = "Profile"
-                                )
+                                    contentDescription = "Profile",)
                                 Column(
                                     Modifier
                                         .padding(end = 4.dp, start = 6.dp)
@@ -123,7 +132,7 @@ fun DashboardScreen(
                                     Text(text = email ?: "", fontSize = 13.sp)
                                 }
                             }
-                            val showProgress by viewModel.showProgress.collectAsState()
+                            val showProgress by viewModel.isLoading.collectAsState()
                             if (showProgress) {
                                 Row (
                                     modifier = Modifier

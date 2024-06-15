@@ -31,6 +31,7 @@ const val hintAdminCode = "Admin Code *"
 const val hintUserImage = "User image"
 const val hintDisplayName = "Full names *"
 const val hintEmail = "Email *"
+const val hintPhone = "Phone"
 const val hintPassword = "Password *"
 const val hintPasswordConfirm = "Confirm password *"
 

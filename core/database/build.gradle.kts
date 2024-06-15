@@ -5,7 +5,7 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.google.dagger.hilt.android)
     alias(libs.plugins.jetbrains.kotlin.plugin.serialization)
-    id("kotlin-kapt")
+    alias(libs.plugins.google.devtools.ksp)
 }
 
 android {
@@ -36,11 +36,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "11"
     }
     buildFeatures {
         buildConfig = true
@@ -48,23 +48,31 @@ android {
 }
 
 dependencies {
+//    implementation(libs.postgresql)
+//    implementation("io.ktor:ktor-client-serialization:2.3.11")
+//    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.1")
+//    implementation("io.ktor:ktor-client-logging-jvm:2.3.11")
+//    implementation("io.ktor:ktor-server-content-negotiation-jvm:2.3.11")
+
     /**Hilt DI*/
-    implementation (libs.hilt.android)
-    kapt (libs.hilt.android.compiler)
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.android.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
 
-    /**SQLite Room DB*/
-    implementation (libs.androidx.room.runtime)
-    annotationProcessor (libs.androidx.room.compiler)
-    testImplementation (libs.androidx.room.testing)
+    /**Local database*/
+    implementation(libs.androidx.room.runtime)
+    ksp(libs.androidx.room.compiler)
+    testImplementation(libs.androidx.room.testing)
+    implementation(libs.androidx.datastore)
+    implementation(libs.androidx.datastore.preferences)
 
     /**Firebase*/
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth)
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.config)
-//    implementation(libs.firebase.storage)
-//    implementation(libs.firebase.firestore)
+    implementation(libs.firebase.storage)
+    implementation(libs.firebase.firestore)
 
     /**Supabase*/
     implementation(platform(libs.supabase.bom))
@@ -73,21 +81,16 @@ dependencies {
     implementation(libs.supabase.postgrest.kt)
     implementation(libs.supabase.realtime.kt)
 
+    implementation(libs.gson)
     implementation(libs.ktor.client.android)
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services.auth)
     implementation(libs.googleid)
 
-
     implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.appcompat)
-    implementation(libs.material)
+//    implementation(libs.androidx.appcompat)
+//    implementation(libs.android.material)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-}
-
-// Allow references to generated code
-kapt {
-    correctErrorTypes = true
 }

@@ -1,13 +1,10 @@
 package com.compscicomputations.presentation
 
-import android.content.Context
-import android.net.ConnectivityManager
-import android.net.Network
-import android.net.NetworkCapabilities
-import android.net.NetworkRequest
+
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -42,7 +39,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -58,7 +57,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.compscicomputations.R
+import com.compscicomputations.core.database.network.ConnectionState
+import com.compscicomputations.core.database.network.Connectivity.currentConnectivityState
+import com.compscicomputations.core.database.network.Connectivity.observeConnectivityAsFlow
 import com.compscicomputations.ui.theme.comicNeueFamily
+import eu.bambooapps.material3.pullrefresh.PullRefreshIndicator
+import eu.bambooapps.material3.pullrefresh.pullRefresh
+import eu.bambooapps.material3.pullrefresh.rememberPullRefreshState
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
@@ -217,55 +222,60 @@ fun CompSciScaffold(
     navigateUp: (() -> Unit)? = null,
     title: String,
     menuActions: @Composable (RowScope.() -> Unit) = {},
+    topBar: @Composable () -> Unit = {
+        Card(Modifier.padding(horizontal = 8.dp), shape = RoundedCornerShape(24.dp)) {
+            CenterAlignedTopAppBar(
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    titleContentColor = MaterialTheme.colorScheme.secondary,
+                ),
+                navigationIcon = {
+                    if (navigateUp != null)
+                        IconButton(onClick = navigateUp, Modifier.fillMaxHeight()) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBackIos,
+                                contentDescription = "Back Button",
+                                tint = Color.White,
+                            )
+                        }
+                    else
+                        Icon(
+                            painter = painterResource(id = R.drawable.img_logo_name),
+                            contentDescription = stringResource(id = R.string.app_name),
+                            modifier = Modifier
+                                .height(32.dp)
+                                .padding(start = 8.dp),
+                            tint = Color.White,
+                        )
+                },
+                title = {
+                    Text(
+                        title,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 26.sp,
+                        fontFamily = comicNeueFamily
+                    )
+                },
+                actions = menuActions
+            )
+        }
+    },
     bottomBar: @Composable () -> Unit = {},
     snackBarHost: @Composable () -> Unit = {},
     floatingActionButton: @Composable () -> Unit = {},
     floatingActionButtonPosition: FabPosition = FabPosition.End,
     containerColor: Color = MaterialTheme.colorScheme.background,
     contentColor: Color = contentColorFor(containerColor),
+    isRefreshing: Boolean? = null,
+    onRefresh: () -> Unit = {},
     content: @Composable (PaddingValues) -> Unit
 ) {
     Scaffold(
         modifier = modifier.fillMaxSize(),
-        topBar = {
-            Card(Modifier.padding(horizontal = 8.dp), shape = RoundedCornerShape(24.dp)) {
-                CenterAlignedTopAppBar(
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                        titleContentColor = MaterialTheme.colorScheme.secondary,
-                    ),
-                    navigationIcon = {
-                        if (navigateUp != null)
-                            IconButton(onClick = navigateUp, Modifier.fillMaxHeight()) {
-                                Icon(
-                                    imageVector = Icons.AutoMirrored.Filled.ArrowBackIos,
-                                    contentDescription = "Back Button",
-                                    tint = Color.White,
-                                )
-                            }
-                        else
-                            Icon(
-                                painter = painterResource(id = R.drawable.img_logo_name),
-                                contentDescription = stringResource(id = R.string.app_name),
-                                modifier = Modifier.height(32.dp).padding(start = 8.dp),
-                                tint = Color.White,
-                            )
-                    },
-                    title = {
-                        Text(
-                            title,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            color = Color.White,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 26.sp,
-                            fontFamily = comicNeueFamily
-                        )
-                    },
-                    actions = menuActions
-                )
-            }
-        },
+        topBar = topBar,
         bottomBar = bottomBar,
         snackbarHost = snackBarHost,
         floatingActionButton = floatingActionButton,
@@ -275,81 +285,46 @@ fun CompSciScaffold(
     ) { p ->
         val topPadding = p.calculateTopPadding() - 24.dp
         val bottomPadding = p.calculateBottomPadding() - 24.dp
+
         Column(
             Modifier.padding(
                 top = if (topPadding <= 0.dp) 0.dp else topPadding,
                 bottom = if (bottomPadding <= 0.dp) 0.dp else bottomPadding
             )
         ) {
-            content(
-                PaddingValues(
-                    start = 8.dp,
-                    end = 8.dp,
-                    top = if (topPadding <= 0.dp) 0.dp else 32.dp,
-                    bottom = if (bottomPadding <= 0.dp) 0.dp else 32.dp
+            if (isRefreshing != null) {
+                val pullRefreshState = rememberPullRefreshState(refreshing = isRefreshing, onRefresh = onRefresh)
+                Box(modifier = Modifier.pullRefresh(pullRefreshState)) {
+                    content(
+                        PaddingValues(
+                            start = 8.dp,
+                            end = 8.dp,
+                            top = if (topPadding <= 0.dp) 0.dp else 32.dp,
+                            bottom = if (bottomPadding <= 0.dp) 0.dp else 32.dp
+                        )
+                    )
+                    PullRefreshIndicator(
+                        refreshing = isRefreshing,
+                        state = pullRefreshState,
+                        modifier = Modifier.align(Alignment.TopCenter)
+                            .padding(top = 32.dp),
+                        scale = true
+                    )
+                }
+            } else {
+                content(
+                    PaddingValues(
+                        start = 8.dp,
+                        end = 8.dp,
+                        top = if (topPadding <= 0.dp) 0.dp else 32.dp,
+                        bottom = if (bottomPadding <= 0.dp) 0.dp else 32.dp
+                    )
                 )
-            )
+            }
         }
     }
 }
 
-sealed class ConnectionState {
-    data object Available : ConnectionState()
-    data object Unavailable : ConnectionState()
-}
-
-private fun getCurrentConnectivityState(
-    connectivityManager: ConnectivityManager
-): ConnectionState {
-    val connected = connectivityManager.allNetworks.any { network ->
-        connectivityManager.getNetworkCapabilities(network)
-            ?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-            ?: false
-    }
-
-    return if (connected) ConnectionState.Available else ConnectionState.Unavailable
-}
-
-private val Context.currentConnectivityState: ConnectionState
-    get() {
-        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        return getCurrentConnectivityState(connectivityManager)
-    }
-
-@ExperimentalCoroutinesApi
-private fun Context.observeConnectivityAsFlow() = callbackFlow {
-    val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-
-    val callback = NetworkCallback { connectionState -> trySend(connectionState) }
-
-    val networkRequest = NetworkRequest.Builder()
-        .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-        .build()
-
-    connectivityManager.registerNetworkCallback(networkRequest, callback)
-
-    // Set current state
-    val currentState = getCurrentConnectivityState(connectivityManager)
-    trySend(currentState)
-
-    // Remove callback when not used
-    awaitClose {
-        // Remove listeners
-        connectivityManager.unregisterNetworkCallback(callback)
-    }
-}
-
-private fun NetworkCallback(callback: (ConnectionState) -> Unit): ConnectivityManager.NetworkCallback {
-    return object : ConnectivityManager.NetworkCallback() {
-        override fun onAvailable(network: Network) {
-            callback(ConnectionState.Available)
-        }
-
-        override fun onLost(network: Network) {
-            callback(ConnectionState.Unavailable)
-        }
-    }
-}
 
 @ExperimentalCoroutinesApi
 @Composable

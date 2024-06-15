@@ -163,11 +163,13 @@ class Karnaugh2Fragment : KarnaughFragment() {
         }
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.history_menu, menu)
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onOptionsItemSelected(menuItem: MenuItem): Boolean {
         val itemId = menuItem.itemId
         if (itemId == R.id.item_clear) {
