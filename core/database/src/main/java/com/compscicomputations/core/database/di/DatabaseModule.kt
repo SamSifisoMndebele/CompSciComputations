@@ -22,6 +22,7 @@ import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.storage.Storage
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import javax.inject.Named
 import javax.inject.Singleton
 
 @Module
@@ -34,10 +35,14 @@ object DatabaseModule {
 
     @Provides
     @Singleton
-    fun provideAuthDao(auth: FirebaseAuth, credentialManager: CredentialManager,
-                       credentialRequest: GetCredentialRequest, userRepo: UserRepo
+    fun provideAuthDao(auth: FirebaseAuth,
+                       @ApplicationContext context: Context,
+                       credentialManager: CredentialManager,
+                       @Named("login") loginCredentialRequest: GetCredentialRequest,
+                       @Named("register") registerCredentialRequest: GetCredentialRequest,
+                       userRepo: UserRepo
     ): AuthDao =
-        AuthDaoImpl(auth, credentialManager, credentialRequest, userRepo)
+        AuthDaoImpl(auth, context, credentialManager, loginCredentialRequest, registerCredentialRequest, userRepo)
 
     @Provides
     @Singleton

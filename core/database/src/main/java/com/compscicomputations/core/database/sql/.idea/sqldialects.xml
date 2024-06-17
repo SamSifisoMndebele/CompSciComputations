@@ -1,15 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="SqlDialectMappings">
-    <file url="file://$PROJECT_DIR$/scrips/functions/get_user.sql" dialect="PostgreSQL" />
-    <file url="file://$PROJECT_DIR$/scrips/functions/update_last_seen.sql" dialect="PostgreSQL" />
-    <file url="file://$PROJECT_DIR$/scrips/functions/upsert_admin.sql" dialect="PostgreSQL" />
-    <file url="file://$PROJECT_DIR$/scrips/functions/upsert_student.sql" dialect="PostgreSQL" />
-    <file url="file://$PROJECT_DIR$/scrips/functions/upsert_user.sql" dialect="PostgreSQL" />
-    <file url="file://$PROJECT_DIR$/scrips/new/views.sql" dialect="PostgreSQL" />
-    <file url="file://$PROJECT_DIR$/scrips/objects.sql" dialect="PostgreSQL" />
-    <file url="file://$PROJECT_DIR$/scrips/tables.sql" dialect="PostgreSQL" />
-    <file url="file://$PROJECT_DIR$/scrips/triggers/set_user_as_admin.sql" dialect="PostgreSQL" />
-    <file url="file://$PROJECT_DIR$/scrips/triggers/update_user_metadata.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/aivencloud/extensions.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/aivencloud/firebase.sql" dialect="PostgreSQL" />
   </component>
 </project>

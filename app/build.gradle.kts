@@ -59,9 +59,16 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+    dynamicFeatures += setOf(
+        ":feature:karnaugh_maps",
+        ":feature:matrix_methods",
+        ":feature:number_systems",
+        ":feature:polish_expressions"
+    )
 }
 
 dependencies {
+    implementation(libs.postgresql)
 //    implementation("androidx.paging:paging-runtime:3.3.0")
 //    implementation("androidx.paging:paging-compose:3.3.0")
 

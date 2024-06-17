@@ -16,6 +16,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import java.sql.Connection
+import javax.inject.Named
 import javax.inject.Singleton
 
 @Module
@@ -28,7 +29,19 @@ object FirebaseModule {
 
     @Provides
     @Singleton
-    fun provideCredentialRequest():
+    @Named("login")
+    fun provideLoginCredentialRequest():
+            GetCredentialRequest = GetCredentialRequest.Builder()
+                .addCredentialOption(GetGoogleIdOption.Builder()
+                    .setFilterByAuthorizedAccounts(true)
+                    .setServerClientId(BuildConfig.WEB_CLIENT_ID)
+                    .build())
+                .build()
+
+    @Provides
+    @Singleton
+    @Named("register")
+    fun provideRegisterCredentialRequest():
             GetCredentialRequest = GetCredentialRequest.Builder()
                 .addCredentialOption(GetGoogleIdOption.Builder()
                     .setFilterByAuthorizedAccounts(false)

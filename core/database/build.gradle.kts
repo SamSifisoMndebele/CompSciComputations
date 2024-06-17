@@ -48,7 +48,7 @@ android {
 }
 
 dependencies {
-//    implementation(libs.postgresql)
+    implementation(libs.postgresql)
 //    implementation("io.ktor:ktor-client-serialization:2.3.11")
 //    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.1")
 //    implementation("io.ktor:ktor-client-logging-jvm:2.3.11")

@@ -15,14 +15,21 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.userProfileChangeRequest
+import dagger.hilt.android.qualifiers.ApplicationContext
 import io.github.jan.supabase.exceptions.UnknownRestException
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
+import javax.inject.Named
 
 class AuthDaoImpl @Inject constructor(
     private val auth: FirebaseAuth,
+    @ApplicationContext
+    private val context: Context,
     private val credentialManager: CredentialManager,
-    private val credentialRequest: GetCredentialRequest,
+    @Named("login")
+    private val loginCredentialRequest: GetCredentialRequest,
+    @Named("register")
+    private val registerCredentialRequest: GetCredentialRequest,
     private val userRepo: UserRepo
 ) : AuthDao {
     override fun authUser(): FirebaseUser? = auth.currentUser
@@ -35,24 +42,24 @@ class AuthDaoImpl @Inject constructor(
         auth.signInWithEmailAndPassword(email, password).await()
     }
 
-    override suspend fun loginWithGoogle(context: Context, userType: Usertype) {
+    override suspend fun loginWithGoogle(context1: Context, userType: Usertype) {
+        val credentialManager = CredentialManager.create(context)
         val credential = credentialManager.getCredential(
-            request = credentialRequest,
+            request = loginCredentialRequest,
             context = context,
         ).credential
 
-        val googleIdToken = try {
-            if (credential is CustomCredential
-                && credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
-                GoogleIdTokenCredential.createFrom(credential.data).idToken
-            } else {
-                throw Exception("Unexpected type of credential")
-            }
-        } catch (e: GoogleIdTokenParsingException) {
-            Log.e("AuthDaoImpl", "Received an invalid google id token response", e)
-            throw Exception("Received an invalid google id token response")
-        }
-
+//        val googleIdToken = try {
+//            if (credential is CustomCredential
+//                && credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
+//                GoogleIdTokenCredential.createFrom(credential.data).idToken
+//            } else throw Exception("Unexpected type of credential")
+//        } catch (e: GoogleIdTokenParsingException) {
+//            throw Exception("Received an invalid google id token response")
+//        }
+        val googleIdToken = GoogleIdTokenCredential.createFrom(credential.data).idToken
+        Log.d("AuthDaoImpl", credential.data.toString())
+        Log.d("AuthDaoImpl", GoogleIdTokenCredential.createFrom(credential.data).idToken)
         auth.signInWithCredential(GoogleAuthProvider.getCredential(googleIdToken, null)).await()
         val user = authUser()!!
         try {

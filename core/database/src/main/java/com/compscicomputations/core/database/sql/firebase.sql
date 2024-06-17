@@ -22,7 +22,7 @@ values (
       "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
       "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-w6mux%40compsci-computations.iam.gserviceaccount.com",
       "universe_domain": "googleapis.com"
-    }'
+  }'
 )
 returning key_id;
 

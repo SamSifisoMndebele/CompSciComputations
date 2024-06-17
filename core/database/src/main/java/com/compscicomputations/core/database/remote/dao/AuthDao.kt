@@ -7,8 +7,8 @@ import com.google.firebase.auth.FirebaseUser
 
 interface AuthDao {
     fun authUser() : FirebaseUser?
-
     suspend fun logout()
+
     suspend fun login(email: String, password: String)
     suspend fun loginWithGoogle(context: Context, userType: Usertype = Usertype.STUDENT)
 

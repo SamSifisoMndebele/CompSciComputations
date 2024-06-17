@@ -27,7 +27,6 @@ class LoginViewModel @Inject constructor(
     val password = _password.asStateFlow()
     var passwordError by mutableStateOf<String?>(null)
 
-//    val snackBarHostState = SnackbarHostState()
     private val _showProgress = MutableStateFlow(false)
     val showProgress = _showProgress.asStateFlow()
 
