@@ -35,7 +35,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var navController: NavHostController
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (authDao.authUser() == null) {
+        if (!authDao.isLoggedIn()) {
             startActivity(Intent(this, AuthActivity::class.java))
             finishAffinity()
             return

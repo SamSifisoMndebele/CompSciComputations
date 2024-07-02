@@ -2,8 +2,6 @@ package com.compscicomputations.core.ktor_client.remote.repo
 
 import com.compscicomputations.core.ktor_client.model.User
 import com.compscicomputations.core.ktor_client.model.Usertype
-import io.github.jan.supabase.exceptions.HttpRequestException
-import io.github.jan.supabase.exceptions.RestException
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import java.io.File
 import java.util.Date

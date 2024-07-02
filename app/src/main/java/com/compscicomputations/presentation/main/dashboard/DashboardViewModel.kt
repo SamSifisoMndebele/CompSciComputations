@@ -14,9 +14,7 @@ import com.compscicomputations.core.ktor_client.remote.repo.UserRepo
 import com.compscicomputations.core.ktor_client.model.Feature
 import com.compscicomputations.core.ktor_client.model.Usertype
 import com.compscicomputations.utils.featuresList
-import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.ktor.client.plugins.HttpRequestTimeoutException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -28,7 +26,6 @@ class DashboardViewModel @Inject constructor(
 //    @ApplicationContext
 //    private val context: Context,
     private val database: LocalDatabase,
-    private val auth: FirebaseAuth
 ) : ViewModel() {
     private val _usertype = MutableStateFlow(Usertype.STUDENT)
     private val _displayName = MutableStateFlow<String?>(null)
@@ -51,7 +48,7 @@ class DashboardViewModel @Inject constructor(
     }
 
     private fun updateUserInfo() {
-        val localUser = database.userDao().getUser(auth.currentUser!!.uid)
+        val localUser = database.userDao().getUser("uid")
         if (localUser != null) {
             _usertype.value = localUser.getUsertype
             _displayName.value = localUser.metadata.displayName
@@ -74,10 +71,10 @@ class DashboardViewModel @Inject constructor(
 
                 database.userDao().upsert(user)
 
-            } catch (e: HttpRequestTimeoutException) {
-                Log.e("DashboardViewModel", "updateUserInfo:Exception", e)
-                if (retry > 0) updateUser(retry-1)
-                else _isLoading.value = false
+//            } catch (e: HttpRequestTimeoutException) {
+//                Log.e("DashboardViewModel", "updateUserInfo:Exception", e)
+//                if (retry > 0) updateUser(retry-1)
+//                else _isLoading.value = false
             } catch (e: Exception) {
                 val error = e.message?.split('=', limit = 2)
                 when(error?.get(0)) {
@@ -111,10 +108,10 @@ class DashboardViewModel @Inject constructor(
     }
 
     init {
-        if (auth.currentUser?.uid != null) {
-            updateInstalledFeatures()
-            updateUserInfo()
-        }
+//        if (auth.currentUser?.uid != null) {
+//            updateInstalledFeatures()
+//            updateUserInfo()
+//        }
         /*splitInstallManager.deferredUninstall(listOf("polish_expressions", "matrix_methods"))
             .addOnSuccessListener {
                 Toast.makeText(context, "Done remove polish_expressions", Toast.LENGTH_SHORT).show()

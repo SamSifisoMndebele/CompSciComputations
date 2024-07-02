@@ -3,7 +3,7 @@ package com.compscicomputations.core.ktor_client.di
 import android.content.Context
 import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
-import com.compscicomputations.core.database.BuildConfig
+import com.compscicomputations.core.ktor_client.BuildConfig
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth

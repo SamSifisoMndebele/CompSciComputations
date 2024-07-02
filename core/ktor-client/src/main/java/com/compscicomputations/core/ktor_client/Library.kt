@@ -45,8 +45,8 @@ private fun uriToByteArray(contentResolver: ContentResolver, uri: Uri): ByteArra
 
 // Because I named the bucket as "User Image" so when it turns to an url, it is "%20"
 // For better approach, you should create your bucket name without space symbol
-fun buildImageUrl(imageFileName: String) =
-    "${BuildConfig.SUPABASE_URL}/storage/v1/object/public/${imageFileName}".replace(" ", "%20")
+//fun buildImageUrl(imageFileName: String) =
+//    "${BuildConfig.SUPABASE_URL}/storage/v1/object/public/${imageFileName}".replace(" ", "%20")
 
 
 //fun Exception.toCustomExceptions() = when (this) {

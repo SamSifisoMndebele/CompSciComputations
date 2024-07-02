@@ -1,13 +1,10 @@
 package com.compscicomputations.core.ktor_client.remote.dto
 
 import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 @Serializable
-data class
-
-
-
-UserMetadataDto(
+data class UserMetadataDto(
     @SerialName("uid") val uid: String,
     @SerialName("created_at") val createdAt: String,
     @SerialName("last_sign_in_at") val lastSignInAt: String,

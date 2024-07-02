@@ -2,6 +2,7 @@ package com.compscicomputations.core.ktor_client.remote.dto
 
 import com.compscicomputations.core.ktor_client.model.Feedback
 import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 @Serializable
 data class FeedbackDto(

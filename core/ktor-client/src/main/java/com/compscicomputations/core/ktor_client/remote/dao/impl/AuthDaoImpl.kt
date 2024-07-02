@@ -14,7 +14,6 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.userProfileChangeRequest
 import dagger.hilt.android.qualifiers.ApplicationContext
-import io.github.jan.supabase.exceptions.UnknownRestException
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import javax.inject.Named
@@ -30,7 +29,11 @@ class AuthDaoImpl @Inject constructor(
     private val registerCredentialRequest: GetCredentialRequest,
     private val userRepo: UserRepo
 ) : AuthDao {
-    override fun authUser(): FirebaseUser? = auth.currentUser
+    override fun isLoggedIn(): Boolean = auth.currentUser != null
+
+    override suspend fun getFirebaseUser(): FirebaseUser? {
+        return auth.currentUser
+    }
 
     override suspend fun logout() {
         userRepo.updateUserLastSeen()
@@ -59,19 +62,20 @@ class AuthDaoImpl @Inject constructor(
         Log.d("AuthDaoImpl", credential.data.toString())
         Log.d("AuthDaoImpl", GoogleIdTokenCredential.createFrom(credential.data).idToken)
         auth.signInWithCredential(GoogleAuthProvider.getCredential(googleIdToken, null)).await()
-        val user = authUser()!!
-        try {
-            userRepo.getUser(user.uid)
-//            userDao.updateUserLastSignIn(user.uid)
-        } catch (e: UnknownRestException) {
-            if (e.message?.split('=')?.get(0) == "NoSuchUserException") {
-                userRepo.insertUser(
-                    uid = user.uid,
-                    displayName = user.displayName.toString(),
-                    email = user.email!!,
-                    photoUrl = user.photoUrl?.toString(),
-                    phone = user.phoneNumber,
-                )
+        val user = getFirebaseUser()!!
+        userRepo.getUser(user.uid)
+//        try {
+//
+////            userDao.updateUserLastSignIn(user.uid)
+//        } catch (e: UnknownRestException) {
+//            if (e.message?.split('=')?.get(0) == "NoSuchUserException") {
+//                userRepo.insertUser(
+//                    uid = user.uid,
+//                    displayName = user.displayName.toString(),
+//                    email = user.email!!,
+//                    photoUrl = user.photoUrl?.toString(),
+//                    phone = user.phoneNumber,
+//                )
 //                when(userType) {
 //                    Usertype.ADMIN -> TODO()
 //                    Usertype.STUDENT -> userDao.insertStudentUser(
@@ -84,8 +88,8 @@ class AuthDaoImpl @Inject constructor(
 //                    )
 //                    Usertype.OTHER -> TODO()
 //                }
-            } else throw e
-        }
+//            } else throw e
+//        }
     }
 
     override suspend fun register(email: String, password: String,

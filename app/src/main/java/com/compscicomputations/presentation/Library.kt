@@ -57,9 +57,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.compscicomputations.R
-import com.compscicomputations.core.database.network.ConnectionState
-import com.compscicomputations.core.database.network.Connectivity.currentConnectivityState
-import com.compscicomputations.core.database.network.Connectivity.observeConnectivityAsFlow
+import com.compscicomputations.core.ktor_client.network.ConnectionState
+import com.compscicomputations.core.ktor_client.network.Connectivity.currentConnectivityState
+import com.compscicomputations.core.ktor_client.network.Connectivity.observeConnectivityAsFlow
 import com.compscicomputations.ui.theme.comicNeueFamily
 import eu.bambooapps.material3.pullrefresh.PullRefreshIndicator
 import eu.bambooapps.material3.pullrefresh.pullRefresh

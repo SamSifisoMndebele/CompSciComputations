@@ -6,7 +6,8 @@ import com.google.firebase.auth.FirebaseUser
 
 
 interface AuthDao {
-    fun authUser() : FirebaseUser?
+    fun isLoggedIn(): Boolean
+    suspend fun getFirebaseUser(): FirebaseUser?
     suspend fun logout()
 
     suspend fun login(email: String, password: String)

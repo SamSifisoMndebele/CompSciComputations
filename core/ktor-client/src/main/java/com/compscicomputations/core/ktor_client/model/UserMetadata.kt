@@ -2,6 +2,7 @@ package com.compscicomputations.core.ktor_client.model
 
 import androidx.room.ColumnInfo
 import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 @Serializable
 data class UserMetadata(
