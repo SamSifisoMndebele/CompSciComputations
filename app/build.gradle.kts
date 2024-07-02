@@ -41,18 +41,15 @@ android {
         arg("room.schemaLocation", "$projectDir/schemas")
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "11"
     }
     buildFeatures {
         compose = true
         buildConfig = true
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.1"
     }
     packaging {
         resources {
@@ -92,22 +89,21 @@ dependencies {
 
     /**Firebase*/
     implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.auth)
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.crashlytics)
+    implementation(project(":pdf-viewer"))
 
-//    implementation(project(":maths_lib"))
-    implementation(project(":core:database"))
-    implementation(project(":pdf_viewer"))
-//
+    implementation(project(":core:ktor-client"))
+
 //    implementation(libs.glide.compose)
     implementation(libs.coil.compose)
-//    implementation(libs.daimajia.androidanimations)
     implementation(libs.lottie.compose)
 
-    implementation(libs.ktor.client.android)
-    implementation(libs.gson)
-    implementation(libs.android.play.core)
+    implementation(libs.kotlinx.serialization.json)
+    implementation("com.google.android.play:feature-delivery:2.1.0")
+//    implementation("com.google.android.play:review:2.0.1")
+//    implementation("com.google.android.play:asset-delivery:2.2.2")
+//    implementation("com.google.android.play:app-update:2.1.0")
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
@@ -116,19 +112,11 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.pullrefresh)
-//    implementation(libs.androidx.material)
     implementation(libs.androidx.material.icons.extended) //Takes more space
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.navigation.compose)
     androidTestImplementation(platform(libs.androidx.compose.bom))
-//    androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-//    implementation(libs.androidx.core.ktx)
-//    implementation(libs.androidx.appcompat)
-//    implementation(libs.material)
-//    testImplementation(libs.junit)
-//    androidTestImplementation(libs.androidx.junit)
-//    androidTestImplementation(libs.androidx.espresso.core)
 }

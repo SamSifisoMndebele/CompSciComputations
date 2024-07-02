@@ -70,7 +70,7 @@ import com.airbnb.lottie.LottieComposition
 import com.airbnb.lottie.compose.LottieAnimation
 import com.compscicomputations.BuildConfig
 import com.compscicomputations.R
-import com.compscicomputations.core.database.model.Usertype
+import com.compscicomputations.core.ktor_client.model.Usertype
 import com.compscicomputations.presentation.LoadingDialog
 import com.compscicomputations.presentation.auth.AuthDataStore
 import com.compscicomputations.presentation.auth.isError

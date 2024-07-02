@@ -1,1 +1,0 @@
-SET TIME ZONE 'GMT+2';

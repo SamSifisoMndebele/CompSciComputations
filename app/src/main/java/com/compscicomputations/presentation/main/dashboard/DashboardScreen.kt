@@ -29,10 +29,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -43,14 +40,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
-import com.compscicomputations.R
-import com.compscicomputations.core.database.model.Feature
+import com.compscicomputations.core.ktor_client.model.Feature
 import com.compscicomputations.presentation.CompSciScaffold
 import com.compscicomputations.presentation.OptionButton
 import com.compscicomputations.ui.theme.comicNeueFamily
 import com.compscicomputations.utils.featuresIcons
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 @Composable
 fun DashboardScreen(

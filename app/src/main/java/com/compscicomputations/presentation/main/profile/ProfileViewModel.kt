@@ -3,9 +3,9 @@ package com.compscicomputations.presentation.main.profile
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.compscicomputations.core.database.remote.repo.UserRepo
-import com.compscicomputations.core.database.remote.dao.AuthDao
-import com.compscicomputations.core.database.model.Usertype
+import com.compscicomputations.core.ktor_client.remote.repo.UserRepo
+import com.compscicomputations.core.ktor_client.remote.dao.AuthDao
+import com.compscicomputations.core.ktor_client.model.Usertype
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

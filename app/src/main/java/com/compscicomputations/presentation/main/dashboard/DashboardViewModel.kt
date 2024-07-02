@@ -1,6 +1,5 @@
 package com.compscicomputations.presentation.main.dashboard
 
-import android.content.Context
 import android.util.Log
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
@@ -10,14 +9,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.compscicomputations.core.database.room.LocalDatabase
-import com.compscicomputations.core.database.remote.repo.UserRepo
-import com.compscicomputations.core.database.model.Feature
-import com.compscicomputations.core.database.model.Usertype
+import com.compscicomputations.core.ktor_client.room.LocalDatabase
+import com.compscicomputations.core.ktor_client.remote.repo.UserRepo
+import com.compscicomputations.core.ktor_client.model.Feature
+import com.compscicomputations.core.ktor_client.model.Usertype
 import com.compscicomputations.utils.featuresList
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

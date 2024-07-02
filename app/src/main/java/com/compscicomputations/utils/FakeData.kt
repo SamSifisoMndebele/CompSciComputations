@@ -1,7 +1,7 @@
 package com.compscicomputations.utils
 
 import com.compscicomputations.R
-import com.compscicomputations.core.database.model.Feature
+import com.compscicomputations.core.ktor_client.model.Feature
 
 val featuresList = listOf(
     Feature(0, "Number Systems", "feature.number_systems", "NumberSystemsKt", "NumberSystemsScreen"),

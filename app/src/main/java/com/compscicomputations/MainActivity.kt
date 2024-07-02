@@ -20,7 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.compscicomputations.core.database.remote.dao.AuthDao
+import com.compscicomputations.core.ktor_client.remote.dao.AuthDao
 import com.compscicomputations.presentation.main.MainHostScreen
 import com.compscicomputations.ui.theme.CompSciComputationsTheme
 import dagger.hilt.android.AndroidEntryPoint
