@@ -1,0 +1,58 @@
+POST https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=AIzaSyD06VvOEIttnTUoe3JdnYKAfg_AriAtF0s
+Content-Type: application/json
+
+{
+  "contents": [
+    {
+      "parts": [
+        {
+          "text": "Explain how to convert decimal 52 to binary."
+        }
+      ]
+    }
+  ]
+}
+
+###
+#Create a user
+POST http://127.0.0.1:8080/user
+Content-Type: application/json
+
+{
+  "email": "user4@mail.com",
+  "password": "password",
+  "display_name": "User Name 1",
+  "photo_url": null,
+  "phone": "0721646434",
+  "usertype": "STUDENT",
+  "admin_code": null
+}
+
+###
+#Create an admin user
+POST http://127.0.0.1:8080/user
+Content-Type: application/json
+
+{
+  "email": "admin1@mail.com",
+  "password": "password",
+  "display_name": "Admin Name 1",
+  "photo_url": null,
+  "phone": "0721646421",
+  "usertype": "ADMIN",
+  "admin_code": "123456"
+}
+
+###
+POST http://127.0.0.1:8080/admin/code
+Content-Type: application/json
+
+{
+  "email": "admin1@mail.com",
+  "hash_code": "password"
+}
+
+###
+# Get user by uid
+GET http://127.0.0.1:8080/user
+Authorization: Bearer ..--------
