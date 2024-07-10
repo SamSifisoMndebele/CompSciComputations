@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">CompSci Computations</string>
+
+    <string name="more_info">More Info</string>
+    <string name="title_karnaugh_maps">Karnaugh Maps</string>
+    <string name="title_number_systems">Number Systems</string>
+    <string name="title_polish_expressions">Polish Expressions</string>
+    <string name="title_matrix_methods">Matrix Method</string>
+    <string name="title_activity_split_install">SplitInstallActivity</string>
+    <string name="title_activity_main">MainActivity</string>
+</resources>

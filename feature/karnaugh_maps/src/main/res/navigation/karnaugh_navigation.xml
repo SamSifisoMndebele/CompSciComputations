@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/karnaugh_navigation"
+    app:startDestination="@+id/navigation_karnaugh4">
+
+    <fragment
+        android:id="@+id/navigation_karnaugh2"
+        android:name="com.compscicomputations.feature.karnaugh_maps.Karnaugh2Fragment"
+        android:label=" "
+        tools:layout="@layout/karnaugh_2_variables"/>
+    <fragment
+        android:id="@+id/navigation_karnaugh3"
+        android:name="com.compscicomputations.feature.karnaugh_maps.Karnaugh3Fragment"
+        android:label=" "
+        tools:layout="@layout/karnaugh_3_variables"/>
+    <fragment
+        android:id="@+id/navigation_karnaugh4"
+        android:name="com.compscicomputations.feature.karnaugh_maps.Karnaugh4Fragment"
+        android:label=" "
+        tools:layout="@layout/karnaugh_4_variables"/>
+</navigation>
