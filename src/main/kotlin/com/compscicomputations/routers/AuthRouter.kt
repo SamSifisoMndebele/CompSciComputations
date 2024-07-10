@@ -147,11 +147,11 @@ fun Route.authRouter() {
             authenticateAdmin {
                 // Read any user by uid
                 get("/{uid}") {
-                    val uid = call.parameter("uid") ?: return@get
-                    val firebaseUser = call.principal<FirebaseUser>() ?:
-                    return@get call.respond(HttpStatusCode.Unauthorized, "Authentication failed")
-
                     try {
+                        val uid = call.parameter("uid") ?: return@get
+                        val firebaseUser = call.principal<FirebaseUser>() ?:
+                        return@get call.respond(HttpStatusCode.Unauthorized, "Authentication failed")
+
                         val user = authService.readUser(uid)
                         val userResponse = if (uid != firebaseUser.uid)
                             createUserResponse(authService.readFirebaseUser(uid), user)
@@ -182,11 +182,11 @@ fun Route.authRouter() {
 
                 // Delete any user by uid
                 delete("/{uid}") {
-                    val uid = call.parameter("uid") ?: return@delete
-                    call.principal<FirebaseUser>() ?:
-                    return@delete call.respond(HttpStatusCode.Unauthorized, "Authentication failed")
-
                     try {
+                        val uid = call.parameter("uid") ?: return@delete
+                        call.principal<FirebaseUser>() ?:
+                        return@delete call.respond(HttpStatusCode.Unauthorized, "Authentication failed")
+
                         authService.deleteUser(uid)
                         call.respond(HttpStatusCode.OK)
                     } catch (e: Exception) {
