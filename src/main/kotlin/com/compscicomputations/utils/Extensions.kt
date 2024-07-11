@@ -7,7 +7,7 @@ import java.sql.Timestamp
 import java.text.SimpleDateFormat
 import java.util.*
 
-fun String?.isEmailValid(): Boolean = !this.isNullOrBlank() && Regex(MAIL_REGEX).matches(this)
+fun String?.isEmailValid(): Boolean = !this.isNullOrBlank() && Regex(EMAIL_REGEX).matches(this)
 
 fun String?.validEmailOrNull() = if (isEmailValid()) this else null
 

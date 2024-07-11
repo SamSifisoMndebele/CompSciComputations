@@ -4,7 +4,6 @@ import com.compscicomputations.services.auth.impl.AuthServiceImpl.Companion.Expi
 import com.compscicomputations.services.auth.impl.AuthServiceImpl.Companion.isAdminCodeValid
 import com.compscicomputations.services.auth.models.CreateAdminCodeRequest
 import com.compscicomputations.services.auth.models.CreateUserRequest
-import com.compscicomputations.services.other.models.Subscription
 import com.compscicomputations.utils.isEmailValid
 import com.compscicomputations.utils.isPhoneValid
 import io.ktor.server.application.*
@@ -13,12 +12,7 @@ import io.ktor.server.plugins.requestvalidation.*
 
 internal fun Application.configureRequestValidation() {
 
-    //TODO: Enable validation here
-    /*install(RequestValidation) {
-//        validate<String> { string ->
-//            if (string.isBlank()) ValidationResult.Invalid("Empty uid is not accepted.")
-//            else ValidationResult.Valid
-//        }
+    install(RequestValidation) {
         validate<CreateUserRequest> { userInfo ->
             when {
                 !userInfo.email.isEmailValid() ->
@@ -47,11 +41,5 @@ internal fun Application.configureRequestValidation() {
                 else -> ValidationResult.Valid
             }
         }
-        validate<Subscription> { sub ->
-            when {
-                !sub.email.isEmailValid() -> ValidationResult.Invalid("The email is not valid.")
-                else -> ValidationResult.Valid
-            }
-        }
-    }*/
+    }
 }

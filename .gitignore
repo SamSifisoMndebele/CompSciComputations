@@ -25,6 +25,10 @@ out/
 !**/src/main/**/out/
 !**/src/test/**/out/
 
+/src/main/resources/compsci-computations-firebase-adminsdk.json
+/.run/ApplicationKt.run.xml
+/.run/publishImage.run.xml
+
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/
@@ -34,4 +38,3 @@ out/
 
 ### VS Code ###
 .vscode/
-/src/main/resources/compsci-computations-firebase-adminsdk.json

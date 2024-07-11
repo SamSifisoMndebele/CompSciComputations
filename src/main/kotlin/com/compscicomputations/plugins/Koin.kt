@@ -2,8 +2,6 @@ package com.compscicomputations.plugins
 
 import com.compscicomputations.services.auth.AuthService
 import com.compscicomputations.services.auth.impl.AuthServiceImpl
-import com.compscicomputations.services.other.SubscriptionService
-import com.compscicomputations.services.other.impl.SubscriptionServiceImpl
 import com.google.auth.oauth2.GoogleCredentials
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
@@ -29,7 +27,6 @@ internal fun Application.configureKoin() {
         }
         single<FirebaseAuth> { FirebaseAuth.getInstance(get()) }
         single<AuthService> { AuthServiceImpl(get()) }
-        single<SubscriptionService> { SubscriptionServiceImpl() }
         single<Connection> { connectToPostgres() }
     }
 
