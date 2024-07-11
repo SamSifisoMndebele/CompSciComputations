@@ -2,7 +2,10 @@ package com.compscicomputations.services.auth
 
 import com.compscicomputations.firebase.FirebaseUser
 import com.compscicomputations.services.auth.exceptions.NoSuchUserException
-import com.compscicomputations.services.auth.models.*
+import com.compscicomputations.services.auth.models.requests.CreateAdminCodeRequest
+import com.compscicomputations.services.auth.models.requests.CreateUserRequest
+import com.compscicomputations.services.auth.models.requests.UpdateUserRequest
+import com.compscicomputations.services.auth.models.response.User
 
 internal interface AuthService {
     /**

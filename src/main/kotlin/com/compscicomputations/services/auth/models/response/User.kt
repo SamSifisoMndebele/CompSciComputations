@@ -1,11 +1,11 @@
-package com.compscicomputations.services.auth.models
+package com.compscicomputations.services.auth.models.response
 
-import io.ktor.resources.*
+import com.compscicomputations.services.auth.models.Usertype
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class UserResponse(
+data class User(
     val uid: String,
     val email: String,
     @SerialName("display_name")

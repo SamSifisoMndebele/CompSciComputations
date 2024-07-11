@@ -1,6 +1,6 @@
 package com.compscicomputations.services.auth.exceptions
 
-import com.compscicomputations.services.auth.models.User
+import com.compscicomputations.services.auth.models.response.User
 
 class NoSuchUserException(
     message: String = "A user associated with the uid does not exists, or it was deleted."

@@ -5,8 +5,12 @@ import com.compscicomputations.firebase.authenticateAdmin
 import com.compscicomputations.services.auth.AuthService
 import com.compscicomputations.services.auth.exceptions.NoSuchUserException
 import com.compscicomputations.services.auth.models.*
-import com.compscicomputations.services.auth.Admins
-import com.compscicomputations.services.auth.Users
+import com.compscicomputations.services.auth.models.Admins
+import com.compscicomputations.services.auth.models.Users
+import com.compscicomputations.services.auth.models.requests.CreateAdminCodeRequest
+import com.compscicomputations.services.auth.models.requests.CreateUserRequest
+import com.compscicomputations.services.auth.models.requests.UpdateUserRequest
+import com.compscicomputations.services.auth.models.response.User
 import com.compscicomputations.utils.asString
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -20,7 +24,7 @@ import io.ktor.server.resources.get
 import io.ktor.server.resources.put
 import io.ktor.server.resources.delete
 
-private fun createUserResponse(firebaseUser: FirebaseUser, user: User) = UserResponse(
+private fun createUserResponse(firebaseUser: FirebaseUser, user: User) = User(
     uid = firebaseUser.uid,
     email = firebaseUser.email,
     displayName = firebaseUser.displayName,
@@ -104,7 +108,7 @@ fun Routing.authRouting() {
                 val users = authService.readUsers()
 
                 call.respond(HttpStatusCode.OK, users.map {
-                    UserResponse(
+                    User(
                         uid = it.uid,
                         email = it.email,
                         displayName = "",

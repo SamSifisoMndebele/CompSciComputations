@@ -5,10 +5,12 @@ import com.compscicomputations.services.auth.AuthService
 import com.compscicomputations.services.auth.exceptions.NoSuchUserException
 import com.compscicomputations.services.auth.exceptions.singleOrNoSuchUserException
 import com.compscicomputations.services.auth.models.*
+import com.compscicomputations.services.auth.models.requests.CreateAdminCodeRequest
+import com.compscicomputations.services.auth.models.requests.CreateUserRequest
+import com.compscicomputations.services.auth.models.requests.UpdateUserRequest
+import com.compscicomputations.services.auth.models.response.User
+import com.compscicomputations.utils.*
 import com.compscicomputations.utils.PasswordEncryptor
-import com.compscicomputations.utils.dbQuery
-import com.compscicomputations.utils.executeQuery
-import com.compscicomputations.utils.executeUpdate
 import com.google.firebase.auth.*
 import org.koin.java.KoinJavaComponent.inject
 import org.slf4j.LoggerFactory
@@ -132,14 +134,17 @@ internal class AuthServiceImpl(
         return User(
             uid = getString("uid"),
             email = getString("email"),
+            displayName = getString("display_name"),
+            photoUrl = getString("photo_url"),
+            isEmailVerified = getBoolean("is_email_verified"),
             phone = getString("phone"),
 //                usertype = Usertype.valueOf(getString("usertype")), todo: solve
             usertype = Usertype.STUDENT,
-            createdAt = getTimestamp("created_at"),
-            updatedAt = getTimestamp("updated_at"),
-            lastSeenAt = getTimestamp("last_seen_at"),
-            bannedUntil = getTimestamp("banned_until"),
-            deletedAt = getTimestamp("deleted_at"),
+            createdAt = getTimestamp("created_at").asString,
+            updatedAt = getTimestamp("updated_at")?.asString,
+            lastSeenAt = getTimestamp("last_seen_at")?.asString,
+            bannedUntil = getTimestamp("banned_until")?.asString,
+            deletedAt = getTimestamp("deleted_at")?.asString,
         )
     }
 

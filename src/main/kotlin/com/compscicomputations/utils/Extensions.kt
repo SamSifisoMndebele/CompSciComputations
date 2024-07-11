@@ -1,5 +1,6 @@
 package com.compscicomputations.utils
 
+import com.compscicomputations.services.auth.models.Usertype
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
@@ -27,3 +28,6 @@ inline val Timestamp.asString: String get() = toString().take(26).replace("T", "
 //inline val Long?.asDate: Date get() = if (this == null) Date() else Date(this)
 //val String.asDate: Date get() = dateFormat.parse(take(26).replace("T", " "))!!
 //val Date.asString: String get() = dateFormat.format(this)
+
+val Usertype.isAdmin: Boolean
+    get() = this == Usertype.ADMIN

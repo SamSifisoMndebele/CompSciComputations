@@ -1,4 +1,4 @@
-package com.compscicomputations.services.auth.models
+package com.compscicomputations.services.auth.models.requests
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

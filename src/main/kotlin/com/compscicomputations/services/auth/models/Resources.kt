@@ -1,4 +1,4 @@
-package com.compscicomputations.services.auth
+package com.compscicomputations.services.auth.models
 
 import io.ktor.resources.*
 

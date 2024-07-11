@@ -2,8 +2,9 @@ package com.compscicomputations.plugins
 
 import com.compscicomputations.services.auth.impl.AuthServiceImpl.Companion.ExpiredException
 import com.compscicomputations.services.auth.impl.AuthServiceImpl.Companion.isAdminCodeValid
-import com.compscicomputations.services.auth.models.CreateAdminCodeRequest
-import com.compscicomputations.services.auth.models.CreateUserRequest
+import com.compscicomputations.services.auth.models.requests.CreateAdminCodeRequest
+import com.compscicomputations.services.auth.models.requests.CreateUserRequest
+import com.compscicomputations.utils.isAdmin
 import com.compscicomputations.utils.isEmailValid
 import com.compscicomputations.utils.isPhoneValid
 import io.ktor.server.application.*
@@ -23,9 +24,9 @@ internal fun Application.configureRequestValidation() {
                     ValidationResult.Invalid("Display name is blank.")
                 userInfo.phone != null && !userInfo.phone.isPhoneValid() ->
                     ValidationResult.Invalid("Phone number is not valid.")
-                userInfo.isAdmin && userInfo.adminCode.isNullOrBlank() ->
+                userInfo.usertype.isAdmin && userInfo.adminCode.isNullOrBlank() ->
                     ValidationResult.Invalid("Admin Code is required to verify the admin account.")
-                userInfo.isAdmin && !userInfo.adminCode.isNullOrBlank() ->
+                userInfo.usertype.isAdmin && !userInfo.adminCode.isNullOrBlank() ->
                     try {
                         if (isAdminCodeValid(userInfo.email, userInfo.adminCode)) ValidationResult.Valid
                         else ValidationResult.Invalid("The admin code is not valid.")

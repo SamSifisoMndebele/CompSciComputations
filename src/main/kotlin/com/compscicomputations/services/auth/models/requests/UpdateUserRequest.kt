@@ -1,5 +1,6 @@
-package com.compscicomputations.services.auth.models
+package com.compscicomputations.services.auth.models.requests
 
+import com.compscicomputations.services.auth.models.Usertype
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

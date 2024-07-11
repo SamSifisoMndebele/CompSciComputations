@@ -1,5 +1,6 @@
-package com.compscicomputations.services.auth.models
+package com.compscicomputations.services.auth.models.requests
 
+import com.compscicomputations.services.auth.models.Usertype
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -15,6 +16,4 @@ data class CreateUserRequest(
     val usertype: Usertype = Usertype.STUDENT,
     @SerialName("admin_code")
     val adminCode: String? = null
-) {
-    val isAdmin get() = usertype == Usertype.ADMIN
-}
+)
