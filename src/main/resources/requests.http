@@ -58,6 +58,7 @@ GET http://127.0.0.1:8080/admin/user/5M6ppTUwZNgaPpcNjoPlxigETt33
 Authorization: Bearer ..--------
 
 ###
+# Create a user
 POST http://127.0.0.1:8080/users
 Content-Type: application/json
 
@@ -70,3 +71,8 @@ Content-Type: application/json
   "usertype": "ADMIN",
   "admin_code": "123456"
 }
+
+###
+# Get user
+GET http://127.0.0.1:8080/users/5M6ppTUwZNgaPpcNjoPlxigETt33
+Authorization: Bearer ..--------

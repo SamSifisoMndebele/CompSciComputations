@@ -32,6 +32,13 @@ internal interface AuthService {
      * @throws NoSuchUserException if user with `uid` does not exist.
      */
     suspend fun readUser(uid: String): User
+
+    /**
+     * Reads the user information from the database.
+     * @return [User] list from a database.
+     */
+    suspend fun readUsers(): List<User>
+
     /**
      * Reads the user information from firebase auth.
      * @param uid the user unique identifier.

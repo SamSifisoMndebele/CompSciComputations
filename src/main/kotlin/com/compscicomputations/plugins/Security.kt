@@ -17,7 +17,7 @@ internal fun Application.configureSecurity() {
             realm = "Access server as firebase user."
             authenticate  {
                 FirebaseUser(
-                    uid = "testUid",
+                    uid = "5M6ppTUwZNgaPpcNjoPlxigETt33",
                     email = "testEmail",
                     displayName = "testDisplayName",
                     photoUrl = null,
@@ -30,7 +30,7 @@ internal fun Application.configureSecurity() {
             realm = "Access server as firebase admin user."
             authenticate {
                 val tokenResult = FirebaseUser(
-                    uid = "testAdminUid",
+                    uid = "5M6ppTUwZNgaPpcNjoPlxigETt33",
                     email = "testAdminEmail",
                     displayName = "testAdminDisplayName",
                     photoUrl = null,

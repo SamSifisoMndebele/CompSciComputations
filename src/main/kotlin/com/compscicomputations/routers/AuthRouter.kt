@@ -36,33 +36,8 @@ fun Route.authRouter() {
 
 
     route("/user") {
-        // Create user
-        post {
-            try {
-                val userRequest = call.receive<CreateUserRequest>()
-                authService.createUser(userRequest)
-                call.respond(HttpStatusCode.Created)
-            } catch (e: Exception) {
-                call.respond(HttpStatusCode.ExpectationFailed, e.localizedMessage)
-            }
-        }
 
         authenticate {
-            // Read user
-            get {
-                try {
-                    val firebaseUser = call.principal<FirebaseUser>() ?:
-                    return@get call.respond(HttpStatusCode.Unauthorized, "Authentication failed")
-
-                    val user = authService.readUser(firebaseUser.uid)
-                    val userResponse = createUserResponse(firebaseUser, user)
-                    call.respond(HttpStatusCode.OK, userResponse)
-                } catch (e: NoSuchUserException) {
-                    call.respond(HttpStatusCode.NotFound)
-                } catch (e: Exception) {
-                    call.respond(HttpStatusCode.ExpectationFailed, e.localizedMessage)
-                }
-            }
 
             // Update user
             put {
@@ -119,81 +94,36 @@ fun Route.authRouter() {
             }
         }
 
-        route("/user") {
-            // Read any user by uid, email or phone
-            get {
-                val uid = call.request.queryParameters["uid"]?.ifBlank { null }
-                if (!uid.isNullOrBlank()) {
-                    call.respondRedirect("/admin/user/$uid")
-                    return@get
-                }
-                val email = call.request.queryParameters["email"]?.ifBlank { null }
-                val emailUid = email?.let { e -> authService.getUserUidByEmail(e) }
-                if (!emailUid.isNullOrBlank()) {
-                    call.respondRedirect("/admin/user/$emailUid")
-                    return@get
-                }
-                val phone = call.request.queryParameters["phone"]?.ifBlank { null }
-                val phoneUid = phone?.let { p -> authService.getUserUidByPhone(p) }
-                if (!phoneUid.isNullOrBlank()) {
-                    call.respondRedirect("/admin/user/$phoneUid")
-                    return@get
-                }
+        authenticateAdmin {
 
-                if (uid == null && email == null && phone == null)
-                    call.respondRedirect("/user", true)
+            // Update any user by uid
+            put("/{uid}") {
+                try {
+                    val uid = call.parameter("uid") ?: return@put
+                    val userRequest = call.receive<UpdateUserRequest>()
+                    var firebaseUser = call.principal<FirebaseUser>() ?:
+                    return@put call.respond(HttpStatusCode.Unauthorized, "Authentication failed")
 
-                call.respond(HttpStatusCode.NotFound, "No such user found.")
+                    if (uid != firebaseUser.uid) firebaseUser = authService.readFirebaseUser(uid)
+
+                    val user = authService.updateUser(firebaseUser, userRequest)
+                    call.respond(HttpStatusCode.OK, user)
+                } catch (e: Exception) {
+                    call.respond(HttpStatusCode.ExpectationFailed, e.localizedMessage)
+                }
             }
 
-            authenticateAdmin {
-                // Read any user by uid
-                get("/{uid}") {
-                    try {
-                        val uid = call.parameter("uid") ?: return@get
-                        val firebaseUser = call.principal<FirebaseUser>() ?:
-                        return@get call.respond(HttpStatusCode.Unauthorized, "Authentication failed")
+            // Delete any user by uid
+            delete("/{uid}") {
+                try {
+                    val uid = call.parameter("uid") ?: return@delete
+                    call.principal<FirebaseUser>() ?:
+                    return@delete call.respond(HttpStatusCode.Unauthorized, "Authentication failed")
 
-                        val user = authService.readUser(uid)
-                        val userResponse = if (uid != firebaseUser.uid)
-                            createUserResponse(authService.readFirebaseUser(uid), user)
-                        else createUserResponse(firebaseUser, user)
-
-                        call.respond(HttpStatusCode.OK, userResponse)
-                    } catch (e: Exception) {
-                        call.respond(HttpStatusCode.NotFound, e.localizedMessage)
-                    }
-                }
-
-                // Update any user by uid
-                put("/{uid}") {
-                    try {
-                        val uid = call.parameter("uid") ?: return@put
-                        val userRequest = call.receive<UpdateUserRequest>()
-                        var firebaseUser = call.principal<FirebaseUser>() ?:
-                        return@put call.respond(HttpStatusCode.Unauthorized, "Authentication failed")
-
-                        if (uid != firebaseUser.uid) firebaseUser = authService.readFirebaseUser(uid)
-
-                        val user = authService.updateUser(firebaseUser, userRequest)
-                        call.respond(HttpStatusCode.OK, user)
-                    } catch (e: Exception) {
-                        call.respond(HttpStatusCode.ExpectationFailed, e.localizedMessage)
-                    }
-                }
-
-                // Delete any user by uid
-                delete("/{uid}") {
-                    try {
-                        val uid = call.parameter("uid") ?: return@delete
-                        call.principal<FirebaseUser>() ?:
-                        return@delete call.respond(HttpStatusCode.Unauthorized, "Authentication failed")
-
-                        authService.deleteUser(uid)
-                        call.respond(HttpStatusCode.OK)
-                    } catch (e: Exception) {
-                        call.respond(HttpStatusCode.ExpectationFailed, e.localizedMessage)
-                    }
+                    authService.deleteUser(uid)
+                    call.respond(HttpStatusCode.OK)
+                } catch (e: Exception) {
+                    call.respond(HttpStatusCode.ExpectationFailed, e.localizedMessage)
                 }
             }
         }

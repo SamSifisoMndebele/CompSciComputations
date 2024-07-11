@@ -9,12 +9,12 @@ import com.compscicomputations.utils.PasswordEncryptor
 import com.compscicomputations.utils.dbQuery
 import com.compscicomputations.utils.executeQuery
 import com.compscicomputations.utils.executeUpdate
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseAuthException
-import com.google.firebase.auth.UserRecord
+import com.google.firebase.auth.*
 import org.koin.java.KoinJavaComponent.inject
 import org.slf4j.LoggerFactory
 import java.sql.Connection
+import java.sql.ResultSet
+
 
 internal class AuthServiceImpl(
     private val auth: FirebaseAuth
@@ -128,25 +128,31 @@ internal class AuthServiceImpl(
         }
     }
 
+    private fun ResultSet.toUser(): User {
+        return User(
+            uid = getString("uid"),
+            email = getString("email"),
+            phone = getString("phone"),
+//                usertype = Usertype.valueOf(getString("usertype")), todo: solve
+            usertype = Usertype.STUDENT,
+            createdAt = getTimestamp("created_at"),
+            updatedAt = getTimestamp("updated_at"),
+            lastSeenAt = getTimestamp("last_seen_at"),
+            bannedUntil = getTimestamp("banned_until"),
+            deletedAt = getTimestamp("deleted_at"),
+        )
+    }
+
     override suspend fun readUser(uid: String): User = dbQuery(conn) {
-        executeQuery("""
-            select uid, email, phone, usertype, created_at, updated_at, last_seen_at, banned_until, deleted_at
-            from auth.users
-            where uid = '$uid'
-        """.trimIndent()) {
-            User(
-                uid = it.getString("uid"),
-                email = it.getString("email"),
-                phone = it.getString("phone"),
-//                usertype = Usertype.valueOf(it.getString("usertype")),
-                usertype = Usertype.STUDENT,
-                createdAt = it.getTimestamp("created_at"),
-                updatedAt = it.getTimestamp("updated_at"),
-                lastSeenAt = it.getTimestamp("last_seen_at"),
-                bannedUntil = it.getTimestamp("banned_until"),
-                deletedAt = it.getTimestamp("deleted_at"),
-            )
+        executeQuery("select * from auth.users where uid = '$uid'") {
+            it.toUser()
         }.singleOrNoSuchUserException()
+    }
+
+    override suspend fun readUsers(): List<User> = dbQuery(conn) {
+        executeQuery("select * from auth.users limit 100") {
+            it.toUser()
+        } ?: listOf()
     }
 
     override suspend fun readFirebaseUser(uid: String): FirebaseUser = dbQuery(conn) {
