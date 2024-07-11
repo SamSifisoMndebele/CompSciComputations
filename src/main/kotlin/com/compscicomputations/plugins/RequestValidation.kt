@@ -12,11 +12,13 @@ import io.ktor.server.plugins.requestvalidation.*
 
 
 internal fun Application.configureRequestValidation() {
-    install(RequestValidation) {
-        validate<String> { string ->
-            if (string.isBlank()) ValidationResult.Invalid("Empty uid is not accepted.")
-            else ValidationResult.Valid
-        }
+
+    //TODO: Enable validation here
+    /*install(RequestValidation) {
+//        validate<String> { string ->
+//            if (string.isBlank()) ValidationResult.Invalid("Empty uid is not accepted.")
+//            else ValidationResult.Valid
+//        }
         validate<CreateUserRequest> { userInfo ->
             when {
                 !userInfo.email.isEmailValid() ->
@@ -51,6 +53,5 @@ internal fun Application.configureRequestValidation() {
                 else -> ValidationResult.Valid
             }
         }
-    }
-
+    }*/
 }

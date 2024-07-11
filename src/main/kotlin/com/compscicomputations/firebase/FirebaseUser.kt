@@ -1,4 +1,4 @@
-package com.compscicomputations.services.auth.models
+package com.compscicomputations.firebase
 
 import io.ktor.server.auth.*
 

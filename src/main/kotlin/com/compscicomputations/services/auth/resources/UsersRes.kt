@@ -1,11 +1,11 @@
-package com.compscicomputations.services.auth.models
+package com.compscicomputations.services.auth.resources
 
+import com.compscicomputations.services.auth.models.Usertype
 import io.ktor.resources.*
 import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
 
-@Serializable
-data class UserResponse(
+@Resource("/users")
+data class UsersRes(
     val uid: String,
     val email: String,
     @SerialName("display_name")
@@ -26,4 +26,7 @@ data class UserResponse(
     val bannedUntil: String?,
     @SerialName("deleted_at")
     val deletedAt: String?,
-)
+) {
+    @Resource("{uid}")
+    class Uid(val parent: UsersRes, val uid: String)
+}

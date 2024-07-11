@@ -1,5 +1,6 @@
 package com.compscicomputations.services.auth
 
+import com.compscicomputations.firebase.FirebaseUser
 import com.compscicomputations.services.auth.exceptions.NoSuchUserException
 import com.compscicomputations.services.auth.models.*
 

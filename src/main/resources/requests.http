@@ -54,5 +54,19 @@ Content-Type: application/json
 
 ###
 # Get user by uid
-GET http://127.0.0.1:8080/user
+GET http://127.0.0.1:8080/admin/user/5M6ppTUwZNgaPpcNjoPlxigETt33
 Authorization: Bearer ..--------
+
+###
+POST http://127.0.0.1:8080/users
+Content-Type: application/json
+
+{
+  "email": "admin1@mail.com",
+  "password": "password",
+  "display_name": "Admin Name 1",
+  "photo_url": null,
+  "phone": "0721646421",
+  "usertype": "ADMIN",
+  "admin_code": "123456"
+}

@@ -1,5 +1,6 @@
 package com.compscicomputations.routers
 
+import com.compscicomputations.firebase.FirebaseUser
 import com.compscicomputations.firebase.authenticateAdmin
 import com.compscicomputations.services.auth.AuthService
 import com.compscicomputations.services.auth.exceptions.NoSuchUserException
@@ -32,6 +33,7 @@ private fun createUserResponse(firebaseUser: FirebaseUser, user: User) = UserRes
 
 fun Route.authRouter() {
     val authService by inject<AuthService>()
+
 
     route("/user") {
         // Create user

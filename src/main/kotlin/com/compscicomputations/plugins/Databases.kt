@@ -4,6 +4,7 @@ import java.sql.Connection
 import java.sql.DriverManager
 
 fun connectToPostgres(): Connection {
+    // TODO: Put in environment variables only
     val dbName =    System.getenv("DB_NAME")?:"devdb"
     val host =      System.getenv("DB_HOST")?:"postgres-compsci-computations.l.aivencloud.com"
     val port =      System.getenv("DB_PORT")?:"18131"

@@ -1,6 +1,5 @@
 package com.compscicomputations.firebase
 
-import com.compscicomputations.services.auth.models.FirebaseUser
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import org.koin.java.KoinJavaComponent.inject
@@ -12,10 +11,9 @@ internal class FirebaseAdmin {
 
     internal fun authenticateToken(token: String, isAdmin: Boolean): FirebaseUser? {
         return try {
-            val tokenResult = auth.verifyIdToken(token)
+            val tokenResult = auth.verifyIdTokenAsync(token, false).get()
             val firebaseToken = when {
-                isAdmin && tokenResult.claims["admin"] as Boolean? != true ->
-                    throw Exception("User is not recognized as an admin.")
+                isAdmin && tokenResult.claims["admin"] as Boolean? != true -> throw Exception("User is not recognized as an admin.")
                 else -> tokenResult
             }
             firebaseToken?.let {
