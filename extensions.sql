@@ -1,0 +1,19 @@
+CREATE SCHEMA extensions;
+
+CREATE EXTENSION IF NOT EXISTS pgcrypto
+    SCHEMA extensions
+    CASCADE;
+
+CREATE EXTENSION IF NOT EXISTS citext
+    SCHEMA extensions
+    CASCADE;
+
+
+
+CREATE EXTENSION IF NOT EXISTS pgjwt
+    SCHEMA extensions
+    CASCADE;
+
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp"
+    SCHEMA extensions
+    CASCADE;
