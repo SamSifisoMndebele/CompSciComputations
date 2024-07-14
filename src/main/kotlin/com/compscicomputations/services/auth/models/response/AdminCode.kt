@@ -7,10 +7,7 @@ import kotlinx.serialization.Serializable
 data class AdminCode(
     val id: Int,
     val email: String,
-    @SerialName("hash_code")
     val hashCode: String,
-    @SerialName("created_at")
     val createdAt: String,
-    @SerialName("valid_until")
     val validUntil: String,
 )

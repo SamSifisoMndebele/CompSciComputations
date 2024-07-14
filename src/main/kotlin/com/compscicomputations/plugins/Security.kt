@@ -8,27 +8,29 @@ import io.ktor.server.auth.*
 
 internal fun Application.configureSecurity() {
     install(Authentication) {
-//        firebase { validate { it } }
-//        firebaseAdmin { validate { it } }
+        firebase { validate { it } }
+        firebaseAdmin { validate { it } }
 
-        //TODO: Put correct authentication here
-        bearer {
-            realm = "Access server as firebase user."
-            authenticate  {
-                FirebasePrincipal(
-                    uid = "5M6ppTUwZNgaPpcNjoPlxigETt33",
-                    isAdmin = false
-                )
-            }
-        }
-        bearer("admin") {
-            realm = "Access server as firebase admin user."
-            authenticate {
-                FirebasePrincipal(
-                    uid = "5M6ppTUwZNgaPpcNjoPlxigETt33",
-                    isAdmin = true
-                )
-            }
-        }
+//        //TODO: Put correct authentication here
+//        bearer {
+//            realm = "Access server as firebase user."
+//            authenticate  {
+//                FirebasePrincipal(
+//                    uid = "5M6ppTUwZNgaPpcNjoPlxigETt33",
+//                    email = "email",
+//                    isAdmin = false
+//                )
+//            }
+//        }
+//        bearer("admin") {
+//            realm = "Access server as firebase admin user."
+//            authenticate {
+//                FirebasePrincipal(
+//                    uid = "5M6ppTUwZNgaPpcNjoPlxigETt33",
+//                    email = "email",
+//                    isAdmin = true
+//                )
+//            }
+//        }
     }
 }

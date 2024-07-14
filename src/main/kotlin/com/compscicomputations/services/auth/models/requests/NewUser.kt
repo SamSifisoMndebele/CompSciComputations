@@ -8,12 +8,9 @@ import kotlinx.serialization.Serializable
 data class NewUser(
     val email: String,
     val password: String? = null,
-    @SerialName("display_name")
     val displayName: String?,
-    @SerialName("photo_url")
     val photoUrl: String?,
     val phone: String?,
     val usertype: Usertype,
-    @SerialName("admin_code")
     val adminCode: String? = null,
 )

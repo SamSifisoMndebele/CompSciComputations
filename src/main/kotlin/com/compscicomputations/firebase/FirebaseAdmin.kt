@@ -9,17 +9,18 @@ internal class FirebaseAdmin {
     private val auth: FirebaseAuth by inject(FirebaseAuth::class.java)
     private val logger = LoggerFactory.getLogger("FirebaseAdmin")
 
-    internal fun authenticateToken(token: String, isAdmin: Boolean): FirebasePrincipal? {
+    internal fun authenticateToken(token: String, asAdmin: Boolean): FirebasePrincipal? {
         return try {
-            val tokenResult = auth.verifyIdTokenAsync(token, false).get()
-            val firebaseToken = when {
-                isAdmin && tokenResult.claims["admin"] as Boolean? != true -> throw Exception("User is not recognized as an admin.")
-                else -> tokenResult
+            val firebaseToken = auth.verifyIdTokenAsync(token, false).get()
+            val isAdmin = firebaseToken.claims["admin"] as Boolean? ?: false
+            if (asAdmin && isAdmin.not()) {
+                throw Exception("User is not recognized as an admin.")
             }
             firebaseToken?.let {
                 FirebasePrincipal(
                     uid = it.uid,
-                    isAdmin = it.claims["admin"] as Boolean? ?: false
+                    email = it.email,
+                    isAdmin = isAdmin
                 )
             }
         } catch (e: FirebaseAuthException) {
