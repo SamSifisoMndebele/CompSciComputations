@@ -9,7 +9,7 @@ internal class FirebaseAdmin {
     private val auth: FirebaseAuth by inject(FirebaseAuth::class.java)
     private val logger = LoggerFactory.getLogger("FirebaseAdmin")
 
-    internal fun authenticateToken(token: String, isAdmin: Boolean): FirebaseUser? {
+    internal fun authenticateToken(token: String, isAdmin: Boolean): FirebasePrincipal? {
         return try {
             val tokenResult = auth.verifyIdTokenAsync(token, false).get()
             val firebaseToken = when {
@@ -17,13 +17,9 @@ internal class FirebaseAdmin {
                 else -> tokenResult
             }
             firebaseToken?.let {
-                FirebaseUser(
+                FirebasePrincipal(
                     uid = it.uid,
-                    displayName = it.name,
-                    photoUrl = it.picture,
-                    email = it.email,
-                    claims = it.claims,
-                    isEmailVerified = it.isEmailVerified
+                    isAdmin = it.claims["admin"] as Boolean? ?: false
                 )
             }
         } catch (e: FirebaseAuthException) {

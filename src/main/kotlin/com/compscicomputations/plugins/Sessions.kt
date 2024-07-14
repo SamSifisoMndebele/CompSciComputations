@@ -1,6 +1,5 @@
 package com.compscicomputations.plugins
 
-import com.compscicomputations.firebase.FirebaseUser
 import io.ktor.server.application.*
 import io.ktor.server.sessions.*
 import io.ktor.util.*

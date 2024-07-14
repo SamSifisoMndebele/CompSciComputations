@@ -1,11 +1,12 @@
 package com.compscicomputations.services.auth
 
-import com.compscicomputations.firebase.FirebaseUser
-import com.compscicomputations.services.auth.exceptions.NoSuchUserException
-import com.compscicomputations.services.auth.models.requests.CreateAdminCodeRequest
-import com.compscicomputations.services.auth.models.requests.CreateUserRequest
-import com.compscicomputations.services.auth.models.requests.UpdateUserRequest
+import com.compscicomputations.services.auth.impl.AuthServiceImpl
+import com.compscicomputations.services.auth.impl.AuthServiceImpl.Companion.UserExistsException
+import com.compscicomputations.services.auth.models.requests.NewAdminCode
+import com.compscicomputations.services.auth.models.requests.NewUser
+import com.compscicomputations.services.auth.models.requests.UpdateUser
 import com.compscicomputations.services.auth.models.response.User
+import com.google.firebase.auth.UserRecord
 
 internal interface AuthService {
     /**
@@ -13,57 +14,56 @@ internal interface AuthService {
      * @param email the user email address.
      * @return `uid` the user unique identifier or `null` if does not exists.
      */
-    suspend fun getUserUidByEmail(email: String): String?
+    fun getUserUidByEmail(email: String): String?
     /**
      * Get user unique identifier given the user phone number.
      * @param phone the user phone number.
      * @return `uid` the user unique identifier or `null` if does not exists.
      */
-    suspend fun getUserUidByPhone(phone: String): String?
+    fun getUserUidByPhone(phone: String): String?
 
     /**
      * Create a firebase user and additional information on the database.
-     * @param request [CreateUserRequest] the information about the user.
-     * @param admin if admin makes the request set true.
+     * @param request [NewUser] the information about the user.
+     * @throws UserExistsException if the user email or phone number exists.
      */
-    suspend fun createUser(request: CreateUserRequest, admin: Boolean = false)
+    suspend fun createUser(newUser: NewUser)
 
     /**
      * Reads the user information from the database.
      * @param uid the user unique identifier.
-     * @return [User] the database user information.
-     * @throws NoSuchUserException if user with `uid` does not exist.
+     * @return [User] the database user information otherwise `null` if it doesn't exist.
      */
-    suspend fun readUser(uid: String): User
+    suspend fun readUser(uid: String): User?
 
     /**
      * Reads the user information from the database.
      * @return [User] list from a database.
      */
-    suspend fun readUsers(): List<User>
+    suspend fun readUsers(limit: Int = 10): List<User>
 
     /**
      * Reads the user information from firebase auth.
      * @param uid the user unique identifier.
-     * @return [FirebaseUser] firebase user information.
-     * @throws NoSuchUserException if user with `uid` does not exist.
+     * @return [UserRecord] firebase user information otherwise `null` if it doesn't exist.
      */
-    suspend fun readFirebaseUser(uid: String): FirebaseUser
+    suspend fun readFirebaseUser(uid: String): UserRecord?
 
     /**
      * Updates the user information on the database and firebase auth.
-     * @param request [UpdateUserRequest] the user information to be updated,
+     * @param uid the user unique identifier.
+     * @param request [UpdateUser] the user information to be updated,
      * if a field value is null it remains unchanged.
      * @param admin if admin makes the request set true.
      * @return [User] the database user information.
      */
-    suspend fun updateUser(firebaseUser: FirebaseUser, request: UpdateUserRequest, admin: Boolean = false): User
+    suspend fun updateUser(uid: String, request: UpdateUser, admin: Boolean = false): User
 
     /**
      * Create a admin user verification code.
-     * @param request [CreateAdminCodeRequest] the admin code info.
+     * @param request [NewAdminCode] the admin code info.
      */
-    suspend fun createAdminCode(request: CreateAdminCodeRequest)
+    suspend fun createAdminCode(request: NewAdminCode)
 
     /**
      * Set the user as an admin or not.
@@ -82,4 +82,6 @@ internal interface AuthService {
      * @param uid the user unique identifier.
      */
     suspend fun deleteUser(uid: String)
+
+    suspend fun updateLastSeen(uid: String)
 }

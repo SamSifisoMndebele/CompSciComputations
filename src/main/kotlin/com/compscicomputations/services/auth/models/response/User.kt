@@ -12,8 +12,6 @@ data class User(
     val displayName: String,
     @SerialName("photo_url")
     val photoUrl: String?,
-    @SerialName("is_email_verified")
-    val isEmailVerified: Boolean,
     val phone: String?,
     val usertype: Usertype,
     @SerialName("created_at")
@@ -22,8 +20,4 @@ data class User(
     val updatedAt: String?,
     @SerialName("last_seen_at")
     val lastSeenAt: String?,
-    @SerialName("banned_until")
-    val bannedUntil: String?,
-    @SerialName("deleted_at")
-    val deletedAt: String?,
 )

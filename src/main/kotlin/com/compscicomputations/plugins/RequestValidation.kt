@@ -2,8 +2,8 @@ package com.compscicomputations.plugins
 
 import com.compscicomputations.services.auth.impl.AuthServiceImpl.Companion.ExpiredException
 import com.compscicomputations.services.auth.impl.AuthServiceImpl.Companion.isAdminCodeValid
-import com.compscicomputations.services.auth.models.requests.CreateAdminCodeRequest
-import com.compscicomputations.services.auth.models.requests.CreateUserRequest
+import com.compscicomputations.services.auth.models.requests.NewAdminCode
+import com.compscicomputations.services.auth.models.requests.NewUser
 import com.compscicomputations.utils.isAdmin
 import com.compscicomputations.utils.isEmailValid
 import com.compscicomputations.utils.isPhoneValid
@@ -14,13 +14,13 @@ import io.ktor.server.plugins.requestvalidation.*
 internal fun Application.configureRequestValidation() {
 
     install(RequestValidation) {
-        validate<CreateUserRequest> { userInfo ->
+        validate<NewUser> { userInfo ->
             when {
                 !userInfo.email.isEmailValid() ->
                     ValidationResult.Invalid("Email is not valid.")
-                userInfo.password.length < 6 ->
+                userInfo.password != null && userInfo.password.length < 6 ->
                     ValidationResult.Invalid("Password is too short.")
-                userInfo.displayName.isBlank() ->
+                userInfo.displayName != null && userInfo.displayName.isBlank() ->
                     ValidationResult.Invalid("Display name is blank.")
                 userInfo.phone != null && !userInfo.phone.isPhoneValid() ->
                     ValidationResult.Invalid("Phone number is not valid.")
@@ -36,7 +36,7 @@ internal fun Application.configureRequestValidation() {
                 else -> ValidationResult.Valid
             }
         }
-        validate<CreateAdminCodeRequest> { request ->
+        validate<NewAdminCode> { request ->
             when {
                 !request.email.isEmailValid() -> ValidationResult.Invalid("The email is not valid.")
                 else -> ValidationResult.Valid
