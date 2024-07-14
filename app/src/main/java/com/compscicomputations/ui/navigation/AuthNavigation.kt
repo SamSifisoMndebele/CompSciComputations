@@ -1,5 +1,6 @@
 package com.compscicomputations.ui.navigation
 
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
@@ -13,6 +14,7 @@ import androidx.navigation.toRoute
 import com.compscicomputations.core.ktor_client.auth.AuthDataStore.firstLaunchFlow
 import com.compscicomputations.core.ktor_client.auth.AuthDataStore.setFirstLaunch
 import com.compscicomputations.core.ktor_client.auth.AuthDataStore.setTermsAccepted
+import com.compscicomputations.core.ktor_client.auth.AuthDataStore.termsAcceptedFlow
 import com.compscicomputations.ui.auth.login.LoginScreen
 import com.compscicomputations.ui.auth.login.LoginViewModel
 import com.compscicomputations.ui.auth.onboarding.OnboardingScreen
@@ -25,6 +27,7 @@ import com.compscicomputations.ui.auth.register.TermsScreen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 fun NavGraphBuilder.authNavigation(navController: NavHostController) {
     navigation<Auth>(startDestination = Login) {
@@ -80,10 +83,12 @@ fun NavGraphBuilder.authNavigation(navController: NavHostController) {
         composable<Register> {
             val viewModel: RegisterViewModel = hiltViewModel()
             val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-            val accepted = navController.currentBackStackEntry?.savedStateHandle?.get<Boolean>("accepted")
-            if (accepted != null) {
-                viewModel.setTermsAccepted(accepted)
-                navController.currentBackStackEntry!!.savedStateHandle["accepted"] = null
+            val context = LocalContext.current
+            val termsAccepted by context.termsAcceptedFlow.collectAsStateWithLifecycle(initialValue = false)
+            LaunchedEffect(termsAccepted) {
+                withContext(Dispatchers.IO) {
+                    viewModel.setTermsAccepted(termsAccepted)
+                }
             }
             RegisterScreen(
                 viewModel = viewModel,
@@ -117,7 +122,6 @@ fun NavGraphBuilder.authNavigation(navController: NavHostController) {
             TermsScreen(
                 navigateUp = { navController.navigateUp() }
             ) { accepted ->
-                navController.previousBackStackEntry?.savedStateHandle?.set("accepted", accepted)
                 navController.popBackStack()
                 coroutineScope.launch(Dispatchers.IO) { context.setTermsAccepted(accepted) }
             }

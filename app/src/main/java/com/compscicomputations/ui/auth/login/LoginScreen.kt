@@ -1,6 +1,5 @@
 package com.compscicomputations.ui.auth.login
 
-import android.app.Activity
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -20,7 +19,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -32,7 +30,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.compscicomputations.R
-import com.compscicomputations.core.ktor_client.auth.AuthDataStore.firstLaunchFlow
 import com.compscicomputations.theme.AppRed
 import com.compscicomputations.theme.comicNeueFamily
 import com.compscicomputations.theme.hintEmail
@@ -42,9 +39,6 @@ import com.compscicomputations.ui.auth.showMessage
 import com.compscicomputations.ui.utils.CompSciAuthScaffold
 import com.compscicomputations.ui.utils.ProgressState
 import com.compscicomputations.utils.getActivity
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.last
-import kotlinx.coroutines.launch
 
 @Composable
 fun LoginScreen(

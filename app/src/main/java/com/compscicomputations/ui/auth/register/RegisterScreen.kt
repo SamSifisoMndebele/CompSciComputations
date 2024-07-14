@@ -23,6 +23,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,6 +44,7 @@ import com.compscicomputations.ui.auth.showMessage
 import com.compscicomputations.ui.utils.CompSciAuthScaffold
 import com.compscicomputations.ui.utils.ProgressState
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @Composable
@@ -59,11 +61,6 @@ fun RegisterScreen(
         if (uiState.progressState == ProgressState.Success) {
             navigateCompleteProfile()
             Toast.makeText(context, "Registered in successfully!", Toast.LENGTH_SHORT).show()
-        }
-    }
-    LaunchedEffect(uiState.termsAccepted) {
-        withContext(Dispatchers.IO) {
-            context.setTermsAccepted(uiState.termsAccepted)
         }
     }
 
@@ -132,13 +129,16 @@ fun RegisterScreen(
             supportingText = uiState.passwordConfirmError.showMessage()
         )
 
+        val coroutineScope = rememberCoroutineScope()
         Row(
             modifier = Modifier.padding(top = 4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Switch(
                 checked = uiState.termsAccepted,
-                onCheckedChange = { viewModel.setTermsAccepted(it) }
+                onCheckedChange = {
+                    coroutineScope.launch(Dispatchers.IO) { context.setTermsAccepted(it) }
+                }
             )
             Text(text = "I accept the", Modifier.padding(start = 10.dp), fontSize = 16.sp)
             TextButton(onClick = navigateTerms, contentPadding = PaddingValues(horizontal = 3.dp)) {

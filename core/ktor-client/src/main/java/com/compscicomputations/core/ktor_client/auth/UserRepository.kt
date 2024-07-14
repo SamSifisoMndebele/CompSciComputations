@@ -23,8 +23,6 @@ interface UserRepository {
     }
 
     companion object {
-        class NullAuthUserException : Exception("UserRepository: No user logged in because auth.currentUser is null")
-
         private val featuresList = setOf(
             DynamicFeature(
                 "Number Systems",

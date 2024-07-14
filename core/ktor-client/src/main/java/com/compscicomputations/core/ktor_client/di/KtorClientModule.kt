@@ -1,6 +1,5 @@
 package com.compscicomputations.core.ktor_client.di
 
-import android.util.Log
 import com.compscicomputations.core.ktor_client.auth.AuthRepository.Companion.tokenResultFlow
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
@@ -26,7 +25,6 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.URLProtocol
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.flow.last
-import kotlinx.coroutines.tasks.await
 import javax.inject.Singleton
 
 @Module

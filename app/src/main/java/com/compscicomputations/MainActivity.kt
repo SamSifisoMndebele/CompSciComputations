@@ -57,7 +57,7 @@ class MainActivity : ComponentActivity() {
                 NavHost(
                     modifier = Modifier.fillMaxSize(),
                     navController = navController,
-                    startDestination = if (isUserSignedIn()) Main else Auth
+                    startDestination = if (isUserSignedIn) Main else Auth
                 ) {
                     authNavigation(navController)
                     mainNavigation(navController)

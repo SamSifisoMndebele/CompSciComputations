@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.tasks.await
 
 interface AuthRepository {
@@ -47,44 +48,45 @@ interface AuthRepository {
     companion object {
         private const val TAG = "AuthRepository"
         class NullAuthUserException : Exception("UserRepository: No user logged in because auth.currentUser is null")
-        internal val FirebaseUser.tokenResultFlow: Flow<GetTokenResult?>
-            get() = flow {
-                val token = getIdToken(false).await()
-                emit(token)
-                Log.d(TAG, "TokenResult::$token")
-            }.catch { e ->
-                emit(null)
-                Log.e(TAG, "TokenResult::error", e)
-            }
 
-        private val FirebaseUser.usertypeFlow: Flow<GetTokenResult?>
+        val isUserSignedIn: Boolean
+            get() = Firebase.auth.currentUser != null
+
+        internal fun FirebaseUser.tokenResultFlow(refresh: Boolean = false): Flow<GetTokenResult?> = flow {
+            val token = getIdToken(refresh).await()
+            Log.d(TAG, "TokenResult::$token")
+            emit(token)
+        }.catch { e ->
+            Log.e(TAG, "TokenResult::error", e)
+            emit(null)
+        }
+
+        private val FirebaseUser.usertypeFlow: Flow<Usertype?>
             get() = flow {
-                val usertypeString = tokenResultFlow.first()?.claims?.get("usertype")
+                val usertypeString = tokenResultFlow().first()?.claims?.get("usertype")
                 Log.d(TAG, "Usertype::$usertypeString")
                 when (usertypeString) {
                     is String -> emit(Usertype.valueOf(usertypeString))
-                    null -> emit(null)
                     else -> emit(null)
                 }
             }.catch { e ->
+                Log.e(TAG, "usertypeFlow::error", e)
                 emit(null)
-                if (e !is NullPointerException) Log.e(TAG, "usertypeFlow::error", e)
             }
 
-        fun isUserSignedIn(): Boolean = Firebase.auth.currentUser != null
-
         /**
+         * @param withUsertype if `true` the usertype flow will be returned otherwise, the flow of `null`.
          * @return [AuthUser] the currently signed-in FirebaseUser or error if there is none.
          * @throws NullAuthUserException if user is not logged in and is null. Make sure the user is logged in before calling this method.
          */
-        fun getAuthUser(): AuthUser = Firebase.auth.currentUser?.let {
+        fun getAuthUser(withUsertype: Boolean = true): AuthUser = Firebase.auth.currentUser?.let {
             AuthUser(
                 uid = it.uid,
                 email = it.email!!,
                 displayName = it.displayName,
                 photoUrl = it.photoUrl?.toString(),
                 phoneNumber = it.phoneNumber,
-                usertypeFlow = it.usertypeFlow
+                usertypeFlow = if (withUsertype) it.usertypeFlow else flowOf(null)
             )
         } ?: throw NullAuthUserException()
     }
