@@ -58,13 +58,7 @@ fun DashboardScreen(
     navigateSettings: () -> Unit,
     navigateDynamicFeature: (feature: DynamicFeature) -> Unit
 ) {
-//    LaunchedEffect(viewModel.gotoProfile) {
-//        if (viewModel.gotoProfile) {
-//            viewModel.gotoProfile = false
-//            navigateProfile()
-//        }
-//    }
-    val coroutineScope = rememberCoroutineScope()
+
     CompSciScaffold(
         title = "Dashboard",
         snackBarHost = {

@@ -116,8 +116,7 @@ fun OnboardingScreen(
         // Boarding section
         HorizontalPager(
             state = pageState,
-            modifier = Modifier
-                .fillMaxHeight(0.9f)
+            modifier = Modifier.fillMaxHeight(0.9f)
                 .fillMaxWidth()
         ) { page ->
             Column(
@@ -132,7 +131,7 @@ fun OnboardingScreen(
                             modifier = Modifier.fillMaxWidth()
                                 .padding(8.dp)
                                 .background(shimmerBrush(showShimmer = showImage.value))
-                                .heightIn(min = 240.dp)
+                                .height(280.dp)
                                 .clip(RoundedCornerShape(18.dp)),
                             contentScale = ContentScale.FillWidth,
                             model = items[page].source,
@@ -159,7 +158,7 @@ fun OnboardingScreen(
                                 .fillMaxWidth()
                                 .padding(8.dp)
                                 .background(shimmerBrush(showShimmer = uiState.progressState.isLoading))
-                                .heightIn(min = 240.dp)
+                                .height(280.dp)
                                 .clip(RoundedCornerShape(18.dp)),
                             contentScale = ContentScale.FillWidth
                         )

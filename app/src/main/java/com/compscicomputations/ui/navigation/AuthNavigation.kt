@@ -1,6 +1,7 @@
 package com.compscicomputations.ui.navigation
 
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
@@ -25,6 +26,7 @@ import com.compscicomputations.ui.auth.register.RegisterScreen
 import com.compscicomputations.ui.auth.register.RegisterViewModel
 import com.compscicomputations.ui.auth.register.TermsScreen
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -33,12 +35,10 @@ fun NavGraphBuilder.authNavigation(navController: NavHostController) {
     navigation<Auth>(startDestination = Login) {
         composable<Login> {
             val context = LocalContext.current
-            val coroutineScope = rememberCoroutineScope()
-            coroutineScope.launch(Dispatchers.IO) {
-                if (context.firstLaunchFlow.last()) {
-                    navController.navigate(route = Onboarding) {
-                        popUpTo<Login> { inclusive = true }
-                    }
+            val firstLaunch by context.firstLaunchFlow.collectAsStateWithLifecycle(initialValue = false)
+            LaunchedEffect(firstLaunch) {
+                if (firstLaunch) navController.navigate(route = Onboarding) {
+                    popUpTo<Login> { inclusive = true }
                 }
             }
             val viewModel: LoginViewModel = hiltViewModel()
@@ -86,9 +86,7 @@ fun NavGraphBuilder.authNavigation(navController: NavHostController) {
             val context = LocalContext.current
             val termsAccepted by context.termsAcceptedFlow.collectAsStateWithLifecycle(initialValue = false)
             LaunchedEffect(termsAccepted) {
-                withContext(Dispatchers.IO) {
-                    viewModel.setTermsAccepted(termsAccepted)
-                }
+                viewModel.setTermsAccepted(termsAccepted)
             }
             RegisterScreen(
                 viewModel = viewModel,
