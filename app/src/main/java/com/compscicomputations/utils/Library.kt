@@ -1,5 +1,8 @@
 package com.compscicomputations.utils
 
+import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import android.os.Bundle
 import androidx.navigation.NavController
 import androidx.navigation.NavOptions
@@ -32,4 +35,13 @@ fun Double.toRandString() : String {
     val wholeNum = number/100
     val decNum = "0$number".takeLast(2)
     return "R$wholeNum.$decNum"
+}
+
+internal fun Context.getActivity(): Activity {
+    var context = this
+    while (context is ContextWrapper) {
+        if (context is Activity) return context
+        context = context.baseContext
+    }
+    throw IllegalStateException("Permissions should be called in the context of an Activity")
 }

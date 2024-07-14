@@ -57,20 +57,4 @@ object AppModule {
     fun provideCurrentConnectivityState(@ApplicationContext context: Context): ConnectionState {
         return context.currentConnectivityState
     }
-
-    private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "auth_datastore")
-    private val termsAcceptedKey = booleanPreferencesKey("terms_accepted")
-
-    @Singleton
-    @Provides
-    fun provideTermsAcceptedFlow(@ApplicationContext context: Context): Flow<Boolean> =
-        context.dataStore.data.map { preferences ->
-            preferences[termsAcceptedKey] ?: false
-        }
-
-    suspend fun Context.setTermsAccepted(accepted: Boolean = true) {
-        dataStore.edit { preferences ->
-            preferences[termsAcceptedKey] = accepted
-        }
-    }
 }

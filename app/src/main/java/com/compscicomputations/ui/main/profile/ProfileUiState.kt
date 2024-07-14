@@ -16,8 +16,6 @@ data class ProfileUiState(
     val email: String = "",
     val phone: String? = null,
 
-    val isEmailVerified: Boolean = false,
-    val createdAt: Date = Date(),
     val user: User? = null,
 
     val progressState: ProgressState = ProgressState.Idle,

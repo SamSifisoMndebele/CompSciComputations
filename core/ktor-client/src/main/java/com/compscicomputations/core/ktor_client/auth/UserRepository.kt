@@ -2,27 +2,29 @@ package com.compscicomputations.core.ktor_client.auth
 
 import com.compscicomputations.core.ktor_client.auth.models.AuthUser
 import com.compscicomputations.core.ktor_client.auth.models.DynamicFeature
+import com.compscicomputations.core.ktor_client.auth.models.NewUser
 import com.compscicomputations.core.ktor_client.auth.models.User
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 
 interface UserRepository {
-    /**
-     * @return [AuthUser] the currently signed-in FirebaseUser or null if there is none.
-     */
-    fun getAuthUser(): AuthUser?
-
     /**
      * @return [User] the currently signed-in user information or null if there is none.
      */
     suspend fun getUser(): User?
 
+    suspend fun createUser(user: NewUser)
+
     /**
-     * @return a set of [DynamicFeature] the currently signed-in user information or null if there is none.
+     * @return a set of [DynamicFeature] the currently signed-in user features or null if there is none.
      */
-    suspend fun getDynamicFeatures(): Set<DynamicFeature> {
+    suspend fun getUsersFeatures(): Set<DynamicFeature> {
         return featuresList
     }
 
     companion object {
+        class NullAuthUserException : Exception("UserRepository: No user logged in because auth.currentUser is null")
+
         private val featuresList = setOf(
             DynamicFeature(
                 "Number Systems",

@@ -4,8 +4,11 @@ import android.util.Log
 import androidx.compose.material3.SnackbarHostState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.compscicomputations.core.ktor_client.auth.AuthRepository
+import com.compscicomputations.core.ktor_client.auth.AuthRepository.Companion.getAuthUser
 import com.compscicomputations.core.ktor_client.auth.UserRepository
 import com.compscicomputations.core.ktor_client.auth.models.DynamicFeature
+import com.compscicomputations.core.ktor_client.auth.usecase.IsCompleteProfileUseCase
 import com.compscicomputations.ui.utils.ProgressState
 import com.google.android.play.core.splitinstall.SplitInstallManager
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,6 +22,7 @@ import javax.inject.Inject
 class DashboardViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val splitInstallManager: SplitInstallManager,
+    private val isCompleteProfileUseCase: IsCompleteProfileUseCase,
 ) : ViewModel() {
     val snackBarHostState = SnackbarHostState()
 
@@ -35,22 +39,35 @@ class DashboardViewModel @Inject constructor(
     }
 
     private fun getCurrentState() {
-        val authUser = userRepository.getAuthUser()
-        if (authUser == null) _uiState.value = _uiState.value.copy(isSignedIn = false)
-        else {
-            Log.d("authUser", authUser.toString())
-            viewModelScope.launch {
-                val usertype = authUser.usertypeFlow.single()
-                val features = userRepository.getDynamicFeatures().toMutableSet()
-                features.retainAll { splitInstallManager.installedModules.contains(it.moduleName) }
+        val authUser = getAuthUser()
+        Log.d("authUser", authUser.toString())
+        viewModelScope.launch {
+            val features = userRepository.getUsersFeatures()
+            val installedFeatures = features.toMutableSet()
+            installedFeatures.retainAll { splitInstallManager.installedModules.contains(it.moduleName) }
+            // Install all other features
+            val otherFeature = features.toMutableSet()
+            otherFeature.removeAll(installedFeatures)
+            // TODO("Install all other features")
+
+            _uiState.value = _uiState.value.copy(
+                email = authUser.email,
+                photoUrl = authUser.photoUrl,
+                installedFeatures = installedFeatures
+            )
+
+            val usertype = authUser.usertypeFlow.single()
+            if (!isCompleteProfileUseCase().single() || authUser.displayName == null || usertype == null) {
                 _uiState.value = _uiState.value.copy(
-                    isSignedIn = true,
-                    displayName = authUser.displayName,
-                    email = authUser.email,
-                    photoUrl = authUser.photoUrl,
-                    usertype = usertype,
+                    isCompleteProfile = false,
                     progressState = ProgressState.Idle,
-                    installedFeatures = features
+                )
+            } else {
+                _uiState.value = _uiState.value.copy(
+                    displayName = authUser.displayName!!,
+                    usertype = usertype,
+                    isCompleteProfile = true,
+                    progressState = ProgressState.Idle,
                 )
             }
         }

@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.compscicomputations.core.ktor_client.auth.AuthRepository
+import com.compscicomputations.core.ktor_client.auth.usecase.IsCompleteProfileUseCase
 import com.compscicomputations.ui.utils.ProgressState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -12,14 +13,15 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-//    private val loginUseCase: LoginUseCase,
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val isCompleteProfileUseCase: IsCompleteProfileUseCase,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
@@ -57,8 +59,12 @@ class LoginViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(progressState = ProgressState.Loading("Login with Google..."))
         loginJob = viewModelScope.launch(Dispatchers.IO) {
             try {
-                authRepository.loginWithGoogle(activity)
-                _uiState.value = _uiState.value.copy(progressState = ProgressState.Success)
+                val isNewUser = authRepository.continueWithGoogle(activity) ||
+                        !isCompleteProfileUseCase().single()
+                _uiState.value = _uiState.value.copy(
+                    isNewUser = isNewUser,
+                    progressState = ProgressState.Success
+                )
             } catch (e: CancellationException) {
                 _uiState.value = _uiState.value.copy(progressState = ProgressState.Idle)
                 Log.e("LoginViewModel", "onLoginWithGoogle:", e)

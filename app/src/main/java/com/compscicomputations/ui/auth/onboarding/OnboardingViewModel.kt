@@ -3,6 +3,7 @@ package com.compscicomputations.ui.auth.onboarding
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.compscicomputations.R
+import com.compscicomputations.ui.utils.ProgressState
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -26,7 +27,7 @@ class OnboardingViewModel @Inject constructor(
             remoteConfig.setDefaultsAsync(R.xml.remote_config_defaults).await()
             val defaultOnboardingItems = remoteConfig.getString("OnboardingItems")
             val items = Json.decodeFromString<List<OnboardingItem>>(defaultOnboardingItems)
-            _uiState.value = _uiState.value.copy(items = items)
+            _uiState.value = _uiState.value.copy(items = items, progressState = ProgressState.Idle)
         }
     }
 }

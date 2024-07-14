@@ -144,19 +144,19 @@ fun ProfileScreen(
                                 modifier = Modifier.padding(end = 8.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                val showShimmer = rememberShimmerBrushState()
+//                                val showShimmer = rememberShimmerBrushState()
                                 AsyncImage(
                                     modifier = Modifier
                                         .size(180.dp)
                                         .padding(8.dp)
                                         .background(
-                                            shimmerBrush(showShimmer = showShimmer.value),
+                                            shimmerBrush(showShimmer = uiState.progressState.isLoading),
                                             CircleShape
                                         )
                                         .clip(CircleShape),
                                     model = uiState.photoUrl,
                                     contentScale = ContentScale.FillBounds,
-                                    onSuccess = { showShimmer.value = false },
+//                                    onSuccess = { showShimmer.value = false },
                                     contentDescription = "Profile",
                                 )
                                 Column(
@@ -166,7 +166,7 @@ fun ProfileScreen(
                                         modifier = Modifier
                                             .widthIn(min = 80.dp)
                                             .background(
-                                                shimmerBrush(showShimmer = showShimmer.value),
+                                                shimmerBrush(showShimmer = uiState.progressState.isLoading),
                                                 CircleShape
                                             ),
                                         text = uiState.usertype.takeIf { it != Usertype.OTHER }?.name ?: "",
@@ -180,7 +180,7 @@ fun ProfileScreen(
                                         modifier = Modifier
                                             .widthIn(min = 128.dp)
                                             .background(
-                                                shimmerBrush(showShimmer = showShimmer.value),
+                                                shimmerBrush(showShimmer = uiState.progressState.isLoading),
                                                 CircleShape
                                             ),
                                         text = uiState.displayName,
@@ -193,7 +193,7 @@ fun ProfileScreen(
                                         modifier = Modifier
                                             .widthIn(min = 180.dp)
                                             .background(
-                                                shimmerBrush(showShimmer = showShimmer.value),
+                                                shimmerBrush(showShimmer = uiState.progressState.isLoading),
                                                 CircleShape
                                             ),
                                         text = uiState.email,

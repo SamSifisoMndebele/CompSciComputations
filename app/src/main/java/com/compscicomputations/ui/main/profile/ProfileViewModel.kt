@@ -5,10 +5,14 @@ import android.util.Log
 import androidx.compose.material3.SnackbarHostState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.compscicomputations.core.ktor_client.auth.AuthRepository
+import com.compscicomputations.core.ktor_client.auth.AuthRepository.Companion.getAuthUser
 import com.compscicomputations.core.ktor_client.auth.UserRepository
+import com.compscicomputations.core.ktor_client.auth.usecase.IsCompleteProfileUseCase
 import com.compscicomputations.ui.navigation.Profile
 import com.compscicomputations.ui.utils.ProgressState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.single
@@ -18,6 +22,8 @@ import javax.inject.Inject
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     private val userRepository: UserRepository,
+    private val authRepository: AuthRepository,
+    private val isCompleteProfile: IsCompleteProfileUseCase,
 ) : ViewModel() {
     val snackBarHostState = SnackbarHostState()
 
@@ -32,22 +38,26 @@ class ProfileViewModel @Inject constructor(
         getCurrentState()
     }
 
-    fun setProfile(profile: Profile) {
-        _uiState.value = _uiState.value.copy(
-            isSignedIn = true,
-            email = profile.email,
-            displayName = profile.displayName,
-            photoUrl = profile.photoUrl
-        )
-    }
-
     private fun getCurrentState() {
-        _uiState.value = _uiState.value.copy(progressState = ProgressState.Loading())
+        val authUser = getAuthUser()
+        _uiState.value = _uiState.value.copy(
+            email = authUser.email,
+            photoUrl = authUser.photoUrl,
+            displayName = authUser.displayName ?: "",
+            progressState = ProgressState.Loading()
+        )
         viewModelScope.launch {
             val user = userRepository.getUser()
             Log.d("ProfileViewModel User", user.toString())
             if (user == null) {
-                _uiState.value = _uiState.value.copy(isSignedIn = false)
+                // TODO: Navigate to edit profile
+                Log.d("ProfileViewModel", "Navigate to edit profile")
+//                _uiState.value = _uiState.value.copy(isSignedIn = false)
+                _uiState.value = _uiState.value.copy(
+                    isSignedIn = true,
+                    displayName = "Complete Profile",
+                    progressState = ProgressState.Idle
+                )
             } else {
                 _uiState.value = _uiState.value.copy(
                     user = user,
@@ -58,7 +68,6 @@ class ProfileViewModel @Inject constructor(
                     photoUrl = user.photoUrl,
                     isSignedIn = true,
                     displayName = user.displayName,
-                    isEmailVerified = user.isEmailVerified,
                     progressState = ProgressState.Idle
                 )
             }
@@ -70,7 +79,13 @@ class ProfileViewModel @Inject constructor(
     }
 
     fun logout() {
-        _uiState.value = _uiState.value.copy(isSignedIn = false)
+        viewModelScope.launch(Dispatchers.Main) {
+            try {
+                if (authRepository.logout()) _uiState.value = _uiState.value.copy(isSignedIn = false)
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(progressState = ProgressState.Error(e.localizedMessage))
+            }
+        }
     }
 
     init {

@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
@@ -53,6 +54,7 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.compscicomputations.theme.comicNeueFamily
+import com.compscicomputations.ui.utils.isLoading
 import com.compscicomputations.ui.utils.rememberShimmerBrushState
 import com.compscicomputations.ui.utils.shimmerBrush
 import kotlinx.coroutines.launch
@@ -123,25 +125,27 @@ fun OnboardingScreen(
                 verticalArrangement = Arrangement.Center,
                 modifier = Modifier.fillMaxSize()
             ) {
-                val showShimmer = rememberShimmerBrushState()
+                val showImage = rememberShimmerBrushState()
                 when(items[page].type) {
                     ItemType.IMAGE_URL -> {
                         AsyncImage(
-                            modifier = Modifier
-                                .fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth()
                                 .padding(8.dp)
-                                .background(shimmerBrush(showShimmer = showShimmer.value))
+                                .background(shimmerBrush(showShimmer = showImage.value))
                                 .heightIn(min = 240.dp)
                                 .clip(RoundedCornerShape(18.dp)),
                             contentScale = ContentScale.FillWidth,
                             model = items[page].source,
                             contentDescription = "On boarding image.",
-                            onSuccess = { showShimmer.value = false },
+                            onSuccess = { showImage.value = false },
                         )
                     }
                     ItemType.ANIM_URL -> {
                         val preloaderLottieComposition by rememberLottieComposition(
-                            LottieCompositionSpec.Url(url = items[page].source)
+                            LottieCompositionSpec.Url(url = items[page].source),
+                            onRetry = { failCount, previousException ->
+                                false
+                            }
                         )
                         val preloaderProgress by animateLottieCompositionAsState(
                             preloaderLottieComposition,
@@ -154,7 +158,7 @@ fun OnboardingScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(8.dp)
-                                .background(shimmerBrush(showShimmer = showShimmer.value))
+                                .background(shimmerBrush(showShimmer = uiState.progressState.isLoading))
                                 .heightIn(min = 240.dp)
                                 .clip(RoundedCornerShape(18.dp)),
                             contentScale = ContentScale.FillWidth
@@ -164,6 +168,8 @@ fun OnboardingScreen(
 
                 Spacer(modifier = Modifier.height(25.dp))
                 Text(
+                    modifier = Modifier.widthIn(64.dp)
+                        .background(shimmerBrush(showShimmer = uiState.progressState.isLoading)),
                     text = items[page].title,
                     style = MaterialTheme.typography.headlineMedium,
                     color = MaterialTheme.colorScheme.onBackground,
@@ -173,12 +179,13 @@ fun OnboardingScreen(
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
+                    modifier = Modifier.fillMaxWidth().padding(10.dp)
+                        .background(shimmerBrush(showShimmer = uiState.progressState.isLoading)),
                     text = items[page].description,
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onBackground,
                     fontWeight = FontWeight.Light,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(10.dp),
                     letterSpacing = 1.sp,
                 )
             }

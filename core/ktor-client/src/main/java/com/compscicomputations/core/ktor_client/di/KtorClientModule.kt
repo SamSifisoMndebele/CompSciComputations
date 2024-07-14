@@ -1,7 +1,9 @@
 package com.compscicomputations.core.ktor_client.di
 
 import android.util.Log
-import com.google.firebase.auth.FirebaseAuth
+import com.compscicomputations.core.ktor_client.auth.AuthRepository.Companion.tokenResultFlow
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -18,20 +20,22 @@ import io.ktor.client.plugins.logging.DEFAULT
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
+import io.ktor.client.plugins.resources.Resources
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.URLProtocol
 import io.ktor.serialization.kotlinx.json.json
+import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.tasks.await
-import kotlinx.serialization.json.Json
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
 object KtorClientModule {
+
     @Provides
     @Singleton
-    fun provideHttpClient(auth: FirebaseAuth): HttpClient = HttpClient(OkHttp) {
+    fun provideHttpClient(): HttpClient = HttpClient(OkHttp) {
         developmentMode = true
 
         defaultRequest {
@@ -41,12 +45,8 @@ object KtorClientModule {
             }
         }
 
-        install(ContentNegotiation) {
-            json(Json {
-                prettyPrint = true
-                isLenient = true
-            })
-        }
+        install(ContentNegotiation) { json() }
+        install(Resources)
         install(Logging) {
             logger = Logger.DEFAULT
             level = LogLevel.ALL
@@ -72,31 +72,20 @@ object KtorClientModule {
                 // Configure bearer authentication
                 loadTokens {
                     // Load tokens from a local storage and return them as the 'BearerTokens' instance
-                    when(val tokenResult = auth.currentUser?.getIdToken(false)?.await()) {
-                        null -> null
-                        else -> {
-                            val accessToken = tokenResult.token
-                            Log.d("accessToken", accessToken.toString())
-                            accessToken?.let { BearerTokens(it, "refreshToken") }
-                        }
-                    }
+                    val accessToken = Firebase.auth.currentUser?.tokenResultFlow()?.last()?.token
+//                    Log.d("accessToken", accessToken.toString())
+                    accessToken?.let { BearerTokens(it, "refreshToken") }
                 }
                 refreshTokens { // this: RefreshTokensParams
                     // Refresh tokens and return them as the 'BearerTokens' instance
-                    when(val tokenResult = auth.currentUser?.getIdToken(true)?.await()) {
-                        null -> null
-                        else -> {
-                            val accessToken = tokenResult.token
-                            Log.d("accessToken", accessToken.toString())
-                            accessToken?.let { BearerTokens(it, "refreshToken") }
-                        }
-                    }
+                    val accessToken = Firebase.auth.currentUser?.tokenResultFlow(true)?.last()?.token
+//                    Log.d("accessToken", accessToken.toString())
+                    accessToken?.let { BearerTokens(it, "refreshToken") }
                 }
                 // Load and refresh tokens ...
-//                sendWithoutRequest { request ->
-//                    request.method == HttpMethod.Get ||
-//                    request.url.host == "api.studentintellect.co.za"
-//                }
+                sendWithoutRequest { request ->
+                    request.url.host == "compsci-computations.onrender.com"
+                }
             }
         }
     }

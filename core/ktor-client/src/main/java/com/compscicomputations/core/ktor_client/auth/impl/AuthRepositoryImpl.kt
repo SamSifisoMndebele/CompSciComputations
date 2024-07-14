@@ -1,28 +1,36 @@
 package com.compscicomputations.core.ktor_client.auth.impl
 
 import android.app.Activity
+import android.util.Log
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.exceptions.GetCredentialCancellationException
 import com.compscicomputations.core.ktor_client.auth.AuthRepository
+import com.compscicomputations.core.ktor_client.auth.models.Users
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
-import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.Firebase
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.auth.auth
 import io.ktor.client.HttpClient
+import io.ktor.client.plugins.resources.post
+import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.tasks.await
 import kotlin.coroutines.cancellation.CancellationException
 
 internal class AuthRepositoryImpl(
-    private val auth: FirebaseAuth,
     private val request: GetCredentialRequest,
     private val client: HttpClient
 ) : AuthRepository {
-    override suspend fun login(email: String, password: String) {
-        auth.signInWithEmailAndPassword(email, password).await()
+    override suspend fun register(email: String, password: String) {
+        Firebase.auth.createUserWithEmailAndPassword(email, password).await()
     }
 
-    override suspend fun loginWithGoogle(activity: Activity) {
+    override suspend fun login(email: String, password: String) {
+        Firebase.auth.signInWithEmailAndPassword(email, password).await()
+    }
+
+    override suspend fun continueWithGoogle(activity: Activity): Boolean {
         val credentialManager = CredentialManager.create(activity)
         val result = try {
             credentialManager.getCredential(activity, request)
@@ -36,8 +44,9 @@ internal class AuthRepositoryImpl(
                 // Use googleIdTokenCredential and extract id to validate and
                 // authenticate on your server.
                 val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
-                val firebaseCredential = GoogleAuthProvider.getCredential(googleIdTokenCredential.idToken, null)
-                auth.signInWithCredential(firebaseCredential).await()
+                val googleCredential = GoogleAuthProvider.getCredential(googleIdTokenCredential.idToken, null)
+                val authResult = Firebase.auth.signInWithCredential(googleCredential).await()
+                return authResult.additionalUserInfo!!.isNewUser
             }
             else -> {
                 // Catch any unrecognized credential type here.
@@ -46,15 +55,16 @@ internal class AuthRepositoryImpl(
         }
     }
 
-    override suspend fun logout() {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun register() {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun registerWithGoogle(activity: Activity) {
-        TODO("Not yet implemented")
+    override suspend fun logout(): Boolean {
+        try {
+            val request = client.post(Users.Me.LastSeen())
+            return if (request.status == HttpStatusCode.OK) {
+                Firebase.auth.signOut()
+                true
+            } else false
+        } catch (e: Exception) {
+            Log.e("AuthRepositoryImpl", "logout: ", e)
+            throw e
+        }
     }
 }

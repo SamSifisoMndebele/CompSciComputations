@@ -30,6 +30,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBackIos
+import androidx.compose.material.icons.automirrored.filled.FollowTheSigns
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -437,6 +438,7 @@ fun CompSciAuthScaffold(
     title: String,
     description: String,
     navigateUp: (() -> Unit)?,
+    navigateOnboarding: (() -> Unit)?,
     progressState: ProgressState,
     onLoadingDismiss: () -> Unit,
     onExceptionDismiss: () -> Unit,
@@ -461,12 +463,30 @@ fun CompSciAuthScaffold(
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             topBar = {
-                if (navigateUp != null) {
-                    IconButton(onClick = navigateUp, Modifier.padding(vertical = 8.dp, horizontal = 6.dp)) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBackIos,
-                            contentDescription = "Back Button"
-                        )
+                Box(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    if (navigateUp != null) {
+                        IconButton(
+                            onClick = navigateUp,
+                            Modifier.padding(vertical = 8.dp, horizontal = 6.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBackIos,
+                                contentDescription = "Back Button"
+                            )
+                        }
+                    }
+                    if (navigateOnboarding != null) {
+                        IconButton(
+                            onClick = navigateOnboarding,
+                            Modifier.padding(vertical = 8.dp, horizontal = 6.dp).align(Alignment.CenterEnd)
+                        ) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.FollowTheSigns,
+                                contentDescription = "Onboarding Button"
+                            )
+                        }
                     }
                 }
             },

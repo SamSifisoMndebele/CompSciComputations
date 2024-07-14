@@ -20,9 +20,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -30,6 +32,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.compscicomputations.R
+import com.compscicomputations.core.ktor_client.auth.AuthDataStore.firstLaunchFlow
 import com.compscicomputations.theme.AppRed
 import com.compscicomputations.theme.comicNeueFamily
 import com.compscicomputations.theme.hintEmail
@@ -38,28 +41,37 @@ import com.compscicomputations.ui.auth.isError
 import com.compscicomputations.ui.auth.showMessage
 import com.compscicomputations.ui.utils.CompSciAuthScaffold
 import com.compscicomputations.ui.utils.ProgressState
+import com.compscicomputations.utils.getActivity
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.last
+import kotlinx.coroutines.launch
 
 @Composable
 fun LoginScreen(
-    activity: Activity,
     viewModel: LoginViewModel,
     uiState: LoginUiState,
-    navigateUp: (() -> Unit)? = null,
+    navigateOnboarding: () -> Unit,
     navigateRegister: () -> Unit,
     navigateResetPassword: (email: String?) -> Unit,
+    navigateCompleteProfile: () -> Unit,
     navigateMain: () -> Unit
 ) {
-    LaunchedEffect(uiState.progressState) {
-        if (uiState.progressState == ProgressState.Success) {
+    val context = LocalContext.current
+    LaunchedEffect(uiState.progressState, uiState.isNewUser) {
+        if (uiState.isNewUser) {
+            navigateCompleteProfile()
+            Toast.makeText(context, "Please complete your profile!", Toast.LENGTH_SHORT).show()
+        }
+        else if (uiState.progressState == ProgressState.Success) {
             navigateMain()
-            Toast.makeText(activity, "Logged in successfully!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Logged in successfully!", Toast.LENGTH_SHORT).show()
         }
     }
-
     CompSciAuthScaffold(
         title = "Login",
         description = "Login into your account using your email.",
-        navigateUp = navigateUp,
+        navigateUp = null,
+        navigateOnboarding = navigateOnboarding,
         progressState = uiState.progressState,
         onLoadingDismiss = { viewModel.cancelLogin() },
         onExceptionDismiss = { viewModel.onProgressStateChange(ProgressState.Idle) }
@@ -134,9 +146,8 @@ fun LoginScreen(
         }
 
         OutlinedButton(
-            onClick = { viewModel.onLoginWithGoogle(activity) },
-            modifier = Modifier
-                .fillMaxWidth()
+            onClick = { viewModel.onLoginWithGoogle(context.getActivity()) },
+            modifier = Modifier.fillMaxWidth()
                 .height(68.dp)
                 .padding(bottom = 8.dp),
             border = BorderStroke(1.dp, Color.LightGray),
@@ -145,7 +156,8 @@ fun LoginScreen(
             colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.Black),
         ) {
             Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                modifier = Modifier.fillMaxWidth()
+                    .padding(horizontal = 16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Image(
@@ -153,7 +165,8 @@ fun LoginScreen(
                     contentDescription = "Google Button Icon"
                 )
                 Text(
-                    modifier = Modifier.fillMaxWidth().padding(start = 4.dp, end = 32.dp),
+                    modifier = Modifier.fillMaxWidth()
+                        .padding(start = 4.dp, end = 32.dp),
                     text = "Continue with Google",
                     color = AppRed,
                     fontWeight = FontWeight.Bold,

@@ -52,7 +52,7 @@ import com.compscicomputations.ui.utils.shimmerBrush
 fun DashboardScreen(
     viewModel: DashboardViewModel,
     uiState: DashboardUiState,
-    navigateProfile: (email: String, displayName: String, photoUrl: String?) -> Unit,
+    navigateProfile: () -> Unit,
     navigateHelp: () -> Unit,
     navigateFeedback: () -> Unit,
     navigateSettings: () -> Unit,
@@ -87,13 +87,7 @@ fun DashboardScreen(
             item {
                 Card(shape = RoundedCornerShape(24.dp)) {
                     Card(
-                        onClick = {
-                            navigateProfile(
-                                uiState.email,
-                                uiState.displayName,
-                                uiState.photoUrl
-                            )
-                        },
+                        onClick = navigateProfile,
                         shape = RoundedCornerShape(20.dp),
                         modifier = Modifier
                             .padding(8.dp)
@@ -107,19 +101,19 @@ fun DashboardScreen(
                                 modifier = Modifier.padding(end = 8.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                val showShimmer = rememberShimmerBrushState()
+//                                val showShimmer = rememberShimmerBrushState()
                                 AsyncImage(
                                     modifier = Modifier
                                         .size(128.dp)
                                         .padding(8.dp)
                                         .background(
-                                            shimmerBrush(showShimmer = showShimmer.value),
+                                            shimmerBrush(showShimmer = uiState.progressState.isLoading),
                                             CircleShape
                                         )
                                         .clip(CircleShape),
                                     model = uiState.photoUrl,
                                     contentScale = ContentScale.FillBounds,
-                                    onSuccess = { showShimmer.value = false },
+//                                    onSuccess = { showShimmer.value = false },
                                     contentDescription = "Profile",
                                 )
                                 Column(
@@ -129,10 +123,14 @@ fun DashboardScreen(
                                         modifier = Modifier
                                             .widthIn(min = 80.dp)
                                             .background(
-                                                shimmerBrush(showShimmer = showShimmer.value),
+                                                shimmerBrush(showShimmer = uiState.progressState.isLoading),
                                                 CircleShape
                                             ),
-                                        text = uiState.usertype.takeIf { it != Usertype.OTHER }?.name ?: "",
+                                        text = when {
+                                            !uiState.isCompleteProfile -> "Complete Profile"
+                                            uiState.usertype == Usertype.OTHER -> ""
+                                            else -> uiState.usertype.name
+                                        },
                                         fontSize = 18.sp,
                                         color = MaterialTheme.colorScheme.primary,
                                         fontWeight = FontWeight.Bold,
@@ -143,7 +141,7 @@ fun DashboardScreen(
                                         modifier = Modifier
                                             .widthIn(min = 128.dp)
                                             .background(
-                                                shimmerBrush(showShimmer = showShimmer.value),
+                                                shimmerBrush(showShimmer = uiState.progressState.isLoading),
                                                 CircleShape
                                             ),
                                         text = uiState.displayName,
@@ -156,7 +154,7 @@ fun DashboardScreen(
                                         modifier = Modifier
                                             .widthIn(min = 180.dp)
                                             .background(
-                                                shimmerBrush(showShimmer = showShimmer.value),
+                                                shimmerBrush(showShimmer = uiState.progressState.isLoading),
                                                 CircleShape
                                             ),
                                         text = uiState.email,
