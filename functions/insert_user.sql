@@ -10,21 +10,21 @@ create or replace function auth.insert_user(
     _is_student boolean default false,
     _course text default null,
     _school text default null
-) returns uuid
+) returns auth.users
     language plpgsql
 as
 $code$
-declare _id uuid;
+declare _user auth.users;
 begin
     insert into auth.users(email, names, lastname, password_hash, photo_url, phone, is_admin, is_student)
     values (_email, _names, _lastname, ext.crypt(_password, ext.gen_salt('md5')), _photo_url, _phone, _is_admin, _is_student)
-    returning id into _id;
+    returning * into _user;
 
     if _is_student then
         insert into auth.students
-        values (_id, _course, _school);
+        values (_user.id, _course, _school);
     end if;
 
-    return _id;
+    return _user;
 end
 $code$;

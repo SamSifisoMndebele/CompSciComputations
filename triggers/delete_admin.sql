@@ -5,7 +5,8 @@ as
 $$
 begin
     update auth.users
-    set is_admin = false
+    set is_admin = false,
+        updated_at = (now() at time zone 'SAST')
     where id = old.id;
     return old;
 end $$;

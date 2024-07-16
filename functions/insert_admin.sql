@@ -1,5 +1,5 @@
-drop procedure if exists auth.insert_admin;
-create or replace procedure auth.insert_admin(
+drop function if exists auth.insert_admin;
+create or replace function auth.insert_admin(
     _email text,
     _pin text,
     _names text,
@@ -10,12 +10,13 @@ create or replace procedure auth.insert_admin(
     _is_student boolean default false,
     _course text default null,
     _school text default null
-) language plpgsql
+) returns auth.users
+    language plpgsql
 as
 $code$
 declare
     _pin_id int;
-    _id uuid;
+    _user auth.users;
 begin
     select auth.validate_admin_pin(_email, _pin)
     into _pin_id;
@@ -31,14 +32,16 @@ begin
         phone = excluded.phone,
         is_admin = excluded.is_admin,
         updated_at = (now() at time zone 'SAST')
-    returning id into _id;
+    returning * into _user;
 
     insert into auth.admins (id, pin_id)
-    values (_id, _pin_id);
+    values (_user.id, _pin_id);
 
     if _is_student then
         insert into auth.students
-        values (_id, _course, _school);
+        values (_user.id, _course, _school);
     end if;
+
+    return _user;
 end
 $code$;
