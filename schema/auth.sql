@@ -27,7 +27,7 @@ create table if not exists auth.admins (
     admin_since timestamptz default (now() at time zone 'SAST') not null,
 
     foreign key (id) references auth.users(id) on delete cascade on update cascade ,
-    foreign key (pin_id) references auth.admins_pins(id) on delete restrict on update cascade
+    foreign key (pin_id) references auth.admins_pins(id) on delete cascade on update cascade
 );
 
 drop table if exists auth.students;

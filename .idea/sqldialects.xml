@@ -5,6 +5,8 @@
     <file url="file://$PROJECT_DIR$/functions/insert_admin.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/functions/insert_user.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/functions/is_admin_pin_valid.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/functions/upsert_admin_pin.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/functions/upsert_user.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/procedures.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/schema/auth.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/schema/public.sql" dialect="PostgreSQL" />

@@ -56,4 +56,4 @@ set email = 'new_email',
 where id = '29741171-435f-4f0d-be92-5b7ae5cab201';
 
 delete from auth.admins_users
-where id = '29741171-435f-4f0d-be92-5b7ae5cab201';
+where id = '9b65160d-04f9-434f-a18e-852367446432';
