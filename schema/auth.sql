@@ -1,10 +1,3 @@
--- drop type if exists Usertype cascade;
--- create type Usertype as enum (
---     'ADMIN',
---     'STUDENT',
---     'OTHER'
--- );
-
 drop table if exists auth.users;
 create table if not exists auth.users(
     id uuid primary key default ext.gen_random_uuid() not null,
@@ -40,8 +33,8 @@ create table if not exists auth.admins (
 drop table if exists auth.students;
 create table if not exists auth.students (
     id uuid primary key not null,
-    course text not null ,
-    school text not null ,
+    course text not null,
+    school text not null,
 
     foreign key (id) references auth.users(id) on delete cascade on update cascade
 );
