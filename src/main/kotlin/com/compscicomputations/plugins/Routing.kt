@@ -1,8 +1,7 @@
 package com.compscicomputations.plugins
 
+import com.compscicomputations.authentication.authenticateAdmin
 import com.compscicomputations.authentication.google.GoogleToken
-import com.compscicomputations.authentication.authenticateUserOrAdmin
-import com.compscicomputations.firebase.authenticateAdmin
 import com.compscicomputations.routing.authRouting
 import com.compscicomputations.services.auth.models.Admins
 import com.compscicomputations.services.auth.models.Users
@@ -10,11 +9,11 @@ import io.ktor.resources.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.http.content.*
+import io.ktor.server.resources.*
 import io.ktor.server.resources.Resources
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.routing.get as getA
-import io.ktor.server.resources.get
 
 fun Application.configureRouting() {
 
@@ -32,7 +31,7 @@ fun Application.configureRouting() {
 ////        call.respondText("A file is uploaded"+String(file.readBytes()))
 //            call.respondFile(file)
 //        }
-        authenticateUserOrAdmin {
+        authenticate {
             getA("/test/auth") {
                 val principal = call.principal<GoogleToken>()
                 call.respondText("Hello\n$principal")
@@ -77,7 +76,6 @@ fun Application.configureRouting() {
         authenticateAdmin {
             get<Admins.Me> { call.respondRedirect(href(resourcesFormat, Users.Me())) }
             get<Admins.Uid> { call.respondRedirect(href(resourcesFormat, Users.Uid(uid = it.uid))) }
-
         }
     }
 }

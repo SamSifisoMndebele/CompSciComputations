@@ -19,29 +19,24 @@ POST http://127.0.0.1:8080/users
 Content-Type: application/json
 
 {
-  "email": "sams3@gmail.com",
-  "password": "hcgfhvhjb",
-  "display_name": "Sam Sifiso",
-  "photo_url": null,
-  "phone": null,
+  "email": "email7@mail.com",
+  "names": "Names",
+  "last_name": "Surname",
+  "password": null,
   "usertype": "STUDENT",
-  "admin_code": null
+  "photo_url": null,
+  "phone": "0721646430",
+  "admin_pin": null
 }
 
 ###
 #Create an admin user
-POST http://127.0.0.1:8080/users
-Content-Type: application/json
 
-{
-  "email": "admin1@mail.com",
-  "password": "password",
-  "display_name": "Admin Name",
-  "photo_url": null,
-  "phone": "0721646421",
-  "usertype": "ADMIN",
-  "admin_code": "123456"
-}
+
+### Get Users
+POST http://localhost:8080/users?limit={{$random.integer(100)}}
+Accept: application/json
+
 
 ###
 # Get user by uid

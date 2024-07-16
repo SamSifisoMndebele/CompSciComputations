@@ -5,10 +5,7 @@ import io.ktor.resources.*
 @Resource("users")
 class Users(val limit: Int = 10) {
     @Resource("me")
-    class Me(val parent: Users = Users()) {
-        @Resource("last_seen")
-        class LastSeen(val parent: Me = Me())
-    }
+    class Me(val parent: Users = Users())
 
     @Resource("{uid}")
     class Uid(val parent: Users = Users(), val uid: String)
@@ -22,10 +19,10 @@ class Admins {
     @Resource("{uid}")
     class Uid(val parent: Admins = Admins(), val uid: String)
 
-    @Resource("codes")
-    class Codes(val parent: Admins = Admins()) {
+    @Resource("/pins")
+    class Pins(val parent: Admins = Admins()) {
         @Resource("{email}")
-        class Email(val parent: Codes = Codes(), val email: String)
+        class Email(val parent: Pins = Pins(), val email: String)
     }
 }
 

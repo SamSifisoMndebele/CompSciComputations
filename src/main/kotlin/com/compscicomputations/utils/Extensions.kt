@@ -1,9 +1,12 @@
 package com.compscicomputations.utils
 
-import com.compscicomputations.services.auth.models.Usertype
+import com.compscicomputations.services.auth.models.other.AdminUser
+import com.compscicomputations.services.auth.models.other.StudentUser
+import com.compscicomputations.services.auth.models.response.User
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
+import kotlinx.serialization.SerialName
 import java.sql.Timestamp
 import java.text.SimpleDateFormat
 import java.util.*
@@ -29,5 +32,10 @@ inline val Timestamp.asString: String get() = toString().take(26).replace("T", "
 //val String.asDate: Date get() = dateFormat.parse(take(26).replace("T", " "))!!
 //val Date.asString: String get() = dateFormat.format(this)
 
-val Usertype.isAdmin: Boolean
-    get() = this == Usertype.ADMIN
+
+val User.displayName: String
+    get() = "$names $lastName".trim()
+val AdminUser.displayName: String
+    get() = "$names $lastName".trim()
+val StudentUser.displayName: String
+    get() = "$names $lastName".trim()

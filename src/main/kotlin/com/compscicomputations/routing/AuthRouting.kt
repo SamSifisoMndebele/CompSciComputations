@@ -1,28 +1,29 @@
 package com.compscicomputations.routing
 
-import com.compscicomputations.firebase.FirebasePrincipal
-import com.compscicomputations.firebase.authenticateAdmin
+import com.compscicomputations.services.auth.models.response.User
+import com.compscicomputations.authentication.authenticateAdmin
+import com.compscicomputations.plugins.validateAdminPinLimit
 import com.compscicomputations.services.auth.AuthService
 import com.compscicomputations.services.auth.models.*
-import com.compscicomputations.services.auth.models.requests.NewAdminCode
+import com.compscicomputations.services.auth.models.requests.NewAdminPin
 import com.compscicomputations.services.auth.models.requests.NewUser
 import com.compscicomputations.services.auth.models.requests.UpdateUser
-import com.compscicomputations.services.auth.models.response.User
 import io.ktor.http.*
-import io.ktor.resources.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
+import io.ktor.server.plugins.ratelimit.*
 import io.ktor.server.request.*
 import io.ktor.server.resources.*
 import io.ktor.server.resources.post
 import io.ktor.server.resources.put
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.server.sessions.*
 import org.koin.ktor.ext.inject
 
-private inline val User?.OKOrNotFound: HttpStatusCode
+private inline val Any?.OKOrNotFound: HttpStatusCode
     get() = if (this == null) HttpStatusCode.NotFound else HttpStatusCode.OK
-private inline val List<User>?.OKOrNotFound: HttpStatusCode
+private inline val List<Any>?.OKOrNotFound: HttpStatusCode
     get() = if (isNullOrEmpty()) HttpStatusCode.NotFound else HttpStatusCode.OK
 
 fun Routing.authRouting() {
@@ -35,7 +36,7 @@ fun Routing.authRouting() {
             authService.createUser(userRequest)
             call.respond(HttpStatusCode.Created)
         } catch (e: Exception) {
-            call.respond(HttpStatusCode.ExpectationFailed, e.localizedMessage)
+            call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
         }
     }
 
@@ -43,24 +44,13 @@ fun Routing.authRouting() {
         // Read myself as a user
         get<Users.Me> {
             try {
-                val firebase = call.principal<FirebasePrincipal>()!!
+                val firebase = call.principal<User>()!!
 //                return@get call.respond(HttpStatusCode.Unauthorized, "Authentication failed")
 
-                val user = authService.readUser(firebase.uid)
+                val user = authService.readUser(firebase.id)
                 call.respondNullable(user.OKOrNotFound, user)
             } catch (e: Exception) {
-                call.respond(HttpStatusCode.ExpectationFailed, e.localizedMessage)
-            }
-        }
-
-        post<Users.Me.LastSeen> {
-            try {
-                val firebase = call.principal<FirebasePrincipal>()!!
-
-                authService.updateLastSeen(firebase.uid)
-                call.respond(HttpStatusCode.OK)
-            } catch (e: Exception) {
-                call.respond(HttpStatusCode.ExpectationFailed, e.localizedMessage)
+                call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
             }
         }
 
@@ -68,24 +58,24 @@ fun Routing.authRouting() {
         put<Users.Me> {
             try {
                 val userRequest = call.receive<UpdateUser>()
-                val firebase = call.principal<FirebasePrincipal>()!!
+                val firebase = call.principal<User>()!!
 
-                val user = authService.updateUser(firebase.uid, userRequest)
+                val user = authService.updateUser(firebase.id, userRequest)
                 call.respond(HttpStatusCode.OK, user)
             } catch (e: Exception) {
-                call.respond(HttpStatusCode.ExpectationFailed, e.localizedMessage)
+                call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
             }
         }
 
         // Delete myself as a user
         delete<Users.Me> {
             try {
-                val firebase = call.principal<FirebasePrincipal>()!!
+                val firebase = call.principal<User>()!!
 
-                authService.deleteUser(firebase.uid)
+                authService.deleteUser(firebase.id)
                 call.respond(HttpStatusCode.OK)
             } catch (e: Exception) {
-                call.respond(HttpStatusCode.ExpectationFailed, e.localizedMessage)
+                call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
             }
         }
     }
@@ -98,7 +88,7 @@ fun Routing.authRouting() {
 
                 call.respond(users.OKOrNotFound, users)
             } catch (e: Exception) {
-                call.respond(HttpStatusCode.ExpectationFailed, e.localizedMessage)
+                call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
             }
         }
 
@@ -108,7 +98,7 @@ fun Routing.authRouting() {
                 val user = authService.readUser(uid.uid)
                 call.respondNullable(user.OKOrNotFound, user)
             } catch (e: Exception) {
-                call.respond(HttpStatusCode.ExpectationFailed, e.localizedMessage)
+                call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
             }
         }
 
@@ -120,7 +110,7 @@ fun Routing.authRouting() {
                 val user = authService.updateUser(uid.uid, userRequest)
                 call.respond(user.OKOrNotFound, user)
             } catch (e: Exception) {
-                call.respond(HttpStatusCode.ExpectationFailed, e.localizedMessage)
+                call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
             }
         }
 
@@ -130,52 +120,56 @@ fun Routing.authRouting() {
                 authService.deleteUser(uid.uid)
                 call.respond(HttpStatusCode.OK)
             } catch (e: Exception) {
-                call.respond(HttpStatusCode.ExpectationFailed, e.localizedMessage)
+                call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
             }
         }
 
 
         // Create admin code
-        post<Admins.Codes> {
+        post<Admins.Pins> {
             try {
-                val request = call.receive<NewAdminCode>()
-                authService.createAdminCode(request)
+                val request = call.receive<NewAdminPin>()
+                authService.createAdminPin(request)
                 call.respond(HttpStatusCode.Created)
             } catch (e: Exception) {
-                call.respond(HttpStatusCode.ExpectationFailed, e.localizedMessage)
+                call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
             }
         }
 
-        // Read admin code by email address
-        get<Admins.Codes.Email> {
-            try {
-                TODO("Not yet implemented.")
-//                val user = authService.Codes
-//                call.respond(user.OKOrNotFound, user)
-            } catch (e: Exception) {
-                call.respond(HttpStatusCode.ExpectationFailed, e.localizedMessage)
+        // Validate admin code by email
+        rateLimit(validateAdminPinLimit) {
+            get<Admins.Pins.Email> {
+                try {
+//                    val requestsLeft = call.response.headers["X-RateLimit-Remaining"]
+//                    val email = call.parameters["email"]
+                    val pin = call.receive<String>()
+                    val row = authService.validateAdminPin(it.email, pin)
+                    call.respondNullable(row.OKOrNotFound, row)
+                } catch (e: Exception) {
+                    call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
+                }
             }
         }
 
         // Update admin code by email address
-        put<Admins.Codes.Email> {
+        put<Admins.Pins.Email> {
             try {
                 TODO("Not yet implemented.")
 //                val user = authService.Codes
 //                call.respond(user.OKOrNotFound, user)
             } catch (e: Exception) {
-                call.respond(HttpStatusCode.ExpectationFailed, e.localizedMessage)
+                call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
             }
         }
 
-        // Delete admin code
-        delete<Admins.Codes.Email> {
+        // Delete admin code by email address
+        delete<Admins.Pins.Email> {
             try {
                 TODO("Not yet implemented.")
 //                val user = authService.Codes
 //                call.respond(user.OKOrNotFound, user)
             } catch (e: Exception) {
-                call.respond(HttpStatusCode.ExpectationFailed, e.localizedMessage)
+                call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
             }
         }
     }

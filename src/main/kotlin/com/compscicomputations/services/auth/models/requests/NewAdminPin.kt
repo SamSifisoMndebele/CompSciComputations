@@ -3,7 +3,7 @@ package com.compscicomputations.services.auth.models.requests
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class NewAdminCode(
+data class NewAdminPin(
     val email: String,
-    val code: String,
+    val pin: String,
 )

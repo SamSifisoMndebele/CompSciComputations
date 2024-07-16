@@ -1,6 +1,3 @@
-### Get assetlinks for password creditials
-GET http://localhost:8080/.well-known/assetlinks.json
-
 ### Auth with google token
 GET http://localhost:8080/test/auth
 Accept: text/plain

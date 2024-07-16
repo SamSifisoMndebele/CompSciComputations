@@ -16,12 +16,12 @@ suspend inline fun <T> dbQuery(
 
 inline fun <T : Any> Connection.executeQuery(
     @Language("postgresql") sql: String,
-    argsFunc: PreparedStatement.() -> Unit = {},
+    args: PreparedStatement.() -> Unit = {},
     transform: Connection.(ResultSet) -> T
 ): List<T>? {
     val result = arrayListOf<T>()
     prepareStatement(sql).apply {
-        argsFunc()
+        args()
         val resultSet = executeQuery()
         while (resultSet.next()) result += transform(resultSet)
     }

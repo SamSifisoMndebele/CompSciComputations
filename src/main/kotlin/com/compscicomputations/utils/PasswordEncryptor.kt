@@ -3,7 +3,7 @@ package com.compscicomputations.utils
 import org.mindrot.jbcrypt.BCrypt
 import java.security.SecureRandom
 
-internal interface PasswordEncryptorContrast {
+internal interface PasswordEncryptorContrast2 {
     /**
      * Generate a random password
      * @param isWithLetters Boolean value to specify if the password must contain letters
@@ -34,7 +34,7 @@ internal interface PasswordEncryptorContrast {
     fun encryptPassword(password: String): String
 }
 
-internal object PasswordEncryptor : PasswordEncryptorContrast {
+internal object PasswordEncryptor2 : PasswordEncryptorContrast2 {
     private const val LETTERS: String = "_abcdefghijklmnopqrstuvwxyz"
     private const val UPPERCASE_LETTERS: String = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     private const val NUMBERS: String = "0123456789"
