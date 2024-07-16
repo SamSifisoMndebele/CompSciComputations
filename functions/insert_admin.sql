@@ -1,4 +1,4 @@
--- drop procedure if exists auth.insert_admin;
+drop procedure if exists auth.insert_admin;
 create or replace procedure auth.insert_admin(
     _email text,
     _pin text,
@@ -7,7 +7,9 @@ create or replace procedure auth.insert_admin(
     _password text default null,
     _photo_url text default null,
     _phone text default null,
-    _is_student boolean default false
+    _is_student boolean default false,
+    _course text default null,
+    _school text default null
 ) language plpgsql
 as
 $code$
@@ -33,5 +35,10 @@ begin
 
     insert into auth.admins (id, pin_id)
     values (_id, _pin_id);
+
+    if _is_student then
+        insert into auth.students
+        values (_id, _course, _school);
+    end if;
 end
 $code$;
