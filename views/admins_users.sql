@@ -5,7 +5,7 @@ as
 select id,
        email,
        names,
-       last_name,
+       lastname,
        photo_url,
        phone,
        is_student,
@@ -25,7 +25,7 @@ do instead (
     update auth.users
     set email = new.email,
         names = new.names,
-        last_name = new.last_name,
+        lastname = new.lastname,
         photo_url = new.photo_url,
         phone = new.phone,
         is_student = new.is_student,
@@ -52,7 +52,7 @@ select * from auth.admins_users;
 
 update auth.admins_users
 set email = 'new_email',
-    last_name = 'new_lastname'
+    lastname = 'new_lastname'
 where id = '29741171-435f-4f0d-be92-5b7ae5cab201';
 
 delete from auth.admins_users
