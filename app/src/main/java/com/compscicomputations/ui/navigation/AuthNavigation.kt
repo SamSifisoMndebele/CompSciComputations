@@ -83,17 +83,11 @@ fun NavGraphBuilder.authNavigation(navController: NavHostController) {
         composable<Register> {
             val viewModel: RegisterViewModel = hiltViewModel()
             val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-            val context = LocalContext.current
-            val termsAccepted by context.termsAcceptedFlow.collectAsStateWithLifecycle(initialValue = false)
-            LaunchedEffect(termsAccepted) {
-                viewModel.setTermsAccepted(termsAccepted)
-            }
             RegisterScreen(
                 viewModel = viewModel,
                 uiState = uiState,
                 navigateUp = { navController.navigateUp() },
                 navigateOnboarding = { navController.navigate(route = Onboarding) },
-                navigateTerms = { navController.navigate(route = Terms) },
                 navigateCompleteProfile = {
                     navController.navigate(route = CompleteProfile) {
                         popUpTo<Auth> { inclusive = false }
@@ -104,10 +98,16 @@ fun NavGraphBuilder.authNavigation(navController: NavHostController) {
         composable<CompleteProfile> {
             val viewModel: CompleteProfileViewModel = hiltViewModel()
             val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+            val context = LocalContext.current
+            val termsAccepted by context.termsAcceptedFlow.collectAsStateWithLifecycle(initialValue = false)
+            LaunchedEffect(termsAccepted) {
+                viewModel.setTermsAccepted(termsAccepted)
+            }
             CompleteProfileScreen(
                 viewModel = viewModel,
                 uiState = uiState,
                 navigateUp = { navController.navigateUp() },
+                navigateTerms = { navController.navigate(route = Terms) },
             ) {
                 navController.navigate(route = Dashboard) {
                     popUpTo(route = Auth) { inclusive = true }

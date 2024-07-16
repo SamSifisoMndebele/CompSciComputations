@@ -1,9 +1,9 @@
 package com.compscicomputations.core.ktor_client.auth
 
-import android.app.Activity
 import android.util.Log
 import com.compscicomputations.core.ktor_client.auth.models.AuthUser
 import com.compscicomputations.core.ktor_client.auth.models.Usertype
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GetTokenResult
@@ -35,10 +35,10 @@ interface AuthRepository {
 
     /**
      * Login or register with google credentials.
-     * @param activity activity level context.
+     * @param googleIdTokenCredential [GoogleIdTokenCredential]
      * @return `true` if the user is new or `false` if the user is existing.
      */
-    suspend fun continueWithGoogle(activity: Activity): Boolean
+    suspend fun continueWithGoogle(googleIdTokenCredential: GoogleIdTokenCredential): Boolean
 
     /**
      * Logout the user and set new last seen.

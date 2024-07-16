@@ -1,15 +1,19 @@
 package com.compscicomputations.ui.auth.login
 
+import android.view.KeyEvent.ACTION_DOWN
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -19,12 +23,23 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -38,7 +53,7 @@ import com.compscicomputations.ui.auth.isError
 import com.compscicomputations.ui.auth.showMessage
 import com.compscicomputations.ui.utils.CompSciAuthScaffold
 import com.compscicomputations.ui.utils.ProgressState
-import com.compscicomputations.utils.getActivity
+import com.compscicomputations.utils.asActivity
 
 @Composable
 fun LoginScreen(
@@ -61,6 +76,7 @@ fun LoginScreen(
             Toast.makeText(context, "Logged in successfully!", Toast.LENGTH_SHORT).show()
         }
     }
+    val (field1, field2) = remember { FocusRequester.createRefs() }
     CompSciAuthScaffold(
         title = "Login",
         description = "Login into your account using your email.",
@@ -72,28 +88,27 @@ fun LoginScreen(
     ) {
         OutlinedTextField(
             modifier = Modifier
+                .focusRequester(field1)
+                .focusProperties { next = field2 }
                 .fillMaxWidth()
                 .padding(vertical = 4.dp),
             value = uiState.email,
             onValueChange = { viewModel.onEmailChange(it) },
-            label = {
-                Text(text = hintEmail)
-            },
+            label = { Text(text = hintEmail) },
             shape = RoundedCornerShape(22.dp),
             singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
             isError = uiState.emailError.isError,
             supportingText = uiState.emailError.showMessage()
         )
         OutlinedTextField(
             modifier = Modifier
+                .focusRequester(field2)
                 .fillMaxWidth()
                 .padding(vertical = 4.dp),
             value = uiState.password,
             onValueChange = { viewModel.onPasswordChange(it) },
-            label = {
-                Text(text = hintPassword)
-            },
+            label = { Text(text = hintPassword) },
             singleLine = true,
             shape = RoundedCornerShape(22.dp),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -139,8 +154,9 @@ fun LoginScreen(
             )
         }
 
+        val activity by lazy { context.asActivity }
         OutlinedButton(
-            onClick = { viewModel.onLoginWithGoogle(context.getActivity()) },
+            onClick = { viewModel.onLoginWithGoogle(activity) },
             modifier = Modifier.fillMaxWidth()
                 .height(68.dp)
                 .padding(bottom = 8.dp),
@@ -149,26 +165,20 @@ fun LoginScreen(
             contentPadding = PaddingValues(vertical = 18.dp),
             colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.Black),
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_google),
-                    contentDescription = "Google Button Icon"
-                )
-                Text(
-                    modifier = Modifier.fillMaxWidth()
-                        .padding(start = 4.dp, end = 32.dp),
-                    text = "Continue with Google",
-                    color = AppRed,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 22.sp,
-                    fontFamily = comicNeueFamily,
-                    textAlign = TextAlign.Center
-                )
-            }
+            Image(
+                modifier = Modifier.padding(start = 4.dp).size(64.dp),
+                painter = painterResource(id = R.drawable.ic_google),
+                contentDescription = "Google Button Icon"
+            )
+            Text(
+                modifier = Modifier.fillMaxWidth().padding(end = 68.dp),
+                text = "Continue with Google",
+                color = AppRed,
+                fontWeight = FontWeight.Bold,
+                fontSize = 22.sp,
+                fontFamily = comicNeueFamily,
+                textAlign = TextAlign.Center
+            )
         }
     }
 }

@@ -14,7 +14,9 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 
-class UserRepositoryImpl(private val client: HttpClient) : UserRepository {
+class UserRepositoryImpl(
+    private val client: HttpClient
+) : UserRepository {
     override suspend fun getUser(): User? {
         val response = client.get(Users.Me())
         return when {

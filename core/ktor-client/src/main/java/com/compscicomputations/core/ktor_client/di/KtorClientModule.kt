@@ -8,10 +8,15 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import io.ktor.client.HttpClient
+import io.ktor.client.HttpClientConfig
+import io.ktor.client.engine.HttpClientEngineConfig
 import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.HttpRequestRetry
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.auth.Auth
+import io.ktor.client.plugins.auth.providers.BasicAuthCredentials
 import io.ktor.client.plugins.auth.providers.BearerTokens
+import io.ktor.client.plugins.auth.providers.basic
 import io.ktor.client.plugins.auth.providers.bearer
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
@@ -65,7 +70,28 @@ object KtorClientModule {
             exponentialDelay()
         }
 
+        configureAuth()
+
+
+        install(HttpTimeout) {
+            connectTimeoutMillis //= HttpTimeout.INFINITE_TIMEOUT_MS
+            socketTimeoutMillis //= HttpTimeout.INFINITE_TIMEOUT_MS
+            requestTimeoutMillis //= HttpTimeout.INFINITE_TIMEOUT_MS
+        }
+    }
+
+    private fun <T: HttpClientEngineConfig> HttpClientConfig<T>.configureAuth() {
         install(Auth) {
+            basic {
+                credentials {
+                    BasicAuthCredentials(username = "username", password = "password")
+                }
+                realm = "Access to the server"
+                sendWithoutRequest { request ->
+                    request.url.host == "compsci-computations.onrender.com" ||
+                            request.url.host == "127.0.0.1"
+                }
+            }
             bearer {
                 // Configure bearer authentication
                 loadTokens {
@@ -87,8 +113,4 @@ object KtorClientModule {
             }
         }
     }
-
-//    private fun <T: HttpClientEngineConfig> HttpClientConfig<T>.configureAuth(auth: FirebaseAuth) {
-//
-//    }
 }

@@ -1,11 +1,6 @@
 package com.compscicomputations.ui.auth.register
 
-import android.Manifest
-import android.app.Activity
 import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
@@ -34,10 +29,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -45,29 +40,18 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat
-import androidx.core.content.FileProvider
-import androidx.core.content.PermissionChecker.PERMISSION_GRANTED
-import androidx.documentfile.provider.DocumentFile
-import coil.compose.AsyncImage
-import com.compscicomputations.BuildConfig
+import com.compscicomputations.core.ktor_client.auth.AuthDataStore.setTermsAccepted
 import com.compscicomputations.core.ktor_client.auth.models.Usertype
 import com.compscicomputations.theme.comicNeueFamily
 import com.compscicomputations.theme.hintAdminCode
-import com.compscicomputations.theme.hintDisplayName
-import com.compscicomputations.theme.hintEmail
-import com.compscicomputations.theme.hintPassword
-import com.compscicomputations.theme.hintPasswordConfirm
 import com.compscicomputations.theme.hintPhone
-import com.compscicomputations.theme.hintUserImage
 import com.compscicomputations.theme.hintUsertype
-import com.compscicomputations.ui.utils.ProgressState
 import com.compscicomputations.ui.auth.isError
 import com.compscicomputations.ui.auth.showMessage
 import com.compscicomputations.ui.utils.CompSciAuthScaffold
-import com.compscicomputations.utils.createImageFile
+import com.compscicomputations.ui.utils.ProgressState
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -75,6 +59,7 @@ fun CompleteProfileScreen(
     viewModel: CompleteProfileViewModel,
     uiState: CompleteProfileUiState,
     navigateUp: () -> Unit,
+    navigateTerms: () -> Unit,
     navigateMain: () -> Unit,
 ) {
     val context = LocalContext.current
@@ -83,20 +68,6 @@ fun CompleteProfileScreen(
             navigateMain()
             Toast.makeText(context, "Welcome to CompSci Computations!", Toast.LENGTH_SHORT).show()
         }
-    }
-    val photoPickerLauncher = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
-        if (uri == null) return@rememberLauncherForActivityResult
-        viewModel.setPhotoUri(uri)
-    }
-    val file = context.createImageFile()
-    val uri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", file)
-    val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) {
-        if (!it) return@rememberLauncherForActivityResult
-        viewModel.setPhotoUri(uri)
-    }
-    val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
-        if (it) cameraLauncher.launch(uri)
-        else Toast.makeText(context, "Permission Denied", Toast.LENGTH_SHORT).show()
     }
 
     CompSciAuthScaffold(
@@ -166,73 +137,6 @@ fun CompleteProfileScreen(
             )
         }
 
-        var imageExpanded by remember { mutableStateOf(false) }
-        val imageName = uiState.photoUri?.let { DocumentFile.fromSingleUri(context, it)?.name } ?: ""
-        ExposedDropdownMenuBox(
-            expanded = imageExpanded,
-            onExpandedChange = { imageExpanded = !imageExpanded }
-        ) {
-            OutlinedTextField(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .menuAnchor()
-                    .focusable(false)
-                    .padding(vertical = 4.dp),
-                value = imageName,
-                onValueChange = {},
-                label = { Text(text = hintUserImage) },
-                readOnly = true,
-                singleLine = true,
-                shape = RoundedCornerShape(18.dp),
-                trailingIcon = {
-                    IconButton(onClick = {}, modifier = Modifier.padding(end = 4.dp)) {
-                        AsyncImage(
-                            model = uiState.photoUri,
-                            contentDescription = "Profile",
-                            contentScale = ContentScale.FillBounds
-                        )
-                    }
-                }
-            )
-            ExposedDropdownMenu(
-                expanded = imageExpanded,
-                onDismissRequest = { imageExpanded = false }
-            ) {
-                DropdownMenuItem(
-                    text = { Text(text = "Select your image.") },
-                    onClick = {
-                        photoPickerLauncher.launch(
-                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                        )
-                        imageExpanded = false
-                    }
-                )
-                DropdownMenuItem(
-                    text = { Text(text = "Take a new picture.") },
-                    onClick = {
-                        val permissionCheckResult = ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
-                        if (permissionCheckResult == PERMISSION_GRANTED) cameraLauncher.launch(uri)
-                        else permissionLauncher.launch(Manifest.permission.CAMERA)
-                        imageExpanded = false
-                    }
-                )
-            }
-        }
-
-        OutlinedTextField(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 4.dp),
-            value = uiState.displayName,
-            onValueChange = { viewModel.onDisplayNameChange(it);},
-            label = { Text(text = hintDisplayName) },
-            singleLine = true,
-            shape = RoundedCornerShape(18.dp),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-            isError = uiState.displayNameError.isError,
-            supportingText = uiState.displayNameError.showMessage()
-        )
-
         OutlinedTextField(
             modifier = Modifier
                 .fillMaxWidth()
@@ -246,6 +150,24 @@ fun CompleteProfileScreen(
             isError = uiState.phoneError.isError,
             supportingText = uiState.phoneError.showMessage()
         )
+
+        val coroutineScope = rememberCoroutineScope()
+        Row(
+            modifier = Modifier.padding(top = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Switch(
+                checked = uiState.termsAccepted,
+                onCheckedChange = {
+                    coroutineScope.launch(Dispatchers.IO) { context.setTermsAccepted(it) }
+                }
+            )
+            Text(text = "I accept the", Modifier.padding(start = 10.dp), fontSize = 16.sp)
+            TextButton(onClick = navigateTerms, contentPadding = PaddingValues(horizontal = 3.dp)) {
+                Text(text = "Terms and Conditions.", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            }
+            uiState.termsAcceptedError.showMessage()
+        }
 
         Button(onClick = { viewModel.onRegister() },
             enabled = uiState.isValid,

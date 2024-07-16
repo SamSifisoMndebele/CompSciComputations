@@ -38,8 +38,6 @@ class CompleteProfileViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(
             uid = user.uid,
             email = user.email,
-            displayName = user.displayName?:"",
-            photoUrl = user.photoUrl,
             phone = user.phoneNumber,
         )
     }
@@ -50,21 +48,16 @@ class CompleteProfileViewModel @Inject constructor(
     fun onAdminCodeChange(adminCode: String) {
         _uiState.value = _uiState.value.copy(adminCode = adminCode, adminCodeError = null)
     }
-    fun setPhotoUri(photoUri: Uri) {
-        _uiState.value = _uiState.value.copy(photoUri = photoUri)
-    }
-    private fun setPhotoUrl(photoUrl: String) {
-        _uiState.value = _uiState.value.copy(photoUrl = photoUrl)
-    }
-    fun onDisplayNameChange(displayName: String) {
-        _uiState.value = _uiState.value.copy(displayName = displayName, displayNameError = null)
-    }
     fun onPhoneChange(phone: String) {
         _uiState.value = _uiState.value.copy(phone = phone, phoneError = null)
     }
 
     fun onProgressStateChange(progressState: ProgressState) {
         _uiState.value = _uiState.value.copy(progressState = progressState)
+    }
+
+    fun setTermsAccepted(termsAccepted: Boolean) {
+        _uiState.value = _uiState.value.copy(termsAccepted = termsAccepted)
     }
 
     private var registerJob: Job? = null
@@ -76,11 +69,10 @@ class CompleteProfileViewModel @Inject constructor(
                 userRepository.createUser(NewUser(
                     email = _uiState.value.email,
                     password = null,
-                    displayName = _uiState.value.displayName,
-                    photoUrl = _uiState.value.photoUrl,
+                    names = "_uiState.value.nam",
+                    photoUrl = "_uiState.value.photoUrl",
                     phone = _uiState.value.phone,
-                    usertype = _uiState.value.usertype,
-                    adminCode = _uiState.value.adminCode,
+                    lastname = "_uiState.value.usertype",
                 ))
                 _uiState.value = _uiState.value.copy(progressState = ProgressState.Success)
             } catch (e: CancellationException) {
@@ -108,11 +100,8 @@ class CompleteProfileViewModel @Inject constructor(
                 valid = false
             }
         }
-        if (_uiState.value.displayName.isBlank()) {
-            _uiState.value = _uiState.value.copy(adminCodeError = "Enter your full names.")
-            valid = false
-        } else if (_uiState.value.displayName.notMatches(namesRegex)) {
-            _uiState.value = _uiState.value.copy(adminCodeError = "Enter valid full names.")
+        if (!_uiState.value.termsAccepted) {
+            _uiState.value = _uiState.value.copy(termsAcceptedError = "You must accept the terms and conditions.")
             valid = false
         }
         return valid

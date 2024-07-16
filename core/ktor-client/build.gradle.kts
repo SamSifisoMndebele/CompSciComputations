@@ -55,7 +55,6 @@ dependencies {
     implementation(libs.androidx.datastore)
     implementation(libs.androidx.datastore.preferences)
 
-
     /** Auth */
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services.auth)
@@ -78,5 +77,5 @@ dependencies {
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.jbcrypt)
 
-    implementation(libs.androidx.core.ktx)
+//    implementation(libs.androidx.core.ktx)
 }

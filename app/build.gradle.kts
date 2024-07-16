@@ -68,8 +68,10 @@ android {
 }
 
 dependencies {
-//    implementation("androidx.paging:paging-runtime:3.3.0")
-//    implementation("androidx.paging:paging-compose:3.3.0")
+    /** Auth */
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.googleid)
 
     /**Machine Learning*/
     implementation(libs.play.services.mlkit.text.recognition)
@@ -90,17 +92,15 @@ dependencies {
 
     /**Firebase*/
     implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.auth)
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.crashlytics)
     implementation(libs.firebase.config)
+
+    /**Local Modules*/
     implementation(project(":pdf-viewer"))
     implementation(project(":core:ktor-client"))
 
-//    implementation(libs.glide.compose)
-    implementation(libs.coil.compose)
-    implementation(libs.lottie.compose)
-
+    /**Android Modules*/
 //    implementation("com.google.android.play:review:2.0.1")
 //    implementation("com.google.android.play:asset-delivery:2.2.2")
 //    implementation("com.google.android.play:app-update:2.1.0")
@@ -117,21 +117,22 @@ dependencies {
     implementation(libs.androidx.material.icons.extended) //Takes more space
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
-//    implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
     implementation(libs.androidx.navigation.dynamic.features.fragment)
 
+    /**Testing*/
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
     testImplementation(libs.androidx.room.testing)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-//    implementation(libs.androidx.core.ktx)
-//    implementation(libs.androidx.appcompat)
-//    implementation(libs.material)
-//    testImplementation(libs.junit)
-//    androidTestImplementation(libs.androidx.junit)
-//    androidTestImplementation(libs.androidx.espresso.core)
+
+    /**Other Modules*/
     implementation(libs.glassmorphic.composables)
+    implementation(libs.lottie.compose)
+    implementation(libs.coil.compose)
+//    implementation(libs.glide.compose)
+//    implementation("androidx.paging:paging-runtime:3.3.0")
+//    implementation("androidx.paging:paging-compose:3.3.0")
 }

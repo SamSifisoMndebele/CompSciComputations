@@ -11,31 +11,28 @@ data class CompleteProfileUiState(
 
     val usertype: Usertype = Usertype.STUDENT,
     val adminCode: String? = null,
-    val photoUri: Uri? = null,
-    val photoUrl: String? = null,
-    val displayName: String = "",
     val phone: String? = null,
+    val termsAccepted: Boolean = false,
 
     val adminCodeError: String? = null,
-    val displayNameError: String? = null,
     val phoneError: String? = null,
+    val termsAcceptedError: String? = null,
 
     val progressState: ProgressState = ProgressState.Idle
 ) {
     val isAdmin: Boolean get() = usertype == Usertype.ADMIN
 
     val isValid: Boolean
-        get() = displayName.isNotBlank() && email.isNotBlank() &&
+        get() = email.isNotBlank() && termsAccepted &&
                 (!isAdmin || isAdmin && adminCode?.isNotBlank() == true)
 
     val asNewUser: NewUser
         get() = NewUser(
             email = email,
             password = null,
-            displayName = displayName,
-            photoUrl = photoUrl,
+            names = "displayName",
+            photoUrl = "photoUrl",
             phone = phone,
-            usertype = usertype,
-            adminCode = adminCode
+            lastname = "usertype"
         )
 }
