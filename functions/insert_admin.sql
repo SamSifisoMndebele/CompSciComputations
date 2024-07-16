@@ -1,8 +1,9 @@
+-- drop procedure if exists auth.insert_admin;
 create or replace procedure auth.insert_admin(
     _email text,
     _pin text,
     _names text,
-    _last_name text,
+    _lastname text,
     _password text default null,
     _photo_url text default null,
     _phone text default null,
@@ -17,12 +18,12 @@ begin
     select auth.validate_admin_pin(_email, _pin)
     into _pin_id;
 
-    insert into auth.users(email, names, last_name, password_hash, photo_url, phone, is_admin, is_student)
-    values (_email, _names, _last_name, ext.crypt(_password, ext.gen_salt('md5')), _photo_url, _phone, true, _is_student)
+    insert into auth.users(email, names, lastname, password_hash, photo_url, phone, is_admin, is_student)
+    values (_email, _names, _lastname, ext.crypt(_password, ext.gen_salt('md5')), _photo_url, _phone, true, _is_student)
     on conflict (email)
     do update
     set names = excluded.names,
-        last_name = excluded.last_name,
+        lastname = excluded.lastname,
         password_hash = excluded.password_hash,
         photo_url = excluded.photo_url,
         phone = excluded.phone,
