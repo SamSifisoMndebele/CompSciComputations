@@ -17,7 +17,7 @@ internal fun Application.configureRequestValidation() {
                     ValidationResult.Invalid("Email is not valid.")
                 userInfo.names.isBlank() ->
                     ValidationResult.Invalid("Names are blank.")
-                userInfo.lastName.isBlank() ->
+                userInfo.lastname.isBlank() ->
                     ValidationResult.Invalid("Last name is blank.")
                 userInfo.password != null && userInfo.password.length < 6 ->
                     ValidationResult.Invalid("Password is too short.")

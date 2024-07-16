@@ -17,25 +17,17 @@ internal class GoogleAuth {
             .build()
     }
 
-    internal fun authenticateToken(idTokenString: String, asAdmin: Boolean): GoogleToken? {
+    internal fun authenticateToken(idTokenString: String): GoogleToken? {
         return try {
             val idToken = verifier.verify(idTokenString) ?: throw BadRequestException("Invalid ID token.")
             val payload = idToken.payload
-            if (asAdmin) {
-                //TODO("Admin verifier")
-                val isAdmin = payload["admin"] as Boolean? ?: false
-                if (isAdmin.not()) throw Exception("User is not recognized as an admin.")
-            }
-
             payload?.let {
                 GoogleToken(
                     email = it.email,
-                    emailVerified = it.emailVerified,
                     name = it["name"] as String? ?: it.email?.substringBefore("@"),
                     pictureUrl = it["picture"] as String?,
                     givenName = it["given_name"] as String?,
-                    familyName = it["family_name"] as String?,
-                    isAdmin = asAdmin,
+                    familyName = it["family_name"] as String?
                 )
             }
         } catch (e: Exception) {

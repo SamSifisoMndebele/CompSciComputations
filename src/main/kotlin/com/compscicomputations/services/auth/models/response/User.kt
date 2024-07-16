@@ -9,10 +9,7 @@ data class User(
     val id: String,
     val email: String,
     val names: String,
-    @SerialName("last_name")
-    val lastName: String,
-    @SerialName("password_hash")
-    val passwordHash: String?,
+    val lastname: String,
     @SerialName("photo_url")
     val photoUrl: String?,
     val phone: String?,
@@ -29,7 +26,7 @@ data class User(
 //    id uuid primary key default ext.gen_random_uuid() not null,
 //    email text unique not null,
 //    names text not null,
-//    last_name text not null,
+//    lastname text not null,
 //    password_hash text default null,
 //    photo_url text default null,
 //    phone text default null,

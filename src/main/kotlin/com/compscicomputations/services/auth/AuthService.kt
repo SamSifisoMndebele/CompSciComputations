@@ -18,8 +18,9 @@ internal interface AuthService {
      * Create a user on the database.
      * @param user [NewUser] the information about the user.
      * @throws UserExistsException if the user email exists.
+     * @return [User] the created user record.
      */
-    suspend fun createUser(user: NewUser)
+    suspend fun createUser(user: NewUser): User
 
     /**
      * Reads the user information from the database.
@@ -27,6 +28,13 @@ internal interface AuthService {
      * @return [User] the database user information otherwise `null` if it doesn't exist.
      */
     suspend fun readUser(id: String): User?
+
+    /**
+     * Reads the user information from the database.
+     * @param email the user email.
+     * @return [User] the database user information otherwise `null` if it doesn't exist.
+     */
+    suspend fun readUserByEmail(email: String): User?
 
     /**
      * Reads the user information from the database.
@@ -59,20 +67,17 @@ internal interface AuthService {
     suspend fun validateAdminPin(email: String, pin: String): Int
 
     /**
-     * Set the user as an admin or not.
-     * @param id the user unique identifier.
-     * @param isAdmin `true` if admin `false` otherwise, `null` to keep original value.
-     * @param adminCode the admin verification code.
-     * @param admin if admin makes the request set true.
-     */
-    suspend fun updateUserIsAdmin(id: String, email: String,
-                                  isAdmin: Boolean? = null,
-                                  adminCode: String? = null,
-                                  admin: Boolean = false)
-
-    /**
      * Deletes the user on database.
      * @param id the user unique identifier.
      */
     suspend fun deleteUser(id: String)
+
+    /**
+     * Validate an email and password combination for a user account
+     * @param email user email address
+     * @param password user raw password
+     * @return [User] the user record.
+     * @throws Exception if user cresdintial not valid
+     */
+    suspend fun validatePassword(email: String, password: String): User
 }

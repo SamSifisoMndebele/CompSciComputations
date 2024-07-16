@@ -1,33 +1,17 @@
 ### Create a new admin pin for an registed admin.
-POST http://localhost:8080/admins/codes
+POST http://localhost:8080/admins/pins
 Content-Type: application/json
 Authorization: Bearer auth_token
 
 {
-  "email": "email@mail.com",
-  "pin": "123456"
+  "email": "user6@mail.com",
+  "pin": "pin"
 }
 
 
 ### Verify an admin using pin
-GET http://localhost:8080/admins/pins/email@mail.com
+GET http://localhost:8080/admins/pins/user4@mail.com
 Authorization: Bearer auth_token
 Content-Type: text/plain
 
-1234567
-
-
-### Create a new admin
-POST http://127.0.0.1:8080/users
-Content-Type: application/json
-
-{
-  "email": "admin@mail.com",
-  "names": "Names",
-  "last_name": "Admin",
-  "password": null,
-  "usertype": "ADMIN",
-  "photo_url": null,
-  "phone": "0721646430",
-  "admin_pin": "123456"
-}
+123456

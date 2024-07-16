@@ -44,11 +44,8 @@ fun Routing.authRouting() {
         // Read myself as a user
         get<Users.Me> {
             try {
-                val firebase = call.principal<User>()!!
-//                return@get call.respond(HttpStatusCode.Unauthorized, "Authentication failed")
-
-                val user = authService.readUser(firebase.id)
-                call.respondNullable(user.OKOrNotFound, user)
+                val user = call.principal<User>()!!
+                call.respond(HttpStatusCode.OK, user)
             } catch (e: Exception) {
                 call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
             }

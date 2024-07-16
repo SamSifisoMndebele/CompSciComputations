@@ -7,8 +7,7 @@ import kotlinx.serialization.Serializable
 data class NewUser(
     val email: String,
     val names: String,
-    @SerialName("last_name")
-    val lastName: String,
+    val lastname: String,
     @SerialName("is_admin")
     val isAdmin: Boolean = false,
     @SerialName("is_student")

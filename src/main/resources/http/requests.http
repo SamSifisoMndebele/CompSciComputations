@@ -13,20 +13,22 @@ Content-Type: application/json
   ]
 }
 
-###
-#Create a user
+### Create a student user
 POST http://127.0.0.1:8080/users
 Content-Type: application/json
 
 {
-  "email": "email7@mail.com",
-  "names": "Names",
-  "last_name": "Surname",
-  "password": null,
-  "usertype": "STUDENT",
+  "email": "user6@mail.com",
+  "names": "User 6",
+  "lastname": "Lastname",
+  "is_admin": true,
+  "is_student": true,
+  "password": "123456",
   "photo_url": null,
   "phone": "0721646430",
-  "admin_pin": null
+  "admin_pin": "pin",
+  "course": "course",
+  "school": "school"
 }
 
 ###

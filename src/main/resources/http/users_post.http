@@ -1,0 +1,74 @@
+### Create a user
+POST http://127.0.0.1:8080/users
+Content-Type: application/json
+
+{
+  "email": "user2@mail.com",
+  "names": "User 2",
+  "lastname": "Lastname",
+  "is_admin": false,
+  "is_student": false,
+  "password": "123456",
+  "photo_url": null,
+  "phone": "0721646430",
+  "admin_pin": null,
+  "course": null,
+  "school": null
+}
+
+
+### Create a student user
+POST http://127.0.0.1:8080/users
+Content-Type: application/json
+
+{
+  "email": "user3@mail.com",
+  "names": "User 3",
+  "lastname": "Lastname",
+  "is_admin": false,
+  "is_student": true,
+  "password": "123456",
+  "photo_url": null,
+  "phone": "0721646430",
+  "admin_pin": null,
+  "course": "course",
+  "school": "school"
+}
+
+
+### Create an admin user
+POST http://127.0.0.1:8080/users
+Content-Type: application/json
+
+{
+  "email": "user4@mail.com",
+  "names": "User 4",
+  "lastname": "Lastname",
+  "is_admin": true,
+  "is_student": false,
+  "password": "123456",
+  "photo_url": null,
+  "phone": "0721646430",
+  "admin_pin": "123456",
+  "course": null,
+  "school": null
+}
+
+
+### Create an admin and student user
+POST http://127.0.0.1:8080/users
+Content-Type: application/json
+
+{
+  "email": "user5@mail.com",
+  "names": "User 5",
+  "lastname": "Lastname",
+  "is_admin": true,
+  "is_student": true,
+  "password": "password",
+  "photo_url": null,
+  "phone": null,
+  "admin_pin": "123456",
+  "course": "course",
+  "school": "school"
+}

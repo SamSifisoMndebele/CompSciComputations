@@ -14,7 +14,14 @@ import java.sql.ResultSet
 
 internal class AuthServiceImpl : AuthService {
     private val logger = LoggerFactory.getLogger("AuthService")
-    private val conn: Connection by lazy { connectToPostgres() }
+    private var connection: Connection? = null
+    private val conn : Connection
+        get() {
+            if (connection == null || connection!!.isClosed) {
+                connection = connectToPostgres()
+            }
+            return connection!!
+        }
 
     companion object {
         internal class UserExistsException(val email: String? = null) : Exception("The user${
@@ -29,31 +36,39 @@ internal class AuthServiceImpl : AuthService {
         }?.singleOrNull()
     }
 
-    override suspend fun createUser(user: NewUser): Unit = dbQuery(conn) {
+    override suspend fun createUser(user: NewUser): User = dbQuery(conn) {
         //Insert the user values to the database
         try {
             if (user.isAdmin) {
-                executeUpdate("call auth.insert_admin(?, ?, ?, ?, ?, ?, ?, ?);") {
+                executeQuery("select * from auth.insert_admin(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", {
                     setString(1, user.email)
                     setString(2, user.adminPin)
                     setString(3, user.names)
-                    setString(4, user.lastName)
+                    setString(4, user.lastname)
                     setString(5, user.password)
                     setString(6, user.photoUrl)
                     setString(7, user.phone)
                     setBoolean(8, user.isStudent)
-                }
+                    setString(9, user.course)
+                    setString(10, user.school)
+                }) {
+                    it.toUser()
+                }!!.single()
             } else {
-                executeUpdate("call auth.insert_user(?, ?, ?, ?, ?, ?, ?, ?);") {
+                executeQuery("select * from auth.insert_user(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", {
                     setString(1, user.email)
                     setString(2, user.names)
-                    setString(3, user.lastName)
+                    setString(3, user.lastname)
                     setString(4, user.password)
                     setString(5, user.photoUrl)
                     setString(6, user.phone)
                     setBoolean(7, false)
                     setBoolean(8, user.isStudent)
-                }
+                    setString(9, user.course)
+                    setString(10, user.school)
+                }) {
+                    it.toUser()
+                }!!.single()
             }
         } catch (e: Exception) {
             when {
@@ -67,11 +82,10 @@ internal class AuthServiceImpl : AuthService {
 
     private fun ResultSet.toUser(): User {
         return User(
-            id = getString("id"),
+            id = getObject("id").toString(),
             email = getString("email"),
             names = getString("names"),
-            lastName = getString("last_name"),
-            passwordHash = getString("password_hash"),
+            lastname = getString("lastname"),
             photoUrl = getString("photo_url"),
             phone = getString("phone"),
             isAdmin = getBoolean("is_admin"),
@@ -82,9 +96,19 @@ internal class AuthServiceImpl : AuthService {
     }
 
     override suspend fun readUser(id: String): User? = dbQuery(conn) {
-        executeQuery("select * from auth.users where id = ?",
+        executeQuery("select * from auth.users where id = ?::uuid",
             args = {
                 setString(1, id)
+            }
+        ) {
+            it.toUser()
+        }?.singleOrNull()
+    }
+
+    override suspend fun readUserByEmail(email: String): User? = dbQuery(conn) {
+        executeQuery("select * from auth.users where email like ?",
+            args = {
+                setString(1, email)
             }
         ) {
             it.toUser()
@@ -102,7 +126,6 @@ internal class AuthServiceImpl : AuthService {
     }
 
     override suspend fun updateUser(id: String, user: UpdateUser): User = dbQuery(conn) {
-
         TODO("Not yet implemented.")
     }
 
@@ -129,27 +152,18 @@ internal class AuthServiceImpl : AuthService {
         }
     }
 
-    override suspend fun updateUserIsAdmin(id: String, email: String, isAdmin: Boolean?, adminCode: String?, admin: Boolean): Unit = dbQuery(conn) {
-        if (isAdmin == null) return@dbQuery
-//        if (isAdmin) {
-//            conn.executeNested("select ac.admin_code from admins_codes ac where ac.email = '$email'") { rs ->
-//                val code = rs.getString("admin_code")
-//                if (adminCode != code) return@executeNested
-//                Users.update({ Users.id eq uid }) {
-//                    it[Users.isAdmin] = true
-//                }
-//            }
-//        } else {
-//            Users.update({ Users.id eq uid }) {
-//                it[Users.isAdmin] = false
-//            }
-//        }
-        TODO("Not yet implemented.")
-    }
-
     override suspend fun deleteUser(id: String): Unit = dbQuery(conn) {
         executeUpdate("delete from auth.users where id like ?") {
             setString(1, id)
         }
+    }
+
+    override suspend fun validatePassword(email: String, password: String): User = dbQuery(conn) {
+        executeQuery("select * from auth.validate_password_n_get_user(?, ?)", {
+            setString(1, email)
+            setString(2, password)
+        }) {
+            it.toUser()
+        }!!.single()
     }
 }

@@ -34,8 +34,8 @@ inline val Timestamp.asString: String get() = toString().take(26).replace("T", "
 
 
 val User.displayName: String
-    get() = "$names $lastName".trim()
+    get() = "$names $lastname".trim()
 val AdminUser.displayName: String
-    get() = "$names $lastName".trim()
+    get() = "$names $lastname".trim()
 val StudentUser.displayName: String
-    get() = "$names $lastName".trim()
+    get() = "$names $lastname".trim()
