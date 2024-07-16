@@ -57,9 +57,9 @@ private const val CHALLENGE = "FirebaseAuth"
 
 internal fun AuthenticationConfig.firebase(name: String? = null, configure: FirebaseAuthConfig.() -> Unit) {
     val config = FirebaseAuthConfig(name).apply(configure)
-    val provider = FirebaseAuthProvider(config, name?.lowercase() == "admin")
+    val provider = FirebaseAuthProvider(config, name?.lowercase() == "firebase_admin")
     register(provider)
 }
 
-internal fun AuthenticationConfig.firebaseAdmin(configure: FirebaseAuthConfig.() -> Unit) = firebase("admin", configure)
-internal fun Route.authenticateAdmin(build: Route.() -> Unit): Route = authenticate("admin", build = build)
+internal fun AuthenticationConfig.firebaseAdmin(configure: FirebaseAuthConfig.() -> Unit) = firebase("firebase_admin", configure)
+internal fun Route.authenticateAdmin(build: Route.() -> Unit): Route = authenticate("firebase_admin", build = build)

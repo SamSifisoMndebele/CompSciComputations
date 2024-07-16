@@ -41,8 +41,9 @@ ktor {
 }
 
 dependencies {
-    /**DBMS*/
     implementation("com.google.firebase:firebase-admin:9.3.0")
+
+    implementation("com.google.api-client:google-api-client:1.32.1")
     implementation("org.postgresql:postgresql:$postgres_version")
 
     /**DI*/
