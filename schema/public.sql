@@ -6,7 +6,7 @@ create table public.feedbacks (
     image_url text,
     user_id uuid default null,
 
-    foreign key (user_id) references auth.users (id) on delete set null on update cascade
+    foreign key (user_id) references auth.users(id) on delete set null on update cascade
 );
 
 create type public.source_type as enum (
