@@ -16,7 +16,6 @@ import io.ktor.server.resources.Resources
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import org.apache.commons.mail.DefaultAuthenticator
-import org.apache.commons.mail.SimpleEmail
 import io.ktor.server.routing.get as getA
 
 fun Application.configureRouting() {
@@ -45,17 +44,18 @@ fun Application.configureRouting() {
 
         getA("/email/send") {
             try {
-                val emailAddress =    System.getenv("EMAIL_ADDR")
-                val emailPassword =      System.getenv("EMAIL_PASS")
+                val emailAddress = System.getenv("EMAIL_ADDR")
+                val emailPassword = System.getenv("EMAIL_PASS")
 
-                val email = org. apache. commons. mail.HtmlEmail()
+                val email = org.apache.commons.mail.HtmlEmail()
                 email.hostName = "smtp.gmail.com"
                 email.setSmtpPort(465)
                 email.setAuthenticator(DefaultAuthenticator(emailAddress, emailPassword))
                 email.isSSLOnConnect = true
                 email.setFrom(emailAddress)
                 email.subject = "Password Reset"
-                email.setHtmlMsg("""
+                email.setHtmlMsg(
+                    """
                     <!DOCTYPE html>
                     <html>
                     <head>
@@ -112,7 +112,8 @@ fun Application.configureRouting() {
                         </div>
                     </body>
                     </html>
-                """.trimIndent())
+                """.trimIndent()
+                )
                 email.addTo("sams.mndebele@gmail.com")
                 val send = email.send()
                 call.respond(HttpStatusCode.OK, send)
@@ -121,37 +122,6 @@ fun Application.configureRouting() {
             }
 
         }
-
-
-//        authenticate("google") {
-//            get("login") {
-//                call.respondRedirect("/callback")
-//            }
-//
-//            get("/callback") {
-//                val principal: OAuthAccessTokenResponse.OAuth2 = call.authentication.principal() ?: return@get
-////                call.sessions.set(UserSession(principal?.accessToken.toString()))
-////                call.respondRedirect("/test/auth")
-//
-//                call.respondText("Hello \n" +
-//                        "accessToken: ${principal?.accessToken}\n" +
-//                        "refreshToken: ${principal?.refreshToken}\n" +
-//                        "expiresIn: ${principal?.expiresIn}\n" +
-//                        "tokenType: ${principal?.tokenType}\n" +
-//                        "state: ${principal?.state}\n" +
-//                        "id_token: ${principal?.extraParameters?.get("id_token")}\n" +
-//                        "scope: ${principal?.extraParameters?.get("scope")}\n" +
-//                        ""
-//                )
-//
-////                call.respondRedirect {
-////                    path("/test/auth")
-////                    headers {
-////                        append(HttpHeaders.Authorization, "Bearer ${principal.extraParameters["id_token"]}")
-////                    }
-////                }
-//            }
-//        }
     }
 
     // Redirects
@@ -159,7 +129,7 @@ fun Application.configureRouting() {
     routing {
         authenticateAdmin {
             get<Admins.Me> { call.respondRedirect(href(resourcesFormat, Users.Me())) }
-            get<Admins.Uid> { call.respondRedirect(href(resourcesFormat, Users.Uid(uid = it.uid))) }
+            get<Admins.Id> { call.respondRedirect(href(resourcesFormat, Users.Id(id = it.id))) }
         }
     }
 }

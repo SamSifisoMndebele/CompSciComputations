@@ -1,5 +1,6 @@
 package com.compscicomputations.services.auth.models
 
+import com.compscicomputations.services.auth.models.Admins.Pins
 import io.ktor.resources.*
 
 @Resource("users")
@@ -7,8 +8,11 @@ class Users(val limit: Int = 10) {
     @Resource("me")
     class Me(val parent: Users = Users())
 
-    @Resource("{uid}")
-    class Uid(val parent: Users = Users(), val uid: String)
+    @Resource("{id}")
+    class Id(val parent: Users = Users(), val id: String)
+
+    @Resource("{email}")
+    class Email(val parent: Users = Users(), val email: String)
 }
 
 @Resource("admins")
@@ -16,8 +20,8 @@ class Admins {
     @Resource("me")
     class Me(val parent: Admins = Admins())
 
-    @Resource("{uid}")
-    class Uid(val parent: Admins = Admins(), val uid: String)
+    @Resource("{id}")
+    class Id(val parent: Admins = Admins(), val id: String)
 
     @Resource("/pins")
     class Pins(val parent: Admins = Admins()) {
@@ -26,11 +30,11 @@ class Admins {
     }
 }
 
-@Resource("students")
-class Students {
-    @Resource("me")
-    class Me(val parent: Students = Students())
-
-    @Resource("{uid}")
-    class Uid(val parent: Students = Students(), val uid: String)
-}
+//@Resource("students")
+//class Students {
+//    @Resource("me")
+//    class Me(val parent: Students = Students())
+//
+//    @Resource("{id}")
+//    class Id(val parent: Students = Students(), val id: String)
+//}

@@ -18,7 +18,6 @@ import io.ktor.server.resources.post
 import io.ktor.server.resources.put
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.ktor.server.sessions.*
 import org.koin.ktor.ext.inject
 
 private inline val Any?.OKOrNotFound: HttpStatusCode
@@ -89,32 +88,32 @@ fun Routing.authRouting() {
             }
         }
 
-        // Read a user with uid
-        get<Users.Uid> { uid ->
+        // Read a user with id
+        get<Users.Id> { id ->
             try {
-                val user = authService.readUser(uid.uid)
+                val user = authService.readUser(id.id)
                 call.respondNullable(user.OKOrNotFound, user)
             } catch (e: Exception) {
                 call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
             }
         }
 
-        // Update a user with uid
-        put<Users.Uid> { uid ->
+        // Update a user with id
+        put<Users.Id> { id ->
             try {
                 val userRequest = call.receive<UpdateUser>()
 
-                val user = authService.updateUser(uid.uid, userRequest)
+                val user = authService.updateUser(id.id, userRequest)
                 call.respond(user.OKOrNotFound, user)
             } catch (e: Exception) {
                 call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
             }
         }
 
-        // Delete user with uid
-        delete<Users.Uid> { uid ->
+        // Delete user with id
+        delete<Users.Id> { id ->
             try {
-                authService.deleteUser(uid.uid)
+                authService.deleteUser(id.id)
                 call.respond(HttpStatusCode.OK)
             } catch (e: Exception) {
                 call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
