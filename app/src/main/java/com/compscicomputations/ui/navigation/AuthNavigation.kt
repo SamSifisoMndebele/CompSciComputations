@@ -11,9 +11,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import androidx.navigation.toRoute
-import com.compscicomputations.core.database.auth.AuthDataStore.setFirstLaunch
-import com.compscicomputations.core.database.auth.AuthDataStore.setTermsAccepted
-import com.compscicomputations.core.database.auth.AuthDataStore.termsAcceptedFlow
+import com.compscicomputations.core.client.auth.AuthDataStore.setFirstLaunch
+import com.compscicomputations.core.client.auth.AuthDataStore.setTermsAccepted
+import com.compscicomputations.core.client.auth.AuthDataStore.termsAcceptedFlow
 import com.compscicomputations.ui.auth.login.LoginScreen
 import com.compscicomputations.ui.auth.login.LoginViewModel
 import com.compscicomputations.ui.auth.onboarding.OnboardingScreen

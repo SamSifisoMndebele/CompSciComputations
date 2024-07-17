@@ -33,7 +33,7 @@ android {
 }
 
 dependencies {
-//    implementation(libs.androidx.datastore.preferences)
+    implementation(libs.androidx.datastore.preferences)
     implementation(libs.pdfbox.android)
     api(libs.pdfium.android)
     implementation(libs.androidx.core.ktx)

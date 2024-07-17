@@ -1,8 +1,8 @@
 package com.compscicomputations.ui.main.profile
 
 import android.net.Uri
-import com.compscicomputations.core.database.auth.models.User
-import com.compscicomputations.core.database.auth.models.Usertype
+import com.compscicomputations.core.client.auth.models.User
+import com.compscicomputations.core.client.auth.models.Usertype
 import com.compscicomputations.ui.utils.ProgressState
 
 data class ProfileUiState(

@@ -48,7 +48,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
 import coil.compose.AsyncImage
 import com.compscicomputations.BuildConfig
-import com.compscicomputations.core.database.auth.models.Usertype
+import com.compscicomputations.core.client.auth.models.Usertype
 import com.compscicomputations.theme.comicNeueFamily
 import com.compscicomputations.ui.utils.CompSciScaffold
 import com.compscicomputations.ui.utils.OptionButton

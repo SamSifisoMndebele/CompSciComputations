@@ -1,6 +1,6 @@
 package com.compscicomputations.ui.auth.onboarding
 
-import com.compscicomputations.core.database.publik.models.OnboardingItem
+import com.compscicomputations.core.client.publik.models.OnboardingItem
 import com.compscicomputations.ui.utils.ProgressState
 
 data class OnboardingUiState(

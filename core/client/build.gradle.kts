@@ -9,7 +9,7 @@ plugins {
 }
 
 android {
-    namespace = "com.compscicomputations.core.ktor_client"
+    namespace = "com.compscicomputations.core.client"
     compileSdk = 34
 
     defaultConfig {
@@ -60,13 +60,6 @@ dependencies {
     implementation(libs.androidx.credentials.play.services.auth)
     implementation(libs.googleid)
 
-    /**Firebase*/
-//    implementation(platform(libs.firebase.bom))
-//    implementation(libs.firebase.auth)
-//    implementation(libs.firebase.config)
-//    implementation(libs.firebase.storage)
-//    implementation(libs.firebase.firestore)
-
     /**Ktor client*/
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.okhttp)
@@ -76,6 +69,4 @@ dependencies {
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.jbcrypt)
-
-//    implementation(libs.androidx.core.ktx)
 }

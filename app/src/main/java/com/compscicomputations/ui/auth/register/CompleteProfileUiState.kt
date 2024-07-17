@@ -1,7 +1,7 @@
 package com.compscicomputations.ui.auth.register
 
-import com.compscicomputations.core.database.auth.models.NewUser
-import com.compscicomputations.core.database.auth.models.Usertype
+import com.compscicomputations.core.client.auth.models.NewUser
+import com.compscicomputations.core.client.auth.models.Usertype
 import com.compscicomputations.ui.utils.ProgressState
 
 data class CompleteProfileUiState(

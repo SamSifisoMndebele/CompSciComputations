@@ -12,8 +12,8 @@ import androidx.credentials.exceptions.GetCredentialException
 import androidx.credentials.exceptions.GetCredentialInterruptedException
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.compscicomputations.core.database.auth.AuthRepository
-import com.compscicomputations.core.database.auth.usecase.IsCompleteProfileUseCase
+import com.compscicomputations.core.client.auth.AuthRepository
+import com.compscicomputations.core.client.auth.usecase.IsCompleteProfileUseCase
 import com.compscicomputations.ui.utils.ProgressState
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import dagger.hilt.android.lifecycle.HiltViewModel

@@ -34,8 +34,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import com.compscicomputations.core.database.auth.models.Usertype
-import com.compscicomputations.core.database.auth.models.DynamicFeature
+import com.compscicomputations.core.client.auth.models.Usertype
+import com.compscicomputations.core.client.auth.models.DynamicFeature
 import com.compscicomputations.theme.comicNeueFamily
 import com.compscicomputations.ui.utils.CompSciScaffold
 import com.compscicomputations.ui.utils.OptionButton

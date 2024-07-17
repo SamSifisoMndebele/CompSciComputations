@@ -5,10 +5,10 @@ import android.util.Log
 import androidx.compose.material3.SnackbarHostState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.compscicomputations.core.database.auth.AuthRepository
-import com.compscicomputations.core.database.auth.AuthRepository.Companion.getAuthUser
-import com.compscicomputations.core.database.auth.UserRepository
-import com.compscicomputations.core.database.auth.usecase.IsCompleteProfileUseCase
+import com.compscicomputations.core.client.auth.AuthRepository
+import com.compscicomputations.core.client.auth.AuthRepository.Companion.getAuthUser
+import com.compscicomputations.core.client.auth.UserRepository
+import com.compscicomputations.core.client.auth.usecase.IsCompleteProfileUseCase
 import com.compscicomputations.ui.utils.ProgressState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
@@ -21,7 +21,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
-    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
     private val userRepository: UserRepository,
     private val authRepository: AuthRepository,
     private val isCompleteProfile: IsCompleteProfileUseCase,
@@ -47,7 +46,7 @@ class ProfileViewModel @Inject constructor(
             displayName = authUser.displayName ?: "",
             progressState = ProgressState.Loading()
         )
-        viewModelScope.launch(ioDispatcher) {
+        viewModelScope.launch(Dispatchers.IO) {
             val user = userRepository.getUser()
             Log.d("ProfileViewModel User", user.toString())
             if (user == null) {
@@ -81,7 +80,7 @@ class ProfileViewModel @Inject constructor(
 
     fun logout() {
         viewModelScope.launch {
-            withContext(ioDispatcher) {
+            withContext(Dispatchers.IO) {
                 try {
                     if (authRepository.logout()) _uiState.value = _uiState.value.copy(isSignedIn = false)
                 } catch (e: Exception) {

@@ -94,11 +94,14 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.crashlytics)
+//    implementation(libs.firebase.auth)
 //    implementation(libs.firebase.config)
+//    implementation(libs.firebase.storage)
+//    implementation(libs.firebase.firestore)
 
     /**Local Modules*/
     implementation(project(":pdf-viewer"))
-    implementation(project(":core:database"))
+    implementation(project(":core:client"))
 
     /**Android Modules*/
 //    implementation("com.google.android.play:review:2.0.1")

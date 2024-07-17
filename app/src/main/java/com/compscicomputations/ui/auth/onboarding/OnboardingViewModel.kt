@@ -2,7 +2,7 @@ package com.compscicomputations.ui.auth.onboarding
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.compscicomputations.core.database.publik.OnboardingRepository
+import com.compscicomputations.core.client.publik.OnboardingRepository
 import com.compscicomputations.ui.utils.ProgressState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
@@ -15,7 +15,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class OnboardingViewModel @Inject constructor(
-    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
     private val onboardingRepository: OnboardingRepository
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(OnboardingUiState())
@@ -23,7 +22,7 @@ class OnboardingViewModel @Inject constructor(
 
 
     init {
-        viewModelScope.launch(ioDispatcher) {
+        viewModelScope.launch(Dispatchers.IO) {
             val items = try {
             onboardingRepository.getOnboardingItems()
         } catch (e: Exception) {

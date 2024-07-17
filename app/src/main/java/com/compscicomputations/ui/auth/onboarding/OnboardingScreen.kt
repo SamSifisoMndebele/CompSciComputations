@@ -49,7 +49,7 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
-import com.compscicomputations.core.database.publik.models.SourceType
+import com.compscicomputations.core.client.publik.models.SourceType
 import com.compscicomputations.theme.comicNeueFamily
 import com.compscicomputations.ui.utils.isLoading
 import com.compscicomputations.ui.utils.rememberShimmerBrushState

@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
-import com.compscicomputations.core.database.auth.AuthRepository.Companion.isUserSignedIn
+import com.compscicomputations.core.client.auth.AuthRepository.Companion.isUserSignedIn
 import com.compscicomputations.theme.CompSciComputationsTheme
 import com.compscicomputations.ui.navigation.Auth
 import com.compscicomputations.ui.navigation.Main

@@ -4,10 +4,10 @@ import android.util.Log
 import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.compscicomputations.core.database.auth.AuthRepository.Companion.getAuthUser
-import com.compscicomputations.core.database.auth.UserRepository
-import com.compscicomputations.core.database.auth.models.NewUser
-import com.compscicomputations.core.database.auth.models.Usertype
+import com.compscicomputations.core.client.auth.AuthRepository.Companion.getAuthUser
+import com.compscicomputations.core.client.auth.UserRepository
+import com.compscicomputations.core.client.auth.models.NewUser
+import com.compscicomputations.core.client.auth.models.Usertype
 import com.compscicomputations.ui.utils.ProgressState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
