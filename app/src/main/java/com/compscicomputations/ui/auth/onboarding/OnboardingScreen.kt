@@ -53,6 +53,7 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
+import com.compscicomputations.core.ktor_client.publik.models.SourceType
 import com.compscicomputations.theme.comicNeueFamily
 import com.compscicomputations.ui.utils.isLoading
 import com.compscicomputations.ui.utils.rememberShimmerBrushState
@@ -126,7 +127,7 @@ fun OnboardingScreen(
             ) {
                 val showImage = rememberShimmerBrushState()
                 when(items[page].type) {
-                    ItemType.IMAGE_URL -> {
+                    SourceType.IMAGE -> {
                         AsyncImage(
                             modifier = Modifier.fillMaxWidth()
                                 .padding(8.dp)
@@ -134,14 +135,14 @@ fun OnboardingScreen(
                                 .height(280.dp)
                                 .clip(RoundedCornerShape(18.dp)),
                             contentScale = ContentScale.FillWidth,
-                            model = items[page].source,
+                            model = items[page].sourceUrl,
                             contentDescription = "On boarding image.",
                             onSuccess = { showImage.value = false },
                         )
                     }
-                    ItemType.ANIM_URL -> {
+                    SourceType.LOTTIE -> {
                         val preloaderLottieComposition by rememberLottieComposition(
-                            LottieCompositionSpec.Url(url = items[page].source),
+                            LottieCompositionSpec.Url(url = items[page].sourceUrl),
                             onRetry = { failCount, previousException ->
                                 false
                             }
@@ -177,16 +178,18 @@ fun OnboardingScreen(
                     letterSpacing = 1.sp,
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    modifier = Modifier.fillMaxWidth().padding(10.dp)
-                        .background(shimmerBrush(showShimmer = uiState.progressState.isLoading)),
-                    text = items[page].description,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    fontWeight = FontWeight.Light,
-                    textAlign = TextAlign.Center,
-                    letterSpacing = 1.sp,
-                )
+                items[page].description?.let {
+                    Text(
+                        modifier = Modifier.fillMaxWidth().padding(10.dp)
+                            .background(shimmerBrush(showShimmer = uiState.progressState.isLoading)),
+                        text = it,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onBackground,
+                        fontWeight = FontWeight.Light,
+                        textAlign = TextAlign.Center,
+                        letterSpacing = 1.sp,
+                    )
+                }
             }
         }
 

@@ -3,6 +3,7 @@ package com.compscicomputations.ui.auth.onboarding
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.compscicomputations.R
+import com.compscicomputations.core.ktor_client.publik.OnboardingRepository
 import com.compscicomputations.ui.utils.ProgressState
 import com.google.firebase.Firebase
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
@@ -19,18 +20,15 @@ import javax.inject.Inject
 
 @HiltViewModel
 class OnboardingViewModel @Inject constructor(
-
+    private val onboardingRepository: OnboardingRepository
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(OnboardingUiState())
     val uiState: StateFlow<OnboardingUiState> = _uiState.asStateFlow()
 
-    private val remoteConfig = Firebase.remoteConfig
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            remoteConfig.setDefaultsAsync(R.xml.remote_config_defaults).await()
-            val defaultOnboardingItems = remoteConfig.getString("OnboardingItems")
-            val items = Json.decodeFromString<List<OnboardingItem>>(defaultOnboardingItems)
+            val items = onboardingRepository.getOnboardingItems()
             _uiState.value = _uiState.value.copy(items = items, progressState = ProgressState.Idle)
         }
     }

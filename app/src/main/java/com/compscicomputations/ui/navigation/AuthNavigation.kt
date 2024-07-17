@@ -35,10 +35,12 @@ fun NavGraphBuilder.authNavigation(navController: NavHostController) {
     navigation<Auth>(startDestination = Login) {
         composable<Login> {
             val context = LocalContext.current
-            val firstLaunch by context.firstLaunchFlow.collectAsStateWithLifecycle(initialValue = false)
+//            val firstLaunch by context.firstLaunchFlow.collectAsStateWithLifecycle(initialValue = false)
+            val firstLaunch  = true
             LaunchedEffect(firstLaunch) {
                 if (firstLaunch) navController.navigate(route = Onboarding) {
                     popUpTo<Login> { inclusive = true }
+                    launchSingleTop = true
                 }
             }
             val viewModel: LoginViewModel = hiltViewModel()
@@ -46,19 +48,21 @@ fun NavGraphBuilder.authNavigation(navController: NavHostController) {
             LoginScreen(
                 viewModel = viewModel,
                 uiState = uiState,
-                navigateOnboarding = { navController.navigate(route = Onboarding) },
-                navigateRegister = { navController.navigate(route = Register) },
+                navigateOnboarding = { navController.navigate(route = Onboarding) { launchSingleTop = true } },
+                navigateRegister = { navController.navigate(route = Register) { launchSingleTop = true } },
                 navigateResetPassword = { email ->
-                    navController.navigate(route = PasswordReset(email))
+                    navController.navigate(route = PasswordReset(email)) { launchSingleTop = true }
                 },
                 navigateCompleteProfile = {
                     navController.navigate(route = CompleteProfile) {
                         popUpTo<Auth> { inclusive = false }
+                        launchSingleTop = true
                     }
                 }
             ) {
                 navController.navigate(route = Main) {
                     popUpTo<Auth> { inclusive = true }
+                    launchSingleTop = true
                 }
             }
         }
@@ -71,11 +75,11 @@ fun NavGraphBuilder.authNavigation(navController: NavHostController) {
                 uiState = uiState,
                 navigateRegister = {
                     coroutineScope.launch(Dispatchers.IO) { context.setFirstLaunch(false) }
-                    navController.navigate(route = Register)
+                    navController.navigate(route = Register) { launchSingleTop = true }
                 },
                 navigateLogin = {
                     coroutineScope.launch(Dispatchers.IO) { context.setFirstLaunch(false) }
-                    navController.navigate(route = Login)
+                    navController.navigate(route = Login) { launchSingleTop = true }
                 }
             )
         }
@@ -87,10 +91,11 @@ fun NavGraphBuilder.authNavigation(navController: NavHostController) {
                 viewModel = viewModel,
                 uiState = uiState,
                 navigateUp = { navController.navigateUp() },
-                navigateOnboarding = { navController.navigate(route = Onboarding) },
+                navigateOnboarding = { navController.navigate(route = Onboarding) { launchSingleTop = true } },
                 navigateCompleteProfile = {
                     navController.navigate(route = CompleteProfile) {
                         popUpTo<Auth> { inclusive = false }
+                        launchSingleTop = true
                     }
                 }
             )
@@ -107,10 +112,11 @@ fun NavGraphBuilder.authNavigation(navController: NavHostController) {
                 viewModel = viewModel,
                 uiState = uiState,
                 navigateUp = { navController.navigateUp() },
-                navigateTerms = { navController.navigate(route = Terms) },
+                navigateTerms = { navController.navigate(route = Terms) { launchSingleTop = true } },
             ) {
                 navController.navigate(route = Dashboard) {
                     popUpTo(route = Auth) { inclusive = true }
+                    launchSingleTop = true
                 }
             }
         }

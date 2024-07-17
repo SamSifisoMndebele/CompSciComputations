@@ -88,8 +88,7 @@ object KtorClientModule {
                 }
                 realm = "Access to the server"
                 sendWithoutRequest { request ->
-                    request.url.host == "compsci-computations.onrender.com" ||
-                            request.url.host == "127.0.0.1"
+                    request.url.host == "compsci-computations.onrender.com"
                 }
             }
             bearer {
