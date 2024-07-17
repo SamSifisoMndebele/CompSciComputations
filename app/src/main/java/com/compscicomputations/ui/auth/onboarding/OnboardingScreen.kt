@@ -1,6 +1,5 @@
 package com.compscicomputations.ui.auth.onboarding
 
-import android.util.Log
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
@@ -15,9 +14,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.pager.HorizontalPager
@@ -35,7 +32,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -53,7 +49,7 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
-import com.compscicomputations.core.ktor_client.publik.models.SourceType
+import com.compscicomputations.core.database.publik.models.SourceType
 import com.compscicomputations.theme.comicNeueFamily
 import com.compscicomputations.ui.utils.isLoading
 import com.compscicomputations.ui.utils.rememberShimmerBrushState
@@ -69,7 +65,6 @@ fun OnboardingScreen(
     val items = uiState.items
     val scope = rememberCoroutineScope()
     val pageState = rememberPagerState { items.size }
-
     Column(
         modifier = Modifier
             .fillMaxSize()

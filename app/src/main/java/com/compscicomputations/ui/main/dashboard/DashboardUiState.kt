@@ -1,9 +1,8 @@
 package com.compscicomputations.ui.main.dashboard
 
-import com.compscicomputations.core.ktor_client.auth.models.DynamicFeature
-import com.compscicomputations.core.ktor_client.auth.models.Usertype
+import com.compscicomputations.core.database.auth.models.DynamicFeature
+import com.compscicomputations.core.database.auth.models.Usertype
 import com.compscicomputations.ui.utils.ProgressState
-import com.compscicomputations.ui.utils.isLoading
 
 data class DashboardUiState(
     val displayName: String = "",

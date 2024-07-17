@@ -1,19 +1,12 @@
 package com.compscicomputations.di
 
-import android.content.Context
-import android.util.Base64
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetPasswordOption
-import androidx.credentials.GetPublicKeyCredentialOption
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonObjectBuilder
-import org.intellij.lang.annotations.Language
-import java.security.SecureRandom
 import javax.inject.Named
 import javax.inject.Singleton
 
@@ -26,7 +19,7 @@ object AuthModule {
     @Singleton
     fun provideGetGoogleIdOption(): GetGoogleIdOption = GetGoogleIdOption.Builder()
         .setFilterByAuthorizedAccounts(false)
-        .setServerClientId(com.compscicomputations.core.ktor_client.BuildConfig.WEB_CLIENT_ID)
+        .setServerClientId(com.compscicomputations.core.database.BuildConfig.WEB_CLIENT_ID)
         .build()
 
     @Provides

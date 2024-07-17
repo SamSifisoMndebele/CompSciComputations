@@ -1,7 +1,6 @@
 package com.compscicomputations.ui.navigation
 
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
@@ -12,10 +11,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import androidx.navigation.toRoute
-import com.compscicomputations.core.ktor_client.auth.AuthDataStore.firstLaunchFlow
-import com.compscicomputations.core.ktor_client.auth.AuthDataStore.setFirstLaunch
-import com.compscicomputations.core.ktor_client.auth.AuthDataStore.setTermsAccepted
-import com.compscicomputations.core.ktor_client.auth.AuthDataStore.termsAcceptedFlow
+import com.compscicomputations.core.database.auth.AuthDataStore.setFirstLaunch
+import com.compscicomputations.core.database.auth.AuthDataStore.setTermsAccepted
+import com.compscicomputations.core.database.auth.AuthDataStore.termsAcceptedFlow
 import com.compscicomputations.ui.auth.login.LoginScreen
 import com.compscicomputations.ui.auth.login.LoginViewModel
 import com.compscicomputations.ui.auth.onboarding.OnboardingScreen
@@ -26,10 +24,7 @@ import com.compscicomputations.ui.auth.register.RegisterScreen
 import com.compscicomputations.ui.auth.register.RegisterViewModel
 import com.compscicomputations.ui.auth.register.TermsScreen
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 fun NavGraphBuilder.authNavigation(navController: NavHostController) {
     navigation<Auth>(startDestination = Login) {

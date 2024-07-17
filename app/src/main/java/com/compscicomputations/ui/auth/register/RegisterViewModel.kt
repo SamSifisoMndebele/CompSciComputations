@@ -1,6 +1,5 @@
 package com.compscicomputations.ui.auth.register
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.net.Uri
 import android.util.Log
@@ -10,11 +9,9 @@ import androidx.credentials.CredentialManager
 import androidx.credentials.exceptions.CreateCredentialCancellationException
 import androidx.credentials.exceptions.CreateCredentialException
 import androidx.credentials.exceptions.CreateCredentialInterruptedException
-import androidx.credentials.exceptions.CreateCredentialUnknownException
-import androidx.credentials.exceptions.GetCredentialCancellationException
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.compscicomputations.core.ktor_client.auth.AuthRepository
+import com.compscicomputations.core.database.auth.AuthRepository
 import com.compscicomputations.theme.emailRegex
 import com.compscicomputations.theme.namesRegex
 import com.compscicomputations.theme.strongPasswordRegex

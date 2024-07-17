@@ -94,11 +94,11 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.crashlytics)
-    implementation(libs.firebase.config)
+//    implementation(libs.firebase.config)
 
     /**Local Modules*/
     implementation(project(":pdf-viewer"))
-    implementation(project(":core:ktor-client"))
+    implementation(project(":core:database"))
 
     /**Android Modules*/
 //    implementation("com.google.android.play:review:2.0.1")

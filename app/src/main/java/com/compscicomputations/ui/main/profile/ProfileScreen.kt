@@ -20,11 +20,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
-import androidx.compose.material.icons.automirrored.outlined.Help
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Person2
-import androidx.compose.material.icons.outlined.Feedback
-import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -35,7 +32,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,21 +42,17 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
 import coil.compose.AsyncImage
 import com.compscicomputations.BuildConfig
-import com.compscicomputations.R
-import com.compscicomputations.core.ktor_client.auth.models.Usertype
+import com.compscicomputations.core.database.auth.models.Usertype
 import com.compscicomputations.theme.comicNeueFamily
-import com.compscicomputations.ui.navigation.Profile
 import com.compscicomputations.ui.utils.CompSciScaffold
 import com.compscicomputations.ui.utils.OptionButton
 import com.compscicomputations.ui.utils.isLoading
-import com.compscicomputations.ui.utils.rememberShimmerBrushState
 import com.compscicomputations.ui.utils.shimmerBrush
 import com.compscicomputations.utils.createImageFile
 

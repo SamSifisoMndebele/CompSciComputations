@@ -1,8 +1,7 @@
 package com.compscicomputations.ui.auth.register
 
-import android.net.Uri
-import com.compscicomputations.core.ktor_client.auth.models.NewUser
-import com.compscicomputations.core.ktor_client.auth.models.Usertype
+import com.compscicomputations.core.database.auth.models.NewUser
+import com.compscicomputations.core.database.auth.models.Usertype
 import com.compscicomputations.ui.utils.ProgressState
 
 data class CompleteProfileUiState(

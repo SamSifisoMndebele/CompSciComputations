@@ -4,11 +4,9 @@ import android.util.Log
 import androidx.compose.material3.SnackbarHostState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.compscicomputations.core.ktor_client.auth.AuthRepository
-import com.compscicomputations.core.ktor_client.auth.AuthRepository.Companion.getAuthUser
-import com.compscicomputations.core.ktor_client.auth.UserRepository
-import com.compscicomputations.core.ktor_client.auth.models.DynamicFeature
-import com.compscicomputations.core.ktor_client.auth.usecase.IsCompleteProfileUseCase
+import com.compscicomputations.core.database.auth.AuthRepository.Companion.getAuthUser
+import com.compscicomputations.core.database.auth.UserRepository
+import com.compscicomputations.core.database.auth.usecase.IsCompleteProfileUseCase
 import com.compscicomputations.ui.utils.ProgressState
 import com.google.android.play.core.splitinstall.SplitInstallManager
 import dagger.hilt.android.lifecycle.HiltViewModel

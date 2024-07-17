@@ -26,26 +26,20 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import com.compscicomputations.core.ktor_client.auth.models.AuthUser
-import com.compscicomputations.core.ktor_client.auth.models.Usertype
-import com.compscicomputations.core.ktor_client.auth.models.DynamicFeature
+import com.compscicomputations.core.database.auth.models.Usertype
+import com.compscicomputations.core.database.auth.models.DynamicFeature
 import com.compscicomputations.theme.comicNeueFamily
 import com.compscicomputations.ui.utils.CompSciScaffold
 import com.compscicomputations.ui.utils.OptionButton
 import com.compscicomputations.ui.utils.isLoading
-import com.compscicomputations.ui.utils.rememberShimmerBrushState
 import com.compscicomputations.ui.utils.shimmerBrush
 
 @Composable

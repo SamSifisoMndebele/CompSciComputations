@@ -5,22 +5,23 @@ import android.util.Log
 import androidx.compose.material3.SnackbarHostState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.compscicomputations.core.ktor_client.auth.AuthRepository
-import com.compscicomputations.core.ktor_client.auth.AuthRepository.Companion.getAuthUser
-import com.compscicomputations.core.ktor_client.auth.UserRepository
-import com.compscicomputations.core.ktor_client.auth.usecase.IsCompleteProfileUseCase
-import com.compscicomputations.ui.navigation.Profile
+import com.compscicomputations.core.database.auth.AuthRepository
+import com.compscicomputations.core.database.auth.AuthRepository.Companion.getAuthUser
+import com.compscicomputations.core.database.auth.UserRepository
+import com.compscicomputations.core.database.auth.usecase.IsCompleteProfileUseCase
 import com.compscicomputations.ui.utils.ProgressState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
+    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
     private val userRepository: UserRepository,
     private val authRepository: AuthRepository,
     private val isCompleteProfile: IsCompleteProfileUseCase,
@@ -46,7 +47,7 @@ class ProfileViewModel @Inject constructor(
             displayName = authUser.displayName ?: "",
             progressState = ProgressState.Loading()
         )
-        viewModelScope.launch {
+        viewModelScope.launch(ioDispatcher) {
             val user = userRepository.getUser()
             Log.d("ProfileViewModel User", user.toString())
             if (user == null) {
@@ -79,11 +80,13 @@ class ProfileViewModel @Inject constructor(
     }
 
     fun logout() {
-        viewModelScope.launch(Dispatchers.Main) {
-            try {
-                if (authRepository.logout()) _uiState.value = _uiState.value.copy(isSignedIn = false)
-            } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(progressState = ProgressState.Error(e.localizedMessage))
+        viewModelScope.launch {
+            withContext(ioDispatcher) {
+                try {
+                    if (authRepository.logout()) _uiState.value = _uiState.value.copy(isSignedIn = false)
+                } catch (e: Exception) {
+                    _uiState.value = _uiState.value.copy(progressState = ProgressState.Error(e.localizedMessage))
+                }
             }
         }
     }

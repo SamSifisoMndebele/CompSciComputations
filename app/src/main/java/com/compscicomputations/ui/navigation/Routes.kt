@@ -1,7 +1,5 @@
 package com.compscicomputations.ui.navigation
 
-import com.compscicomputations.core.ktor_client.auth.models.Usertype
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 
