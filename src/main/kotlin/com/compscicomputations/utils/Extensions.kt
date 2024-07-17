@@ -20,7 +20,7 @@ fun String.isText() = matches("[a-zA-Z ]+".toRegex())
 
 fun String.isPhoneValid() = matches("[0-9]{9,16}".toRegex()) //Todo set phone number regex
 
-suspend fun ApplicationCall.parameter(parameter: String): String? {
+suspend inline fun ApplicationCall.parameter(parameter: String): String? {
     val value = parameters[parameter]?.ifBlank { null }
     value ?: respond(HttpStatusCode.BadRequest, "${parameter.uppercase()} is blank or null")
     return value
@@ -32,10 +32,14 @@ inline val Timestamp.asString: String get() = toString().take(26).replace("T", "
 //val String.asDate: Date get() = dateFormat.parse(take(26).replace("T", " "))!!
 //val Date.asString: String get() = dateFormat.format(this)
 
+inline val Any?.OKOrNotFound: HttpStatusCode
+    get() = if (this == null) HttpStatusCode.NotFound else HttpStatusCode.OK
+inline val List<Any>?.OKOrNotFound: HttpStatusCode
+    get() = if (isNullOrEmpty()) HttpStatusCode.NotFound else HttpStatusCode.OK
 
-val User.displayName: String
+inline val User.displayName: String
     get() = "$names $lastname".trim()
-val AdminUser.displayName: String
+inline val AdminUser.displayName: String
     get() = "$names $lastname".trim()
-val StudentUser.displayName: String
+inline val StudentUser.displayName: String
     get() = "$names $lastname".trim()

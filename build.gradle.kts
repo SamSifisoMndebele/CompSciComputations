@@ -1,7 +1,6 @@
 val kotlin_version: String by project
 val logback_version: String by project
 val exposed_version: String by project
-val postgres_version: String by project
 
 plugins {
     kotlin("jvm") version "2.0.0"
@@ -41,14 +40,16 @@ ktor {
 }
 
 dependencies {
-    implementation("com.google.api-client:google-api-client:1.32.1")
-    implementation("org.postgresql:postgresql:$postgres_version")
+    implementation("org.apache.commons:commons-email:1.5")
 
-    /**DI*/
+    implementation("com.google.api-client:google-api-client:1.32.1")
+    implementation("org.postgresql:postgresql:42.7.2")
+    implementation("ch.qos.logback:logback-classic:1.4.14")
+    implementation("org.mindrot:jbcrypt:0.4")
+
     implementation("io.insert-koin:koin-ktor:3.5.6")
     implementation("io.insert-koin:koin-logger-slf4j:3.5.6")
 
-    /**Ktor Server*/
     implementation("io.ktor:ktor-server-core-jvm")
     implementation("io.ktor:ktor-server-auth-jvm")
     implementation("io.ktor:ktor-server-http-redirect-jvm")
@@ -59,8 +60,4 @@ dependencies {
     implementation("io.ktor:ktor-server-sessions-jvm")
     implementation("io.ktor:ktor-server-rate-limit-jvm")
     implementation("io.ktor:ktor-server-resources-jvm")
-
-    /**Other*/
-    implementation("ch.qos.logback:logback-classic:$logback_version")
-    implementation("org.mindrot:jbcrypt:0.4")
 }

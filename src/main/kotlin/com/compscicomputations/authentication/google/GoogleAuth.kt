@@ -24,7 +24,6 @@ internal class GoogleAuth {
             payload?.let {
                 GoogleToken(
                     email = it.email,
-                    name = it["name"] as String? ?: it.email?.substringBefore("@"),
                     pictureUrl = it["picture"] as String?,
                     givenName = it["given_name"] as String?,
                     familyName = it["family_name"] as String?

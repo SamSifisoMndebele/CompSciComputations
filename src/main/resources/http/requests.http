@@ -13,49 +13,17 @@ Content-Type: application/json
   ]
 }
 
-### Create a student user
-POST http://127.0.0.1:8080/users
+###
+POST https://compsci-computations.onrender.com/onboarding/items
 Content-Type: application/json
 
 {
-  "email": "user6@mail.com",
-  "names": "User 6",
-  "lastname": "Lastname",
-  "is_admin": true,
-  "is_student": true,
-  "password": "123456",
-  "photo_url": null,
-  "phone": "0721646430",
-  "admin_pin": "pin",
-  "course": "course",
-  "school": "school"
+  "source_url": "https://firebasestorage.googleapis.com/v0/b/compsci-computations.appspot.com/o/Onboarding%2Fwelcome_enim.json?alt=media&token=8811cd8b-ff1a-44bd-9a4a-0a495c445685",
+  "title": "Get Started",
+  "description": null,
+  "type": "LOTTIE"
 }
 
 ###
-#Create an admin user
 
-
-### Get Users
-POST http://localhost:8080/users?limit={{$random.integer(100)}}
-Accept: application/json
-
-
-###
-# Get user by uid
-GET http://127.0.0.1:8080/users/me
-Authorization: Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6ImMxNTQwYWM3MWJiOTJhYTA2OTNjODI3MTkwYWNhYmU1YjA1NWNiZWMiLCJ0eXAiOiJKV1QifQ.eyJuYW1lIjoiU2FtIFNpZmlzbyIsInBpY3R1cmUiOiJodHRwczovL2xoMy5nb29nbGV1c2VyY29udGVudC5jb20vYS9BQ2c4b2NJT3RwSlhKaVNia0FNbkNIajJ3TXAtQXNfRmZ1YjM3X2h5akxHOVhGSU11bmFZWDEzUD1zOTYtYyIsImlzcyI6Imh0dHBzOi8vc2VjdXJldG9rZW4uZ29vZ2xlLmNvbS9jb21wc2NpLWNvbXB1dGF0aW9ucyIsImF1ZCI6ImNvbXBzY2ktY29tcHV0YXRpb25zIiwiYXV0aF90aW1lIjoxNzIwNzkyMDUxLCJ1c2VyX2lkIjoiVEpCVnJCUjA2QmVzVjhTdXpUTHZXZlZ2cHpnMiIsInN1YiI6IlRKQlZyQlIwNkJlc1Y4U3V6VEx2V2ZWdnB6ZzIiLCJpYXQiOjE3MjA3OTIwNTEsImV4cCI6MTcyMDc5NTY1MSwiZW1haWwiOiJzYW1zaWZpc29tbmRlYmVsZTk5QGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJmaXJlYmFzZSI6eyJpZGVudGl0aWVzIjp7Imdvb2dsZS5jb20iOlsiMTAyMzQzODA2NzkyODY2ODk1OTkzIl0sImVtYWlsIjpbInNhbXNpZmlzb21uZGViZWxlOTlAZ21haWwuY29tIl19LCJzaWduX2luX3Byb3ZpZGVyIjoiZ29vZ2xlLmNvbSJ9fQ.TNy7Yk33iIxOWAdAHfjm_WASj7f6PQCcqa95LxSwUTVq-i-OoiZGLmt-2cM8gE2Ku3tZJTbGINNPQ8yQiGRqnWJtRRd_OYVZ8epAPKo54ay1ZN649518NpvdRQQAMGvoZRW2fkxRKmMhtz2s-35gf6f7xHJJGGoW2oFrPYiYHBTuDShSwEIsRx6Vuz4sT4uRx7ms2xZ0cH7CCux2WYzF52CYumIbdJPzHRV6S_XviRjIdjILoKUFufJNkllcHR-uQlryFX6pjcraUC2islbdcQ279ZRNB-81Ns0J9jsrN2OZyvFVLLiERoLwCFJipumnrptyFoWz5D0BnAk4Jk3IUA
-
-
-###
-# Get user as admin
-GET http://127.0.0.1:8080/admins/5M6ppTUwZNgaPpcNjoPlxigETt33
-Authorization: Bearer ..--------
-
-###
-POST http://127.0.0.1:8080/admins/codes
-Content-Type: application/json
-
-{
-  "email": "admin1@mail.com",
-  "code": "12345678"
-}
+GET http://localhost:8080/email/send
