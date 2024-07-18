@@ -25,7 +25,7 @@ data class CompleteProfileUiState(
     val asNewUser: NewUser
         get() = NewUser(
             email = email,
-            password = null,
+            password = "null",
             names = "displayName",
             photoUrl = "photoUrl",
             phone = phone,

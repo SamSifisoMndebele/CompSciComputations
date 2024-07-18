@@ -2,7 +2,7 @@ package com.compscicomputations.client.auth
 
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 
-interface AuthRepository {
+interface AuthRepository2 {
     /**
      * Register with email and password
      * @param email new user email address

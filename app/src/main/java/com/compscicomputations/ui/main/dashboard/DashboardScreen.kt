@@ -26,6 +26,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,6 +34,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.compscicomputations.client.auth.models.DynamicFeature
 import com.compscicomputations.theme.comicNeueFamily
@@ -43,15 +46,14 @@ import com.compscicomputations.ui.utils.shimmerBrush
 
 @Composable
 fun DashboardScreen(
-    viewModel: DashboardViewModel,
-    uiState: DashboardUiState,
+    viewModel: DashboardViewModel = hiltViewModel(),
     navigateProfile: () -> Unit,
     navigateHelp: () -> Unit,
     navigateFeedback: () -> Unit,
     navigateSettings: () -> Unit,
     navigateDynamicFeature: (feature: DynamicFeature) -> Unit
 ) {
-
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     CompSciScaffold(
         title = "Dashboard",
         snackBarHost = {
@@ -159,7 +161,7 @@ fun DashboardScreen(
                             Text(text = "Go to Install")
                         }
                     } else {
-                        for (feature in uiState.installedFeatures) {
+                        for (feature in uiState.installedFeatures!!) {
                             OptionButton(
                                 padding = PaddingValues(start = 8.dp, end = 8.dp, bottom = 8.dp),
                                 iconUrl = feature.iconUrl?.ifBlank { null },

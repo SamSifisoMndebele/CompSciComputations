@@ -2,8 +2,7 @@ package com.compscicomputations.ui.main.dashboard
 
 import androidx.compose.material3.SnackbarHostState
 import androidx.lifecycle.ViewModel
-import com.compscicomputations.client.auth.UserRepository
-import com.compscicomputations.client.auth.usecase.IsCompleteProfileUseCase
+import com.compscicomputations.client.auth.data.source.AuthRepository
 import com.compscicomputations.ui.utils.ProgressState
 import com.google.android.play.core.splitinstall.SplitInstallManager
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -13,9 +12,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
-    private val userRepository: UserRepository,
+    private val authRepository: AuthRepository,
     private val splitInstallManager: SplitInstallManager,
-    private val isCompleteProfileUseCase: IsCompleteProfileUseCase,
 ) : ViewModel() {
     val snackBarHostState = SnackbarHostState()
 

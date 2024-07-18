@@ -3,7 +3,7 @@ package com.compscicomputations.client.auth.data.source.local
 import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.Serializer
 import androidx.datastore.preferences.protobuf.InvalidProtocolBufferException
-import com.compscicomputations.client.auth.data.source.remote.RemoteUser
+import com.compscicomputations.client.auth.models.RemoteUser
 import com.compscicomputations.client.auth.models.User
 import com.compscicomputations.core.client.UserLocal
 import java.io.InputStream

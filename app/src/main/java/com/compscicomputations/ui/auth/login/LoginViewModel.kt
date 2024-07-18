@@ -5,7 +5,6 @@ import android.util.Log
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
-import androidx.credentials.GetCredentialResponse
 import androidx.credentials.PasswordCredential
 import androidx.credentials.exceptions.GetCredentialCancellationException
 import androidx.credentials.exceptions.GetCredentialException
@@ -13,9 +12,7 @@ import androidx.credentials.exceptions.GetCredentialInterruptedException
 import androidx.credentials.exceptions.NoCredentialException
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.compscicomputations.client.auth.AuthRepository
-import com.compscicomputations.client.auth.data.source.DefaultUserRepository
-import com.compscicomputations.client.auth.usecase.IsCompleteProfileUseCase
+import com.compscicomputations.client.auth.data.source.AuthRepository
 import com.compscicomputations.ui.utils.ProgressState
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,9 +21,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Named
 import kotlin.coroutines.cancellation.CancellationException
@@ -37,7 +32,7 @@ class LoginViewModel @Inject constructor(
     private val googleRequest: GetCredentialRequest,
     @Named("password")
     private val passwordRequest: GetCredentialRequest,
-    private val authRepository: DefaultUserRepository,
+    private val authRepository: AuthRepository,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow<ProgressState>(ProgressState.Idle)
     val uiState: StateFlow<ProgressState> = _uiState.asStateFlow()
@@ -64,12 +59,12 @@ class LoginViewModel @Inject constructor(
                     Log.d(TAG, "email: $email")
                     Log.d(TAG, "password: $password")
                     try {
-                        authRepository.saveCredentials(email, password)
+                        authRepository.savePasswordCredentials(email, password)
                         navigatePasswordLogin()
                         _uiState.value = ProgressState.Idle
                     } catch (e: Exception) {
                         Log.e(TAG, "saveCredentials::error", e)
-                        authRepository.clearCredentials()
+                        authRepository.clearUserCredentials()
                         _uiState.value = ProgressState.Error(e.localizedMessage)
                     }
                 } else {
@@ -78,7 +73,7 @@ class LoginViewModel @Inject constructor(
                     throw Exception("Unexpected type of credential")
                 }
             } catch (e: Exception) {
-                authRepository.clearCredentials()
+                authRepository.clearUserCredentials()
                 when(e) {
                     is NoCredentialException -> navigatePasswordLogin()
                     is GetCredentialCancellationException -> navigatePasswordLogin()

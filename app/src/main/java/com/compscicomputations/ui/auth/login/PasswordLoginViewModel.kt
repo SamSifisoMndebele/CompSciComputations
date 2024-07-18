@@ -3,8 +3,7 @@ package com.compscicomputations.ui.auth.login
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.compscicomputations.client.auth.data.source.DefaultUserRepository
-import com.compscicomputations.core.client.LoginCredentials
+import com.compscicomputations.client.auth.data.source.AuthRepository
 import com.compscicomputations.ui.utils.ProgressState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -21,7 +20,7 @@ import kotlin.coroutines.cancellation.CancellationException
 
 @HiltViewModel
 class PasswordLoginViewModel @Inject constructor(
-    private val authRepository: DefaultUserRepository,
+    private val authRepository: AuthRepository,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(PasswordLoginUiState())
     val uiState: StateFlow<PasswordLoginUiState> = _uiState.asStateFlow()
@@ -39,7 +38,7 @@ class PasswordLoginViewModel @Inject constructor(
                         email = credentials?.email ?: "",
                         canShowCredentials = credentials == null
                     )
-                    if (credentials != null) onLogin(false)
+                    if (credentials != null) onLogin()
                 }
         }
     }
@@ -59,12 +58,11 @@ class PasswordLoginViewModel @Inject constructor(
     }
 
     private var loginJob: Job? = null
-    fun onLogin(canSave: Boolean = true) {
+    fun onLogin() {
         _uiState.value = _uiState.value.copy(progressState = ProgressState.Loading("Login..."))
         loginJob = viewModelScope.launch {
             try {
-                if (canSave) authRepository.saveCredentials(_uiState.value.email, _uiState.value.password)
-                withContext(Dispatchers.IO) { authRepository.login() }
+                withContext(Dispatchers.IO) { authRepository.continuePassword(_uiState.value.email, _uiState.value.password) }
                 _uiState.value = _uiState.value.copy(progressState = ProgressState.Success)
             } catch (e: CancellationException) {
                 _uiState.value = _uiState.value.copy(progressState = ProgressState.Idle)

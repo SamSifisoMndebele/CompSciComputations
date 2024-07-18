@@ -29,7 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.compscicomputations.client.auth.data.source.DefaultUserRepository.Companion.isUserSignedInFlow
+import com.compscicomputations.client.auth.data.source.local.UserDataStore.isUserSignedInFlow
 import com.compscicomputations.theme.CompSciComputationsTheme
 import com.compscicomputations.ui.navigation.Auth
 import com.compscicomputations.ui.navigation.Loading

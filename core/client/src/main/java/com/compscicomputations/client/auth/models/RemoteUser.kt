@@ -1,6 +1,5 @@
-package com.compscicomputations.client.auth.data.source.remote
+package com.compscicomputations.client.auth.models
 
-import com.compscicomputations.client.auth.models.User
 import com.compscicomputations.core.client.UserLocal
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -22,13 +21,15 @@ data class RemoteUser(
     val createdAt: String,
     @SerialName("updated_at")
     val updatedAt: String?,
+    @SerialName("temp_password")
+    val googlePassword: String? = null,
 ) {
     companion object {
-        fun List<RemoteUser>.toExternal() = map(RemoteUser::toExternal)
+        fun List<RemoteUser>.toExternal() = map(RemoteUser::asUser)
         fun List<RemoteUser>.toLocal() = map(RemoteUser::asLocalUser)
     }
 
-    val toExternal: User
+    val asUser: User
         get() = User(
             id = id,
             email = email,

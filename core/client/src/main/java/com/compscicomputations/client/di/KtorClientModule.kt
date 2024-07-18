@@ -2,8 +2,8 @@ package com.compscicomputations.client.di
 
 import android.content.Context
 import android.util.Log
-import com.compscicomputations.client.auth.data.source.DefaultUserRepository.Companion.idTokenCredentialsFlow
-import com.compscicomputations.client.auth.data.source.DefaultUserRepository.Companion.passwordCredentialsFlow
+import com.compscicomputations.client.auth.data.source.local.UserCredentialsDataStore.idTokenCredentialsFlow
+import com.compscicomputations.client.auth.data.source.local.UserCredentialsDataStore.passwordCredentialsFlow
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -30,6 +30,7 @@ import io.ktor.client.plugins.resources.Resources
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.URLProtocol
+import io.ktor.http.encodedPath
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.last
@@ -100,7 +101,7 @@ object KtorClientModule {
                 // Configure bearer authentication
                 loadTokens {
                     // Load tokens from a local storage and return them as the 'BearerTokens' instance
-                    context.idTokenCredentialsFlow().first()
+                    context.idTokenCredentialsFlow.first()
                         ?.let {
                             Log.d("IdToken", it)
                             BearerTokens(it, "refreshToken")
@@ -108,16 +109,17 @@ object KtorClientModule {
                 }
                 refreshTokens { // this: RefreshTokensParams
                     // Refresh tokens and return them as the 'BearerTokens' instance
-                    context.idTokenCredentialsFlow(true).last()
+                    context.idTokenCredentialsFlow.last()
                         ?.let {
                             Log.d("IdToken", it)
                             BearerTokens(it, "refreshToken")
                         }
                 }
                 // Load and refresh tokens ...
-//                sendWithoutRequest { request ->
-//                    request.url.host == "compsci-computations.onrender.com"
-//                }
+                sendWithoutRequest { request ->
+                    request.url.pathSegments == listOf("users", "google")
+
+                }
             }
         }
     }

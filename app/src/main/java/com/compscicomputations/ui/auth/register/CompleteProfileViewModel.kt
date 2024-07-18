@@ -4,7 +4,7 @@ import android.util.Log
 import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.compscicomputations.client.auth.UserRepository
+import com.compscicomputations.client.auth.data.source.AuthRepository
 import com.compscicomputations.client.auth.models.NewUser
 import com.compscicomputations.ui.utils.ProgressState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,7 +19,7 @@ import kotlin.coroutines.cancellation.CancellationException
 
 @HiltViewModel
 class CompleteProfileViewModel @Inject constructor(
-    private val userRepository: UserRepository
+    private val authRepository: AuthRepository
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(CompleteProfileUiState())
     val uiState: StateFlow<CompleteProfileUiState> = _uiState.asStateFlow()
@@ -60,9 +60,9 @@ class CompleteProfileViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(progressState = ProgressState.Loading("Creating account..."))
         registerJob = viewModelScope.launch(Dispatchers.IO) {
             try {
-                userRepository.createUser(NewUser(
+                authRepository.createUser(NewUser(
                     email = _uiState.value.email,
-                    password = null,
+                    password = "null",
                     names = "_uiState.value.nam",
                     photoUrl = "_uiState.value.photoUrl",
                     phone = _uiState.value.phone,
