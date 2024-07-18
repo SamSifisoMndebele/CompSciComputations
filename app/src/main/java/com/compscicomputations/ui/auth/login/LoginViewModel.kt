@@ -10,10 +10,12 @@ import androidx.credentials.PasswordCredential
 import androidx.credentials.exceptions.GetCredentialCancellationException
 import androidx.credentials.exceptions.GetCredentialException
 import androidx.credentials.exceptions.GetCredentialInterruptedException
+import androidx.credentials.exceptions.NoCredentialException
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.compscicomputations.core.client.auth.AuthRepository
-import com.compscicomputations.core.client.auth.usecase.IsCompleteProfileUseCase
+import com.compscicomputations.client.auth.AuthRepository
+import com.compscicomputations.client.auth.data.source.DefaultUserRepository
+import com.compscicomputations.client.auth.usecase.IsCompleteProfileUseCase
 import com.compscicomputations.ui.utils.ProgressState
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,55 +26,94 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import javax.inject.Named
 import kotlin.coroutines.cancellation.CancellationException
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val request: GetCredentialRequest,
-    private val authRepository: AuthRepository,
-    private val isCompleteProfileUseCase: IsCompleteProfileUseCase,
+    @Named("google")
+    private val googleRequest: GetCredentialRequest,
+    @Named("password")
+    private val passwordRequest: GetCredentialRequest,
+    private val authRepository: DefaultUserRepository,
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow(LoginUiState())
-    val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
-
-    fun onEmailChange(email: String) {
-        _uiState.value = _uiState.value.copy(email = email, emailError = null)
-    }
-
-    fun onPasswordChange(password: String) {
-        _uiState.value = _uiState.value.copy(password = password, passwordError = null)
-    }
+    private val _uiState = MutableStateFlow<ProgressState>(ProgressState.Idle)
+    val uiState: StateFlow<ProgressState> = _uiState.asStateFlow()
 
     fun onProgressStateChange(progressState: ProgressState) {
-        _uiState.value = _uiState.value.copy(progressState = progressState)
+        _uiState.value = progressState
     }
 
     private var loginJob: Job? = null
-    fun onLogin() {
-        _uiState.value = _uiState.value.copy(progressState = ProgressState.Loading("Login..."))
-        loginJob = viewModelScope.launch(Dispatchers.IO) {
+    fun onLoginPassword(activity: Activity, navigatePasswordLogin: () -> Unit) {
+        _uiState.value = ProgressState.Loading("Continue with Password...")
+        val credentialManager = CredentialManager.create(activity)
+
+        loginJob = viewModelScope.launch {
             try {
-                authRepository.login(uiState.value.email, uiState.value.password)
-                _uiState.value = _uiState.value.copy(progressState = ProgressState.Success)
-            } catch (e: CancellationException) {
-                _uiState.value = _uiState.value.copy(progressState = ProgressState.Idle)
-                Log.w("LoginViewModel", "onLoginWithGoogle:", e)
+                val result = credentialManager.getCredential(activity, passwordRequest)
+                val credential = result.credential
+                if (credential is PasswordCredential) {
+                    // Use id and password to send to the server to validate and authenticate
+                    val email = credential.id
+                    val password = credential.password
+
+                    Log.d(TAG, "PasswordCredential: ${credential.data}")
+                    Log.d(TAG, "email: $email")
+                    Log.d(TAG, "password: $password")
+                    try {
+                        authRepository.saveCredentials(email, password)
+                        navigatePasswordLogin()
+                        _uiState.value = ProgressState.Idle
+                    } catch (e: Exception) {
+                        Log.e(TAG, "saveCredentials::error", e)
+                        authRepository.clearCredentials()
+                        _uiState.value = ProgressState.Error(e.localizedMessage)
+                    }
+                } else {
+                    // Catch any unrecognized custom credential type here.
+                    Log.e(TAG, "Unexpected type of credential")
+                    throw Exception("Unexpected type of credential")
+                }
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(progressState = ProgressState.Error(e.localizedMessage))
-                Log.e("LoginViewModel", "onLoginWithGoogle:", e)
+                authRepository.clearCredentials()
+                when(e) {
+                    is NoCredentialException -> navigatePasswordLogin()
+                    is GetCredentialCancellationException -> navigatePasswordLogin()
+                }
+                Log.w(TAG, e)
+                _uiState.value = ProgressState.Idle
             }
         }
     }
 
     fun onLoginWithGoogle(activity: Activity) {
-        _uiState.value = _uiState.value.copy(progressState = ProgressState.Loading("Login with Google..."))
+        _uiState.value = ProgressState.Loading("Login with Google...")
         val credentialManager = CredentialManager.create(activity)
 
         loginJob = viewModelScope.launch(Dispatchers.IO) {
             try {
-                val result = credentialManager.getCredential(activity, request)
-                handleSignIn(result)
+                val result = credentialManager.getCredential(activity, googleRequest)
+                val credential = result.credential
+                if (credential is CustomCredential && credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL)  {
+                    // Use googleIdTokenCredential and extract id to validate and authenticate on the server.
+                    val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
+
+                    Log.d(TAG, "GoogleIdTokenCredential: ${googleIdTokenCredential.data}")
+                    try {
+                        authRepository.continueWithGoogle(googleIdTokenCredential)
+                        _uiState.value = ProgressState.Success
+                    } catch (e: Exception) {
+                        Log.e(TAG, "continueWithGoogle::error", e)
+                        _uiState.value = ProgressState.Error(e.localizedMessage)
+                    }
+                } else {
+                    // Catch any unrecognized custom credential type here.
+                    Log.e(TAG, "Unexpected type of credential")
+                    throw Exception("Unexpected type of credential")
+                }
             } catch (e: Exception) {
                 handleFailure(e)
             }
@@ -83,62 +124,28 @@ class LoginViewModel @Inject constructor(
         loginJob?.cancel()
     }
 
-    private suspend fun handleSignIn(result: GetCredentialResponse) {
-        // Handle the successfully returned credential.
-        Log.d(TAG, "credential: ${result.credential.data}")
-        when (val credential = result.credential) {
-            is PasswordCredential -> {
-                val username = credential.id
-                val password = credential.password
-                // Use id and password to send to the server to validate and authenticate
-
-                Log.d(TAG, "username: $username")
-                Log.d(TAG, "password: $password")
-
-            }
-            else -> {
-                if (credential is CustomCredential && credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL)  {
-                    // Use googleIdTokenCredential and extract id to validate and authenticate on the server.
-                    val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
-
-                    val isNewUser = authRepository.continueWithGoogle(googleIdTokenCredential) ||
-                            !isCompleteProfileUseCase().single()
-
-                    _uiState.value = _uiState.value.copy(
-                        isNewUser = isNewUser,
-                        progressState = ProgressState.Success
-                    )
-                } else {
-                    // Catch any unrecognized custom credential type here.
-                    Log.e(TAG, "Unexpected type of credential")
-                    throw Exception("Unexpected type of credential")
-                }
-            }
-        }
-    }
-
     private fun handleFailure(e: Exception) {
         when (e) {
             is CancellationException -> {
-                _uiState.value = _uiState.value.copy(progressState = ProgressState.Idle)
-                Log.w(TAG, "onLoginWithGoogle:", e)
+                _uiState.value = ProgressState.Idle
+                Log.w(TAG, e)
             }
             is GetCredentialCancellationException -> {
-                _uiState.value = _uiState.value.copy(progressState = ProgressState.Idle)
-                Log.w(TAG, "onLoginWithGoogle:", e)
+                _uiState.value = ProgressState.Idle
+                Log.w(TAG, e)
             }
             is GetCredentialInterruptedException -> {
                 // Retry-able error. Consider retrying the call.
-                _uiState.value = _uiState.value.copy(progressState = ProgressState.Idle)
-                Log.w(TAG, "onLoginWithGoogle:", e)
+                _uiState.value = ProgressState.Idle
+                Log.w(TAG, e)
             }
             is GetCredentialException -> {
-                _uiState.value = _uiState.value.copy(progressState = ProgressState.Idle)
-                Log.w(TAG, "onLoginWithGoogle:", e)
+                _uiState.value = ProgressState.Idle
+                Log.w(TAG, e)
             }
             else -> {
-                _uiState.value = _uiState.value.copy(progressState = ProgressState.Error(e.localizedMessage))
-                Log.e(TAG, "Unexpected exception::onLoginWithGoogle:", e)
+                _uiState.value = ProgressState.Error(e.localizedMessage)
+                Log.e(TAG, "UnexpectedException:", e)
             }
         }
     }

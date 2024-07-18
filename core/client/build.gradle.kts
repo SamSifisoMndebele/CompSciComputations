@@ -1,15 +1,17 @@
-import java.util.Properties
+import com.google.protobuf.gradle.*
 
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.google.dagger.hilt.android)
+    alias(libs.plugins.google.protobuf)
     alias(libs.plugins.jetbrains.kotlin.plugin.serialization)
     alias(libs.plugins.google.devtools.ksp)
+    alias(libs.plugins.google.android.libraries.mapsplatform.secrets.gradle.plugin)
 }
 
 android {
-    namespace = "com.compscicomputations.core.client"
+    namespace = "com.compscicomputations.client"
     compileSdk = 34
 
     defaultConfig {
@@ -17,10 +19,12 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
+    }
 
-        val properties = Properties()
-        properties.load(project.rootProject.file("local.properties").inputStream())
-        buildConfigField("String", "WEB_CLIENT_ID", properties.getProperty("web_google_client_id"))
+    sourceSets {
+         getByName("main") {
+             java.srcDirs("src/main/proto")
+         }
     }
 
     buildTypes {
@@ -33,24 +37,40 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "1.8"
     }
     buildFeatures {
         buildConfig = true
     }
 }
 
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:4.26.1"
+    }
+    generateProtoTasks {
+        all().forEach { task ->
+            task.builtins {
+                create("java")
+            }
+        }
+    }
+}
+
 dependencies {
+    implementation(libs.protobuf.java)
+
     /**Hilt DI*/
     implementation(libs.hilt.android)
     ksp(libs.hilt.android.compiler)
 
     /**Local database*/
     implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.datastore)
     implementation(libs.androidx.datastore.preferences)

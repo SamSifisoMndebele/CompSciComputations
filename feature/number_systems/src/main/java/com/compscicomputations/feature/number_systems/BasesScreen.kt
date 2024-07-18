@@ -176,8 +176,11 @@ fun ConversionScreen(
                 ),
                 label = { Text(text = "Hexadecimal") },
                 shape = RoundedCornerShape(18.dp),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text,
-                    autoCorrect = false, capitalization = KeyboardCapitalization.Characters),
+                keyboardOptions = KeyboardOptions(
+                    capitalization = KeyboardCapitalization.Characters,
+                    autoCorrectEnabled = false,
+                    keyboardType = KeyboardType.Text
+                ),
                 isError = isSelected && model.error.value != null,
                 supportingText = model.error.value errorTextIf isSelected
             )
@@ -198,7 +201,10 @@ fun ConversionScreen(
                 ),
                 label = { Text(text = "ASCII Characters") },
                 shape = RoundedCornerShape(18.dp),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, autoCorrect = false),
+                keyboardOptions = KeyboardOptions(
+                    autoCorrectEnabled = false,
+                    keyboardType = KeyboardType.Text
+                ),
                 isError = isSelected && model.error.value != null,
                 supportingText = model.error.value errorTextIf isSelected
             )

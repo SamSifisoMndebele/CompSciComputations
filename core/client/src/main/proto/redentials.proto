@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+option java_package = "com.compscicomputations.core.client";
+option java_multiple_files = true;
+
+message LoginCredentials {
+    string email = 1;
+    string password = 2;
+    string idToken = 3;
+}

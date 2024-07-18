@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+option java_package = "com.compscicomputations.core.client";
+option java_multiple_files = true;
+
+//import "google/protobuf/wrappers.proto";
+//import "google/protobuf/timestamp.proto";
+
+message UserLocal {
+  string id = 1;
+  string email = 2;
+  string names = 3;
+  string lastname = 4;
+  string photoUrl = 5;
+  string phone = 6;
+  bool isAdmin = 7;
+  bool isStudent = 8;
+  string createdAt = 9;
+  string updatedAt = 10;
+}

@@ -3,6 +3,7 @@ package com.compscicomputations.ui.navigation
 import android.content.Intent
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -13,6 +14,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import androidx.navigation.toRoute
 import com.compscicomputations.BuildConfig
+import com.compscicomputations.client.auth.data.source.DefaultUserRepository.Companion.isUserSignedInFlow
 import com.compscicomputations.ui.main.dashboard.DashboardScreen
 import com.compscicomputations.ui.main.dashboard.DashboardViewModel
 import com.compscicomputations.ui.main.feedback.FeedbackScreen
@@ -24,9 +26,15 @@ import com.compscicomputations.ui.utils.loadDynamicFeature
 
 fun NavGraphBuilder.mainNavigation(navController: NavHostController) {
     navigation<Main>(startDestination = Dashboard) {
-
         composable<Dashboard> {
             val context = LocalContext.current
+            val isSignedIn by context.isUserSignedInFlow.collectAsStateWithLifecycle(initialValue = false)
+            LaunchedEffect(isSignedIn) {
+                if (!isSignedIn) navController.navigate(route = Auth) {
+                    popUpTo<Main> { inclusive = true }
+                    launchSingleTop = true
+                }
+            }
             val viewModel: DashboardViewModel = hiltViewModel()
             val uiState by viewModel.uiState.collectAsStateWithLifecycle()
             DashboardScreen(

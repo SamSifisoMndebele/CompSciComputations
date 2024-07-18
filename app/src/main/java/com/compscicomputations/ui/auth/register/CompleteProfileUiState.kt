@@ -1,14 +1,14 @@
 package com.compscicomputations.ui.auth.register
 
-import com.compscicomputations.core.client.auth.models.NewUser
-import com.compscicomputations.core.client.auth.models.Usertype
+import com.compscicomputations.client.auth.models.NewUser
 import com.compscicomputations.ui.utils.ProgressState
 
 data class CompleteProfileUiState(
     val uid: String = "",
     val email: String = "",
 
-    val usertype: Usertype = Usertype.STUDENT,
+    val isAdmin: Boolean = false,
+    val isStudent: Boolean = false,
     val adminCode: String? = null,
     val phone: String? = null,
     val termsAccepted: Boolean = false,
@@ -19,11 +19,8 @@ data class CompleteProfileUiState(
 
     val progressState: ProgressState = ProgressState.Idle
 ) {
-    val isAdmin: Boolean get() = usertype == Usertype.ADMIN
-
     val isValid: Boolean
-        get() = email.isNotBlank() && termsAccepted &&
-                (!isAdmin || isAdmin && adminCode?.isNotBlank() == true)
+        get() = email.isNotBlank() && termsAccepted && (!isAdmin || adminCode?.isNotBlank() == true)
 
     val asNewUser: NewUser
         get() = NewUser(

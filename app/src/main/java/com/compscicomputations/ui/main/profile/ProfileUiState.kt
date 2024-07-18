@@ -1,13 +1,13 @@
 package com.compscicomputations.ui.main.profile
 
 import android.net.Uri
-import com.compscicomputations.core.client.auth.models.User
-import com.compscicomputations.core.client.auth.models.Usertype
+import com.compscicomputations.client.auth.models.User
 import com.compscicomputations.ui.utils.ProgressState
 
 data class ProfileUiState(
     val uid: String = "",
-    val usertype: Usertype = Usertype.STUDENT,
+    val isAdmin: Boolean = false,
+    val isStudent: Boolean = false,
     val adminCode: String? = null,
     val photoUri: Uri? = null,
     val photoUrl: String? = null,
@@ -20,10 +20,6 @@ data class ProfileUiState(
     val progressState: ProgressState = ProgressState.Idle,
     val isSignedIn: Boolean = true,
 ) {
-    val isAdmin: Boolean
-        get() = usertype == Usertype.ADMIN
-
     val isValid: Boolean
-        get() = displayName.isNotBlank() && email.isNotBlank() &&
-                 (!isAdmin || isAdmin && adminCode?.isNotBlank() == true)
+        get() = displayName.isNotBlank() && email.isNotBlank() && (!isAdmin || adminCode?.isNotBlank() == true)
 }

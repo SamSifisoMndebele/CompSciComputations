@@ -41,6 +41,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
@@ -480,7 +481,9 @@ fun CompSciAuthScaffold(
                     if (navigateOnboarding != null) {
                         IconButton(
                             onClick = navigateOnboarding,
-                            Modifier.padding(vertical = 8.dp, horizontal = 6.dp).align(Alignment.CenterEnd)
+                            Modifier
+                                .padding(vertical = 8.dp, horizontal = 6.dp)
+                                .align(Alignment.CenterEnd)
                         ) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.FollowTheSigns,

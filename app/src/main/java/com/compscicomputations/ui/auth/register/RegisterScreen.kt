@@ -120,7 +120,7 @@ fun RegisterScreen(
                 label = { Text(text = hintUserImage) },
                 readOnly = true,
                 singleLine = true,
-                shape = RoundedCornerShape(18.dp),
+                shape = RoundedCornerShape(22.dp),
                 trailingIcon = {
                     IconButton(onClick = {}, modifier = Modifier.padding(end = 4.dp)) {
                         AsyncImage(
@@ -166,7 +166,7 @@ fun RegisterScreen(
             onValueChange = { viewModel.onNamesChange(it);},
             label = { Text(text = hintNames) },
             singleLine = true,
-            shape = RoundedCornerShape(18.dp),
+            shape = RoundedCornerShape(22.dp),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next),
             isError = uiState.namesError.isError,
             supportingText = uiState.namesError.showMessage()
@@ -182,7 +182,7 @@ fun RegisterScreen(
             onValueChange = { viewModel.onLastnameChange(it);},
             label = { Text(text = hintLastname) },
             singleLine = true,
-            shape = RoundedCornerShape(18.dp),
+            shape = RoundedCornerShape(22.dp),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next),
             isError = uiState.lastnameError.isError,
             supportingText = uiState.lastnameError.showMessage()
@@ -198,7 +198,7 @@ fun RegisterScreen(
             onValueChange = { viewModel.onEmailChange(it) },
             label = { Text(text = hintEmail) },
             singleLine = true,
-            shape = RoundedCornerShape(18.dp),
+            shape = RoundedCornerShape(22.dp),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
             isError = uiState.emailError.isError,
             supportingText = uiState.emailError.showMessage()
@@ -221,7 +221,7 @@ fun RegisterScreen(
                     Icon(if (showPassword) Icons.Filled.Visibility else Icons.Filled.VisibilityOff, "hide_password")
                 }
             },
-            shape = RoundedCornerShape(18.dp),
+            shape = RoundedCornerShape(22.dp),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Next),
             isError = uiState.passwordError.isError,
             supportingText = uiState.passwordError.showMessage()
@@ -243,7 +243,7 @@ fun RegisterScreen(
                     Icon(if (showPasswordConfirm) Icons.Filled.Visibility else Icons.Filled.VisibilityOff, "hide_password")
                 }
             },
-            shape = RoundedCornerShape(18.dp),
+            shape = RoundedCornerShape(22.dp),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             isError = uiState.passwordConfirmError.isError,
             supportingText = uiState.passwordConfirmError.showMessage()

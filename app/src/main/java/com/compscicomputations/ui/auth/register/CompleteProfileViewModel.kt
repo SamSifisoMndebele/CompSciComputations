@@ -4,10 +4,8 @@ import android.util.Log
 import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.compscicomputations.core.client.auth.AuthRepository.Companion.getAuthUser
-import com.compscicomputations.core.client.auth.UserRepository
-import com.compscicomputations.core.client.auth.models.NewUser
-import com.compscicomputations.core.client.auth.models.Usertype
+import com.compscicomputations.client.auth.UserRepository
+import com.compscicomputations.client.auth.models.NewUser
 import com.compscicomputations.ui.utils.ProgressState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -27,16 +25,19 @@ class CompleteProfileViewModel @Inject constructor(
     val uiState: StateFlow<CompleteProfileUiState> = _uiState.asStateFlow()
 
     init {
-        val user = getAuthUser(false)
-        _uiState.value = _uiState.value.copy(
-            uid = user.uid,
-            email = user.email,
-            phone = user.phoneNumber,
-        )
+//        val user = getAuthUser(false)
+//        _uiState.value = _uiState.value.copy(
+//            uid = user.uid,
+//            email = user.email,
+//            phone = user.phoneNumber,
+//        )
     }
 
-    fun setUsertype(usertype: Usertype) {
-        _uiState.value = _uiState.value.copy(usertype = usertype)
+    fun setIsStudent(isStudent: Boolean) {
+        _uiState.value = _uiState.value.copy(isStudent = isStudent)
+    }
+    fun setIsAdmin(isAdmin: Boolean) {
+        _uiState.value = _uiState.value.copy(isAdmin = isAdmin)
     }
     fun onAdminCodeChange(adminCode: String) {
         _uiState.value = _uiState.value.copy(adminCode = adminCode, adminCodeError = null)
@@ -84,7 +85,7 @@ class CompleteProfileViewModel @Inject constructor(
 
     private fun fieldsAreValid(): Boolean {
         var valid = true
-        if (_uiState.value.usertype == Usertype.ADMIN) {
+        if (_uiState.value.isAdmin) {
             if (_uiState.value.adminCode.isNullOrBlank()) {
                 _uiState.value = _uiState.value.copy(adminCodeError = "Enter your administration PIN.")
                 valid = false

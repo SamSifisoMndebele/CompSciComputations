@@ -5,10 +5,9 @@ import android.util.Log
 import androidx.compose.material3.SnackbarHostState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.compscicomputations.core.client.auth.AuthRepository
-import com.compscicomputations.core.client.auth.AuthRepository.Companion.getAuthUser
-import com.compscicomputations.core.client.auth.UserRepository
-import com.compscicomputations.core.client.auth.usecase.IsCompleteProfileUseCase
+import com.compscicomputations.client.auth.AuthRepository
+import com.compscicomputations.client.auth.UserRepository
+import com.compscicomputations.client.auth.usecase.IsCompleteProfileUseCase
 import com.compscicomputations.ui.utils.ProgressState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
@@ -39,13 +38,13 @@ class ProfileViewModel @Inject constructor(
     }
 
     private fun getCurrentState() {
-        val authUser = getAuthUser()
-        _uiState.value = _uiState.value.copy(
-            email = authUser.email,
-            photoUrl = authUser.photoUrl,
-            displayName = authUser.displayName ?: "",
-            progressState = ProgressState.Loading()
-        )
+//        val authUser = getAuthUser()
+//        _uiState.value = _uiState.value.copy(
+//            email = authUser.email,
+//            photoUrl = authUser.photoUrl,
+//            displayName = authUser.displayName ?: "",
+//            progressState = ProgressState.Loading()
+//        )
         viewModelScope.launch(Dispatchers.IO) {
             val user = userRepository.getUser()
             Log.d("ProfileViewModel User", user.toString())
@@ -61,10 +60,11 @@ class ProfileViewModel @Inject constructor(
             } else {
                 _uiState.value = _uiState.value.copy(
                     user = user,
-                    uid = user.uid,
+                    uid = user.id,
                     email = user.email,
                     phone = user.phone,
-                    usertype = user.usertype,
+                    isAdmin = user.isAdmin,
+                    isStudent = user.isStudent,
                     photoUrl = user.photoUrl,
                     isSignedIn = true,
                     displayName = user.displayName,

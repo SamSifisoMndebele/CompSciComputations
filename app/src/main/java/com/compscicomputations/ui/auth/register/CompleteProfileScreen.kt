@@ -40,8 +40,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.compscicomputations.core.client.auth.AuthDataStore.setTermsAccepted
-import com.compscicomputations.core.client.auth.models.Usertype
+import com.compscicomputations.client.auth.AuthDataStore.setTermsAccepted
 import com.compscicomputations.theme.comicNeueFamily
 import com.compscicomputations.theme.hintAdminCode
 import com.compscicomputations.theme.hintPhone
@@ -91,27 +90,27 @@ fun CompleteProfileScreen(
                     .clickable { userTypesExpanded = !userTypesExpanded }
                     .focusable(false)
                     .padding(vertical = 4.dp),
-                value = uiState.usertype.name,
+                value = uiState.isAdmin.toString(),
                 onValueChange = {},
                 label = { Text(text = hintUsertype) },
                 readOnly = true,
                 shape = RoundedCornerShape(18.dp),
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = userTypesExpanded) },
             )
-            ExposedDropdownMenu(
-                expanded = userTypesExpanded,
-                onDismissRequest = { userTypesExpanded = false }
-            ) {
-                Usertype.entries.forEach {
-                    DropdownMenuItem(
-                        text = { Text(text = it.name) },
-                        onClick = {
-                            viewModel.setUsertype(it)
-                            userTypesExpanded = false
-                        }
-                    )
-                }
-            }
+//            ExposedDropdownMenu(
+//                expanded = userTypesExpanded,
+//                onDismissRequest = { userTypesExpanded = false }
+//            ) {
+//                Usertype.entries.forEach {
+//                    DropdownMenuItem(
+//                        text = { Text(text = it.name) },
+//                        onClick = {
+//                            viewModel.setUsertype(it)
+//                            userTypesExpanded = false
+//                        }
+//                    )
+//                }
+//            }
         }
 
         AnimatedVisibility(uiState.isAdmin) {

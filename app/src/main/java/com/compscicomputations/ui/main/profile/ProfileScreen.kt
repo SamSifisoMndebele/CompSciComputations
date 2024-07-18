@@ -48,7 +48,6 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
 import coil.compose.AsyncImage
 import com.compscicomputations.BuildConfig
-import com.compscicomputations.core.client.auth.models.Usertype
 import com.compscicomputations.theme.comicNeueFamily
 import com.compscicomputations.ui.utils.CompSciScaffold
 import com.compscicomputations.ui.utils.OptionButton
@@ -161,7 +160,11 @@ fun ProfileScreen(
                                                 shimmerBrush(showShimmer = uiState.progressState.isLoading),
                                                 CircleShape
                                             ),
-                                        text = uiState.usertype.takeIf { it != Usertype.OTHER }?.name ?: "",
+                                        text = when {
+                                            uiState.isAdmin -> "ADMIN"
+                                            uiState.isStudent -> "STUDENT"
+                                            else -> ""
+                                        },
                                         fontSize = 18.sp,
                                         color = MaterialTheme.colorScheme.primary,
                                         fontWeight = FontWeight.Bold,

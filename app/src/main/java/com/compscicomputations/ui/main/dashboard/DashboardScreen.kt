@@ -34,8 +34,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import com.compscicomputations.core.client.auth.models.Usertype
-import com.compscicomputations.core.client.auth.models.DynamicFeature
+import com.compscicomputations.client.auth.models.DynamicFeature
 import com.compscicomputations.theme.comicNeueFamily
 import com.compscicomputations.ui.utils.CompSciScaffold
 import com.compscicomputations.ui.utils.OptionButton
@@ -116,8 +115,9 @@ fun DashboardScreen(
                                             ),
                                         text = when {
                                             !uiState.isCompleteProfile -> "Complete Profile"
-                                            uiState.usertype == Usertype.OTHER -> ""
-                                            else -> uiState.usertype.name
+                                            uiState.isAdmin -> "ADMIN"
+                                            uiState.isStudent -> "STUDENT"
+                                            else -> ""
                                         },
                                         fontSize = 18.sp,
                                         color = MaterialTheme.colorScheme.primary,

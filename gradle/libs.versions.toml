@@ -30,7 +30,8 @@ composeBom = "2024.06.00"
 lottieCompose = "4.0.0"
 playServicesMlkitTextRecognition = "19.0.0"
 playServicesTfliteGpu = "16.2.0"
-postgresql = "42.5.1"
+protobufJava = "4.26.1"
+protobufPlugin = "0.9.4"
 roomRuntime = "2.6.1"
 supabaseBom = "2.3.0"
 coilCompose = "2.6.0"
@@ -88,13 +89,14 @@ androidx-datastore-preferences = { module = "androidx.datastore:datastore-prefer
 androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomRuntime" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
+androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomRuntime" }
 androidx-room-testing = { module = "androidx.room:room-testing", version.ref = "roomRuntime" }
 googleid = { module = "com.google.android.libraries.identity.googleid:googleid", version.ref = "googleid" }
 lottie-compose = { module = "com.airbnb.android:lottie-compose", version.ref = "lottieCompose" }
 play-services-mlkit-text-recognition = { module = "com.google.android.gms:play-services-mlkit-text-recognition", version.ref = "playServicesMlkitTextRecognition" }
 play-services-tflite-gpu = { module = "com.google.android.gms:play-services-tflite-gpu", version.ref = "playServicesTfliteGpu" }
 play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "playServicesAuth" }
-postgresql = { module = "org.postgresql:postgresql", version.ref = "postgresql" }
+protobuf-java = { module = "com.google.protobuf:protobuf-java", version.ref = "protobufJava" }
 supabase-bom = { module = "io.github.jan-tennert.supabase:bom", version.ref = "supabaseBom" }
 supabase-postgrest-kt = { module = "io.github.jan-tennert.supabase:postgrest-kt", name = "postgrest-kt"}
 supabase-gotrue-kt = { module = "io.github.jan-tennert.supabase:gotrue-kt", name = "gotrue-kt"}
@@ -150,6 +152,7 @@ google-gms-google-services = { id = "com.google.gms.google-services", version.re
 google-devtools-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 google-firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "crashlytics" }
 google-dagger-hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hiltAndroid" }
+google-protobuf = { id = "com.google.protobuf", version.ref = "protobufPlugin" }
 android-library = { id = "com.android.library", version.ref = "agp" }
 android-dynamic-feature = { id = "com.android.dynamic-feature", version.ref = "agp" }
 google-android-libraries-mapsplatform-secrets-gradle-plugin = { id = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin", version.ref = "googleAndroidLibrariesMapsplatformSecretsGradlePlugin" }

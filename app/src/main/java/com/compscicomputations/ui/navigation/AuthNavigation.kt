@@ -1,6 +1,7 @@
 package com.compscicomputations.ui.navigation
 
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
@@ -11,11 +12,14 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import androidx.navigation.toRoute
-import com.compscicomputations.core.client.auth.AuthDataStore.setFirstLaunch
-import com.compscicomputations.core.client.auth.AuthDataStore.setTermsAccepted
-import com.compscicomputations.core.client.auth.AuthDataStore.termsAcceptedFlow
+import com.compscicomputations.client.auth.AuthDataStore.firstLaunchFlow
+import com.compscicomputations.client.auth.AuthDataStore.setFirstLaunch
+import com.compscicomputations.client.auth.AuthDataStore.setTermsAccepted
+import com.compscicomputations.client.auth.AuthDataStore.termsAcceptedFlow
 import com.compscicomputations.ui.auth.login.LoginScreen
 import com.compscicomputations.ui.auth.login.LoginViewModel
+import com.compscicomputations.ui.auth.login.PasswordLoginScreen
+import com.compscicomputations.ui.auth.login.PasswordLoginViewModel
 import com.compscicomputations.ui.auth.onboarding.OnboardingScreen
 import com.compscicomputations.ui.auth.onboarding.OnboardingViewModel
 import com.compscicomputations.ui.auth.register.CompleteProfileScreen
@@ -30,30 +34,31 @@ fun NavGraphBuilder.authNavigation(navController: NavHostController) {
     navigation<Auth>(startDestination = Login) {
         composable<Login> {
             val context = LocalContext.current
-//            val firstLaunch by context.firstLaunchFlow.collectAsStateWithLifecycle(initialValue = false)
-            val firstLaunch  = true
+            val firstLaunch by context.firstLaunchFlow.collectAsState(initial = false)
             LaunchedEffect(firstLaunch) {
                 if (firstLaunch) navController.navigate(route = Onboarding) {
                     popUpTo<Login> { inclusive = true }
                     launchSingleTop = true
                 }
             }
-            val viewModel: LoginViewModel = hiltViewModel()
-            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
             LoginScreen(
-                viewModel = viewModel,
-                uiState = uiState,
+                navigateOnboarding = { navController.navigate(route = Onboarding) { launchSingleTop = true } },
+                navigatePasswordLogin = { navController.navigate(route = PasswordLogin) { launchSingleTop = true } }
+            ) {
+                navController.navigate(route = Main) {
+                    popUpTo<Auth> { inclusive = true }
+                    launchSingleTop = true
+                }
+            }
+        }
+        composable<PasswordLogin> {
+            PasswordLoginScreen(
                 navigateOnboarding = { navController.navigate(route = Onboarding) { launchSingleTop = true } },
                 navigateRegister = { navController.navigate(route = Register) { launchSingleTop = true } },
+                navigateUp = { navController.navigateUp() },
                 navigateResetPassword = { email ->
                     navController.navigate(route = PasswordReset(email)) { launchSingleTop = true }
                 },
-                navigateCompleteProfile = {
-                    navController.navigate(route = CompleteProfile) {
-                        popUpTo<Auth> { inclusive = false }
-                        launchSingleTop = true
-                    }
-                }
             ) {
                 navController.navigate(route = Main) {
                     popUpTo<Auth> { inclusive = true }

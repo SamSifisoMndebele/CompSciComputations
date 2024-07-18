@@ -4,6 +4,7 @@ import kotlinx.serialization.Serializable
 
 
 // Routes
+@Serializable object Loading
 @Serializable object Onboarding
 
 // Route for nested graph
@@ -12,6 +13,7 @@ import kotlinx.serialization.Serializable
 
 // Routes inside Authentication nested graph
 @Serializable object Login
+@Serializable object PasswordLogin
 @Serializable object Register
 @Serializable object CompleteProfile
 @Serializable object Terms

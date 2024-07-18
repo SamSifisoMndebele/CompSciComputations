@@ -1,5 +1,3 @@
-import java.util.Properties
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
@@ -26,11 +24,6 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables { useSupportLibrary = true }
-
-        val properties = Properties()
-        properties.load(project.rootProject.file("local.properties").inputStream())
-        buildConfigField("String", "GENERATIVE_AI_KEY", properties.getProperty("generative_ai_key"))
-        buildConfigField("String", "WEB_CLIENT_ID", properties.getProperty("web_google_client_id"))
     }
 
     buildTypes {
@@ -45,11 +38,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "1.8"
     }
     buildFeatures {
         compose = true
@@ -86,6 +79,7 @@ dependencies {
 
     /**Local database*/
     implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.datastore)
     implementation(libs.androidx.datastore.preferences)
