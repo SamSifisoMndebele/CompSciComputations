@@ -5,9 +5,9 @@ import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.dataStore
 import com.compscicomputations.client.auth.data.source.local.UserSerializer.asUser
-import com.compscicomputations.client.auth.models.RemoteUser
+import com.compscicomputations.client.auth.data.source.remote.RemoteUser
 import com.compscicomputations.client.auth.models.User
-import com.compscicomputations.core.client.UserLocal
+import com.compscicomputations.core.client.LocalUser
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.flow
 
 object UserDataStore {
     private const val TAG = "UserDataStore"
-    private val Context.userDataStore: DataStore<UserLocal> by dataStore(
+    private val Context.userDataStore: DataStore<LocalUser> by dataStore(
         fileName = "user.pb",
         serializer = UserSerializer
     )
@@ -29,7 +29,7 @@ object UserDataStore {
     val Context.isUserSignedInFlow: Flow<Boolean>
         get() = flow {
             val currentUser = userDataStore.data.first()
-            emit(currentUser != UserLocal.getDefaultInstance())
+            emit(currentUser != LocalUser.getDefaultInstance())
         }.catch { e ->
             Log.e(TAG, "Error checking if user is signed in", e)
             emit(false)
@@ -38,7 +38,7 @@ object UserDataStore {
     internal val Context.userFlow: Flow<User?>
         get() = flow {
             userDataStore.data.collect { localUser ->
-                if (localUser != UserLocal.getDefaultInstance()) {
+                if (localUser != LocalUser.getDefaultInstance()) {
                     emit(localUser.asUser)
                 } else {
                     emit(null)
@@ -53,7 +53,7 @@ object UserDataStore {
     internal suspend fun Context.clearUser() {
         try {
             userDataStore.updateData {
-                UserLocal.getDefaultInstance()
+                LocalUser.getDefaultInstance()
             }
         } catch (e: Exception) {
             Log.w(TAG, "Clear User Error:", e)

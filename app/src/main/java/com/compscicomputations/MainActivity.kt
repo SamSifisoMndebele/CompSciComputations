@@ -12,20 +12,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -37,6 +31,7 @@ import com.compscicomputations.ui.navigation.Main
 import com.compscicomputations.ui.navigation.authNavigation
 import com.compscicomputations.ui.navigation.mainNavigation
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.first
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -58,18 +53,14 @@ class MainActivity : ComponentActivity() {
                         exitTransition = { fadeOut() }
                     ) {
                         val context = LocalContext.current
-                        val isUserSignedIn by context.isUserSignedInFlow.collectAsState(initial = null)
-                        LaunchedEffect(isUserSignedIn) {
-                            when(isUserSignedIn) {
-                                true -> navController.navigate(route = Main) {
-                                    popUpTo<Loading> { inclusive = true }
-                                    launchSingleTop = true
-                                }
-                                false -> navController.navigate(route = Auth) {
-                                    popUpTo<Loading> { inclusive = true }
-                                    launchSingleTop = true
-                                }
-                                null -> {}
+                        LaunchedEffect(Unit) {
+                            if (context.isUserSignedInFlow.first()) navController.navigate(route = Main) {
+                                popUpTo<Loading> { inclusive = true }
+                                launchSingleTop = true
+                            }
+                            else navController.navigate(route = Auth) {
+                                popUpTo<Loading> { inclusive = true }
+                                launchSingleTop = true
                             }
                         }
                         Surface(
@@ -88,14 +79,14 @@ class MainActivity : ComponentActivity() {
                                     contentDescription = "App Logo",
                                     contentScale = ContentScale.FillWidth
                                 )
-                                CircularProgressIndicator(
-                                    strokeWidth = 6.dp,
-                                    modifier = Modifier
-                                        .size(80.dp)
-                                        .padding(bottom = 8.dp),
-                                    color = MaterialTheme.colorScheme.secondary,
-                                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
-                                )
+//                                CircularProgressIndicator(
+//                                    strokeWidth = 6.dp,
+//                                    modifier = Modifier
+//                                        .size(80.dp)
+//                                        .padding(bottom = 8.dp),
+//                                    color = MaterialTheme.colorScheme.secondary,
+//                                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
+//                                )
                             }
                         }
                     }

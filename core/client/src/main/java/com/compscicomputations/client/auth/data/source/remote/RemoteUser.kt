@@ -1,11 +1,12 @@
-package com.compscicomputations.client.auth.models
+package com.compscicomputations.client.auth.data.source.remote
 
-import com.compscicomputations.core.client.UserLocal
+import com.compscicomputations.client.auth.models.User
+import com.compscicomputations.core.client.LocalUser
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class RemoteUser(
+internal data class RemoteUser(
     val id: String,
     val email: String,
     val names: String,
@@ -43,17 +44,17 @@ data class RemoteUser(
             updatedAt = updatedAt
         )
 
-    val asLocalUser: UserLocal
-        get() = UserLocal.newBuilder()
+    val asLocalUser: LocalUser
+        get() = LocalUser.newBuilder()
             .setId(id)
             .setEmail(email)
             .setNames(names)
             .setLastname(lastname)
-            .setPhotoUrl(photoUrl)
-            .setPhone(phone)
+            .setPhotoUrl(photoUrl?:"")
+            .setPhone(phone?:"")
             .setIsAdmin(isAdmin)
             .setIsStudent(isStudent)
             .setCreatedAt(createdAt)
-            .setUpdatedAt(updatedAt)
+            .setUpdatedAt(updatedAt?:"")
             .build()
 }

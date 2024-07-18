@@ -1,7 +1,6 @@
 package com.compscicomputations.client.auth.data.source.remote
 
 import com.compscicomputations.client.auth.models.NewUser
-import com.compscicomputations.client.auth.models.RemoteUser
 import com.compscicomputations.client.auth.models.Users
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -29,8 +28,8 @@ class AuthDataSource @Inject constructor(
      * @throws UnauthorizedException if the user credentials are not correct.
      * @throws ExpectationFailedException if the was server side error.
      */
-    suspend fun getUser(): RemoteUser {
-        val response = client.get(Users.Me)
+    internal suspend fun getUser(): RemoteUser {
+        val response = client.get(Users.Me())
         return when (response.status) {
             HttpStatusCode.Unauthorized -> throw UnauthorizedException(response.body<String?>())
             HttpStatusCode.ExpectationFailed -> throw ExpectationFailedException(response.bodyAsText())
@@ -40,13 +39,14 @@ class AuthDataSource @Inject constructor(
     }
 
     /**
+     * Login or register with google credentials.
      * @return [RemoteUser] the database user record.
      * If theres non, it will create a new user with google user information.
      * @throws UnauthorizedException if the id token is not valid.
      * @throws ExpectationFailedException if the was server side error.
      */
-    suspend fun continueWithGoogle(): RemoteUser {
-        val response = client.get(Users.Google)
+    internal suspend fun continueWithGoogle(): RemoteUser {
+        val response = client.get(Users.Google())
         return when (response.status) {
             HttpStatusCode.Unauthorized -> throw UnauthorizedException(response.body<String?>())
             HttpStatusCode.ExpectationFailed -> throw ExpectationFailedException(response.bodyAsText())
@@ -62,7 +62,7 @@ class AuthDataSource @Inject constructor(
      * @throws UnauthorizedException if the current user is unauthorized to get the requested user record.
      * @throws ExpectationFailedException if the was server side error.
      */
-    suspend fun getUser(id: String): RemoteUser {
+    internal suspend fun getUser(id: String): RemoteUser {
         val response = client.get(Users.Id(id = id))
         return when (response.status) {
             HttpStatusCode.NotFound -> throw NotFoundException(response.body<String?>())
@@ -80,7 +80,7 @@ class AuthDataSource @Inject constructor(
      * @throws UnauthorizedException if the current user is unauthorized to get the requested user record.
      * @throws ExpectationFailedException if the was server side error.
      */
-    suspend fun getUserByEmail(email: String): RemoteUser {
+    internal suspend fun getUserByEmail(email: String): RemoteUser {
         val response = client.get(Users.Email(email = email))
         return when (response.status) {
             HttpStatusCode.NotFound -> throw NotFoundException(response.body<String?>())
@@ -97,7 +97,7 @@ class AuthDataSource @Inject constructor(
      * @throws ExpectationFailedException if the was server side error.
      */
     internal suspend fun createUser(newUser: NewUser): RemoteUser {
-        val response = client.post(Users) {
+        val response = client.post(Users()) {
             contentType(ContentType.Application.Json)
             setBody(newUser)
         }

@@ -1,6 +1,7 @@
 package com.compscicomputations.client.auth.data.source
 
 import android.content.Context
+import android.util.Log
 import com.compscicomputations.client.auth.data.source.local.UserCredentialsDataStore.clearUserCredentials
 import com.compscicomputations.client.auth.data.source.local.UserCredentialsDataStore.idTokenCredentialsFlow
 import com.compscicomputations.client.auth.data.source.local.UserCredentialsDataStore.passwordCredentialsFlow
@@ -10,9 +11,11 @@ import com.compscicomputations.client.auth.data.source.local.UserDataStore.clear
 import com.compscicomputations.client.auth.data.source.local.UserDataStore.saveUser
 import com.compscicomputations.client.auth.data.source.local.UserDataStore.userFlow
 import com.compscicomputations.client.auth.data.source.remote.AuthDataSource
+import com.compscicomputations.client.auth.data.source.remote.AuthDataSource.Companion.ExpectationFailedException
+import com.compscicomputations.client.auth.data.source.remote.AuthDataSource.Companion.UnauthorizedException
+import com.compscicomputations.client.auth.data.source.remote.RemoteUser
 import com.compscicomputations.client.auth.models.NewUser
 import com.compscicomputations.client.auth.models.PasswordCredentials
-import com.compscicomputations.client.auth.models.RemoteUser
 import com.compscicomputations.client.auth.models.User
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -39,7 +42,7 @@ class AuthRepository @Inject constructor(
 //                }
 //            } ?: let {
 //                context.userDataStore.updateData {
-//                    UserLocal.getDefaultInstance()
+//                    LocalUser.getDefaultInstance()
 //                }
 //            }
 //        }.catch { e ->
@@ -71,18 +74,37 @@ class AuthRepository @Inject constructor(
 
     /// --- User --------------------------------------------------------
 
-    suspend fun createUser(newUser: NewUser): RemoteUser = networkDataSource.createUser(newUser)
+    suspend fun createUser(newUser: NewUser): User = networkDataSource.createUser(newUser).asUser
 
     val currentUserFlow: Flow<User?>
         get() = context.userFlow
 
+    /**
+     * Login or register with google credentials.
+     * If theres non, it will create a new user with google user information.
+     * @throws UnauthorizedException if the id token is not valid.
+     * @throws ExpectationFailedException if the was server side error.
+     */
     suspend fun continueWithGoogle(googleIdTokenCredential: GoogleIdTokenCredential) {
-        context.saveIdTokenCredentials(googleIdTokenCredential.idToken)
-        networkDataSource.continueWithGoogle().let { user ->
-            context.saveUser(user)
+        try {
+            context.saveIdTokenCredentials(googleIdTokenCredential.idToken)
+            networkDataSource.continueWithGoogle().let { user ->
+                Log.d(TAG, "RemoteUser: $user")
+                context.savePasswordCredentials(user.email, user.googlePassword!!)
+                context.saveUser(user)
+            }
+        } catch (e: UnauthorizedException) {
+            Log.e(TAG, "UnauthorizedException::continueWithGoogle", e)
+        } catch (e: ExpectationFailedException) {
+            Log.e(TAG, "ExpectationFailedException::continueWithGoogle", e)
+        } catch (e: Exception) {
+            Log.e(TAG, "Exception::continueWithGoogle", e)
         }
     }
 
+    /**
+     * Login with email and password
+     */
     suspend fun continuePassword(email: String, password: String) {
         context.savePasswordCredentials(email, password)
         networkDataSource.getUser().let { user ->

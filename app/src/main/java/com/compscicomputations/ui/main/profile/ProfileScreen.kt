@@ -32,6 +32,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -78,6 +79,13 @@ fun ProfileScreen(
         if (it) cameraLauncher.launch(uri)
         else Toast.makeText(context, "Permission Denied", Toast.LENGTH_SHORT).show()
     }
+    var logoutAlertDialog by remember { mutableStateOf(false) }
+    LaunchedEffect(uiState.isSignedIn) {
+        if (!uiState.isSignedIn) {
+            logoutAlertDialog = false
+            navigateAuth()
+        }
+    }
 
     CompSciScaffold(
         title = "Profile",
@@ -93,7 +101,6 @@ fun ProfileScreen(
         navigateUp = navigateUp
     ) { contentPadding ->
 
-        var logoutAlertDialog by remember { mutableStateOf(false) }
         if (logoutAlertDialog) {
             AlertDialog(
                 icon = { Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = "Alert Icon") },
@@ -101,7 +108,7 @@ fun ProfileScreen(
                 text = { Text(text = "Do you want to logout?", fontFamily = comicNeueFamily) },
                 onDismissRequest = { logoutAlertDialog = false },
                 confirmButton = {
-                    TextButton(onClick = { viewModel.logout(); logoutAlertDialog = false; navigateAuth() }) {
+                    TextButton(onClick = { viewModel.logout() }) {
                         Text("Logout", fontFamily = comicNeueFamily)
                     }
                 },

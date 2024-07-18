@@ -1,6 +1,7 @@
 package com.compscicomputations.client.auth.models
 
-import com.compscicomputations.core.client.UserLocal
+import com.compscicomputations.client.auth.data.source.remote.RemoteUser
+import com.compscicomputations.core.client.LocalUser
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import java.text.SimpleDateFormat
@@ -28,7 +29,6 @@ data class User(
     companion object {
         private val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS", Locale.US)
         fun List<User>.toLocal() = map(User::asLocalUser)
-        fun List<User>.toRemote() = map(User::asRemoteUser)
     }
     @SerialName("display_name")
     val displayName: String
@@ -38,21 +38,21 @@ data class User(
     fun updatedAt(): Date? = updatedAt?.replace("T", " ")?.let { dateFormat.parse(it) }
 
 
-    val asLocalUser: UserLocal
-        get() = UserLocal.newBuilder()
+    internal val asLocalUser: LocalUser
+        get() = LocalUser.newBuilder()
             .setId(id)
             .setEmail(email)
             .setNames(names)
             .setLastname(lastname)
-            .setPhotoUrl(photoUrl)
-            .setPhone(phone)
+            .setPhotoUrl(photoUrl?:"")
+            .setPhone(phone?:"")
             .setIsAdmin(isAdmin)
             .setIsStudent(isStudent)
             .setCreatedAt(createdAt)
-            .setUpdatedAt(updatedAt)
+            .setUpdatedAt(updatedAt?:"")
             .build()
 
-    val asRemoteUser
+    internal val asRemoteUser
         get() = RemoteUser(
             id = id,
             email = email,

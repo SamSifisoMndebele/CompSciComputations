@@ -3,26 +3,26 @@ package com.compscicomputations.client.auth.data.source.local
 import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.Serializer
 import androidx.datastore.preferences.protobuf.InvalidProtocolBufferException
-import com.compscicomputations.client.auth.models.RemoteUser
+import com.compscicomputations.client.auth.data.source.remote.RemoteUser
 import com.compscicomputations.client.auth.models.User
-import com.compscicomputations.core.client.UserLocal
+import com.compscicomputations.core.client.LocalUser
 import java.io.InputStream
 import java.io.OutputStream
 
-internal object UserSerializer : Serializer<UserLocal> {
-    override val defaultValue: UserLocal = UserLocal.getDefaultInstance()
+internal object UserSerializer : Serializer<LocalUser> {
+    override val defaultValue: LocalUser = LocalUser.getDefaultInstance()
 
-    override suspend fun readFrom(input: InputStream): UserLocal {
+    override suspend fun readFrom(input: InputStream): LocalUser {
         try {
-            return UserLocal.parseFrom(input)
+            return LocalUser.parseFrom(input)
         } catch (exception: InvalidProtocolBufferException) {
             throw CorruptionException("Cannot read proto.", exception)
         }
     }
 
-    override suspend fun writeTo(t: UserLocal, output: OutputStream) = t.writeTo(output)
+    override suspend fun writeTo(t: LocalUser, output: OutputStream) = t.writeTo(output)
 
-    val UserLocal.asUser
+    val LocalUser.asUser
         get() = User(
             id = id,
             email = email,
@@ -36,7 +36,7 @@ internal object UserSerializer : Serializer<UserLocal> {
             updatedAt = updatedAt
         )
 
-    val UserLocal.toRemote
+    val LocalUser.asRemoteUser
         get() = RemoteUser(
             id = id,
             email = email,

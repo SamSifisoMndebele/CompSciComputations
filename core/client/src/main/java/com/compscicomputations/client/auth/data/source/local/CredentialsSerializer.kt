@@ -3,20 +3,20 @@ package com.compscicomputations.client.auth.data.source.local
 import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.Serializer
 import androidx.datastore.preferences.protobuf.InvalidProtocolBufferException
-import com.compscicomputations.core.client.LoginCredentials
+import com.compscicomputations.core.client.UserCredentials
 import java.io.InputStream
 import java.io.OutputStream
 
-internal object CredentialsSerializer : Serializer<LoginCredentials> {
-    override val defaultValue: LoginCredentials = LoginCredentials.getDefaultInstance()
+internal object CredentialsSerializer : Serializer<UserCredentials> {
+    override val defaultValue: UserCredentials = UserCredentials.getDefaultInstance()
 
-    override suspend fun readFrom(input: InputStream): LoginCredentials {
+    override suspend fun readFrom(input: InputStream): UserCredentials {
         try {
-            return LoginCredentials.parseFrom(input)
+            return UserCredentials.parseFrom(input)
         } catch (exception: InvalidProtocolBufferException) {
             throw CorruptionException("Cannot read proto.", exception)
         }
     }
 
-    override suspend fun writeTo(t: LoginCredentials, output: OutputStream) = t.writeTo(output)
+    override suspend fun writeTo(t: UserCredentials, output: OutputStream) = t.writeTo(output)
 }
