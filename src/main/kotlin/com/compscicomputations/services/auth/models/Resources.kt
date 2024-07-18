@@ -6,7 +6,10 @@ import io.ktor.resources.*
 @Resource("users")
 class Users(val limit: Int = 10) {
     @Resource("me")
-    class Me(val parent: Users = Users())
+    class Me(val parent: Users = Users()) {
+        @Resource("google")
+        class Google(val parent: Me = Me())
+    }
 
     @Resource("{id}")
     class Id(val parent: Users = Users(), val id: String)

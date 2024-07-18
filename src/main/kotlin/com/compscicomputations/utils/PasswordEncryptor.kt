@@ -34,7 +34,7 @@ internal interface PasswordEncryptorContrast2 {
     fun encryptPassword(password: String): String
 }
 
-internal object PasswordEncryptor2 : PasswordEncryptorContrast2 {
+internal object PasswordEncryptor : PasswordEncryptorContrast2 {
     private const val LETTERS: String = "_abcdefghijklmnopqrstuvwxyz"
     private const val UPPERCASE_LETTERS: String = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     private const val NUMBERS: String = "0123456789"

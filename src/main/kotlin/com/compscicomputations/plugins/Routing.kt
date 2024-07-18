@@ -128,7 +128,7 @@ fun Application.configureRouting() {
     val resourcesFormat = plugin(Resources).resourcesFormat
     routing {
         authenticateAdmin {
-            get<Admins.Me> { call.respondRedirect(href(resourcesFormat, Users.Me())) }
+//            get<Admins.Me> { call.respondRedirect(href(resourcesFormat, Users.Me())) }
             get<Admins.Id> { call.respondRedirect(href(resourcesFormat, Users.Id(id = it.id))) }
         }
     }

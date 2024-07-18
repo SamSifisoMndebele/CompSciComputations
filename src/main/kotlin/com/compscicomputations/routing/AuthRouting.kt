@@ -9,6 +9,7 @@ import com.compscicomputations.services.auth.models.requests.NewAdminPin
 import com.compscicomputations.services.auth.models.requests.NewUser
 import com.compscicomputations.services.auth.models.requests.UpdateUser
 import io.ktor.http.*
+import io.ktor.resources.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.plugins.ratelimit.*
@@ -36,6 +37,28 @@ fun Routing.authRouting() {
             call.respond(HttpStatusCode.Created)
         } catch (e: Exception) {
             call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
+        }
+    }
+
+    authenticate("google") {
+        get<Users.Me.Google> {
+            try {
+                val user = call.principal<User>()!!
+                call.respond(HttpStatusCode.OK, user)
+            } catch (e: Exception) {
+                call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
+            }
+        }
+    }
+
+    authenticateAdmin {
+        get<Admins.Me> {
+            try {
+                val user = call.principal<User>()!!
+                call.respond(HttpStatusCode.OK, user)
+            } catch (e: Exception) {
+                call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
+            }
         }
     }
 

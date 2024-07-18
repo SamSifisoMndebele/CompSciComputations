@@ -46,12 +46,12 @@ internal class AuthProvider(config: AuthConfig, private val asAdmin: Boolean = f
                             logger.warn("User does not exists.")
                             authService.createUser(NewUser(
                                 email = googleToken.email,
-                                names = googleToken.givenName?:"",
-                                lastname = googleToken.familyName?:"",
+                                names = googleToken.names?:"",
+                                lastname = googleToken.lastname?:"",
                                 isAdmin = false,
                                 isStudent = false,
                                 password = null,
-                                photoUrl = googleToken.pictureUrl,
+                                photoUrl = googleToken.photoUrl,
                                 phone = null,
                                 adminPin = null,
                                 course = null,

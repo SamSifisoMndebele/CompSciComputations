@@ -21,6 +21,8 @@ data class User(
     val createdAt: String,
     @SerialName("updated_at")
     val updatedAt: String?,
+    @SerialName("temp_password")
+    val tempPassword: String? = null,
 ) : Principal
 
 //    id uuid primary key default ext.gen_random_uuid() not null,

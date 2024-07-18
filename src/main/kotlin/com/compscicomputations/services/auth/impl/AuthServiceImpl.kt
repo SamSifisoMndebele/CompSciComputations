@@ -166,4 +166,15 @@ internal class AuthServiceImpl : AuthService {
             it.toUser()
         }!!.single()
     }
+
+    override suspend fun updatePassword(id: String, password: String) = dbQuery(conn) {
+        executeUpdate("""
+            update auth.users 
+            set password_hash = ext.crypt(?, ext.gen_salt('md5'))
+            where id = ?::uuid
+            """.trimMargin()) {
+            setString(1, password)
+            setString(2, id)
+        }
+    }
 }

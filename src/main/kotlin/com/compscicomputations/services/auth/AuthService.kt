@@ -80,4 +80,11 @@ internal interface AuthService {
      * @throws Exception if user cresdintial not valid
      */
     suspend fun validatePassword(email: String, password: String): User
+
+    /**
+     * Update user password with email
+     * @param id user unique identifier
+     * @param password user raw password
+     */
+    suspend fun updatePassword(id: String, password: String)
 }

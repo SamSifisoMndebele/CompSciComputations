@@ -7,7 +7,7 @@ import io.ktor.server.auth.*
 
 internal class AuthConfig(name: String?) : AuthenticationProvider.Config(name) {
   internal var googleAuth = GoogleAuth()
-  internal fun realm(isAdmin: Boolean) = if (isAdmin) "Access server as admin user." else "Access server as user."
+  internal fun realm(isAdmin: Boolean) = if (isAdmin) "Access to the server as an admin user." else "Access to the server as a user."
   internal var authenticate: AuthenticationFunction<User> = {
     throw NotImplementedError("Auth `validate {...}` function not specified.")
   }
