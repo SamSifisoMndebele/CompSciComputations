@@ -1,30 +1,18 @@
 package com.compscicomputations.routing
 
-import com.compscicomputations.services.auth.models.response.User
-import com.compscicomputations.authentication.authenticateAdmin
-import com.compscicomputations.plugins.validateAdminPinLimit
-import com.compscicomputations.services.auth.AuthService
-import com.compscicomputations.services.auth.models.*
-import com.compscicomputations.services.auth.models.requests.NewAdminPin
-import com.compscicomputations.services.auth.models.requests.NewUser
-import com.compscicomputations.services.auth.models.requests.UpdateUser
 import com.compscicomputations.services.publik.PublicService
 import com.compscicomputations.services.publik.models.Onboarding
 import com.compscicomputations.services.publik.models.requests.NewOnboardingItem
 import com.compscicomputations.services.publik.models.requests.UpdateOnboardingItem
 import io.ktor.http.*
 import io.ktor.server.application.*
-import io.ktor.server.auth.*
-import io.ktor.server.plugins.ratelimit.*
 import io.ktor.server.request.*
 import io.ktor.server.resources.*
 import io.ktor.server.resources.post
 import io.ktor.server.resources.put
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.ktor.server.sessions.*
 import org.koin.ktor.ext.inject
-
 
 
 fun Routing.publicRouting() {

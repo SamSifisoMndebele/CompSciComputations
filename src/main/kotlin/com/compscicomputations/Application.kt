@@ -16,7 +16,6 @@ fun main() {
 fun Application.module() {
     install(ContentNegotiation) { json() }
     install(Resources)
-    configureSessions()
     configureSecurity()
     configureKoin()
     configureRateLimit()

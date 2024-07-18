@@ -57,7 +57,6 @@ dependencies {
     implementation("io.ktor:ktor-server-content-negotiation-jvm")
     implementation("io.ktor:ktor-server-request-validation-jvm")
     implementation("io.ktor:ktor-serialization-kotlinx-json-jvm")
-    implementation("io.ktor:ktor-server-sessions-jvm")
     implementation("io.ktor:ktor-server-rate-limit-jvm")
     implementation("io.ktor:ktor-server-resources-jvm")
 }

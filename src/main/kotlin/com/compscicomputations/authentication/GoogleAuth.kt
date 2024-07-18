@@ -1,4 +1,4 @@
-package com.compscicomputations.authentication.google
+package com.compscicomputations.authentication
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier
 import com.google.api.client.http.apache.v2.ApacheHttpTransport

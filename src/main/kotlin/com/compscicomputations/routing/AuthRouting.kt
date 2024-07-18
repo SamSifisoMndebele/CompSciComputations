@@ -1,7 +1,8 @@
 package com.compscicomputations.routing
 
 import com.compscicomputations.services.auth.models.response.User
-import com.compscicomputations.authentication.authenticateAdmin
+import com.compscicomputations.plugins.authenticateAdmin
+import com.compscicomputations.plugins.authenticateGoogle
 import com.compscicomputations.plugins.validateAdminPinLimit
 import com.compscicomputations.services.auth.AuthService
 import com.compscicomputations.services.auth.models.*
@@ -40,8 +41,8 @@ fun Routing.authRouting() {
         }
     }
 
-    authenticate("google") {
-        get<Users.Me.Google> {
+    authenticateGoogle {
+        get<Users.Google> {
             try {
                 val user = call.principal<User>()!!
                 call.respond(HttpStatusCode.OK, user)

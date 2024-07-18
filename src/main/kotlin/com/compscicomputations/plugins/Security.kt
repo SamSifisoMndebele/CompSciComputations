@@ -1,7 +1,7 @@
 package com.compscicomputations.plugins
 
-import com.compscicomputations.authentication.google.GoogleAuth
-import com.compscicomputations.authentication.google.GoogleToken
+import com.compscicomputations.authentication.GoogleAuth
+import com.compscicomputations.authentication.GoogleToken
 import com.compscicomputations.services.auth.AuthService
 import com.compscicomputations.services.auth.models.requests.NewUser
 import com.compscicomputations.services.auth.models.response.User
@@ -96,6 +96,10 @@ internal fun Application.configureSecurity() {
         }
     }
 }
+
+internal fun Route.authenticateGoogle(
+    build: Route.() -> Unit
+): Route = authenticate("google", build = build)
 
 internal fun Route.authenticateAdmin(
     optional: Boolean = false,

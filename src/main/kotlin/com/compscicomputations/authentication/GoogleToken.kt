@@ -1,4 +1,4 @@
-package com.compscicomputations.authentication.google
+package com.compscicomputations.authentication
 
 import io.ktor.server.auth.Principal
 
