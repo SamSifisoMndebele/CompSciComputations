@@ -32,13 +32,14 @@ fun HelpScreen(
     CompSciScaffold(
         title = "Help",
         navigateUp = navigateUp
-    ) {
-        var dropdown by remember { mutableStateOf(false) }
+    ) { contentPadding ->
+    var dropdown by remember { mutableStateOf(false) }
         val options = listOf("Option 1", "Option 2", "Option 3")
         var selectedoption by remember {
             mutableStateOf(options[0])
         }
         ExposedDropdownMenuBox(
+            modifier = Modifier.padding(contentPadding),
             expanded = dropdown,
             onExpandedChange = { dropdown = !dropdown }
         ) {

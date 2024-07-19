@@ -29,7 +29,24 @@ class ProfileViewModel @Inject constructor(
     }
 
     fun onRefresh() {
-        getCurrentState()
+        viewModelScope.launch {
+            authRepository.refreshUserFlow.first()
+                ?.let { user ->
+                    _uiState.value = _uiState.value.copy(
+                        email = user.email,
+                        isAdmin = user.isAdmin,
+                        isStudent = user.isStudent,
+                        photoUrl = user.photoUrl,
+                        displayName = user.displayName,
+                        progressState = ProgressState.Idle
+                    )
+                }
+                ?: let {
+                    _uiState.value = _uiState.value.copy(
+                        progressState = ProgressState.Idle
+                    )
+                }
+        }
     }
 
     private fun getCurrentState() {
@@ -38,7 +55,7 @@ class ProfileViewModel @Inject constructor(
                 ?.let { user ->
                     _uiState.value = _uiState.value.copy(
                         user = user,
-                        uid = user.id,
+                        id = user.id,
                         email = user.email,
                         phone = user.phone,
                         isAdmin = user.isAdmin,
@@ -51,11 +68,10 @@ class ProfileViewModel @Inject constructor(
                 } ?: let {
                     _uiState.value = _uiState.value.copy(
                         user = null,
-                        isSignedIn = true,
+                        isSignedIn = false,
                         progressState = ProgressState.Idle
                     )
                 }
-
         }
     }
 
@@ -65,13 +81,11 @@ class ProfileViewModel @Inject constructor(
 
     fun logout() {
         viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                try {
-                    authRepository.logout()
-                    _uiState.value = _uiState.value.copy(isSignedIn = false)
-                } catch (e: Exception) {
-                    _uiState.value = _uiState.value.copy(progressState = ProgressState.Error(e.localizedMessage))
-                }
+            try {
+                authRepository.logout()
+                _uiState.value = _uiState.value.copy(isSignedIn = false)
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(progressState = ProgressState.Error(e.localizedMessage))
             }
         }
     }

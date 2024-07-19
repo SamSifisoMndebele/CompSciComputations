@@ -11,7 +11,7 @@ fun SettingsScreen(
     CompSciScaffold(
         title = "Settings",
         navigateUp = navigateUp
-    ) {
+    ) { contentPadding ->
         Text(text = "Settings screen.")
     }
 }

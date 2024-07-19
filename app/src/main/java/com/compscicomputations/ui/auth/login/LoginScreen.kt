@@ -26,6 +26,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.credentials.CredentialManager
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.compscicomputations.R
@@ -60,10 +61,14 @@ fun LoginScreen(
         onLoadingDismiss = { viewModel.cancelLogin() },
         onExceptionDismiss = { viewModel.onProgressStateChange(ProgressState.Idle) }
     ) {
-        val activity by lazy { context.asActivity }
 
         OutlinedButton(
-            onClick = { viewModel.onLoginPassword(activity, navigatePasswordLogin) },
+            onClick = {
+                val activity = context.asActivity
+                viewModel.onLoginPassword(navigatePasswordLogin) { passwordRequest ->
+                    CredentialManager.create(activity)
+                        .getCredential(activity, passwordRequest)
+                }},
             modifier = Modifier
                 .fillMaxWidth()
                 .height(68.dp)
@@ -95,7 +100,13 @@ fun LoginScreen(
         }
 
         OutlinedButton(
-            onClick = { viewModel.onLoginWithGoogle(activity) },
+            onClick = {
+                val activity = context.asActivity
+                viewModel.onLoginWithGoogle { googleRequest ->
+                    CredentialManager.create(activity)
+                        .getCredential(activity, googleRequest)
+                }
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(68.dp)

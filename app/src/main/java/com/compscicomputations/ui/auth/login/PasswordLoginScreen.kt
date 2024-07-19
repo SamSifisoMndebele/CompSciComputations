@@ -37,6 +37,9 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.credentials.CreatePasswordRequest
+import androidx.credentials.CredentialManager
+import androidx.credentials.exceptions.CreateCredentialException
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.compscicomputations.theme.comicNeueFamily
@@ -46,6 +49,7 @@ import com.compscicomputations.ui.auth.isError
 import com.compscicomputations.ui.auth.showMessage
 import com.compscicomputations.ui.utils.CompSciAuthScaffold
 import com.compscicomputations.ui.utils.ProgressState
+import com.compscicomputations.utils.asActivity
 
 @Composable
 fun PasswordLoginScreen(
@@ -133,9 +137,18 @@ fun PasswordLoginScreen(
             }
         }
 
+        val activity by lazy { context.asActivity }
         Button(
             enabled = uiState.email.isNotBlank() && uiState.password.isNotBlank(),
-            onClick = { viewModel.onLogin() },
+            onClick = {
+                viewModel.onLogin { email, password ->
+                    val createPasswordRequest = CreatePasswordRequest(email, password)
+                    val credentialManager = CredentialManager.create(activity)
+                    credentialManager.createCredential(activity, createPasswordRequest)
+                }
+
+
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(68.dp)

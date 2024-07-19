@@ -19,7 +19,13 @@ import com.compscicomputations.client.auth.models.PasswordCredentials
 import com.compscicomputations.client.auth.models.User
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.retry
+import kotlinx.coroutines.flow.retryWhen
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class AuthRepository @Inject constructor(
@@ -30,25 +36,6 @@ class AuthRepository @Inject constructor(
 
 
 
-//    val refreshUserFlow: Flow<User?>
-//        get() = flow<User?> {
-//            val networkUser = withContext(Dispatchers.IO) {
-//                networkDataSource.getUser()
-//            }
-//            networkUser?.let { user ->
-//                emit(user.toExternal)
-//                context.userDataStore.updateData {
-//                    user.asLocalUser
-//                }
-//            } ?: let {
-//                context.userDataStore.updateData {
-//                    LocalUser.getDefaultInstance()
-//                }
-//            }
-//        }.catch { e ->
-//            Log.e(TAG, "Error fetching user", e)
-//            emit(null)
-//        }
 
 
 
@@ -79,6 +66,21 @@ class AuthRepository @Inject constructor(
     val currentUserFlow: Flow<User?>
         get() = context.userFlow
 
+    val refreshUserFlow: Flow<User?>
+        get() = flow<User?> {
+            networkDataSource.getUser().let { user ->
+                context.saveUser(user)
+                emit(user.asUser)
+            }
+        }/*.retry(3) {
+            Log.w(TAG, "Error fetching user, Retrying.", it)
+            it is ExpectationFailedException
+        }*//*.catch {
+            Log.e(TAG, "Error fetching user", it)
+            context.clearUser()
+            emit(null)
+        }*/
+
     /**
      * Login or register with google credentials.
      * If theres non, it will create a new user with google user information.
@@ -86,19 +88,12 @@ class AuthRepository @Inject constructor(
      * @throws ExpectationFailedException if the was server side error.
      */
     suspend fun continueWithGoogle(googleIdTokenCredential: GoogleIdTokenCredential) {
-        try {
-            context.saveIdTokenCredentials(googleIdTokenCredential.idToken)
-            networkDataSource.continueWithGoogle().let { user ->
-                Log.d(TAG, "RemoteUser: $user")
-                context.savePasswordCredentials(user.email, user.googlePassword!!)
-                context.saveUser(user)
-            }
-        } catch (e: UnauthorizedException) {
-            Log.e(TAG, "UnauthorizedException::continueWithGoogle", e)
-        } catch (e: ExpectationFailedException) {
-            Log.e(TAG, "ExpectationFailedException::continueWithGoogle", e)
-        } catch (e: Exception) {
-            Log.e(TAG, "Exception::continueWithGoogle", e)
+//        context.saveIdTokenCredentials(googleIdTokenCredential.idToken)
+        networkDataSource.bearerCredentialsUpdate(googleIdTokenCredential.idToken)
+        networkDataSource.continueWithGoogle().let { user ->
+            Log.d(TAG, "RemoteUser: $user")
+            context.savePasswordCredentials(user.email, user.googlePassword!!)
+            context.saveUser(user)
         }
     }
 
@@ -106,7 +101,8 @@ class AuthRepository @Inject constructor(
      * Login with email and password
      */
     suspend fun continuePassword(email: String, password: String) {
-        context.savePasswordCredentials(email, password)
+//        context.savePasswordCredentials(email, password)
+        networkDataSource.basicCredentialsUpdate(email, password)
         networkDataSource.getUser().let { user ->
             context.saveUser(user)
         }

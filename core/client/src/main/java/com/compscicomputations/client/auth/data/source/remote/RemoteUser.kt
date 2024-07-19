@@ -27,7 +27,7 @@ internal data class RemoteUser(
 ) {
     companion object {
         fun List<RemoteUser>.toExternal() = map(RemoteUser::asUser)
-        fun List<RemoteUser>.toLocal() = map(RemoteUser::asLocalUser)
+        fun List<RemoteUser>.toLocal() = map { it.asUser }
     }
 
     val asUser: User

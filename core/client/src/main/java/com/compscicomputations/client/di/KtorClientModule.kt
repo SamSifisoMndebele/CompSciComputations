@@ -34,6 +34,7 @@ import io.ktor.http.encodedPath
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.last
+import kotlinx.coroutines.flow.lastOrNull
 import javax.inject.Singleton
 
 @Module
@@ -81,46 +82,30 @@ object KtorClientModule {
         }
     }
 
-
     private fun <T: HttpClientEngineConfig> HttpClientConfig<T>.installAuth(context: Context) {
         install(Auth) {
-            basic {
-                credentials {
-                    context.passwordCredentialsFlow.first()
-                        ?.let {
-                            Log.d("PasswordCredentials", it.toString())
-                            BasicAuthCredentials(username = it.email, password = it.password)
-                        }
-                }
-                realm = "Access to the server"
-//                sendWithoutRequest { request ->
-//                    request.url.host == "compsci-computations.onrender.com"
+//            bearer {
+//                loadTokens {
+//                    context.idTokenCredentialsFlow.first()
+//                        ?.let {
+//                            Log.d("IdToken", it)
+//                            BearerTokens(it, "refreshToken")
+//                        }
 //                }
-            }
-            bearer {
-                // Configure bearer authentication
-                loadTokens {
-                    // Load tokens from a local storage and return them as the 'BearerTokens' instance
-                    context.idTokenCredentialsFlow.first()
-                        ?.let {
-                            Log.d("IdToken", it)
-                            BearerTokens(it, "refreshToken")
-                        }
-                }
-                refreshTokens { // this: RefreshTokensParams
-                    // Refresh tokens and return them as the 'BearerTokens' instance
-                    context.idTokenCredentialsFlow.last()
-                        ?.let {
-                            Log.d("IdToken", it)
-                            BearerTokens(it, "refreshToken")
-                        }
-                }
-                // Load and refresh tokens ...
-                sendWithoutRequest { request ->
-                    request.url.pathSegments == listOf("users", "google")
-
-                }
-            }
+//                sendWithoutRequest { request ->
+//                    request.url.pathSegments == listOf("users", "google")
+//                }
+//            }
+//            basic {
+//                credentials {
+//                    context.passwordCredentialsFlow.first()
+//                        ?.let {
+//                            Log.d("PasswordCredentials", it.toString())
+//                            BasicAuthCredentials(username = it.email, password = it.password)
+//                        }
+//                }
+//                sendWithoutRequest { true }
+//            }
         }
     }
 }

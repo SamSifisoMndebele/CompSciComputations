@@ -5,7 +5,7 @@ import com.compscicomputations.client.auth.models.User
 import com.compscicomputations.ui.utils.ProgressState
 
 data class ProfileUiState(
-    val uid: String = "",
+    val id: String = "",
     val isAdmin: Boolean = false,
     val isStudent: Boolean = false,
     val adminCode: String? = null,

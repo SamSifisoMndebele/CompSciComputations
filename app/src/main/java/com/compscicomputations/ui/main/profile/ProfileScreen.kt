@@ -81,10 +81,8 @@ fun ProfileScreen(
     }
     var logoutAlertDialog by remember { mutableStateOf(false) }
     LaunchedEffect(uiState.isSignedIn) {
-        if (!uiState.isSignedIn) {
-            logoutAlertDialog = false
-            navigateAuth()
-        }
+        logoutAlertDialog = false
+        if (!uiState.isSignedIn) navigateAuth()
     }
 
     CompSciScaffold(

@@ -1,6 +1,11 @@
 package com.compscicomputations.ui.auth.login
 
+import android.app.Activity
 import android.util.Log
+import androidx.credentials.ClearCredentialStateRequest
+import androidx.credentials.CreatePasswordRequest
+import androidx.credentials.CredentialManager
+import androidx.credentials.exceptions.CreateCredentialException
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.compscicomputations.client.auth.data.source.AuthRepository
@@ -26,7 +31,7 @@ class PasswordLoginViewModel @Inject constructor(
     val uiState: StateFlow<PasswordLoginUiState> = _uiState.asStateFlow()
 
     init {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             authRepository.passwordCredentialsFlow
                 .catch { e ->
                     Log.e(TAG, "passwordCredentialsFlow::error", e)
@@ -58,18 +63,22 @@ class PasswordLoginViewModel @Inject constructor(
     }
 
     private var loginJob: Job? = null
-    fun onLogin() {
+    fun onLogin(savePassword: suspend (email: String, password: String) -> Unit = {_,_->}) {
         _uiState.value = _uiState.value.copy(progressState = ProgressState.Loading("Login..."))
         loginJob = viewModelScope.launch {
             try {
-                withContext(Dispatchers.IO) { authRepository.continuePassword(_uiState.value.email, _uiState.value.password) }
+                authRepository.continuePassword(_uiState.value.email, _uiState.value.password)
+                savePassword(_uiState.value.email, _uiState.value.password)
                 _uiState.value = _uiState.value.copy(progressState = ProgressState.Success)
+            } catch (e: CreateCredentialException) {
+                _uiState.value = _uiState.value.copy(progressState = ProgressState.Success)
+                Log.w("LoginViewModel", "onLoginPassword::savePassword", e)
             } catch (e: CancellationException) {
                 _uiState.value = _uiState.value.copy(progressState = ProgressState.Idle)
-                Log.w("LoginViewModel", "onLoginWithGoogle:", e)
+                Log.w("LoginViewModel", "onLoginPassword", e)
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(progressState = ProgressState.Error(e.localizedMessage))
-                Log.e("LoginViewModel", "onLoginWithGoogle:", e)
+                Log.e("LoginViewModel", "onLoginPassword", e)
             }
         }
     }
