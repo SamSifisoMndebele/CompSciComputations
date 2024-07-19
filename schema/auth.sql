@@ -2,9 +2,9 @@ drop table if exists auth.users cascade ;
 create table if not exists auth.users(
     id uuid primary key default ext.gen_random_uuid() not null,
     email text unique not null,
+    password_hash text not null,
     names text not null,
     lastname text not null,
-    password_hash text default null,
     photo_url text default null,
     phone text default null,
     is_admin boolean default false not null,
