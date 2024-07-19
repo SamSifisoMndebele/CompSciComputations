@@ -9,6 +9,7 @@ import com.compscicomputations.services.auth.models.*
 import com.compscicomputations.services.auth.models.requests.NewAdminPin
 import com.compscicomputations.services.auth.models.requests.NewUser
 import com.compscicomputations.services.auth.models.requests.UpdateUser
+import com.compscicomputations.utils.OKOrNotFound
 import io.ktor.http.*
 import io.ktor.resources.*
 import io.ktor.server.application.*
@@ -22,24 +23,8 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import org.koin.ktor.ext.inject
 
-private inline val Any?.OKOrNotFound: HttpStatusCode
-    get() = if (this == null) HttpStatusCode.NotFound else HttpStatusCode.OK
-private inline val List<Any>?.OKOrNotFound: HttpStatusCode
-    get() = if (isNullOrEmpty()) HttpStatusCode.NotFound else HttpStatusCode.OK
-
 fun Routing.authRouting() {
     val authService by inject<AuthService>()
-
-    // Create a user
-    post<Users> {
-        try {
-            val userRequest = call.receive<NewUser>()
-            authService.createUser(userRequest)
-            call.respond(HttpStatusCode.Created)
-        } catch (e: Exception) {
-            call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
-        }
-    }
 
     authenticateGoogle {
         get<Users.Google> {
@@ -49,6 +34,17 @@ fun Routing.authRouting() {
             } catch (e: Exception) {
                 call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
             }
+        }
+    }
+
+    // Create a user
+    post<Users> {
+        try {
+            val userRequest = call.receive<NewUser>()
+            authService.createUser(userRequest)
+            call.respond(HttpStatusCode.Created)
+        } catch (e: Exception) {
+            call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
         }
     }
 

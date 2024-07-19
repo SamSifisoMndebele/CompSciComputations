@@ -1,12 +1,8 @@
 package com.compscicomputations.utils
 
-import com.compscicomputations.services.auth.models.other.AdminUser
-import com.compscicomputations.services.auth.models.other.StudentUser
-import com.compscicomputations.services.auth.models.response.User
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
-import kotlinx.serialization.SerialName
 import java.sql.Timestamp
 import java.text.SimpleDateFormat
 import java.util.*
@@ -36,10 +32,3 @@ inline val Any?.OKOrNotFound: HttpStatusCode
     get() = if (this == null) HttpStatusCode.NotFound else HttpStatusCode.OK
 inline val List<Any>?.OKOrNotFound: HttpStatusCode
     get() = if (isNullOrEmpty()) HttpStatusCode.NotFound else HttpStatusCode.OK
-
-inline val User.displayName: String
-    get() = "$names $lastname".trim()
-inline val AdminUser.displayName: String
-    get() = "$names $lastname".trim()
-inline val StudentUser.displayName: String
-    get() = "$names $lastname".trim()

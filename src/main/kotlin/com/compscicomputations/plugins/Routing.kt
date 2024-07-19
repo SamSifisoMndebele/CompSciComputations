@@ -1,6 +1,5 @@
 package com.compscicomputations.plugins
 
-import com.compscicomputations.authentication.GoogleToken
 import com.compscicomputations.routing.authRouting
 import com.compscicomputations.routing.publicRouting
 import com.compscicomputations.services.auth.models.Admins
@@ -127,8 +126,8 @@ fun Application.configureRouting() {
     // Redirects
     val resourcesFormat = plugin(Resources).resourcesFormat
     routing {
+        get<Admins.Me> { call.respondRedirect(href(resourcesFormat, Users.Me())) }
         authenticateAdmin {
-//            get<Admins.Me> { call.respondRedirect(href(resourcesFormat, Users.Me())) }
             get<Admins.Id> { call.respondRedirect(href(resourcesFormat, Users.Id(id = it.id))) }
         }
     }

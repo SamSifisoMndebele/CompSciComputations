@@ -13,7 +13,6 @@ import java.sql.ResultSet
 
 
 internal class AuthServiceImpl : AuthService {
-    private val logger = LoggerFactory.getLogger("AuthService")
     private var connection: Connection? = null
     private val conn : Connection
         get() {
@@ -24,51 +23,59 @@ internal class AuthServiceImpl : AuthService {
         }
 
     companion object {
+        private val logger = LoggerFactory.getLogger("AuthService")
+
         internal class UserExistsException(val email: String? = null) : Exception("The user${
             if (email != null) " with the provided email: $email" else "" } already exists")
+
+        private fun ResultSet.getUser(): User {
+            return User(
+                id = getObject("id").toString(),
+                email = getString("email"),
+                names = getString("names"),
+                lastname = getString("lastname"),
+                photoUrl = getString("photo_url"),
+                phone = getString("phone"),
+                isAdmin = getBoolean("is_admin"),
+                isStudent = getBoolean("is_student"),
+                createdAt = getTimestamp("created_at").asString,
+                updatedAt = getTimestamp("updated_at")?.asString
+            )
+        }
     }
 
     override suspend fun userIdByEmail(email: String): String? = dbQuery(conn) {
-        executeQuery("""
-            select id from auth.users where email like '$email'
-        """.trimIndent()) {
-            it.getString("")
-        }?.singleOrNull()
+        executeQuerySingleOrNull("select id from auth.users where email like '$email';", { getString("id") })
     }
 
     override suspend fun createUser(user: NewUser): User = dbQuery(conn) {
         //Insert the user values to the database
         try {
             if (user.isAdmin) {
-                executeQuery("select * from auth.insert_admin(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", {
+                executeQuerySingle("select * from auth.insert_admin(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", { getUser() }) {
                     setString(1, user.email)
-                    setString(2, user.adminPin)
-                    setString(3, user.names)
-                    setString(4, user.lastname)
-                    setString(5, user.password)
+                    setString(2, user.password)
+                    setString(3, user.adminPin)
+                    setString(4, user.names)
+                    setString(5, user.lastname)
                     setString(6, user.photoUrl)
                     setString(7, user.phone)
                     setBoolean(8, user.isStudent)
                     setString(9, user.course)
                     setString(10, user.school)
-                }) {
-                    it.toUser()
-                }!!.single()
+                }
             } else {
-                executeQuery("select * from auth.insert_user(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", {
+                executeQuerySingle("select * from auth.insert_user(?, ?, ?, ?, ?, ?, ?, ?, ?);", { getUser() }) {
                     setString(1, user.email)
-                    setString(2, user.names)
-                    setString(3, user.lastname)
-                    setString(4, user.password)
+                    setString(2, user.password)
+                    setString(3, user.names)
+                    setString(4, user.lastname)
                     setString(5, user.photoUrl)
                     setString(6, user.phone)
-                    setBoolean(7, false)
-                    setBoolean(8, user.isStudent)
-                    setString(9, user.course)
-                    setString(10, user.school)
-                }) {
-                    it.toUser()
-                }!!.single()
+                    setBoolean(7, user.isStudent)
+                    setString(8, user.course)
+                    setString(9, user.school)
+                }
             }
         } catch (e: Exception) {
             when {
@@ -80,49 +87,20 @@ internal class AuthServiceImpl : AuthService {
         }
     }
 
-    private fun ResultSet.toUser(): User {
-        return User(
-            id = getObject("id").toString(),
-            email = getString("email"),
-            names = getString("names"),
-            lastname = getString("lastname"),
-            photoUrl = getString("photo_url"),
-            phone = getString("phone"),
-            isAdmin = getBoolean("is_admin"),
-            isStudent = getBoolean("is_student"),
-            createdAt = getTimestamp("created_at").asString,
-            updatedAt = getTimestamp("updated_at")?.asString
-        )
-    }
-
     override suspend fun readUser(id: String): User? = dbQuery(conn) {
-        executeQuery("select * from auth.users where id = ?::uuid",
-            args = {
-                setString(1, id)
-            }
-        ) {
-            it.toUser()
-        }?.singleOrNull()
+        executeQuerySingleOrNull("select * from auth.users where id = ?::uuid", { getUser() }) {
+            setString(1, id)
+        }
     }
 
     override suspend fun readUserByEmail(email: String): User? = dbQuery(conn) {
-        executeQuery("select * from auth.users where email like ?",
-            args = {
-                setString(1, email)
-            }
-        ) {
-            it.toUser()
-        }?.singleOrNull()
+        executeQuerySingleOrNull("select * from auth.users where email like ?", { getUser() }) {
+            setString(1, email)
+        }
     }
 
     override suspend fun readUsers(limit: Int): List<User> = dbQuery(conn) {
-        executeQuery("""
-            select * from auth.users 
-            order by users.email limit $limit
-            """.trimIndent()
-        ) {
-            it.toUser()
-        } ?: listOf()
+        executeQuery("select * from auth.users order by users.email limit $limit", { getUser() })
     }
 
     override suspend fun updateUser(id: String, user: UpdateUser): User = dbQuery(conn) {
@@ -137,18 +115,9 @@ internal class AuthServiceImpl : AuthService {
     }
 
     override suspend fun validateAdminPin(email: String, pin: String): Int = dbQuery(conn) {
-        try {
-            executeQuery("select auth.validate_admin_pin(?, ?)",
-                args = {
-                    setString(1, email)
-                    setString(2, pin)
-                }
-            ) {
-                it.getInt(1)
-            }!!.single()
-        } catch (e: Exception) {
-            logger.warn(e.message)
-            throw e
+        executeQuerySingle("select auth.validate_admin_pin(?, ?)", { getInt(1) }) {
+            setString(1, email)
+            setString(2, pin)
         }
     }
 
@@ -159,20 +128,19 @@ internal class AuthServiceImpl : AuthService {
     }
 
     override suspend fun validatePassword(email: String, password: String): User = dbQuery(conn) {
-        executeQuery("select * from auth.validate_password_n_get_user(?, ?)", {
+        executeQuerySingle("select * from auth.validate_password_n_get_user(?, ?)", { getUser() }){
             setString(1, email)
             setString(2, password)
-        }) {
-            it.toUser()
-        }!!.single()
+        }
     }
 
-    override suspend fun updatePassword(id: String, password: String) = dbQuery(conn) {
+    override suspend fun updatePassword(id: String, password: String): Unit = dbQuery(conn) {
         executeUpdate("""
             update auth.users 
             set password_hash = ext.crypt(?, ext.gen_salt('md5'))
             where id = ?::uuid
-            """.trimMargin()) {
+            """.trimMargin()
+        ) {
             setString(1, password)
             setString(2, id)
         }

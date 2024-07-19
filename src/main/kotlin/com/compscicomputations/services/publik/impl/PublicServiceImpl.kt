@@ -8,12 +8,12 @@ import com.compscicomputations.services.publik.models.requests.UpdateOnboardingI
 import com.compscicomputations.services.publik.models.response.OnboardingItem
 import com.compscicomputations.utils.dbQuery
 import com.compscicomputations.utils.executeQuery
+import com.compscicomputations.utils.executeQuerySingleOrNull
 import com.compscicomputations.utils.executeUpdate
 import java.sql.Connection
 import java.sql.ResultSet
 
 class PublicServiceImpl : PublicService {
-
     private var connection: Connection? = null
     private val conn : Connection
         get() {
@@ -23,7 +23,19 @@ class PublicServiceImpl : PublicService {
             return connection!!
         }
 
-    override suspend fun createOnboardingItem(item: NewOnboardingItem) = dbQuery(conn) {
+    companion object {
+        private fun ResultSet.getOnboardingItem(): OnboardingItem {
+            return OnboardingItem(
+                id = getInt("id"),
+                sourceUrl = getString("source_url"),
+                title = getString("title"),
+                description = getString("description"),
+                type = SourceType.valueOf(getObject("type").toString()),
+            )
+        }
+    }
+
+    override suspend fun createOnboardingItem(item: NewOnboardingItem): Unit = dbQuery(conn) {
         executeUpdate("""
             insert into public.onboarding_items(source_url, title, description, type) 
             values (?, ?, ?, ?::public.source_type)
@@ -35,7 +47,7 @@ class PublicServiceImpl : PublicService {
         }
     }
 
-    override suspend fun updateOnboardingItem(id: Int, item: UpdateOnboardingItem) = dbQuery(conn) {
+    override suspend fun updateOnboardingItem(id: Int, item: UpdateOnboardingItem): Unit = dbQuery(conn) {
         val current = getOnboardingItem(id) ?: return@dbQuery
         executeUpdate("""
             update public.onboarding_items
@@ -53,31 +65,17 @@ class PublicServiceImpl : PublicService {
         }
     }
 
-    private fun ResultSet.toOnboardingItem(): OnboardingItem {
-        return OnboardingItem(
-            id = getInt("id"),
-            sourceUrl = getString("source_url"),
-            title = getString("title"),
-            description = getString("description"),
-            type = SourceType.valueOf(getObject("type").toString()),
-        )
-    }
-
     override suspend fun getOnboardingItem(id: Int): OnboardingItem? = dbQuery(conn) {
-        executeQuery("select * from public.onboarding_items where id = ?", {
+        executeQuerySingleOrNull("select * from public.onboarding_items where id = ?", { getOnboardingItem() }) {
             setInt(1, id)
-        }) {
-            it.toOnboardingItem()
-        }?.singleOrNull()
+        }
     }
 
     override suspend fun getOnboardingItems(): List<OnboardingItem> = dbQuery(conn) {
-        executeQuery("select * from public.onboarding_items") {
-            it.toOnboardingItem()
-        } ?: emptyList()
+        executeQuery("select * from public.onboarding_items", { getOnboardingItem() })
     }
 
-    override suspend fun deleteOnboardingItems(id: Int) = dbQuery(conn) {
+    override suspend fun deleteOnboardingItems(id: Int): Unit = dbQuery(conn) {
         executeUpdate("delete from public.onboarding_items where id = ?") {
             setInt(1, id)
         }

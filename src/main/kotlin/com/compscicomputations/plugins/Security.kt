@@ -1,7 +1,7 @@
 package com.compscicomputations.plugins
 
-import com.compscicomputations.authentication.GoogleAuth
-import com.compscicomputations.authentication.GoogleToken
+import com.compscicomputations.services.auth.impl.GoogleVerifier
+import com.compscicomputations.services.auth.impl.GoogleToken
 import com.compscicomputations.services.auth.AuthService
 import com.compscicomputations.services.auth.models.requests.NewUser
 import com.compscicomputations.services.auth.models.response.User
@@ -15,33 +15,27 @@ import org.slf4j.LoggerFactory
 
 internal fun Application.configureSecurity() {
     val logger = LoggerFactory.getLogger("Security")
-    val googleAuth = GoogleAuth()
+    val googleVerifier = GoogleVerifier()
     val authService by inject<AuthService>()
 
-    suspend fun createGoogleUser(googleToken: GoogleToken, password: String): User {
+    suspend fun GoogleToken.createUser(password: String): User {
         logger.warn("Goggle user does not exists.")
         return authService.createUser(NewUser(
-            email = googleToken.email,
-            names = googleToken.names?:"",
-            lastname = googleToken.lastname?:"",
-            isAdmin = false,
-            isStudent = false,
+            email = email,
             password = password,
-            photoUrl = googleToken.photoUrl,
-            phone = null,
-            adminPin = null,
-            course = null,
-            school = null
-        ))
+            names = names,
+            lastname = lastname,
+            photoUrl = photoUrl
+        )).copy(tempPassword = password)
     }
 
     install(Authentication) {
 
         bearer("google") {
-            realm = "Google user server access."
+            realm = "Authenticate google user."
             authenticate {
                 try {
-                    googleAuth.authenticateToken(it.token)
+                    googleVerifier.authenticate(it.token)
                         ?.let { googleToken ->
                             val tempPassword = PasswordEncryptor.generatePassword(length = 36)
                             authService.readUserByEmail(googleToken.email)
@@ -50,26 +44,26 @@ internal fun Application.configureSecurity() {
                                     user.copy(tempPassword = tempPassword)
                                 }
                                 ?: let {
-                                    createGoogleUser(googleToken, tempPassword).copy(
-                                        tempPassword = tempPassword
-                                    )
+                                    googleToken.createUser(tempPassword)
                                 }
                         }
                 } catch (e: Exception) {
-                    logger.warn("Goggle", e)
+                    logger.warn("Goggle Auth", e)
                     null
                 }
             }
         }
 
         basic {
-            realm = "User server access"
+            realm = "User access."
             validate { credentials ->
                 val email = credentials.name
-                val password = credentials.password
-
                 try {
-                    authService.validatePassword(email, password)
+                    authService.validatePassword(email, credentials.password).let {
+
+
+                        it
+                    }
                 } catch (e: Exception) {
                     logger.warn("Basic::User", e)
                     null
@@ -78,13 +72,11 @@ internal fun Application.configureSecurity() {
         }
 
         basic("admin") {
-            realm = "Admin server access"
+            realm = "Admin access."
             validate { credentials ->
                 val email = credentials.name
-                val password = credentials.password
-
                 try {
-                    authService.validatePassword(email, password).let {
+                    authService.validatePassword(email, credentials.password).let {
                         if (it.isAdmin) it
                         else throw InvalidCredentialsException("User with email: $email is not an admin.")
                     }

@@ -14,26 +14,53 @@ suspend inline fun <T> dbQuery(
     connection.block()
 }
 
-inline fun <T : Any> Connection.executeQuery(
+
+inline fun <T> Connection.executeQuery(
     @Language("postgresql") sql: String,
+    transform: ResultSet.() -> T,
     args: PreparedStatement.() -> Unit = {},
-    transform: Connection.(ResultSet) -> T
-): List<T>? {
-    val result = arrayListOf<T>()
-    prepareStatement(sql).apply {
-        args()
-        val resultSet = executeQuery()
-        while (resultSet.next()) result += transform(resultSet)
-    }
-    return result.ifEmpty { null }
+): List<T> {
+    val result = mutableListOf<T>()
+    val stmt = prepareStatement(sql)
+    stmt.args()
+    val resultSet = stmt.executeQuery()
+    while (resultSet.next()) result += transform(resultSet)
+    return result
 }
+
+inline fun <T> Connection.executeQueryOrNull(
+    @Language("postgresql") sql: String,
+    transform: ResultSet.() -> T,
+    args: PreparedStatement.() -> Unit = {},
+): List<T>? = executeQuery(sql, transform, args).ifEmpty { null }
+
+inline fun <T> Connection.executeQuerySingle(
+    @Language("postgresql") sql: String,
+    transform: ResultSet.() -> T,
+    args: PreparedStatement.() -> Unit = {},
+): T {
+    val stmt = prepareStatement(sql)
+    stmt.args()
+    val resultSet = stmt.executeQuery()
+    if (!resultSet.first()) throw NoSuchElementException("ResultSet is empty.")
+    if (resultSet.next()) throw IllegalArgumentException("ResultSet has more than one row.")
+    resultSet.first()
+    return transform(resultSet)
+}
+inline fun <T> Connection.executeQuerySingleOrNull(
+    @Language("postgresql") sql: String,
+    transform: ResultSet.() -> T,
+    args: PreparedStatement.() -> Unit = {},
+): T? = try { executeQuerySingle(sql, transform, args) } catch (e: NoSuchElementException) { null }
+
+
+
 
 inline fun Connection.executeUpdate(
     @Language("postgresql") sql: String,
-    argsFunc: PreparedStatement.() -> Unit = {},
-) {
-    prepareStatement(sql).apply {
-        argsFunc()
-        executeUpdate()
-    }
+    args: PreparedStatement.() -> Unit = {},
+): Int {
+    val stmt = prepareStatement(sql)
+    stmt.args()
+    return stmt.executeUpdate()
 }

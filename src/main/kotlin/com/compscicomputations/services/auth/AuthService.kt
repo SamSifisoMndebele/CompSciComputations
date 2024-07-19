@@ -77,7 +77,7 @@ internal interface AuthService {
      * @param email user email address
      * @param password user raw password
      * @return [User] the user record.
-     * @throws Exception if user cresdintial not valid
+     * @throws Exception if user credential not valid
      */
     suspend fun validatePassword(email: String, password: String): User
 
