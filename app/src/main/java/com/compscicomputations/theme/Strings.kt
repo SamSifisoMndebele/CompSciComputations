@@ -28,7 +28,7 @@ val offlineAuthentication = buildAnnotatedString {
 
 const val hintUsertype = "Register as _"
 const val hintAdminCode = "Admin Code *"
-const val hintUserImage = "User image"
+const val hintProfileImage = "Profile image"
 const val hintNames = "Names *"
 const val hintLastname = "Lastname *"
 const val hintEmail = "Email *"

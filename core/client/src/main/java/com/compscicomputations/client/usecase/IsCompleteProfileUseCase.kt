@@ -1,4 +1,4 @@
-package com.compscicomputations.client.auth.usecase
+package com.compscicomputations.client.usecase
 
 import android.content.Context
 import android.util.Log

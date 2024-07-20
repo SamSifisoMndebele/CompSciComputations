@@ -4,41 +4,23 @@ import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
 import android.os.Bundle
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.produceState
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
 import androidx.navigation.NavOptions
 import androidx.navigation.Navigator
+import com.compscicomputations.utils.network.ConnectionState
+import com.compscicomputations.utils.network.Connectivity.currentConnectivityState
+import com.compscicomputations.utils.network.Connectivity.observeConnectivityAsFlow
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.withContext
 import java.sql.Connection
 import kotlin.math.roundToInt
 
 infix fun CharSequence.notMatches(regex: Regex): Boolean = !regex.matches(this)
-
-fun NavController.navigate(
-    route: String,
-    args: Bundle,
-    navOptions: NavOptions? = null,
-    navigatorExtras: Navigator.Extras? = null
-) {
-    val nodeId = graph.findNode(route = route)?.id
-    if (nodeId != null) {
-        navigate(nodeId, args, navOptions, navigatorExtras)
-    } else {
-        navigate(route, navOptions, navigatorExtras)
-    }
-}
-
-fun cardXXGen(cardNumber: String):String{
-    return "**** **** **** ${cardNumber.takeLast(4)}"
-}
-
-fun Double.toRandString() : String {
-    val number : Int = (this * 100).roundToInt()
-    if (number == 0) return "R0.00"
-    val wholeNum = number/100
-    val decNum = "0$number".takeLast(2)
-    return "R$wholeNum.$decNum"
-}
 
 internal inline val Context.asActivity: Activity
     get() {
@@ -49,3 +31,24 @@ internal inline val Context.asActivity: Activity
         }
         throw IllegalStateException("Permissions should be called in the context of an Activity")
     }
+
+
+@ExperimentalCoroutinesApi
+@Composable
+fun rememberConnectivityState(): State<ConnectionState> {
+    val context = LocalContext.current
+
+    // Creates a State<ConnectionState> with current connectivity state as initial value
+    return produceState(initialValue = context.currentConnectivityState) {
+        // In a coroutine, can make suspend calls
+        context.observeConnectivityAsFlow().collect { value = it }
+    }
+}
+
+fun Long.roundBytes() : String {
+    val number : Int = ((this / 2024.0) * 10).roundToInt()
+    if (number == 0) return "0.0"
+    val wholeNum = number/10
+    val decNum = "$number".takeLast(1)
+    return "$wholeNum.$decNum"
+}

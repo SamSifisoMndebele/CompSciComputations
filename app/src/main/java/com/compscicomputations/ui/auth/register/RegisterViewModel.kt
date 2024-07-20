@@ -1,31 +1,34 @@
 package com.compscicomputations.ui.auth.register
 
-import android.app.Activity
+import android.content.Context
+import android.graphics.BitmapFactory
 import android.net.Uri
+import android.provider.MediaStore
 import android.util.Log
-import androidx.credentials.CreatePasswordRequest
-import androidx.credentials.CreatePasswordResponse
-import androidx.credentials.CredentialManager
-import androidx.credentials.exceptions.CreateCredentialCancellationException
+import androidx.compose.ui.util.fastRoundToInt
 import androidx.credentials.exceptions.CreateCredentialException
-import androidx.credentials.exceptions.CreateCredentialInterruptedException
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.compscicomputations.client.auth.data.source.AuthRepository
+import com.compscicomputations.client.auth.data.source.remote.NewUser
 import com.compscicomputations.theme.emailRegex
 import com.compscicomputations.theme.namesRegex
 import com.compscicomputations.theme.strongPasswordRegex
 import com.compscicomputations.ui.utils.ProgressState
 import com.compscicomputations.utils.notMatches
+import com.compscicomputations.utils.readBytesFromUri
+import com.compscicomputations.utils.roundBytes
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.io.File
+import java.net.URI
 import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
+import kotlin.math.roundToInt
 
 @HiltViewModel
 class RegisterViewModel @Inject constructor(
@@ -35,10 +38,7 @@ class RegisterViewModel @Inject constructor(
     val uiState: StateFlow<RegisterUiState> = _uiState.asStateFlow()
 
     fun setPhotoUri(photoUri: Uri) {
-        _uiState.value = _uiState.value.copy(photoUri = photoUri)
-    }
-    private fun setPhotoUrl(photoUrl: String) {
-        _uiState.value = _uiState.value.copy(photoUrl = photoUrl)
+        _uiState.value = _uiState.value.copy(imageUri = photoUri)
     }
     fun onNamesChange(names: String) {
         _uiState.value = _uiState.value.copy(names = names, namesError = null)
@@ -56,31 +56,46 @@ class RegisterViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(passwordConfirm = passwordConfirm, passwordConfirmError = null)
     }
 
+    fun setTermsAccepted(termsAccepted: Boolean) {
+        _uiState.value = _uiState.value.copy(termsAccepted = termsAccepted)
+    }
+
     fun onProgressStateChange(progressState: ProgressState) {
         _uiState.value = _uiState.value.copy(progressState = progressState)
     }
 
     private var registerJob: Job? = null
-    fun onRegister(activity: Activity) {
-//        if (!fieldsAreValid()) return
-        val credentialManager = CredentialManager.create(activity)
-        // Initialize a CreatePasswordRequest object.
-        val createPasswordRequest = CreatePasswordRequest(
-            id = _uiState.value.email,
-            password = _uiState.value.password
-        )
+    fun onRegister(context: Context, savePassword: suspend (email: String, password: String) -> Unit = {_,_->}) {
+        if (!fieldsAreValid()) return
 
         _uiState.value = _uiState.value.copy(progressState = ProgressState.Loading("Creating account..."))
-        registerJob = viewModelScope.launch(Dispatchers.IO) {
+        registerJob = viewModelScope.launch {
             try {
-                val result = credentialManager.createCredential(activity, createPasswordRequest)
-                        as CreatePasswordResponse
-                Log.d("RegisterViewModel", "data: " + result.data)
 
-//                authRepository.register(_uiState.value.email, _uiState.value.password)
+                authRepository.createUser(
+                    NewUser(
+                        email = _uiState.value.email,
+                        password = _uiState.value.password,
+                        names = _uiState.value.names,
+                        lastname = _uiState.value.lastname,
+                    ),
+                    context.readBytesFromUri(_uiState.value.imageUri)
+                ) { bytesSent, totalBytes ->
+                    _uiState.value = _uiState.value.copy(progressState = ProgressState.Loading("Uploading image..." +
+                            "${bytesSent.roundBytes()}MB/${totalBytes.roundBytes()}"))
+                }
+                _uiState.value = _uiState.value.copy(progressState = ProgressState.Loading("Done!"))
+                savePassword(_uiState.value.email, _uiState.value.password)
                 _uiState.value = _uiState.value.copy(progressState = ProgressState.Success)
+            } catch (e: CreateCredentialException) {
+                _uiState.value = _uiState.value.copy(progressState = ProgressState.Success)
+                Log.w(TAG, "onRegister::savePassword", e)
+            } catch (e: CancellationException) {
+                _uiState.value = _uiState.value.copy(progressState = ProgressState.Idle)
+                Log.w(TAG, "onRegister", e)
             } catch (e: Exception) {
-                handleFailure(e)
+                _uiState.value = _uiState.value.copy(progressState = ProgressState.Error(e.localizedMessage))
+                Log.e(TAG, "onRegister", e)
             }
         }
     }
@@ -89,32 +104,6 @@ class RegisterViewModel @Inject constructor(
         registerJob?.cancel()
     }
 
-
-    private fun handleFailure(e: Exception) {
-        when (e) {
-            is CancellationException -> {
-                _uiState.value = _uiState.value.copy(progressState = ProgressState.Idle)
-                Log.w(TAG, "onLoginWithGoogle:", e)
-            }
-            is CreateCredentialCancellationException -> {
-                _uiState.value = _uiState.value.copy(progressState = ProgressState.Idle)
-                Log.w(TAG, "onLoginWithGoogle:", e)
-            }
-            is CreateCredentialInterruptedException -> {
-                // Retry-able error. Consider retrying the call.
-                _uiState.value = _uiState.value.copy(progressState = ProgressState.Idle)
-                Log.w(TAG, "onLoginWithGoogle:", e)
-            }
-            is CreateCredentialException -> {
-                _uiState.value = _uiState.value.copy(progressState = ProgressState.Idle)
-                Log.w(TAG, "onLoginWithGoogle:", e)
-            }
-            else -> {
-                _uiState.value = _uiState.value.copy(progressState = ProgressState.Error(e.localizedMessage))
-                Log.e(TAG, "Unexpected exception::onLoginWithGoogle:", e)
-            }
-        }
-    }
 
     private fun fieldsAreValid(): Boolean {
         var valid = true
@@ -156,6 +145,10 @@ class RegisterViewModel @Inject constructor(
             valid = false
         } else if (_uiState.value.passwordConfirm != _uiState.value.password) {
             _uiState.value = _uiState.value.copy(passwordConfirmError = "Passwords do not match.")
+            valid = false
+        }
+        if (!_uiState.value.termsAccepted) {
+            _uiState.value = _uiState.value.copy(termsAcceptedError = "Read and accept the terms and conditions to continue.")
             valid = false
         }
         return valid

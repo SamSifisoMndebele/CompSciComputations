@@ -3,6 +3,7 @@ package com.compscicomputations.ui.auth.onboarding
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -39,11 +40,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
@@ -51,20 +55,28 @@ import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.compscicomputations.client.publik.models.SourceType
 import com.compscicomputations.theme.comicNeueFamily
+import com.compscicomputations.ui.utils.ui.ExceptionDialog
+import com.compscicomputations.ui.utils.ui.LoadingDialog
+import com.compscicomputations.ui.utils.ui.UrlAsImageBitmap
 import com.compscicomputations.ui.utils.isLoading
-import com.compscicomputations.ui.utils.rememberShimmerBrushState
-import com.compscicomputations.ui.utils.shimmerBrush
+import com.compscicomputations.utils.rememberConnectivityState
+import com.compscicomputations.ui.utils.ui.shimmerBackground
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 
+
+@OptIn(ExperimentalCoroutinesApi::class)
 @Composable
 fun OnboardingScreen(
-    uiState: OnboardingUiState,
-    navigateLogin: () -> Unit,
+    viewModel: OnboardingViewModel = hiltViewModel(),
+    navigateLogin: (firstLaunch: Boolean) -> Unit,
     navigateRegister: () -> Unit,
 ) {
-    val items = uiState.items ?: return
-    val scope = rememberCoroutineScope()
-    val pageState = rememberPagerState { items.size }
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val coroutineScope = rememberCoroutineScope()
+    val pageState = rememberPagerState { uiState.items.size }
+    val context = LocalContext.current
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -80,7 +92,7 @@ fun OnboardingScreen(
             if (pageState.canScrollBackward) {
                 IconButton(
                     onClick = {
-                        scope.launch {
+                        coroutineScope.launch {
                             pageState.scrollToPage(pageState.currentPage - 1)
                         }
                     },
@@ -97,8 +109,8 @@ fun OnboardingScreen(
             if (pageState.canScrollForward) {
                 TextButton(
                     onClick = {
-                        scope.launch {
-                            pageState.scrollToPage(items.size - 1)
+                        coroutineScope.launch {
+                            pageState.scrollToPage(uiState.items.size - 1)
                         }
                     },
                     modifier = Modifier.align(Alignment.CenterEnd),
@@ -109,10 +121,19 @@ fun OnboardingScreen(
             }
         }
 
+        LoadingDialog(progressState = uiState.progressState) {
+            navigateLogin(true)
+        }
+        ExceptionDialog(progressState = uiState.progressState) {
+            navigateLogin(true)
+        }
+
+
         // Boarding section
         HorizontalPager(
             state = pageState,
-            modifier = Modifier.fillMaxHeight(0.9f)
+            modifier = Modifier
+                .fillMaxHeight(0.9f)
                 .fillMaxWidth()
         ) { page ->
             Column(
@@ -120,52 +141,79 @@ fun OnboardingScreen(
                 verticalArrangement = Arrangement.Center,
                 modifier = Modifier.fillMaxSize()
             ) {
-                val showImage = rememberShimmerBrushState()
-                when(items[page].type) {
+                when(uiState.items[page].sourceType) {
                     SourceType.IMAGE -> {
-                        AsyncImage(
-                            modifier = Modifier.fillMaxWidth()
-                                .padding(8.dp)
-                                .background(shimmerBrush(showShimmer = showImage.value))
-                                .height(280.dp)
-                                .clip(RoundedCornerShape(18.dp)),
-                            contentScale = ContentScale.FillWidth,
-                            model = items[page].sourceUrl,
-                            contentDescription = "On boarding image.",
-                            onSuccess = { showImage.value = false },
-                        )
+                        UrlAsImageBitmap(
+                            imageUrl = uiState.items[page].sourceUrl,
+                        ) { imageBitmap, showShimmer ->
+                            Image(
+                                bitmap = imageBitmap,
+                                modifier = Modifier
+                                    .shimmerBackground(showShimmer = showShimmer)
+                                    .fillMaxWidth()
+                                    .padding(8.dp)
+                                    .height(280.dp)
+                                    .clip(RoundedCornerShape(18.dp)),
+                                contentDescription = "On boarding image.",
+                                contentScale = ContentScale.FillWidth,
+                            )
+                        }
                     }
                     SourceType.LOTTIE -> {
-                        val preloaderLottieComposition by rememberLottieComposition(
-                            LottieCompositionSpec.Url(url = items[page].sourceUrl),
-                            onRetry = { failCount, previousException ->
-                                false
-                            }
+                        val lottieComposition = rememberLottieComposition(
+                            LottieCompositionSpec.Url(url = uiState.items[page].sourceUrl),
+                            onRetry = { _, _ -> true }
                         )
                         val preloaderProgress by animateLottieCompositionAsState(
-                            preloaderLottieComposition,
-                            iterations = LottieConstants.IterateForever,
-                            isPlaying = true
+                            lottieComposition.value,
+                            iterations = LottieConstants.IterateForever
                         )
-                        LottieAnimation(
-                            composition = preloaderLottieComposition,
-                            progress = preloaderProgress,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(8.dp)
-                                .background(shimmerBrush(showShimmer = uiState.progressState.isLoading))
-                                .height(280.dp)
-                                .clip(RoundedCornerShape(18.dp)),
-                            contentScale = ContentScale.FillWidth
-                        )
+                        val connectivityState by rememberConnectivityState()
+                        Box {
+                            if (connectivityState.isUnavailable && lottieComposition.isLoading) {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(8.dp)
+                                        .background(
+                                            MaterialTheme.colorScheme.errorContainer.copy(
+                                                alpha = .75f
+                                            ), CircleShape
+                                        )
+                                ) {
+                                    Text(
+                                        text = "Connectivity unavailable, please check your internet connection.",
+                                        maxLines = 2,
+                                        overflow = TextOverflow.Ellipsis,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onErrorContainer,
+                                        fontSize = 12.sp,
+                                        fontFamily = comicNeueFamily,
+                                        modifier = Modifier.padding(8.dp)
+                                    )
+                                }
+                            }
+                            LottieAnimation(
+                                composition = lottieComposition.value,
+                                progress = preloaderProgress,
+                                modifier = Modifier
+                                    .shimmerBackground(showShimmer = !lottieComposition.isSuccess)
+                                    .fillMaxWidth()
+                                    .padding(8.dp)
+                                    .height(280.dp)
+                                    .clip(RoundedCornerShape(18.dp)),
+                                contentScale = ContentScale.FillWidth
+                            )
+                        }
                     }
                 }
 
                 Spacer(modifier = Modifier.height(25.dp))
                 Text(
-                    modifier = Modifier.widthIn(64.dp)
-                        .background(shimmerBrush(showShimmer = uiState.progressState.isLoading)),
-                    text = items[page].title,
+                    modifier = Modifier
+                        .shimmerBackground(showShimmer = uiState.progressState.isLoading)
+                        .widthIn(64.dp),
+                    text = uiState.items[page].title,
                     style = MaterialTheme.typography.headlineMedium,
                     color = MaterialTheme.colorScheme.onBackground,
                     fontWeight = FontWeight.Bold,
@@ -173,10 +221,12 @@ fun OnboardingScreen(
                     letterSpacing = 1.sp,
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                items[page].description?.let {
+                uiState.items[page].description?.let {
                     Text(
-                        modifier = Modifier.fillMaxWidth().padding(10.dp)
-                            .background(shimmerBrush(showShimmer = uiState.progressState.isLoading)),
+                        modifier = Modifier
+                            .shimmerBackground(showShimmer = uiState.progressState.isLoading)
+                            .fillMaxWidth()
+                            .padding(10.dp),
                         text = it,
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onBackground,
@@ -202,7 +252,7 @@ fun OnboardingScreen(
                     .padding(start = 8.dp)
                     .align(Alignment.CenterStart)
             ) {
-                repeat(items.size) {
+                repeat(uiState.items.size) {
                     Indicator(isSelected = it == pageState.currentPage)
                 }
             }
@@ -211,7 +261,7 @@ fun OnboardingScreen(
             if (pageState.canScrollForward) {
                 FloatingActionButton(
                     onClick = {
-                        scope.launch {
+                        coroutineScope.launch {
                             pageState.animateScrollToPage(pageState.currentPage + 1)
                         }
                     },
@@ -243,7 +293,7 @@ fun OnboardingScreen(
                     }
 
                     ExtendedFloatingActionButton(
-                        onClick = navigateLogin,
+                        onClick = { navigateLogin(false) },
                         containerColor = MaterialTheme.colorScheme.primary,
                         contentColor = MaterialTheme.colorScheme.onPrimary,
                         modifier = Modifier.clip(RoundedCornerShape(18.dp))

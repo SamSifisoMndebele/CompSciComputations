@@ -1,30 +1,23 @@
 package com.compscicomputations.client.auth.data.source.remote
 
-import android.util.Log
-import com.compscicomputations.client.auth.data.source.local.UserCredentialsDataStore.idTokenCredentialsFlow
-import com.compscicomputations.client.auth.data.source.local.UserCredentialsDataStore.passwordCredentialsFlow
-import com.compscicomputations.client.auth.models.NewUser
-import com.compscicomputations.client.auth.models.PasswordCredentials
 import com.compscicomputations.client.auth.models.Users
 import com.compscicomputations.client.utils.ktorRequest
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
-import io.ktor.client.plugins.auth.Auth
-import io.ktor.client.plugins.auth.providers.BasicAuthCredentials
-import io.ktor.client.plugins.auth.providers.BasicAuthProvider
-import io.ktor.client.plugins.auth.providers.BearerAuthProvider
-import io.ktor.client.plugins.auth.providers.BearerTokens
-import io.ktor.client.plugins.auth.providers.basic
-import io.ktor.client.plugins.auth.providers.bearer
-import io.ktor.client.plugins.plugin
+import io.ktor.client.plugins.onUpload
 import io.ktor.client.plugins.resources.get
 import io.ktor.client.plugins.resources.post
+import io.ktor.client.request.forms.MultiPartFormDataContent
+import io.ktor.client.request.forms.formData
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
+import io.ktor.http.Headers
+import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.append
 import io.ktor.http.contentType
-import kotlinx.coroutines.flow.first
+import java.io.File
 import javax.inject.Inject
 
 class AuthDataSource @Inject constructor(
@@ -36,31 +29,6 @@ class AuthDataSource @Inject constructor(
         class NotFoundException(message: String? = null): Exception(message)
         class UnauthorizedException(message: String? = null): Exception(message)
         class ExpectationFailedException(message: String? = null): Exception(message)
-    }
-
-    internal fun basicCredentialsUpdate(email: String, password: String) {
-        val auth = client.plugin(Auth)
-        auth.providers.removeIf { it is BasicAuthProvider }
-        auth.basic {
-            credentials {
-                Log.d("PasswordCredentialsUpdate", "email: $email, password: $password")
-                BasicAuthCredentials(email, password)
-            }
-            sendWithoutRequest { true }
-        }
-    }
-    internal fun bearerCredentialsUpdate(idToken: String) {
-        val auth = client.plugin(Auth)
-        auth.providers.removeIf { it is BearerAuthProvider }
-        auth.bearer {
-            loadTokens {
-                Log.d("IdTokenUpdate", idToken)
-                BearerTokens(idToken, "refreshToken")
-            }
-            sendWithoutRequest { request ->
-                request.url.pathSegments == listOf("users", "google")
-            }
-        }
     }
 
 
@@ -145,6 +113,37 @@ class AuthDataSource @Inject constructor(
         when (response.status) {
             HttpStatusCode.ExpectationFailed -> throw ExpectationFailedException(response.bodyAsText())
             HttpStatusCode.Created -> response.body<RemoteUser>()
+            else -> throw Exception("Unexpected response.")
+        }
+    }
+
+    internal suspend fun uploadProfileImage(
+        id: String,
+        imageBytes: ByteArray,
+        onProgress: (bytesSent: Long, totalBytes: Long) -> Unit
+    ): UserImage = ktorRequest {
+        val response = client.post("http://localhost:8080/users/$id/image") {
+            setBody(
+                MultiPartFormDataContent(
+                    formData {
+                        append("description", "Profile Image")
+                        append("image", imageBytes, Headers.build {
+                            append(HttpHeaders.ContentType, ContentType.Image.PNG)
+                            append(HttpHeaders.ContentDisposition, "filename=\"profile_image.png\"")
+                        })
+                    },
+                    boundary = "WebAppBoundary"
+                )
+            )
+            onUpload { bytesSentTotal, contentLength ->
+                println("Sent $bytesSentTotal bytes from $contentLength")
+                onProgress(bytesSentTotal, contentLength)
+            }
+        }
+
+        when (response.status) {
+            HttpStatusCode.ExpectationFailed -> throw ExpectationFailedException(response.bodyAsText())
+            HttpStatusCode.OK -> response.body<UserImage>()
             else -> throw Exception("Unexpected response.")
         }
     }

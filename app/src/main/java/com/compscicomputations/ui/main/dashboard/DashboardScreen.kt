@@ -1,6 +1,5 @@
 package com.compscicomputations.ui.main.dashboard
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -39,10 +38,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.compscicomputations.client.auth.models.DynamicFeature
 import com.compscicomputations.theme.comicNeueFamily
-import com.compscicomputations.ui.utils.CompSciScaffold
-import com.compscicomputations.ui.utils.OptionButton
+import com.compscicomputations.ui.utils.ui.CompSciScaffold
+import com.compscicomputations.ui.utils.ui.OptionButton
 import com.compscicomputations.ui.utils.isLoading
-import com.compscicomputations.ui.utils.shimmerBrush
+import com.compscicomputations.ui.utils.ui.shimmerBackground
 
 @Composable
 fun DashboardScreen(
@@ -93,12 +92,9 @@ fun DashboardScreen(
 //                                val showShimmer = rememberShimmerBrushState()
                                 AsyncImage(
                                     modifier = Modifier
+                                        .shimmerBackground(showShimmer = uiState.progressState.isLoading)
                                         .size(128.dp)
                                         .padding(8.dp)
-                                        .background(
-                                            shimmerBrush(showShimmer = uiState.progressState.isLoading),
-                                            CircleShape
-                                        )
                                         .clip(CircleShape),
                                     model = uiState.photoUrl,
                                     contentScale = ContentScale.FillBounds,
@@ -110,11 +106,8 @@ fun DashboardScreen(
                                 ) {
                                     Text(
                                         modifier = Modifier
-                                            .widthIn(min = 80.dp)
-                                            .background(
-                                                shimmerBrush(showShimmer = uiState.progressState.isLoading),
-                                                CircleShape
-                                            ),
+                                            .shimmerBackground(showShimmer = uiState.progressState.isLoading)
+                                            .widthIn(min = 80.dp),
                                         text = when {
                                             !uiState.isCompleteProfile -> "Complete Profile"
                                             uiState.isAdmin -> "ADMIN"
@@ -130,10 +123,7 @@ fun DashboardScreen(
                                     Text(
                                         modifier = Modifier
                                             .widthIn(min = 128.dp)
-                                            .background(
-                                                shimmerBrush(showShimmer = uiState.progressState.isLoading),
-                                                CircleShape
-                                            ),
+                                            .shimmerBackground(uiState.progressState.isLoading, CircleShape),
                                         text = uiState.displayName,
                                         fontSize = 20.sp,
                                         fontWeight = FontWeight.Bold,
@@ -143,10 +133,7 @@ fun DashboardScreen(
                                     Text(
                                         modifier = Modifier
                                             .widthIn(min = 180.dp)
-                                            .background(
-                                                shimmerBrush(showShimmer = uiState.progressState.isLoading),
-                                                CircleShape
-                                            ),
+                                            .shimmerBackground(uiState.progressState.isLoading, CircleShape),
                                         text = uiState.email,
                                         fontSize = 14.sp,
                                     )
@@ -157,7 +144,10 @@ fun DashboardScreen(
 
                     if (uiState.installedFeatures.isNullOrEmpty()) {
                         Text(text = "No features installed")
-                        TextButton(onClick = { /*TODO*/ }) {
+                        TextButton(
+                            onClick = { /*TODO*/ },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
                             Text(text = "Go to Install")
                         }
                     } else {

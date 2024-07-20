@@ -2,7 +2,7 @@ package com.compscicomputations.ui.utils
 
 sealed interface ProgressState {
     data object Idle : ProgressState
-    data class Loading(val message: String = "Loading...") : ProgressState
+    data class Loading(val message: String = "Splash...") : ProgressState
     data object Success : ProgressState
     data class Error(val message: String?) : ProgressState
 }

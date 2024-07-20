@@ -1,10 +1,10 @@
 package com.compscicomputations.ui.auth.onboarding
 
-import com.compscicomputations.client.publik.models.OnboardingItem
+import com.compscicomputations.client.publik.data.source.local.OnboardingItem
 import com.compscicomputations.ui.utils.ProgressState
 
 data class OnboardingUiState(
-    val items: List<OnboardingItem>? = emptyList(),
+    val items: List<OnboardingItem> = emptyList(),
 
-    val progressState: ProgressState = ProgressState.Loading()
+    val progressState: ProgressState = ProgressState.Loading("Splash on boarding items,\nplease wait...")
 )

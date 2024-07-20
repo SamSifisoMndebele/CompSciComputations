@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 
 // Routes
-@Serializable object Loading
+@Serializable object Splash
 @Serializable object Onboarding
 
 // Route for nested graph
@@ -15,7 +15,6 @@ import kotlinx.serialization.Serializable
 @Serializable object Login
 @Serializable object PasswordLogin
 @Serializable object Register
-@Serializable object CompleteProfile
 @Serializable object Terms
 @Serializable data class PasswordReset(val email: String? = null)
 

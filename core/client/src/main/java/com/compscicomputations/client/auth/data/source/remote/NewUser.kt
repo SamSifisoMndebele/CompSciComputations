@@ -1,4 +1,4 @@
-package com.compscicomputations.client.auth.models
+package com.compscicomputations.client.auth.data.source.remote
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

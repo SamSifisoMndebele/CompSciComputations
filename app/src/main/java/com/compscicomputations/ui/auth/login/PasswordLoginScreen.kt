@@ -39,7 +39,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.credentials.CreatePasswordRequest
 import androidx.credentials.CredentialManager
-import androidx.credentials.exceptions.CreateCredentialException
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.compscicomputations.theme.comicNeueFamily
@@ -47,7 +46,7 @@ import com.compscicomputations.theme.hintEmail
 import com.compscicomputations.theme.hintPassword
 import com.compscicomputations.ui.auth.isError
 import com.compscicomputations.ui.auth.showMessage
-import com.compscicomputations.ui.utils.CompSciAuthScaffold
+import com.compscicomputations.ui.utils.ui.CompSciAuthScaffold
 import com.compscicomputations.ui.utils.ProgressState
 import com.compscicomputations.utils.asActivity
 
@@ -138,12 +137,12 @@ fun PasswordLoginScreen(
         }
 
         val activity by lazy { context.asActivity }
+        val credentialManager by lazy { CredentialManager.create(activity) }
         Button(
             enabled = uiState.email.isNotBlank() && uiState.password.isNotBlank(),
             onClick = {
                 viewModel.onLogin { email, password ->
                     val createPasswordRequest = CreatePasswordRequest(email, password)
-                    val credentialManager = CredentialManager.create(activity)
                     credentialManager.createCredential(activity, createPasswordRequest)
                 }
 

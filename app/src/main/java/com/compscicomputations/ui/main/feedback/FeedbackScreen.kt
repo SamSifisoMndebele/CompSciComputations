@@ -21,7 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.compscicomputations.ui.utils.CompSciScaffold
+import com.compscicomputations.ui.utils.ui.CompSciScaffold
 
 
 @OptIn(ExperimentalMaterial3Api::class)

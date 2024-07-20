@@ -5,30 +5,41 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.focusable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
@@ -39,41 +50,51 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.content.PermissionChecker.PERMISSION_GRANTED
+import androidx.credentials.CreatePasswordRequest
+import androidx.credentials.CredentialManager
 import androidx.documentfile.provider.DocumentFile
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.compscicomputations.BuildConfig
+import com.compscicomputations.client.auth.data.source.local.AuthDataStore.setTermsAccepted
+import com.compscicomputations.theme.AppRed
 import com.compscicomputations.theme.comicNeueFamily
 import com.compscicomputations.theme.hintEmail
 import com.compscicomputations.theme.hintLastname
 import com.compscicomputations.theme.hintNames
 import com.compscicomputations.theme.hintPassword
 import com.compscicomputations.theme.hintPasswordConfirm
-import com.compscicomputations.theme.hintUserImage
+import com.compscicomputations.theme.hintProfileImage
 import com.compscicomputations.ui.auth.isError
 import com.compscicomputations.ui.auth.showMessage
-import com.compscicomputations.ui.utils.CompSciAuthScaffold
+import com.compscicomputations.ui.utils.ui.CompSciAuthScaffold
 import com.compscicomputations.ui.utils.ProgressState
+import com.compscicomputations.ui.utils.isSuccess
+import com.compscicomputations.ui.utils.ui.shimmerBackground
 import com.compscicomputations.utils.asActivity
 import com.compscicomputations.utils.createImageFile
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegisterScreen(
     viewModel: RegisterViewModel,
-    uiState: RegisterUiState,
     navigateUp: () -> Unit,
+    navigateTerms: () -> Unit,
     navigateOnboarding: () -> Unit,
-    navigateCompleteProfile: () -> Unit,
+    navigateMain: () -> Unit,
 ) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     LaunchedEffect(uiState.progressState) {
-        if (uiState.progressState == ProgressState.Success) {
-            navigateCompleteProfile()
+        if (uiState.progressState.isSuccess) {
+            navigateMain()
             Toast.makeText(context, "Registered in successfully!", Toast.LENGTH_SHORT).show()
         }
     }
@@ -102,41 +123,23 @@ fun RegisterScreen(
         navigateUp = navigateUp,
         navigateOnboarding = navigateOnboarding
     ) {
-
         var imageExpanded by remember { mutableStateOf(false) }
-        val imageName = uiState.photoUri?.let { DocumentFile.fromSingleUri(context, it)?.name } ?: ""
-        ExposedDropdownMenuBox(
-            expanded = imageExpanded,
-            onExpandedChange = { imageExpanded = !imageExpanded }
+        val imageName = uiState.imageUri?.let { DocumentFile.fromSingleUri(context, it)?.name }
+        OutlinedCard(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(128.dp)
+                .padding(vertical = 4.dp),
+            shape = RoundedCornerShape(22.dp),
+            onClick = { imageExpanded = !imageExpanded }
         ) {
-            OutlinedTextField(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .menuAnchor()
-                    .focusable(false)
-                    .padding(vertical = 4.dp),
-                value = imageName,
-                onValueChange = {},
-                label = { Text(text = hintUserImage) },
-                readOnly = true,
-                singleLine = true,
-                shape = RoundedCornerShape(22.dp),
-                trailingIcon = {
-                    IconButton(onClick = {}, modifier = Modifier.padding(end = 4.dp)) {
-                        AsyncImage(
-                            model = uiState.photoUri,
-                            contentDescription = "Profile",
-                            contentScale = ContentScale.FillBounds
-                        )
-                    }
-                }
-            )
-            ExposedDropdownMenu(
+            DropdownMenu(
                 expanded = imageExpanded,
-                onDismissRequest = { imageExpanded = false }
+                onDismissRequest = { imageExpanded = false },
+                offset = DpOffset(0.dp, (-120).dp),
             ) {
                 DropdownMenuItem(
-                    text = { Text(text = "Select your image.") },
+                    text = { Text("Select your image.") },
                     onClick = {
                         photoPickerLauncher.launch(
                             PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
@@ -145,13 +148,50 @@ fun RegisterScreen(
                     }
                 )
                 DropdownMenuItem(
-                    text = { Text(text = "Take a new picture.") },
+                    text = { Text("Take a new picture.") },
                     onClick = {
                         val permissionCheckResult = ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
                         if (permissionCheckResult == PERMISSION_GRANTED) cameraLauncher.launch(uri)
                         else permissionLauncher.launch(Manifest.permission.CAMERA)
                         imageExpanded = false
                     }
+                )
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(128.dp)
+                    .padding(4.dp),
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .padding(10.dp)
+                        .weight(1f),
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        modifier = Modifier
+                            .padding(bottom = 4.dp),
+                        text = hintProfileImage,
+                        color = AppRed,
+                        fontSize = 18.sp
+                    )
+                    Text(
+                        modifier = Modifier
+                            .padding(vertical = 4.dp)
+                            .weight(1f),
+                        text = imageName.takeIf { !it.isNullOrBlank() } ?: "Select your image or take a new picture",
+                    )
+                }
+                AsyncImage(
+                    modifier = Modifier
+                        .shimmerBackground(uiState.imageUri == null)
+                        .size(120.dp)
+                        .clip(RoundedCornerShape(18.dp)),
+                    model = uiState.imageUri,
+                    contentDescription = "Profile Image",
+                    contentScale = ContentScale.Crop,
                 )
             }
         }
@@ -249,8 +289,33 @@ fun RegisterScreen(
             supportingText = uiState.passwordConfirmError.showMessage()
         )
 
+        val coroutineScope = rememberCoroutineScope()
+        Row(
+            modifier = Modifier.padding(top = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Switch(
+                checked = uiState.termsAccepted,
+                onCheckedChange = {
+                    coroutineScope.launch(Dispatchers.IO) { context.setTermsAccepted(it) }
+                }
+            )
+            Text(text = "I accept the", Modifier.padding(start = 10.dp), fontSize = 16.sp)
+            TextButton(onClick = navigateTerms, contentPadding = PaddingValues(horizontal = 3.dp)) {
+                Text(text = "Terms and Conditions.", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            }
+            uiState.termsAcceptedError.showMessage()
+        }
+
         val activity by lazy { context.asActivity }
-        Button(onClick = { viewModel.onRegister(activity) },
+        val credentialManager by lazy { CredentialManager.create(activity) }
+        Button(
+            onClick = {
+                viewModel.onRegister(context) { email, password ->
+                    val createPasswordRequest = CreatePasswordRequest(email, password)
+                    credentialManager.createCredential(activity, createPasswordRequest)
+                }
+            },
             enabled = uiState.isValid,
             modifier = Modifier
                 .fillMaxWidth()

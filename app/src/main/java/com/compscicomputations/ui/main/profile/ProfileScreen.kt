@@ -3,7 +3,6 @@ package com.compscicomputations.ui.main.profile
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -50,10 +49,10 @@ import androidx.core.content.FileProvider
 import coil.compose.AsyncImage
 import com.compscicomputations.BuildConfig
 import com.compscicomputations.theme.comicNeueFamily
-import com.compscicomputations.ui.utils.CompSciScaffold
-import com.compscicomputations.ui.utils.OptionButton
+import com.compscicomputations.ui.utils.ui.CompSciScaffold
+import com.compscicomputations.ui.utils.ui.OptionButton
 import com.compscicomputations.ui.utils.isLoading
-import com.compscicomputations.ui.utils.shimmerBrush
+import com.compscicomputations.ui.utils.ui.shimmerBackground
 import com.compscicomputations.utils.createImageFile
 
 @Composable
@@ -145,10 +144,7 @@ fun ProfileScreen(
                                     modifier = Modifier
                                         .size(180.dp)
                                         .padding(8.dp)
-                                        .background(
-                                            shimmerBrush(showShimmer = uiState.progressState.isLoading),
-                                            CircleShape
-                                        )
+                                        .shimmerBackground(uiState.progressState.isLoading, CircleShape)
                                         .clip(CircleShape),
                                     model = uiState.photoUrl,
                                     contentScale = ContentScale.FillBounds,
@@ -161,10 +157,7 @@ fun ProfileScreen(
                                     Text(
                                         modifier = Modifier
                                             .widthIn(min = 80.dp)
-                                            .background(
-                                                shimmerBrush(showShimmer = uiState.progressState.isLoading),
-                                                CircleShape
-                                            ),
+                                            .shimmerBackground(uiState.progressState.isLoading, CircleShape),
                                         text = when {
                                             uiState.isAdmin -> "ADMIN"
                                             uiState.isStudent -> "STUDENT"
@@ -179,10 +172,7 @@ fun ProfileScreen(
                                     Text(
                                         modifier = Modifier
                                             .widthIn(min = 128.dp)
-                                            .background(
-                                                shimmerBrush(showShimmer = uiState.progressState.isLoading),
-                                                CircleShape
-                                            ),
+                                            .shimmerBackground(uiState.progressState.isLoading, CircleShape),
                                         text = uiState.displayName,
                                         fontSize = 20.sp,
                                         fontWeight = FontWeight.Bold,
@@ -192,10 +182,7 @@ fun ProfileScreen(
                                     Text(
                                         modifier = Modifier
                                             .widthIn(min = 180.dp)
-                                            .background(
-                                                shimmerBrush(showShimmer = uiState.progressState.isLoading),
-                                                CircleShape
-                                            ),
+                                            .shimmerBackground(uiState.progressState.isLoading, CircleShape),
                                         text = uiState.email,
                                         fontSize = 14.sp,
                                     )

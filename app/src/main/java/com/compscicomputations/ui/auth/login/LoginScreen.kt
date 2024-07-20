@@ -15,9 +15,11 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -32,7 +34,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.compscicomputations.R
 import com.compscicomputations.theme.AppRed
 import com.compscicomputations.theme.comicNeueFamily
-import com.compscicomputations.ui.utils.CompSciAuthScaffold
+import com.compscicomputations.ui.utils.ui.CompSciAuthScaffold
 import com.compscicomputations.ui.utils.ProgressState
 import com.compscicomputations.utils.asActivity
 
@@ -41,6 +43,7 @@ import com.compscicomputations.utils.asActivity
 fun LoginScreen(
     viewModel: LoginViewModel = hiltViewModel(),
     navigateOnboarding: () -> Unit,
+    navigateRegister: () -> Unit,
     navigatePasswordLogin: () -> Unit,
     navigateMain: () -> Unit
 ) {
@@ -52,22 +55,40 @@ fun LoginScreen(
             Toast.makeText(context, "Logged in successfully!", Toast.LENGTH_SHORT).show()
         }
     }
+
+
+    val activity by lazy { context.asActivity }
+    val credentialManager by lazy { CredentialManager.create(activity) }
+
     CompSciAuthScaffold(
         title = "Login",
-        description = "Authenticate with Password or Google",
+        description = "",
         navigateUp = null,
         navigateOnboarding = navigateOnboarding,
         progressState = progressState,
         onLoadingDismiss = { viewModel.cancelLogin() },
         onExceptionDismiss = { viewModel.onProgressStateChange(ProgressState.Idle) }
     ) {
+        TextButton(
+            onClick = navigateRegister,
+            modifier = Modifier
+                .align(Alignment.End)
+                .padding(bottom = 8.dp),
+        ) {
+            Text(
+                text = "Register with Password",
+                color = AppRed,
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp,
+                fontFamily = comicNeueFamily,
+                textAlign = TextAlign.Center
+            )
+        }
 
         OutlinedButton(
             onClick = {
-                val activity = context.asActivity
                 viewModel.onLoginPassword(navigatePasswordLogin) { passwordRequest ->
-                    CredentialManager.create(activity)
-                        .getCredential(activity, passwordRequest)
+                    credentialManager.getCredential(activity, passwordRequest)
                 }},
             modifier = Modifier
                 .fillMaxWidth()
@@ -90,7 +111,7 @@ fun LoginScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(end = 68.dp),
-                text = "Continue Password",
+                text = "Login with Password",
                 color = AppRed,
                 fontWeight = FontWeight.Bold,
                 fontSize = 22.sp,
@@ -101,10 +122,8 @@ fun LoginScreen(
 
         OutlinedButton(
             onClick = {
-                val activity = context.asActivity
                 viewModel.onLoginWithGoogle { googleRequest ->
-                    CredentialManager.create(activity)
-                        .getCredential(activity, googleRequest)
+                    credentialManager.getCredential(activity, googleRequest)
                 }
             },
             modifier = Modifier

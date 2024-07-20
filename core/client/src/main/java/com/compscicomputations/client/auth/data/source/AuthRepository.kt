@@ -13,35 +13,24 @@ import com.compscicomputations.client.auth.data.source.local.UserDataStore.userF
 import com.compscicomputations.client.auth.data.source.remote.AuthDataSource
 import com.compscicomputations.client.auth.data.source.remote.AuthDataSource.Companion.ExpectationFailedException
 import com.compscicomputations.client.auth.data.source.remote.AuthDataSource.Companion.UnauthorizedException
-import com.compscicomputations.client.auth.data.source.remote.RemoteUser
-import com.compscicomputations.client.auth.models.NewUser
+import com.compscicomputations.client.auth.data.source.remote.NewUser
+import com.compscicomputations.client.auth.data.source.remote.UserImage
 import com.compscicomputations.client.auth.models.PasswordCredentials
 import com.compscicomputations.client.auth.models.User
+import com.compscicomputations.client.usecase.BasicCredentialsUpdateUseCase
+import com.compscicomputations.client.usecase.BearerCredentialsUpdateUseCase
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.retry
-import kotlinx.coroutines.flow.retryWhen
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class AuthRepository @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val networkDataSource: AuthDataSource,
+    private val remoteDataSource: AuthDataSource,
+    private val basicCredentialsUpdate: BasicCredentialsUpdateUseCase,
+    private val bearerCredentialsUpdate: BearerCredentialsUpdateUseCase,
 ) {
-
-
-
-
-
-
-
-
-
-
     /// --- Credentials --------------------------------------------------------
 
     suspend fun savePasswordCredentials(email: String, password: String) = context.savePasswordCredentials(email, password)
@@ -61,14 +50,32 @@ class AuthRepository @Inject constructor(
 
     /// --- User --------------------------------------------------------
 
-    suspend fun createUser(newUser: NewUser): User = networkDataSource.createUser(newUser).asUser
+    suspend fun createUser(
+        newUser: NewUser,
+        imageBytes: ByteArray?,
+        onProgress: (bytesSent: Long, totalBytes: Long) -> Unit
+    ): String {
+        remoteDataSource.createUser(newUser).let {
+            context.saveUser(it)
+            if (imageBytes != null) {
+                remoteDataSource.uploadProfileImage(it.id, imageBytes, onProgress)
+            }
+            return it.id
+        }
+    }
+
+//    private suspend fun uploadProfileImage(
+//        id: String,
+//        imageBytes: ByteArray,
+//        onProgress: (bytesSent: Long, totalBytes: Long) -> Unit
+//    ): UserImage = remoteDataSource.uploadProfileImage(id, imageBytes, onProgress)
 
     val currentUserFlow: Flow<User?>
         get() = context.userFlow
 
     val refreshUserFlow: Flow<User?>
-        get() = flow<User?> {
-            networkDataSource.getUser().let { user ->
+        get() = flow {
+            remoteDataSource.getUser().let { user ->
                 context.saveUser(user)
                 emit(user.asUser)
             }
@@ -88,9 +95,8 @@ class AuthRepository @Inject constructor(
      * @throws ExpectationFailedException if the was server side error.
      */
     suspend fun continueWithGoogle(googleIdTokenCredential: GoogleIdTokenCredential) {
-//        context.saveIdTokenCredentials(googleIdTokenCredential.idToken)
-        networkDataSource.bearerCredentialsUpdate(googleIdTokenCredential.idToken)
-        networkDataSource.continueWithGoogle().let { user ->
+        bearerCredentialsUpdate(googleIdTokenCredential.idToken)
+        remoteDataSource.continueWithGoogle().let { user ->
             Log.d(TAG, "RemoteUser: $user")
             context.savePasswordCredentials(user.email, user.googlePassword!!)
             context.saveUser(user)
@@ -101,9 +107,8 @@ class AuthRepository @Inject constructor(
      * Login with email and password
      */
     suspend fun continuePassword(email: String, password: String) {
-//        context.savePasswordCredentials(email, password)
-        networkDataSource.basicCredentialsUpdate(email, password)
-        networkDataSource.getUser().let { user ->
+        basicCredentialsUpdate(email, password)
+        remoteDataSource.getUser().let { user ->
             context.saveUser(user)
         }
     }

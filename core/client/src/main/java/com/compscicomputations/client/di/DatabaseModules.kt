@@ -1,9 +1,9 @@
 package com.compscicomputations.client.di
 
 import android.content.Context
-import android.util.Log
-import com.compscicomputations.client.auth.data.source.local.UserCredentialsDataStore.idTokenCredentialsFlow
-import com.compscicomputations.client.auth.data.source.local.UserCredentialsDataStore.passwordCredentialsFlow
+import androidx.room.Room
+import com.compscicomputations.client.publik.data.source.local.OnboardingItemDao
+import com.compscicomputations.client.publik.data.source.local.RoomPublicDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -16,10 +16,6 @@ import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.HttpRequestRetry
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.auth.Auth
-import io.ktor.client.plugins.auth.providers.BasicAuthCredentials
-import io.ktor.client.plugins.auth.providers.BearerTokens
-import io.ktor.client.plugins.auth.providers.basic
-import io.ktor.client.plugins.auth.providers.bearer
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.DEFAULT
@@ -30,20 +26,29 @@ import io.ktor.client.plugins.resources.Resources
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.URLProtocol
-import io.ktor.http.encodedPath
 import io.ktor.serialization.kotlinx.json.json
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.last
-import kotlinx.coroutines.flow.lastOrNull
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-object KtorClientModule {
+object DatabaseModules {
 
     @Provides
     @Singleton
-    fun provideHttpClient(@ApplicationContext context: Context): HttpClient = HttpClient(OkHttp) {
+    fun providePublicDatabase(@ApplicationContext context: Context): RoomPublicDatabase = Room.databaseBuilder(
+        context,
+        RoomPublicDatabase::class.java,
+        "public.room.db"
+    ).build()
+
+    @Provides
+    @Singleton
+    fun provideOnboardingItemDao(database: RoomPublicDatabase): OnboardingItemDao = database.onboardingItemDao()
+
+
+    @Provides
+    @Singleton
+    fun provideHttpClient(): HttpClient = HttpClient(OkHttp) {
         developmentMode = true
 
         defaultRequest {
@@ -74,7 +79,7 @@ object KtorClientModule {
 //            retryOnServerErrors(maxRetries = 1)
             exponentialDelay()
         }
-        installAuth(context)
+        install(Auth)
         install(HttpTimeout) {
             connectTimeoutMillis //= HttpTimeout.INFINITE_TIMEOUT_MS
             socketTimeoutMillis = HttpTimeout.INFINITE_TIMEOUT_MS
@@ -108,4 +113,5 @@ object KtorClientModule {
 //            }
         }
     }
+
 }

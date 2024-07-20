@@ -1,11 +1,18 @@
 package com.compscicomputations.utils
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.net.Uri
 import android.util.Base64
 import android.util.Log
 import java.io.ByteArrayOutputStream
 import java.io.IOException
+
+@Throws(IOException::class)
+fun Context.readBytesFromUri(uri: Uri?): ByteArray? =
+    uri?.let { contentResolver.openInputStream(it)?.use { io -> io.buffered().readBytes() } }
+
 
 /**
  * Converts bitmap to encoded string in PNG format
