@@ -14,5 +14,7 @@ internal interface PublicService {
 
     suspend fun getOnboardingItems(): List<OnboardingItem>
 
+    suspend fun getOnboardingItemsExcept(ids: IntArray): List<OnboardingItem>
+
     suspend fun deleteOnboardingItems(id: Int)
 }

@@ -6,10 +6,8 @@ import com.compscicomputations.services.publik.models.SourceType
 import com.compscicomputations.services.publik.models.requests.NewOnboardingItem
 import com.compscicomputations.services.publik.models.requests.UpdateOnboardingItem
 import com.compscicomputations.services.publik.models.response.OnboardingItem
-import com.compscicomputations.utils.dbQuery
-import com.compscicomputations.utils.executeQuery
-import com.compscicomputations.utils.executeQuerySingleOrNull
-import com.compscicomputations.utils.executeUpdate
+import com.compscicomputations.utils.*
+import java.sql.Array
 import java.sql.Connection
 import java.sql.ResultSet
 
@@ -30,20 +28,20 @@ class PublicServiceImpl : PublicService {
                 sourceUrl = getString("source_url"),
                 title = getString("title"),
                 description = getString("description"),
-                type = SourceType.valueOf(getObject("type").toString()),
+                sourceType = SourceType.valueOf(getObject("source_type").toString()),
             )
         }
     }
 
     override suspend fun createOnboardingItem(item: NewOnboardingItem): Unit = dbQuery(conn) {
         executeUpdate("""
-            insert into public.onboarding_items(source_url, title, description, type) 
+            insert into public.onboarding_items(source_url, title, description, source_type) 
             values (?, ?, ?, ?::public.source_type)
         """.trimIndent()) {
             setString(1, item.sourceUrl)
             setString(2, item.title)
             setString(3, item.description)
-            setString(4, item.type.name)
+            setString(4, item.sourceType.name)
         }
     }
 
@@ -54,13 +52,13 @@ class PublicServiceImpl : PublicService {
             set source_url = ?,
                 title = ?,
                 description = ?,
-                type = ?::public.source_type
+                source_type = ?::public.source_type
             where id = ?
         """.trimIndent()) {
             setString(1, item.sourceUrl ?: current.sourceUrl)
             setString(2, item.title ?: current.title)
             setString(3, item.description ?: current.description)
-            setString(4, item.type?.name ?: current.type.name)
+            setString(4, item.sourceType?.name ?: current.sourceType.name)
             setInt(5, id)
         }
     }
@@ -73,6 +71,11 @@ class PublicServiceImpl : PublicService {
 
     override suspend fun getOnboardingItems(): List<OnboardingItem> = dbQuery(conn) {
         executeQuery("select * from public.onboarding_items", { getOnboardingItem() })
+    }
+
+    override suspend fun getOnboardingItemsExcept(ids: IntArray): List<OnboardingItem> = dbQuery(conn) {
+        executeQuery("select * from public.onboarding_items where id not in (${ids.joinToString()})",
+            { getOnboardingItem() })
     }
 
     override suspend fun deleteOnboardingItems(id: Int): Unit = dbQuery(conn) {

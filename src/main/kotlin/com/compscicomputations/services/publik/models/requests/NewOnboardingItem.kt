@@ -10,11 +10,12 @@ data class NewOnboardingItem(
     val sourceUrl: String,
     val title: String,
     val description: String? = null,
-    val type: SourceType = SourceType.IMAGE,
+    @SerialName("source_type")
+    val sourceType: SourceType = SourceType.IMAGE,
 )
 
 //    id int primary key generated always as identity not null,
 //    source_url text not null,
 //    title text not null,
 //    description text,
-//    type public.source_type not null
+//    source_type public.source_type not null

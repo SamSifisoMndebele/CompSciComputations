@@ -37,6 +37,16 @@ fun Routing.publicRouting() {
         }
     }
 
+    get<Onboarding.Items.Except> {
+        try {
+            val ids = call.receive<IntArray>()
+            val item = publicService.getOnboardingItemsExcept(ids)
+            call.respond(HttpStatusCode.OK, item)
+        } catch (e: Exception) {
+            call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
+        }
+    }
+
     get<Onboarding.Items.Id> {
         try {
             val item = publicService.getOnboardingItem(it.id)
