@@ -19,7 +19,7 @@ create table public.onboarding_items (
     source_url text not null,
     title text not null,
     description text,
-    type public.source_type not null
+    source_type public.source_type not null
 );
 
 
