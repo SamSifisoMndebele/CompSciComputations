@@ -19,4 +19,4 @@ data class OnboardingItem(
 //    source_url text not null,
 //    title text not null,
 //    description text,
-//    source_type public.source_type not null
+//    source_type public.sql.source_type not null

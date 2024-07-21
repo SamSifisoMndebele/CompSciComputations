@@ -10,8 +10,8 @@ data class User(
     val email: String,
     @SerialName("display_name")
     val displayName: String,
-    @SerialName("photo_url")
-    val photoUrl: String?,
+    @SerialName("photo_id")
+    val photoId: Int?,
     val phone: String?,
     @SerialName("is_admin")
     val isAdmin: Boolean,

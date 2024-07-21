@@ -9,7 +9,7 @@ import com.compscicomputations.services.auth.models.*
 import com.compscicomputations.services.auth.models.requests.NewAdminPin
 import com.compscicomputations.services.auth.models.requests.RegisterUser
 import com.compscicomputations.services.auth.models.requests.UpdateUser
-import com.compscicomputations.services.auth.models.response.UserImage
+import com.compscicomputations.services.auth.models.response.AuthFile
 import com.compscicomputations.utils.OKOrNotFound
 import io.ktor.http.*
 import io.ktor.http.content.*
@@ -58,32 +58,9 @@ fun Routing.authRouting() {
     post<Users.Id.Images> {
         try {
             val multipartData = call.receiveMultipart()
-            var fileName = ""
-            var fileDescription = ""
-            var fileBytes = byteArrayOf()
-            multipartData.forEachPart { part ->
-                when (part) {
-                    is PartData.FormItem -> {
-                        fileDescription = part.value
-                    }
-                    is PartData.FileItem -> {
-                        fileName = part.originalFileName as String
-                        fileBytes = part.streamProvider().readBytes()
-//                        val encoded = Base64.getEncoder().encodeToString(fileBytes)
-                    }
-                    is PartData.BinaryChannelItem -> {}
-                    is PartData.BinaryItem -> {}
-                }
-                part.dispose()
-            }
             val fileSize = call.request.header(HttpHeaders.ContentLength)
-
-            call.respond(HttpStatusCode.OK, UserImage(
-                name = file.name,
-                description = fileDescription,
-                data = file.absolutePath,
-                size = name,
-            ))
+            val fileId = authService.uploadFile(multipartData, fileSize.toString())
+            call.respond(HttpStatusCode.Created, fileId)
         } catch (e: Exception) {
             call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
         }

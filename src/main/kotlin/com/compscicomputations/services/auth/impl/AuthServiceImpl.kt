@@ -2,9 +2,11 @@ package com.compscicomputations.services.auth.impl
 
 import com.compscicomputations.plugins.connectToPostgres
 import com.compscicomputations.services.auth.AuthService
+import com.compscicomputations.services.auth.models.Users
 import com.compscicomputations.services.auth.models.requests.NewAdminPin
 import com.compscicomputations.services.auth.models.requests.RegisterUser
 import com.compscicomputations.services.auth.models.requests.UpdateUser
+import com.compscicomputations.services.auth.models.response.AuthFile
 import com.compscicomputations.services.auth.models.response.User
 import com.compscicomputations.utils.*
 import io.ktor.client.*
@@ -14,9 +16,16 @@ import io.ktor.client.plugins.logging.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import io.ktor.http.content.*
+import io.ktor.resources.*
+import io.ktor.server.application.*
+import io.ktor.server.request.*
+import io.ktor.server.response.*
 import org.slf4j.LoggerFactory
 import java.sql.Connection
 import java.sql.ResultSet
+import java.sql.SQLType
+import java.sql.Types
 
 
 internal class AuthServiceImpl : AuthService {
@@ -48,7 +57,7 @@ internal class AuthServiceImpl : AuthService {
                 id = getObject("id").toString(),
                 email = getString("email"),
                 displayName = getString("display_name"),
-                photoUrl = getString("photo_url"),
+                photoId = getInt("photo_id"),
                 phone = getString("phone"),
                 isAdmin = getBoolean("is_admin"),
                 isStudent = getBoolean("is_student"),
@@ -63,8 +72,9 @@ internal class AuthServiceImpl : AuthService {
 
     override suspend fun createUser(user: RegisterUser): User = dbQuery(conn) {
         try {
-            executeQuerySingle("""
-do
+            executeQuerySingle(
+                """
+/*do
 $$
     declare
         _email text := ?;
@@ -78,36 +88,106 @@ $$
         when unique_violation then
             raise exception 'User with email: % already exists', _email
                 using hint = 'Login to your account or reset your forgotten password.';
-    end;
-$$
+        when foreign_key_violation then
+            raise exception 'User image does not exist on the database';
+    end
+$$*/
+                insert into auth.users (email, password_hash, display_name, photo_id)
+                values (?, ext.crypt(?, ext.gen_salt('md5')), ?, ?)
+                returning *;
             """.trimMargin(), { getUser() }
             ) {
                 setString(1, user.email)
                 setString(2, user.password)
                 setString(3, user.displayName)
-                setString(4, "file-storage/users/${user.email}/images")
+                setObject(4, user.imageId, Types.INTEGER)
             }
         } catch (e: Exception) {
             throw e;
         }
     }
 
-    override suspend fun createUser(googleToken: GoogleToken): User {
-        val response = googleToken.photoUrl?.let { url -> client.get(url) }
-        val bytes = when(response?.status) {
-            null -> null
-            HttpStatusCode.ExpectationFailed -> {
-                logger.warn(response.bodyAsText())
-                null
-            }
-            HttpStatusCode.OK -> response.body<ByteArray>()
-            else -> null
+    override suspend fun createUser(googleToken: GoogleToken): User = dbQuery(conn)  {
+        if (googleToken.photoUrl == null) {
+            return@dbQuery createUser(RegisterUser(
+                email = googleToken.email,
+                password = null,
+                displayName = googleToken.displayName,
+                imageId = null
+            ))
         }
-        return createUser(RegisterUser(
+        val response = client.get(googleToken.photoUrl)
+        val bytes = when {
+            response.status == HttpStatusCode.OK -> response.body<ByteArray>()
+            else -> {
+                logger.warn(response.bodyAsText())
+                return@dbQuery createUser(RegisterUser(
+                    email = googleToken.email,
+                    password = null,
+                    displayName = googleToken.displayName,
+                    imageId = null
+                ))
+            }
+        }
+        val fileSize = response.headers[HttpHeaders.ContentLength]
+        val fileId = saveAuthFile(AuthFile(
+            name = googleToken.displayName ?: googleToken.email,
+            description = "Google profile image.",
+            data = bytes,
+            size = fileSize.toString(),
+        ))
+
+        createUser(RegisterUser(
             email = googleToken.email,
             password = null,
             displayName = googleToken.displayName,
-            image = bytes
+            imageId = fileId
+        ))
+    }
+
+    private suspend fun saveAuthFile(authFile: AuthFile): Int = dbQuery(conn)  {
+        try {
+            executeQuerySingle("""
+                insert into auth.files (name, description, data, size)
+                values (?, ?, ?, ?)
+                returning id;
+            """.trimMargin(), { getInt("id") }
+            ) {
+                setString(1, authFile.name)
+                setString(2, authFile.description)
+                setBytes(3, authFile.data)
+                setString(4, authFile.size)
+            }
+        } catch (e: Exception) {
+            throw e;
+        }
+    }
+
+    override suspend fun uploadFile(multipartData: MultiPartData, fileSize: String): Int = dbQuery(conn)  {
+        var fileName = ""
+        var fileDescription = ""
+        var fileBytes = byteArrayOf()
+        multipartData.forEachPart { part ->
+            when (part) {
+                is PartData.FormItem -> {
+                    fileDescription = part.value
+                }
+                is PartData.FileItem -> {
+                    fileName = part.originalFileName as String
+                    fileBytes = part.streamProvider().readBytes()
+//                        val encoded = Base64.getEncoder().encodeToString(fileBytes)
+                }
+                is PartData.BinaryChannelItem -> {}
+                is PartData.BinaryItem -> {}
+            }
+            part.dispose()
+        }
+
+        saveAuthFile(AuthFile(
+            name = fileName,
+            description = fileDescription,
+            data = fileBytes,
+            size = fileSize,
         ))
     }
 

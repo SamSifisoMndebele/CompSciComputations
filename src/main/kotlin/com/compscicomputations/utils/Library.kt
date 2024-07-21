@@ -7,7 +7,7 @@ import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.ResultSet
 
-suspend inline fun <T> dbQuery(
+suspend inline fun <T: Any?> dbQuery(
     connection: Connection,
     crossinline block: suspend Connection.() -> T
 ): T = withContext(Dispatchers.IO) {

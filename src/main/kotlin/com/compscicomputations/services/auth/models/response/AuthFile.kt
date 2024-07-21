@@ -3,7 +3,7 @@ package com.compscicomputations.services.auth.models.response
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class UserImage(
+data class AuthFile(
     val name: String,
     val description: String?,
     val data: ByteArray,
@@ -13,7 +13,7 @@ data class UserImage(
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as UserImage
+        other as AuthFile
 
         if (name != other.name) return false
         if (description != other.description) return false
@@ -33,9 +33,8 @@ data class UserImage(
 }
 
 //    id integer generated always as identity primary key,
-//    user_id uuid not null,
 //    name text not null,
 //    description text,
 //    data bytea not null,
 //    size text not null,
-//    created_at timestamptz default (now() at time zone 'SAST') not null,
+//    created_at timestamptz default (now() at time zone 'SAST') not null

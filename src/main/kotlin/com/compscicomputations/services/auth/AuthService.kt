@@ -4,7 +4,9 @@ import com.compscicomputations.services.auth.impl.GoogleToken
 import com.compscicomputations.services.auth.models.requests.NewAdminPin
 import com.compscicomputations.services.auth.models.requests.RegisterUser
 import com.compscicomputations.services.auth.models.requests.UpdateUser
+import com.compscicomputations.services.auth.models.response.AuthFile
 import com.compscicomputations.services.auth.models.response.User
+import io.ktor.http.content.*
 
 internal interface AuthService {
     /**
@@ -21,6 +23,7 @@ internal interface AuthService {
      * @return [User] the created user record.
      */
     suspend fun createUser(user: RegisterUser): User
+
     /**
      * Create a user on the database.
      * @param googleToken [GoogleToken] the user record.
@@ -28,6 +31,13 @@ internal interface AuthService {
      * @return [User] the created user record.
      */
     suspend fun createUser(googleToken: GoogleToken): User
+
+    /**
+     * Create a user on the database.
+     * @param multipartData MultiPartData containing the file info.
+     * @return the uploaded file id.
+     */
+    suspend fun uploadFile(multipartData: MultiPartData, fileSize: String): Int
 
     /**
      * Reads the user information from the database.
