@@ -1,9 +1,11 @@
 package com.compscicomputations.client.auth.data.source.remote
 
+import android.util.Log
 import com.compscicomputations.client.auth.models.Users
 import com.compscicomputations.client.utils.ktorRequest
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.plugins.onDownload
 import io.ktor.client.plugins.onUpload
 import io.ktor.client.plugins.resources.get
 import io.ktor.client.plugins.resources.post
@@ -117,12 +119,20 @@ class AuthDataSource @Inject constructor(
         }
     }
 
+    /**
+     * @param id the user unique identifier.
+     * @param imageBytes the user profile image bytearray.
+     * @param onProgress the image upload progress callback.
+     * @throws ExpectationFailedException if the was server side error.
+     * @return [UserImage] the database user image record.
+     */
     internal suspend fun uploadProfileImage(
         id: String,
         imageBytes: ByteArray,
         onProgress: (bytesSent: Long, totalBytes: Long) -> Unit
     ): UserImage = ktorRequest {
-        val response = client.post("http://localhost:8080/users/$id/image") {
+        val response = client.post(Users.Id.Images(Users.Id(id = id))) {
+            contentType(ContentType.MultiPart.FormData)
             setBody(
                 MultiPartFormDataContent(
                     formData {
@@ -136,7 +146,7 @@ class AuthDataSource @Inject constructor(
                 )
             )
             onUpload { bytesSentTotal, contentLength ->
-                println("Sent $bytesSentTotal bytes from $contentLength")
+                Log.d(TAG, "onUpload: Sent $bytesSentTotal bytes from $contentLength")
                 onProgress(bytesSentTotal, contentLength)
             }
         }
@@ -144,6 +154,29 @@ class AuthDataSource @Inject constructor(
         when (response.status) {
             HttpStatusCode.ExpectationFailed -> throw ExpectationFailedException(response.bodyAsText())
             HttpStatusCode.OK -> response.body<UserImage>()
+            else -> throw Exception("Unexpected response.")
+        }
+    }
+
+    /**
+     * @param id the user unique identifier.
+     * @param onProgress the image download progress callback.
+     * @throws ExpectationFailedException if the was server side error.
+     * @return [ByteArray] the user profile image bytearray.
+     */
+    internal suspend fun downloadProfileImage(
+        id: String,
+        onProgress: (bytesReceived: Long, totalBytes: Long) -> Unit
+    ): ByteArray = ktorRequest {
+        val response = client.get(Users.Id.Images(Users.Id(id = id))) {
+            onDownload { bytesSentTotal, contentLength ->
+                println("onDownload: Received $bytesSentTotal bytes from $contentLength")
+                onProgress(bytesSentTotal, contentLength)
+            }
+        }
+        when (response.status) {
+            HttpStatusCode.ExpectationFailed -> throw ExpectationFailedException(response.bodyAsText())
+            HttpStatusCode.OK -> response.body<ByteArray>()
             else -> throw Exception("Unexpected response.")
         }
     }

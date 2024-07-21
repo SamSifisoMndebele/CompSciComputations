@@ -1,11 +1,8 @@
 package com.compscicomputations.ui.auth.register
 
 import android.content.Context
-import android.graphics.BitmapFactory
 import android.net.Uri
-import android.provider.MediaStore
 import android.util.Log
-import androidx.compose.ui.util.fastRoundToInt
 import androidx.credentials.exceptions.CreateCredentialException
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -17,15 +14,12 @@ import com.compscicomputations.theme.strongPasswordRegex
 import com.compscicomputations.ui.utils.ProgressState
 import com.compscicomputations.utils.notMatches
 import com.compscicomputations.utils.readBytesFromUri
-import com.compscicomputations.utils.roundBytes
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import java.io.File
-import java.net.URI
 import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.roundToInt
@@ -82,7 +76,7 @@ class RegisterViewModel @Inject constructor(
                     context.readBytesFromUri(_uiState.value.imageUri)
                 ) { bytesSent, totalBytes ->
                     _uiState.value = _uiState.value.copy(progressState = ProgressState.Loading("Uploading image..." +
-                            "${bytesSent.roundBytes()}MB/${totalBytes.roundBytes()}"))
+                            "${(bytesSent/1024.0).roundToInt()}MB/${(totalBytes/1024.0).roundToInt()}MB"))
                 }
                 _uiState.value = _uiState.value.copy(progressState = ProgressState.Loading("Done!"))
                 savePassword(_uiState.value.email, _uiState.value.password)

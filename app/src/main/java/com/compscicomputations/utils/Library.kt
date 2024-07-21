@@ -44,11 +44,3 @@ fun rememberConnectivityState(): State<ConnectionState> {
         context.observeConnectivityAsFlow().collect { value = it }
     }
 }
-
-fun Long.roundBytes() : String {
-    val number : Int = ((this / 2024.0) * 10).roundToInt()
-    if (number == 0) return "0.0"
-    val wholeNum = number/10
-    val decNum = "$number".takeLast(1)
-    return "$wholeNum.$decNum"
-}
