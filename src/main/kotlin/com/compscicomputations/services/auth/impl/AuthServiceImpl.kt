@@ -7,6 +7,13 @@ import com.compscicomputations.services.auth.models.requests.RegisterUser
 import com.compscicomputations.services.auth.models.requests.UpdateUser
 import com.compscicomputations.services.auth.models.response.User
 import com.compscicomputations.utils.*
+import io.ktor.client.*
+import io.ktor.client.call.*
+import io.ktor.client.engine.cio.*
+import io.ktor.client.plugins.logging.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
+import io.ktor.http.*
 import org.slf4j.LoggerFactory
 import java.sql.Connection
 import java.sql.ResultSet
@@ -22,23 +29,30 @@ internal class AuthServiceImpl : AuthService {
             return connection!!
         }
 
+    private val client by lazy {
+        HttpClient(CIO) {
+            install(Logging) {
+                level = LogLevel.INFO
+            }
+        }
+    }
+
     companion object {
         private val logger = LoggerFactory.getLogger("AuthService")
 
-        internal class UserExistsException(val email: String? = null) : Exception("The user${
-            if (email != null) " with the provided email: $email" else "" } already exists")
+//        internal class UserExistsException(val email: String? = null) : Exception("The user${
+//            if (email != null) " with the provided email: $email" else "" } already exists")
 
         private fun ResultSet.getUser(): User {
             return User(
                 id = getObject("id").toString(),
                 email = getString("email"),
-                names = getString("names"),
+                displayName = getString("display_name"),
                 photoUrl = getString("photo_url"),
                 phone = getString("phone"),
                 isAdmin = getBoolean("is_admin"),
                 isStudent = getBoolean("is_student"),
-                createdAt = getTimestamp("created_at").asString,
-                updatedAt = getTimestamp("updated_at")?.asString
+                isEmailVerified = getBoolean("is_email_verified"),
             )
         }
     }
@@ -48,42 +62,53 @@ internal class AuthServiceImpl : AuthService {
     }
 
     override suspend fun createUser(user: RegisterUser): User = dbQuery(conn) {
-        //Insert the user values to the database
         try {
-            if (user.isAdmin) {
-                executeQuerySingle("select * from auth.insert_admin(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", { getUser() }) {
-                    setString(1, user.email)
-                    setString(2, user.password)
-                    setString(3, user.adminPin)
-                    setString(4, user.names)
-                    setString(5, user.lastname)
-                    setString(6, user.photoUrl)
-                    setString(7, user.phone)
-                    setBoolean(8, user.isStudent)
-                    setString(9, user.course)
-                    setString(10, user.school)
-                }
-            } else {
-                executeQuerySingle("select * from auth.insert_user(?, ?, ?, ?, ?, ?, ?, ?, ?);", { getUser() }) {
-                    setString(1, user.email)
-                    setString(2, user.password)
-                    setString(3, user.names)
-                    setString(4, user.lastname)
-                    setString(5, user.photoUrl)
-                    setString(6, user.phone)
-                    setBoolean(7, user.isStudent)
-                    setString(8, user.course)
-                    setString(9, user.school)
-                }
+            executeQuerySingle("""
+do
+$$
+    declare
+        _email text := ?;
+        rec record;
+    begin
+        insert into auth.users (email, password_hash, display_name)
+        values (_email, ext.crypt(?, ext.gen_salt('md5')), ?)
+        returning * into strict rec;
+
+    exception
+        when unique_violation then
+            raise exception 'User with email: % already exists', _email
+                using hint = 'Login to your account or reset your forgotten password.';
+    end;
+$$
+            """.trimMargin(), { getUser() }
+            ) {
+                setString(1, user.email)
+                setString(2, user.password)
+                setString(3, user.displayName)
+                setString(4, "file-storage/users/${user.email}/images")
             }
         } catch (e: Exception) {
-            when {
-                e.message?.contains("users_email_key") == true -> {
-                    throw UserExistsException(user.email)
-                }
-                else -> throw e
-            }
+            throw e;
         }
+    }
+
+    override suspend fun createUser(googleToken: GoogleToken): User {
+        val response = googleToken.photoUrl?.let { url -> client.get(url) }
+        val bytes = when(response?.status) {
+            null -> null
+            HttpStatusCode.ExpectationFailed -> {
+                logger.warn(response.bodyAsText())
+                null
+            }
+            HttpStatusCode.OK -> response.body<ByteArray>()
+            else -> null
+        }
+        return createUser(RegisterUser(
+            email = googleToken.email,
+            password = null,
+            displayName = googleToken.displayName,
+            image = bytes
+        ))
     }
 
     override suspend fun readUser(id: String): User? = dbQuery(conn) {
@@ -103,7 +128,42 @@ internal class AuthServiceImpl : AuthService {
     }
 
     override suspend fun updateUser(id: String, user: UpdateUser): User = dbQuery(conn) {
-        TODO("Not yet implemented.")
+        try {
+            if (user.isAdmin == true) {
+                executeQuerySingle("select * from auth.insert_admin(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", { getUser() }) {
+                    setString(1, user.email)
+                    setString(2, user.password)
+                    setString(3, user.adminPin)
+                    setString(4, user.displayName)
+                    setString(5, user.lastname)
+                    setString(6, user.photoUrl)
+                    setString(7, user.phone)
+                    setBoolean(8, user.isStudent ?: false)
+                    setString(9, user.course)
+                    setString(10, user.school)
+                }
+            } else {
+                executeQuerySingle("select * from auth.insert_user(?, ?, ?, ?, ?, ?, ?, ?, ?);", { getUser() }) {
+                    setString(1, user.email)
+                    setString(2, user.password)
+                    setString(3, user.displayName)
+                    setString(4, user.lastname)
+                    setString(5, user.photoUrl)
+                    setString(6, user.phone)
+                    setBoolean(7, user.isStudent ?: false)
+                    setString(8, user.course)
+                    setString(9, user.school)
+                }
+            }
+        } catch (e: Exception) {
+            throw e
+//            when {
+//                e.message?.contains("users_email_key") == true -> {
+//                    throw UserExistsException(user.email)
+//                }
+//                else -> throw e
+//            }
+        }
     }
 
     override suspend fun createAdminPin(adminPin: NewAdminPin): Unit = dbQuery(conn) {

@@ -15,7 +15,7 @@ suspend inline fun <T> dbQuery(
 }
 
 
-inline fun <T> Connection.executeQuery(
+inline fun <T: Any> Connection.executeQuery(
     @Language("postgresql") sql: String,
     transform: ResultSet.() -> T,
     args: PreparedStatement.() -> Unit = {},
@@ -28,13 +28,13 @@ inline fun <T> Connection.executeQuery(
     return result
 }
 
-inline fun <T> Connection.executeQueryOrNull(
+inline fun <T: Any> Connection.executeQueryOrNull(
     @Language("postgresql") sql: String,
     transform: ResultSet.() -> T,
     args: PreparedStatement.() -> Unit = {},
 ): List<T>? = executeQuery(sql, transform, args).ifEmpty { null }
 
-inline fun <T> Connection.executeQuerySingle(
+inline fun <T: Any> Connection.executeQuerySingle(
     @Language("postgresql") sql: String,
     transform: ResultSet.() -> T,
     args: PreparedStatement.() -> Unit = {},
@@ -47,7 +47,8 @@ inline fun <T> Connection.executeQuerySingle(
     if (resultSet.next()) throw IllegalArgumentException("ResultSet has more than one row.")
     return result
 }
-inline fun <T> Connection.executeQuerySingleOrNull(
+
+inline fun <T: Any> Connection.executeQuerySingleOrNull(
     @Language("postgresql") sql: String,
     transform: ResultSet.() -> T,
     args: PreparedStatement.() -> Unit = {},

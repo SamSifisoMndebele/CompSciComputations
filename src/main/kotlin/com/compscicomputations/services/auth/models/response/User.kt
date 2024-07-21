@@ -19,8 +19,6 @@ data class User(
     val isStudent: Boolean,
     @SerialName("is_email_verified")
     val isEmailVerified: Boolean,
-    @SerialName("temp_password")
-    val tempPassword: String? = null,
 ) : Principal
 
 //    id uuid primary key default ext.gen_random_uuid(),

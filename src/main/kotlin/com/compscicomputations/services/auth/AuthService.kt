@@ -1,6 +1,6 @@
 package com.compscicomputations.services.auth
 
-import com.compscicomputations.services.auth.impl.AuthServiceImpl.Companion.UserExistsException
+import com.compscicomputations.services.auth.impl.GoogleToken
 import com.compscicomputations.services.auth.models.requests.NewAdminPin
 import com.compscicomputations.services.auth.models.requests.RegisterUser
 import com.compscicomputations.services.auth.models.requests.UpdateUser
@@ -21,6 +21,13 @@ internal interface AuthService {
      * @return [User] the created user record.
      */
     suspend fun createUser(user: RegisterUser): User
+    /**
+     * Create a user on the database.
+     * @param googleToken [GoogleToken] the user record.
+     * @throws UserExistsException if the user email exists.
+     * @return [User] the created user record.
+     */
+    suspend fun createUser(googleToken: GoogleToken): User
 
     /**
      * Reads the user information from the database.

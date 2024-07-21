@@ -32,6 +32,7 @@ fun Routing.authRouting() {
     val authService by inject<AuthService>()
 
     authenticateGoogle {
+        // Create a user or create if not exists
         get<Users.Google> {
             try {
                 val user = call.principal<User>()!!
@@ -57,38 +58,31 @@ fun Routing.authRouting() {
     post<Users.Id.Images> {
         try {
             val multipartData = call.receiveMultipart()
-            val directory = File("file-storage/users/${it.parent.id}/images").apply {
-                mkdirs()
-            }
-
+            var fileName = ""
             var fileDescription = ""
-            var file = File("")
+            var fileBytes = byteArrayOf()
             multipartData.forEachPart { part ->
                 when (part) {
                     is PartData.FormItem -> {
                         fileDescription = part.value
                     }
                     is PartData.FileItem -> {
-//                        val fileName = part.originalFileName as String
-                        val fileBytes = part.streamProvider().readBytes()
-                        val encoded = Base64.getEncoder().encodeToString(fileBytes)
-                        file = File(directory, "profile_image.png").apply {
-                            createNewFile()
-                            writeBytes(fileBytes)
-                        }
+                        fileName = part.originalFileName as String
+                        fileBytes = part.streamProvider().readBytes()
+//                        val encoded = Base64.getEncoder().encodeToString(fileBytes)
                     }
                     is PartData.BinaryChannelItem -> {}
                     is PartData.BinaryItem -> {}
                 }
                 part.dispose()
             }
-            val contentLength = call.request.header(HttpHeaders.ContentLength)
+            val fileSize = call.request.header(HttpHeaders.ContentLength)
 
             call.respond(HttpStatusCode.OK, UserImage(
                 name = file.name,
                 description = fileDescription,
-                path = file.absolutePath,
-                size = contentLength,
+                data = file.absolutePath,
+                size = name,
             ))
         } catch (e: Exception) {
             call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)

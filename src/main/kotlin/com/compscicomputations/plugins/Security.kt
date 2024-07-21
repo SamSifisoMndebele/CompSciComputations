@@ -1,11 +1,7 @@
 package com.compscicomputations.plugins
 
-import com.compscicomputations.services.auth.impl.GoogleVerifier
-import com.compscicomputations.services.auth.impl.GoogleToken
 import com.compscicomputations.services.auth.AuthService
-import com.compscicomputations.services.auth.models.requests.RegisterUser
-import com.compscicomputations.services.auth.models.response.User
-import com.compscicomputations.utils.PasswordEncryptor
+import com.compscicomputations.services.auth.impl.GoogleVerifier
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.routing.*
@@ -18,34 +14,17 @@ internal fun Application.configureSecurity() {
     val googleVerifier = GoogleVerifier()
     val authService by inject<AuthService>()
 
-    suspend fun GoogleToken.createUser(password: String): User {
-        logger.warn("Goggle user does not exists.")
-        return authService.createUser(RegisterUser(
-            email = email,
-            password = password,
-            names = names,
-            lastname = lastname,
-            photoUrl = photoUrl
-        )).copy(tempPassword = password)
-    }
-
     install(Authentication) {
-
         bearer("google") {
             realm = "Authenticate google user."
             authenticate {
                 try {
-                    googleVerifier.authenticate(it.token)
-                        ?.let { googleToken ->
-                            val tempPassword = PasswordEncryptor.generatePassword(length = 36)
-                            authService.readUserByEmail(googleToken.email)
-                                ?.let { user ->
-                                    authService.updatePassword(user.id, tempPassword)
-                                    user.copy(tempPassword = tempPassword)
-                                }
-                                ?: let {
-                                    googleToken.createUser(tempPassword)
-                                }
+                    val googleToken = googleVerifier.authenticate(it.token)
+                        ?: throw InvalidCredentialsException("Invalid google token.")
+                    authService.readUserByEmail(googleToken.email)
+                        ?: let {
+                            logger.warn("Goggle user does not exists.")
+                            authService.createUser(googleToken)
                         }
                 } catch (e: Exception) {
                     logger.warn("Goggle Auth", e)
@@ -59,11 +38,7 @@ internal fun Application.configureSecurity() {
             validate { credentials ->
                 val email = credentials.name
                 try {
-                    authService.validatePassword(email, credentials.password).let {
-
-
-                        it
-                    }
+                    authService.validatePassword(email, credentials.password)
                 } catch (e: Exception) {
                     logger.warn("Basic::User", e)
                     null

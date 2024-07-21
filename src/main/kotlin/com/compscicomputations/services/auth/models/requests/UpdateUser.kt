@@ -6,8 +6,9 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class UpdateUser(
     val email: String? = null,
+    val password: String? = null,
     @SerialName("display_name")
-    val displayName: String,
+    val displayName: String? = null,
     val lastname: String? = null,
     @SerialName("is_admin")
     val isAdmin: Boolean? = null,
