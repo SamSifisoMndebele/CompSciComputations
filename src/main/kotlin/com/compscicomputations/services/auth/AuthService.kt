@@ -2,7 +2,7 @@ package com.compscicomputations.services.auth
 
 import com.compscicomputations.services.auth.impl.AuthServiceImpl.Companion.UserExistsException
 import com.compscicomputations.services.auth.models.requests.NewAdminPin
-import com.compscicomputations.services.auth.models.requests.NewUser
+import com.compscicomputations.services.auth.models.requests.RegisterUser
 import com.compscicomputations.services.auth.models.requests.UpdateUser
 import com.compscicomputations.services.auth.models.response.User
 
@@ -16,11 +16,11 @@ internal interface AuthService {
 
     /**
      * Create a user on the database.
-     * @param user [NewUser] the information about the user.
+     * @param user [RegisterUser] the information about the user.
      * @throws UserExistsException if the user email exists.
      * @return [User] the created user record.
      */
-    suspend fun createUser(user: NewUser): User
+    suspend fun createUser(user: RegisterUser): User
 
     /**
      * Reads the user information from the database.

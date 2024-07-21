@@ -7,10 +7,12 @@ import com.compscicomputations.plugins.validateAdminPinLimit
 import com.compscicomputations.services.auth.AuthService
 import com.compscicomputations.services.auth.models.*
 import com.compscicomputations.services.auth.models.requests.NewAdminPin
-import com.compscicomputations.services.auth.models.requests.NewUser
+import com.compscicomputations.services.auth.models.requests.RegisterUser
 import com.compscicomputations.services.auth.models.requests.UpdateUser
+import com.compscicomputations.services.auth.models.response.UserImage
 import com.compscicomputations.utils.OKOrNotFound
 import io.ktor.http.*
+import io.ktor.http.content.*
 import io.ktor.resources.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -22,6 +24,9 @@ import io.ktor.server.resources.put
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import org.koin.ktor.ext.inject
+import java.io.File
+import java.io.FileNotFoundException
+import java.util.*
 
 fun Routing.authRouting() {
     val authService by inject<AuthService>()
@@ -40,9 +45,64 @@ fun Routing.authRouting() {
     // Create a user
     post<Users> {
         try {
-            val userRequest = call.receive<NewUser>()
-            authService.createUser(userRequest)
-            call.respond(HttpStatusCode.Created)
+            val userRequest = call.receive<RegisterUser>()
+            val user = authService.createUser(userRequest)
+            call.respond(HttpStatusCode.Created, user)
+        } catch (e: Exception) {
+            call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
+        }
+    }
+
+    //Upload user image
+    post<Users.Id.Images> {
+        try {
+            val multipartData = call.receiveMultipart()
+            val directory = File("file-storage/users/${it.parent.id}/images").apply {
+                mkdirs()
+            }
+
+            var fileDescription = ""
+            var file = File("")
+            multipartData.forEachPart { part ->
+                when (part) {
+                    is PartData.FormItem -> {
+                        fileDescription = part.value
+                    }
+                    is PartData.FileItem -> {
+//                        val fileName = part.originalFileName as String
+                        val fileBytes = part.streamProvider().readBytes()
+                        val encoded = Base64.getEncoder().encodeToString(fileBytes)
+                        file = File(directory, "profile_image.png").apply {
+                            createNewFile()
+                            writeBytes(fileBytes)
+                        }
+                    }
+                    is PartData.BinaryChannelItem -> {}
+                    is PartData.BinaryItem -> {}
+                }
+                part.dispose()
+            }
+            val contentLength = call.request.header(HttpHeaders.ContentLength)
+
+            call.respond(HttpStatusCode.OK, UserImage(
+                name = file.name,
+                description = fileDescription,
+                path = file.absolutePath,
+                size = contentLength,
+            ))
+        } catch (e: Exception) {
+            call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
+        }
+    }
+
+    //Get user image by id
+    get<Users.Id.Images> {
+        try {
+            val directory = File("file-storage/users/${it.parent.id}/images")
+            val file = File(directory, "profile_image.png")
+            if (!file.exists()) throw FileNotFoundException("The user image does not exists.")
+            if (!file.canRead()) throw Exception("The user image is corrupted.")
+            call.respondBytes(file.readBytes(), contentType = ContentType.Image.PNG)
         } catch (e: Exception) {
             call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
         }

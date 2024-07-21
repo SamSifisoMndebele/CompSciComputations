@@ -1,7 +1,7 @@
 package com.compscicomputations.plugins
 
 import com.compscicomputations.services.auth.models.requests.NewAdminPin
-import com.compscicomputations.services.auth.models.requests.NewUser
+import com.compscicomputations.services.auth.models.requests.RegisterUser
 import com.compscicomputations.utils.isEmailValid
 import com.compscicomputations.utils.isPhoneValid
 import io.ktor.server.application.*
@@ -11,7 +11,7 @@ import io.ktor.server.plugins.requestvalidation.*
 internal fun Application.configureRequestValidation() {
 
     install(RequestValidation) {
-        validate<NewUser> { userInfo ->
+        validate<RegisterUser> { userInfo ->
             when {
                 !userInfo.email.isEmailValid() ->
                     ValidationResult.Invalid("Email is not valid.")

@@ -42,10 +42,10 @@ inline fun <T> Connection.executeQuerySingle(
     val stmt = prepareStatement(sql)
     stmt.args()
     val resultSet = stmt.executeQuery()
-    if (!resultSet.first()) throw NoSuchElementException("ResultSet is empty.")
+    if (!resultSet.next()) throw NoSuchElementException("ResultSet is empty.")
+    val result = resultSet.transform()
     if (resultSet.next()) throw IllegalArgumentException("ResultSet has more than one row.")
-    resultSet.first()
-    return transform(resultSet)
+    return result
 }
 inline fun <T> Connection.executeQuerySingleOrNull(
     @Language("postgresql") sql: String,

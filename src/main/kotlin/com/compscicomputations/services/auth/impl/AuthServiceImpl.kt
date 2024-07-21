@@ -3,7 +3,7 @@ package com.compscicomputations.services.auth.impl
 import com.compscicomputations.plugins.connectToPostgres
 import com.compscicomputations.services.auth.AuthService
 import com.compscicomputations.services.auth.models.requests.NewAdminPin
-import com.compscicomputations.services.auth.models.requests.NewUser
+import com.compscicomputations.services.auth.models.requests.RegisterUser
 import com.compscicomputations.services.auth.models.requests.UpdateUser
 import com.compscicomputations.services.auth.models.response.User
 import com.compscicomputations.utils.*
@@ -33,7 +33,6 @@ internal class AuthServiceImpl : AuthService {
                 id = getObject("id").toString(),
                 email = getString("email"),
                 names = getString("names"),
-                lastname = getString("lastname"),
                 photoUrl = getString("photo_url"),
                 phone = getString("phone"),
                 isAdmin = getBoolean("is_admin"),
@@ -48,7 +47,7 @@ internal class AuthServiceImpl : AuthService {
         executeQuerySingleOrNull("select id from auth.users where email like '$email';", { getString("id") })
     }
 
-    override suspend fun createUser(user: NewUser): User = dbQuery(conn) {
+    override suspend fun createUser(user: RegisterUser): User = dbQuery(conn) {
         //Insert the user values to the database
         try {
             if (user.isAdmin) {

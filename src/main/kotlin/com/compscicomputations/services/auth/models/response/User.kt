@@ -8,8 +8,8 @@ import kotlinx.serialization.Serializable
 data class User(
     val id: String,
     val email: String,
-    val names: String,
-    val lastname: String,
+    @SerialName("display_name")
+    val displayName: String,
     @SerialName("photo_url")
     val photoUrl: String?,
     val phone: String?,
@@ -17,22 +17,20 @@ data class User(
     val isAdmin: Boolean,
     @SerialName("is_student")
     val isStudent: Boolean,
-    @SerialName("created_at")
-    val createdAt: String,
-    @SerialName("updated_at")
-    val updatedAt: String?,
+    @SerialName("is_email_verified")
+    val isEmailVerified: Boolean,
     @SerialName("temp_password")
     val tempPassword: String? = null,
 ) : Principal
 
-//    id uuid primary key default ext.gen_random_uuid() not null,
+//    id uuid primary key default ext.gen_random_uuid(),
 //    email text unique not null,
-//    names text not null,
-//    lastname text not null,
-//    password_hash text default null,
+//    password_hash text not null,
+//    display_name text not null,
 //    photo_url text default null,
 //    phone text default null,
 //    is_admin boolean default false not null,
 //    is_student boolean default false not null,
+//    is_email_verified boolean default false not null,
 //    created_at timestamptz default (now() at time zone 'SAST') not null,
 //    updated_at timestamptz default null

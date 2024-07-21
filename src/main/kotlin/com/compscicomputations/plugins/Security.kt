@@ -3,7 +3,7 @@ package com.compscicomputations.plugins
 import com.compscicomputations.services.auth.impl.GoogleVerifier
 import com.compscicomputations.services.auth.impl.GoogleToken
 import com.compscicomputations.services.auth.AuthService
-import com.compscicomputations.services.auth.models.requests.NewUser
+import com.compscicomputations.services.auth.models.requests.RegisterUser
 import com.compscicomputations.services.auth.models.response.User
 import com.compscicomputations.utils.PasswordEncryptor
 import io.ktor.server.application.*
@@ -20,7 +20,7 @@ internal fun Application.configureSecurity() {
 
     suspend fun GoogleToken.createUser(password: String): User {
         logger.warn("Goggle user does not exists.")
-        return authService.createUser(NewUser(
+        return authService.createUser(RegisterUser(
             email = email,
             password = password,
             names = names,

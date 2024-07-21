@@ -11,6 +11,7 @@ data class AdminPin(
     val pinHash: String
 )
 
-//  id int primary key generated always as identity,
-//  email text unique not null,
-//  pin_hash text not null
+//    id int generated always as identity primary key,
+//    email text unique not null,
+//    pin_hash text not null,
+//    created_at timestamptz default (now() at time zone 'SAST') not null
