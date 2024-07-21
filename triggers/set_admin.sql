@@ -1,3 +1,6 @@
+drop trigger if exists set_admin_trigger on auth.admins_pins;
+drop function if exists auth.handle_set_admin;
+
 create or replace function auth.handle_set_admin()
 returns trigger
     language plpgsql

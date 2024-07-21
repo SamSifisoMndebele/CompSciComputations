@@ -1,3 +1,23 @@
+create type public.source_type as enum (
+    'LOTTIE_URL',
+    'IMAGE_URL',
+    'IMAGE_BYTES'
+);
+
+drop table if exists public.onboarding_items;
+create table public.onboarding_items2 (
+    id int primary key generated always as identity not null,
+    source bytea not null,
+    title text not null,
+    description text,
+    source_type public.source_type not null,
+    unique (title, description)
+);
+
+insert into public.onboarding_items2(source, title, description, source_type)
+values ('13215'::bytea, 'title2', 'description2', 'IMAGE_BYTES');
+
+
 drop table if exists public.feedbacks;
 create table public.feedbacks (
     id int primary key generated always as identity,
@@ -8,20 +28,6 @@ create table public.feedbacks (
 
     foreign key (user_id) references auth.users(id) on delete set null on update cascade
 );
-
-create type public.source_type as enum (
-    'LOTTIE',
-    'IMAGE'
-);
-drop table if exists public.onboarding_items;
-create table public.onboarding_items (
-    id int primary key generated always as identity not null,
-    source_url text not null,
-    title text not null,
-    description text,
-    source_type public.source_type not null
-);
-
 
 CREATE TABLE features (
     id SMALLINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,

@@ -13,17 +13,24 @@ create or replace function auth.insert_user(
     language plpgsql
 as
 $code$
-declare _user auth.users;
+declare
+    _user record;
 begin
     insert into auth.users(email, names, lastname, password_hash, photo_url, phone, is_student)
     values (_email, _names, _lastname, ext.crypt(_password, ext.gen_salt('md5')), _photo_url, _phone, _is_student)
-    returning * into _user;
+    returning * into strict _user;
 
-    if _is_student then
+    if _user.is_student then
         insert into auth.students
         values (_user.id, _course, _school);
     end if;
 
     return _user;
+
+exception
+    when unique_violation then
+        raise exception 'User with email: % already exists', '_email'
+        using hint = 'Login to your account or reset your forgotten password.';
+
 end
 $code$;

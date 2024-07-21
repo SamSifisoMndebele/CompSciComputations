@@ -1,19 +1,19 @@
 drop view auth.students_users;
 create or replace view auth.students_users
 as
-select id,
-       email,
-       names,
-       lastname,
-       photo_url,
-       phone,
-       is_admin,
-       created_at,
-       updated_at,
-       course,
-       school
-from auth.users
-join auth.students using (id);
+select u.id,
+       u.email,
+       u.names,
+       u.lastname,
+       u.photo_url,
+       u.phone,
+       u.is_admin,
+       u.created_at,
+       u.updated_at,
+       s.course,
+       s.school
+from auth.users u
+join auth.students s using (id);
 
 comment on view auth.students_users is 'SELECT, UPDATE or DELETE on VIEW: Student Users.';
 

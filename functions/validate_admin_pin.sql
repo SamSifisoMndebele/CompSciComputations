@@ -1,3 +1,4 @@
+drop function if exists auth.validate_admin_pin;
 create or replace function auth.validate_admin_pin(
     _email text,
     _pin text
@@ -12,6 +13,7 @@ begin
     if ext.isNullOrBlank(_email) or ext.isNullOrBlank(_pin) then
         raise exception 'Invalid Parameters, email and pin should not be null or empty';
     end if;
+
     select * into _admin_pin
     from auth.admins_pins
     where email like _email;

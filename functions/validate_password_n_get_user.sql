@@ -1,3 +1,4 @@
+drop function if exists auth.validate_password_n_get_user;
 create or replace function auth.validate_password_n_get_user(
     _email text,
     _password text
@@ -12,6 +13,7 @@ begin
     if ext.isNullOrBlank(_email) or ext.isNullOrBlank(_password) then
         raise exception 'Invalid Parameters, email and password should not be null or empty';
     end if;
+
     select * into _users
     from auth.users
     where email like _email;

@@ -1,3 +1,6 @@
+drop trigger if exists delete_admin_trigger on auth.admins;
+drop function if exists auth.handle_delete_admin;
+
 create or replace function auth.handle_delete_admin()
 returns trigger
     language plpgsql

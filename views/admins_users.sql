@@ -2,19 +2,19 @@ drop view auth.admins_users;
 
 create or replace view auth.admins_users
 as
-select id,
-       email,
-       names,
-       lastname,
-       photo_url,
-       phone,
-       is_student,
-       created_at,
-       updated_at,
-       pin_id,
-       admin_since
-from auth.users
-join auth.admins using (id);
+select u.id,
+       u.email,
+       u.names,
+       u.lastname,
+       u.photo_url,
+       u.phone,
+       u.is_student,
+       u.created_at,
+       u.updated_at,
+       a.pin_id,
+       a.admin_since
+from auth.users u
+join auth.admins a using (id);
 
 comment on view auth.admins_users is 'SELECT, UPDATE or DELETE on VIEW: Admin Users.';
 

@@ -1,3 +1,4 @@
+drop procedure if exists auth.upsert_admin_pin;
 create or replace procedure auth.upsert_admin_pin(_email text, _pin text)
     language plpgsql
 as
