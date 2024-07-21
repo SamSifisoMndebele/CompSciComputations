@@ -20,19 +20,10 @@ import io.ktor.server.routing.get as getA
 fun Application.configureRouting() {
 
     routing {
-        getA {
-            call.respondText("Hello CompSci Computations API!")
-        }
         staticResources("/.well-known", "well-known")
 
-        authRouting()
-        publicRouting()
-
-        authenticate {
-            getA("/test/auth") {
-                val principal = call.principal<User>()
-                call.respondText("Hello\n$principal")
-            }
+        getA {
+            call.respondText("Hello CompSci Computations API!")
         }
 
         getA("/test/email") {
@@ -121,6 +112,9 @@ fun Application.configureRouting() {
             }
 
         }
+
+        authRouting()
+        publicRouting()
     }
 
     // Redirects
