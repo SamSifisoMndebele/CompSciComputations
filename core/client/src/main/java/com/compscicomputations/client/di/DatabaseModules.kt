@@ -37,6 +37,7 @@ import io.ktor.http.URLProtocol
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.flow.first
 import javax.inject.Singleton
+import kotlin.time.Duration.Companion.minutes
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -90,9 +91,9 @@ object DatabaseModules {
         }
         installAuth(context)
         install(HttpTimeout) {
-            connectTimeoutMillis //= HttpTimeout.INFINITE_TIMEOUT_MS
-            socketTimeoutMillis //= HttpTimeout.INFINITE_TIMEOUT_MS
-            requestTimeoutMillis //= HttpTimeout.INFINITE_TIMEOUT_MS
+            connectTimeoutMillis = 30.minutes.inWholeMilliseconds
+            socketTimeoutMillis = 3.minutes.inWholeMilliseconds
+            requestTimeoutMillis = 2.minutes.inWholeMilliseconds
         }
     }
 

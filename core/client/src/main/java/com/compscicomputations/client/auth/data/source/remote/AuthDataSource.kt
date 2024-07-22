@@ -52,15 +52,17 @@ class AuthDataSource @Inject constructor(
     }
 
     /**
+     * @param id user unique identifier
      * @param imageBytes the user profile image bytearray.
      * @param onProgress the image upload progress callback.
      * @throws ExpectationFailedException if the was server side error.
      */
     internal suspend fun uploadProfileImage(
+        id: String,
         imageBytes: ByteArray,
         onProgress: (bytesSent: Long, totalBytes: Long) -> Unit
     ): Int = ktorRequest {
-        val response = client.post(Files.Users.Images()) {
+        val response = client.post(Files.Images.Users(id = id)) {
             contentType(ContentType.MultiPart.FormData)
             setBody(
                 MultiPartFormDataContent(
@@ -104,7 +106,6 @@ class AuthDataSource @Inject constructor(
         }
     }
 
-
     /**
      * @return [RemoteUser] the database user record.
      * @throws UnauthorizedException if the user credentials are not correct.
@@ -130,7 +131,7 @@ class AuthDataSource @Inject constructor(
         id: Int,
         onProgress: (bytesReceived: Long, totalBytes: Long) -> Unit
     ): ByteArray = ktorRequest {
-        val response = client.get(Files.Users.Images.Id(id = id)) {
+        val response = client.get(Files.Images.Id(id = id)) {
             onDownload { bytesSentTotal, contentLength ->
                 println("onDownload: Received $bytesSentTotal bytes from $contentLength")
                 onProgress(bytesSentTotal, contentLength)

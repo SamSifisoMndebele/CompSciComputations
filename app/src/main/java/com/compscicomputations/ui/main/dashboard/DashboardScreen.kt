@@ -42,6 +42,7 @@ import com.compscicomputations.ui.utils.ui.CompSciScaffold
 import com.compscicomputations.ui.utils.ui.OptionButton
 import com.compscicomputations.ui.utils.isLoading
 import com.compscicomputations.ui.utils.ui.shimmerBackground
+import com.compscicomputations.utils.decodeToBitmap
 
 @Composable
 fun DashboardScreen(
@@ -56,7 +57,7 @@ fun DashboardScreen(
     CompSciScaffold(
         title = "Dashboard",
         snackBarHost = {
-            SnackbarHost(hostState = viewModel.snackBarHostState)
+            SnackbarHost(hostState = uiState.snackBarHostState)
         },
         menuActions = {
 //            TextButton(onClick = navigateProfile) {
@@ -96,7 +97,7 @@ fun DashboardScreen(
                                         .size(128.dp)
                                         .padding(8.dp)
                                         .clip(CircleShape),
-                                    model = uiState.photoUrl,
+                                    model = uiState.imageBytes?.decodeToBitmap(),
                                     contentScale = ContentScale.FillBounds,
 //                                    onSuccess = { showShimmer.value = false },
                                     contentDescription = "Profile",

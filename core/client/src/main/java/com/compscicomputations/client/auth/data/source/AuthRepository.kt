@@ -8,9 +8,12 @@ import com.compscicomputations.client.auth.data.source.remote.AuthDataSource.Com
 import com.compscicomputations.client.auth.data.source.remote.RegisterUser
 import com.compscicomputations.client.auth.models.User
 import io.ktor.client.plugins.auth.providers.BasicAuthCredentials
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.retry
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class AuthRepository @Inject constructor(
@@ -30,7 +33,7 @@ class AuthRepository @Inject constructor(
     suspend fun continueWithGoogle(googleIdTokenString: String) {
         localDataStore.saveGoogleIdToken(googleIdTokenString)
         remoteDataSource.continueWithGoogle().let { user ->
-            localDataStore.saveRemoteUser(user)
+            localDataStore.saveUser(user.asUser)
         }
     }
 
@@ -50,14 +53,14 @@ class AuthRepository @Inject constructor(
         imageBytes: ByteArray?,
         onProgress: (bytesSent: Long, totalBytes: Long) -> Unit
     ) {
-        val imageId = imageBytes?.let { remoteDataSource.uploadProfileImage(it, onProgress) }
         remoteDataSource.createUser(RegisterUser(
             email = email,
             password = password,
             displayName = displayName,
-            imageId = imageId
+            imageId = null
         )).let {
-            localDataStore.saveRemoteUser(it)
+            val imageId = imageBytes?.let { bytes -> remoteDataSource.uploadProfileImage(it.id, bytes, onProgress) }
+            localDataStore.saveUser(it.asUser.copy(imageId = imageId))
         }
     }
 
@@ -69,7 +72,7 @@ class AuthRepository @Inject constructor(
     suspend fun login(email: String, password: String) {
         localDataStore.savePasswordCredentials(email, password)
         remoteDataSource.getUser().let { user ->
-            localDataStore.saveRemoteUser(user)
+            localDataStore.saveUser(user.asUser)
         }
     }
 

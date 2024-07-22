@@ -66,13 +66,13 @@ fun ProfileScreen(
     val context = LocalContext.current
     val photoPickerLauncher = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         if (uri == null) return@rememberLauncherForActivityResult
-        viewModel.setPhotoUri(uri)
+//        viewModel.setPhotoUri(uri)
     }
     val file = context.createImageFile()
     val uri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", file)
     val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) {
         if (!it) return@rememberLauncherForActivityResult
-        viewModel.setPhotoUri(uri)
+//        viewModel.setPhotoUri(uri)
     }
     val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
         if (it) cameraLauncher.launch(uri)
@@ -86,7 +86,7 @@ fun ProfileScreen(
 
     CompSciScaffold(
         title = "Profile",
-        snackBarHost = { SnackbarHost(hostState = viewModel.snackBarHostState) },
+        snackBarHost = { SnackbarHost(hostState = uiState.snackBarHostState) },
         menuActions = {
             //TODO Menu
             IconButton(onClick = { /*TODO*/ }) {

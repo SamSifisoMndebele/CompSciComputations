@@ -9,6 +9,7 @@ import com.compscicomputations.client.auth.data.source.local.UserSerializer.asUs
 import com.compscicomputations.client.auth.data.source.remote.RemoteUser
 import com.compscicomputations.client.auth.models.User
 import com.compscicomputations.core.client.LocalUser
+import com.google.protobuf.ByteString
 import dagger.hilt.android.qualifiers.ApplicationContext
 import io.ktor.client.plugins.auth.providers.BasicAuthCredentials
 import io.ktor.client.plugins.auth.providers.BearerTokens
@@ -16,6 +17,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
+import okio.ByteString.Companion.toByteString
 import javax.inject.Inject
 
 class UserDataStore @Inject constructor(
@@ -58,32 +60,18 @@ class UserDataStore @Inject constructor(
 
     internal suspend fun saveUser(user: User) {
         context.userDataStore.updateData { currentUser ->
-            currentUser.toBuilder()
+            val builder = currentUser.toBuilder()
                 .setId(user.id)
                 .setEmail(user.email)
                 .setDisplayName(user.displayName)
                 .setImageId(user.imageId ?: 0)
-//                .setImageBytes(user.imageBytes)
                 .setPhone(user.phone ?: "")
                 .setIsAdmin(user.isAdmin)
                 .setIsStudent(user.isStudent)
                 .setIsEmailVerified(user.isEmailVerified)
-                .build()
-        }
-    }
+            user.imageBytes?.let { builder.setImageBytes(ByteString.copyFrom(it)) }
 
-    internal suspend fun saveRemoteUser(remoteUser: RemoteUser) {
-        context.userDataStore.updateData { currentUser ->
-            currentUser.toBuilder()
-                .setId(remoteUser.id)
-                .setEmail(remoteUser.email)
-                .setDisplayName(remoteUser.displayName)
-                .setImageId(remoteUser.imageId ?: 0)
-                .setPhone(remoteUser.phone ?: "")
-                .setIsAdmin(remoteUser.isAdmin)
-                .setIsStudent(remoteUser.isStudent)
-                .setIsEmailVerified(remoteUser.isEmailVerified)
-                .build()
+            builder.build()
         }
     }
 

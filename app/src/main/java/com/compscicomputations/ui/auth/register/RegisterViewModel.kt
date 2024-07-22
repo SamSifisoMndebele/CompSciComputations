@@ -70,7 +70,7 @@ class RegisterViewModel @Inject constructor(
                     imageBytes = _uiState.value.imageUri?.let { context.asScaledByteArray(it) }
                 ) { bytesSent, totalBytes ->
                     _uiState.value = _uiState.value.copy(progressState = ProgressState.Loading("Uploading image..." +
-                            "${(bytesSent/1024.0).roundToInt()}MB/${(totalBytes/1024.0).roundToInt()}MB"))
+                            "${(bytesSent/1024.0).roundToInt()}kB/${(totalBytes/1024.0).roundToInt()}kB"))
                 }
                 _uiState.value = _uiState.value.copy(progressState = ProgressState.Loading("Done!"))
                 savePassword(_uiState.value.email, _uiState.value.password)

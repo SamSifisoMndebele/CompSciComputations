@@ -14,7 +14,7 @@ private fun Context.readBytes(uri: Uri): ByteArray? =
 
 
 @Throws(IOException::class)
-fun Context.asScaledByteArray(uri: Uri, maxSize: Int = 1024): ByteArray {
+fun Context.asScaledByteArray(uri: Uri, maxSize: Int = 540): ByteArray {
     val bytes = readBytes(uri)
     val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes!!.size)
     val size = if(bitmap.width < bitmap.height) bitmap.width else bitmap.height
@@ -43,6 +43,13 @@ fun Bitmap.encodeToString(): String {
 fun String.decodeToBitmap(): Bitmap {
     val bytes: ByteArray = Base64.decode(this, Base64.DEFAULT)
     return BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+}
+
+/**
+ * Converts encoded bytearray to bitmap
+ */
+fun ByteArray.decodeToBitmap(): Bitmap {
+    return BitmapFactory.decodeByteArray(this, 0, this.size)
 }
 
 
