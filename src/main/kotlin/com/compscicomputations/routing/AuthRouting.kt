@@ -32,12 +32,13 @@ fun Routing.authRouting() {
     }
 
     //Upload user image
-    post<Files.Users.Images> {
+    post<Files.Images.Users> {
         try {
             val multipartData = call.receiveMultipart()
             val fileSize = call.request.header(HttpHeaders.ContentLength)
             val fileId = authService.uploadFile(multipartData, fileSize.toString())
-            call.respond(HttpStatusCode.Created, fileId)
+            authService.updateUserImage(it.id, fileId)
+            call.respond(HttpStatusCode.OK, fileId)
         } catch (e: Exception) {
             call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
         }
@@ -67,7 +68,7 @@ fun Routing.authRouting() {
     }
 
     //Get user image by id
-    get<Files.Users.Images.Id> {
+    get<Files.Images.Id> {
         try {
             val userImageBytes = authService.downloadFile(it.id)
             call.respondBytes(userImageBytes, contentType = ContentType.Image.PNG)

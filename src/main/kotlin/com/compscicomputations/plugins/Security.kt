@@ -17,7 +17,7 @@ internal fun Application.configureSecurity() {
             realm = "Authenticate google user."
             authenticate {
                 try {
-                    authService.readUser(it.token)
+                    authService.googleUser(it.token)
                 } catch (e: Exception) {
                     logger.warn("GoggleBearer", e)
                     null

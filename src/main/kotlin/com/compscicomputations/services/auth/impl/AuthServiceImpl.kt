@@ -2,9 +2,7 @@ package com.compscicomputations.services.auth.impl
 
 import com.compscicomputations.plugins.connectToPostgres
 import com.compscicomputations.services.auth.AuthService
-import com.compscicomputations.services.auth.models.requests.NewAdminPin
 import com.compscicomputations.services.auth.models.requests.RegisterUser
-import com.compscicomputations.services.auth.models.requests.UpdateUser
 import com.compscicomputations.services.auth.models.response.AuthFile
 import com.compscicomputations.services.auth.models.response.User
 import com.compscicomputations.utils.*
@@ -50,7 +48,7 @@ internal class AuthServiceImpl : AuthService {
             id = getObject("id").toString(),
             email = getString("email"),
             displayName = getString("display_name"),
-            imageId = getInt("photo_id"),
+            imageId = getInt("image_id"),
             phone = getString("phone"),
             isAdmin = getBoolean("is_admin"),
             isStudent = getBoolean("is_student"),
@@ -126,7 +124,14 @@ internal class AuthServiceImpl : AuthService {
         }
     }
 
-    override suspend fun readUser(idTokenString: String): User = dbQuery(conn) {
+    override suspend fun updateUserImage(id: String, imageId: Int): Unit = dbQuery(conn) {
+        update("update auth.users set image_id = ? where id = ?::uuid") {
+            setInt(1, imageId)
+            setString(2, id)
+        }
+    }
+
+    override suspend fun googleUser(idTokenString: String): User = dbQuery(conn) {
         val googleToken = googleVerifier.authenticate(idTokenString)
             ?: throw InvalidCredentialsException("Invalid google token.")
 

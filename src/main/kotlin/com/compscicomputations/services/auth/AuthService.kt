@@ -29,13 +29,15 @@ internal interface AuthService {
      */
     suspend fun registerUser(registerUser: RegisterUser): User
 
+    suspend fun updateUserImage(id: String, imageId: Int)
+
     /**
      * Validate the Google id token string and, reads the user information from the database.
      * @param idTokenString the user email.
      * @return [User] the database user record.
      * @throws Exception if the operation wasn't successful.
      */
-    suspend fun readUser(idTokenString: String): User
+    suspend fun googleUser(idTokenString: String): User
 
     /**
      * Validate the email and password combination and, reads the user information from the database.

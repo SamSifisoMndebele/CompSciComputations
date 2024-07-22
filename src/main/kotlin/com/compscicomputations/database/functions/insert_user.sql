@@ -3,7 +3,7 @@ create or replace function auth.insert_user(
     _email text,
     _password text,
     _display_name text,
-    _photo_id int default null
+    _image_id int default null
 ) returns auth.users
     language plpgsql
 as
@@ -11,8 +11,8 @@ $code$
 declare
     _user auth.users;
 begin
-    insert into auth.users (email, password_hash, display_name, photo_id)
-    values (_email, ext.crypt(_password, ext.gen_salt('md5')), _display_name, _photo_id)
+    insert into auth.users (email, password_hash, display_name, image_id)
+    values (_email, ext.crypt(_password, ext.gen_salt('md5')), _display_name, _image_id)
     returning * into strict _user;
 
     return _user;
