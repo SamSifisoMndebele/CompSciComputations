@@ -1,7 +1,7 @@
 package com.compscicomputations.client.utils
 
-import com.compscicomputations.client.auth.models.User
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 
-inline val User.displayName: String
-    get() = "$names $lastname".trim()
+private val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS", Locale.US)

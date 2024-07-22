@@ -3,7 +3,6 @@ package com.compscicomputations.client.auth.data.source.local
 import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.Serializer
 import androidx.datastore.preferences.protobuf.InvalidProtocolBufferException
-import com.compscicomputations.client.auth.data.source.remote.RemoteUser
 import com.compscicomputations.client.auth.models.User
 import com.compscicomputations.core.client.LocalUser
 import java.io.InputStream
@@ -26,28 +25,11 @@ internal object UserSerializer : Serializer<LocalUser> {
         get() = User(
             id = id,
             email = email,
-            names = names,
-            lastname = lastname,
-            photoUrl = photoUrl,
+            displayName = displayName,
+            imageId = imageId,
             phone = phone,
             isAdmin = isAdmin,
             isStudent = isStudent,
-            createdAt = createdAt,
-            updatedAt = updatedAt
+            isEmailVerified = isEmailVerified,
         )
-
-    val LocalUser.asRemoteUser
-        get() = RemoteUser(
-            id = id,
-            email = email,
-            names = names,
-            lastname = lastname,
-            photoUrl = photoUrl,
-            phone = phone,
-            isAdmin = isAdmin,
-            isStudent = isStudent,
-            createdAt = createdAt,
-            updatedAt = updatedAt
-        )
-
 }

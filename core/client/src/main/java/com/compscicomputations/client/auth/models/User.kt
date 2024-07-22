@@ -4,65 +4,78 @@ import com.compscicomputations.client.auth.data.source.remote.RemoteUser
 import com.compscicomputations.core.client.LocalUser
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import okio.ByteString
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-@Serializable
 data class User(
     val id: String,
     val email: String,
-    val names: String,
-    val lastname: String,
-    @SerialName("photo_url")
-    val photoUrl: String?,
+    val displayName: String,
+    val imageId: Int?,
+    val imageBytes: ByteArray? = null,
     val phone: String?,
-    @SerialName("is_admin")
     val isAdmin: Boolean,
-    @SerialName("is_student")
     val isStudent: Boolean,
-    @SerialName("created_at")
-    val createdAt: String,
-    @SerialName("updated_at")
-    val updatedAt: String?,
+    val isEmailVerified: Boolean,
 ) {
-    companion object {
-        private val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS", Locale.US)
-        fun List<User>.toLocal() = map(User::asLocalUser)
-    }
-    @SerialName("display_name")
-    val displayName: String
-        get() = "$names $lastname".trim()
-
-    fun createdAt(): Date = dateFormat.parse(createdAt.replace("T", " "))!!
-    fun updatedAt(): Date? = updatedAt?.replace("T", " ")?.let { dateFormat.parse(it) }
-
-
     internal val asLocalUser: LocalUser
         get() = LocalUser.newBuilder()
             .setId(id)
             .setEmail(email)
-            .setNames(names)
-            .setLastname(lastname)
-            .setPhotoUrl(photoUrl?:"")
-            .setPhone(phone?:"")
+            .setDisplayName(displayName)
+            .setImageId(imageId ?: 0)
+            .setPhone(phone ?: "")
             .setIsAdmin(isAdmin)
             .setIsStudent(isStudent)
-            .setCreatedAt(createdAt)
-            .setUpdatedAt(updatedAt?:"")
+            .setIsEmailVerified(isEmailVerified)
             .build()
 
     internal val asRemoteUser
         get() = RemoteUser(
             id = id,
             email = email,
-            names = names,
-            lastname = lastname,
-            photoUrl = photoUrl,
+            displayName= displayName,
+            imageId = imageId,
             phone = phone,
             isAdmin = isAdmin,
             isStudent = isStudent,
-            createdAt = createdAt,
-            updatedAt = updatedAt
+            isEmailVerified = isEmailVerified
         )
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as User
+
+        if (id != other.id) return false
+        if (email != other.email) return false
+        if (displayName != other.displayName) return false
+        if (imageId != other.imageId) return false
+        if (imageBytes != null) {
+            if (other.imageBytes == null) return false
+            if (!imageBytes.contentEquals(other.imageBytes)) return false
+        } else if (other.imageBytes != null) return false
+        if (phone != other.phone) return false
+        if (isAdmin != other.isAdmin) return false
+        if (isStudent != other.isStudent) return false
+        if (isEmailVerified != other.isEmailVerified) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = id.hashCode()
+        result = 31 * result + email.hashCode()
+        result = 31 * result + displayName.hashCode()
+        result = 31 * result + (imageId ?: 0)
+        result = 31 * result + (imageBytes?.contentHashCode() ?: 0)
+        result = 31 * result + (phone?.hashCode() ?: 0)
+        result = 31 * result + isAdmin.hashCode()
+        result = 31 * result + isStudent.hashCode()
+        result = 31 * result + isEmailVerified.hashCode()
+        return result
+    }
 }

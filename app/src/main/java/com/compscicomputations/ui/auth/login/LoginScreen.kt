@@ -44,7 +44,7 @@ fun LoginScreen(
     viewModel: LoginViewModel = hiltViewModel(),
     navigateOnboarding: () -> Unit,
     navigateRegister: () -> Unit,
-    navigatePasswordLogin: () -> Unit,
+    navigatePasswordLogin: (email: String?, password: String?) -> Unit,
     navigateMain: () -> Unit
 ) {
     val context = LocalContext.current

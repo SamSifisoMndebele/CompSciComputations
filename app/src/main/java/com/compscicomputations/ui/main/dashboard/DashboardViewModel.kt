@@ -32,7 +32,7 @@ class DashboardViewModel @Inject constructor(
                         email = user.email,
                         isAdmin = user.isAdmin,
                         isStudent = user.isStudent,
-                        photoUrl = user.photoUrl,
+//                        photoUrl = user.photoUrl,
                         displayName = user.displayName,
                         showProfile = true,
                         progressState = ProgressState.Idle
@@ -61,7 +61,7 @@ class DashboardViewModel @Inject constructor(
                         email = user.email,
                         isAdmin = user.isAdmin,
                         isStudent = user.isStudent,
-                        photoUrl = user.photoUrl,
+//                        photoUrl = user.photoUrl,
                         displayName = user.displayName,
                         showProfile = true,
                         progressState = ProgressState.Idle

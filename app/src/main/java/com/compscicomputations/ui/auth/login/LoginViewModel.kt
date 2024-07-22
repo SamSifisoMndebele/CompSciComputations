@@ -49,7 +49,7 @@ class LoginViewModel @Inject constructor(
 
     private var loginJob: Job? = null
     fun onLoginPassword(
-        navigatePasswordLogin: () -> Unit,
+        navigatePasswordLogin: (email: String?, password: String?) -> Unit,
         getCredential: suspend (GetCredentialRequest) -> GetCredentialResponse
     ) {
         _uiState.value = ProgressState.Loading("Continue with Password...")
@@ -62,33 +62,37 @@ class LoginViewModel @Inject constructor(
 
                     _uiState.value = ProgressState.Loading("Login...")
                     try {
-                        authRepository.continuePassword(credential.id, credential.password)
+                        authRepository.login(credential.id, credential.password)
                         _uiState.value = ProgressState.Success
-                    } catch (e: Exception) {
-                        authRepository.savePasswordCredentials(credential.id, credential.password)
-                        navigatePasswordLogin()
+                    } catch (e: UnauthorizedException) {
+                        navigatePasswordLogin(credential.id, credential.password)
                         _uiState.value = ProgressState.Idle
-                        Log.e("LoginViewModel", "onLoginPassword", e)
-                    }
-
+                        Log.e("LoginViewModel", "onLoginPassword::UnauthorizedException", e)
+                    }/* catch (e: ExpectationFailedException) {
+                        authRepository.savePasswordCredentials(credential.id, credential.password)
+                        navigatePasswordLogin(credential.id, credential.password)
+                        _uiState.value = ProgressState.Idle
+                        Log.e("LoginViewModel", "onLoginPassword::ExpectationFailedException", e)
+                    }*/
                 } else {
                     // Catch any unrecognized custom credential type here.
                     Log.e(TAG, "Unexpected type of credential")
                     throw Exception("Unexpected type of credential")
                 }
             } catch (e: NoCredentialException) {
-                authRepository.clearUserCredentials()
-                navigatePasswordLogin()
+                authRepository.logout()
+                navigatePasswordLogin(null, null)
                 _uiState.value = ProgressState.Idle
                 Log.w(TAG, e)
             } catch (e: GetCredentialCancellationException) {
-                authRepository.clearUserCredentials()
-                navigatePasswordLogin()
+                authRepository.logout()
+                navigatePasswordLogin(null, null)
                 _uiState.value = ProgressState.Idle
                 Log.w(TAG, e)
             } catch (e: Exception) {
                 Log.e(TAG, "saveCredentials::error", e)
-                authRepository.clearUserCredentials()
+                authRepository.logout()
+                navigatePasswordLogin(null, null)
                 _uiState.value = ProgressState.Error(e.localizedMessage)
                 Log.w(TAG, e)
             }
@@ -111,7 +115,7 @@ class LoginViewModel @Inject constructor(
                     Log.d(TAG, "GoogleIdTokenCredential: ${googleIdTokenCredential.data}")
 
                     try {
-                        authRepository.continueWithGoogle(googleIdTokenCredential)
+                        authRepository.continueWithGoogle(googleIdTokenCredential.idToken)
                         _uiState.value = ProgressState.Success
 
                     } catch (e: UnauthorizedException) {

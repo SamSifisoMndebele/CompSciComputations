@@ -61,7 +61,6 @@ import androidx.credentials.CredentialManager
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
-import com.compscicomputations.BuildConfig
 import com.compscicomputations.client.auth.data.source.local.AuthDataStore.setTermsAccepted
 import com.compscicomputations.theme.AppRed
 import com.compscicomputations.theme.comicNeueFamily
@@ -103,7 +102,7 @@ fun RegisterScreen(
         viewModel.setPhotoUri(uri)
     }
     val file = context.createImageFile()
-    val uri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", file)
+    val uri = FileProvider.getUriForFile(context, "com.compscicomputations.provider", file)
     val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) {
         if (!it) return@rememberLauncherForActivityResult
         viewModel.setPhotoUri(uri)
@@ -113,7 +112,7 @@ fun RegisterScreen(
         else Toast.makeText(context, "Permission Denied", Toast.LENGTH_SHORT).show()
     }
 
-    val (field1, field2, field3, field4, field5) = remember { FocusRequester.createRefs() }
+    val (field1, field2, field3, field4) = remember { FocusRequester.createRefs() }
     CompSciAuthScaffold(
         title = "Register",
         description = "Register your account using your email and password.",
@@ -202,36 +201,20 @@ fun RegisterScreen(
                 .focusProperties { next = field2 }
                 .fillMaxWidth()
                 .padding(vertical = 4.dp),
-            value = uiState.names,
-            onValueChange = { viewModel.onNamesChange(it);},
+            value = uiState.displayName,
+            onValueChange = { viewModel.onDisplayNameChange(it);},
             label = { Text(text = hintNames) },
             singleLine = true,
             shape = RoundedCornerShape(22.dp),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next),
-            isError = uiState.namesError.isError,
-            supportingText = uiState.namesError.showMessage()
+            isError = uiState.displayNameError.isError,
+            supportingText = uiState.displayNameError.showMessage()
         )
 
         OutlinedTextField(
             modifier = Modifier
                 .focusRequester(field2)
                 .focusProperties { next = field3 }
-                .fillMaxWidth()
-                .padding(vertical = 4.dp),
-            value = uiState.lastname,
-            onValueChange = { viewModel.onLastnameChange(it);},
-            label = { Text(text = hintLastname) },
-            singleLine = true,
-            shape = RoundedCornerShape(22.dp),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next),
-            isError = uiState.lastnameError.isError,
-            supportingText = uiState.lastnameError.showMessage()
-        )
-
-        OutlinedTextField(
-            modifier = Modifier
-                .focusRequester(field3)
-                .focusProperties { next = field4 }
                 .fillMaxWidth()
                 .padding(vertical = 4.dp),
             value = uiState.email,
@@ -247,8 +230,8 @@ fun RegisterScreen(
         var showPassword by remember { mutableStateOf(false) }
         OutlinedTextField(
             modifier = Modifier
-                .focusRequester(field4)
-                .focusProperties { next = field5 }
+                .focusRequester(field3)
+                .focusProperties { next = field4 }
                 .fillMaxWidth()
                 .padding(vertical = 4.dp),
             value = uiState.password,
@@ -270,7 +253,7 @@ fun RegisterScreen(
         var showPasswordConfirm by remember { mutableStateOf(false) }
         OutlinedTextField(
             modifier = Modifier
-                .focusRequester(field5)
+                .focusRequester(field4)
                 .fillMaxWidth()
                 .padding(vertical = 4.dp),
             value = uiState.passwordConfirm,

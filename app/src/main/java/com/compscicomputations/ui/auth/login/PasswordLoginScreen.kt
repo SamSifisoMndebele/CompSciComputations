@@ -52,7 +52,7 @@ import com.compscicomputations.utils.asActivity
 
 @Composable
 fun PasswordLoginScreen(
-    viewModel: PasswordLoginViewModel = hiltViewModel(),
+    viewModel: PasswordLoginViewModel,
     navigateOnboarding: () -> Unit,
     navigateRegister: () -> Unit,
     navigateResetPassword: (email: String?) -> Unit,
@@ -104,7 +104,7 @@ fun PasswordLoginScreen(
             singleLine = true,
             visualTransformation =  if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
             trailingIcon = {
-                if (uiState.canShowCredentials) {
+                if (uiState.canShowPassword) {
                     IconButton(onClick = { showPassword = !showPassword }) {
                         Icon(if (showPassword) Icons.Filled.Visibility else Icons.Filled.VisibilityOff, "hide_password")
                     }

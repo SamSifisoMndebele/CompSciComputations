@@ -10,5 +10,5 @@ data class PasswordLoginUiState(
     val passwordError: String? = null,
 
     val progressState: ProgressState = ProgressState.Idle,
-    val canShowCredentials: Boolean = false
+    val canShowPassword: Boolean = false
 )

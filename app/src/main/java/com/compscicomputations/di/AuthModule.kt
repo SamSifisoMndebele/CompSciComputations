@@ -2,7 +2,7 @@ package com.compscicomputations.di
 
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetPasswordOption
-import com.compscicomputations.BuildConfig
+import com.compscicomputations.client.BuildConfig
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import dagger.Module
 import dagger.Provides
@@ -26,14 +26,6 @@ object AuthModule {
     @Provides
     @Singleton
     fun provideGetPasswordOption(): GetPasswordOption = GetPasswordOption()
-
-//    @Provides
-//    @Singleton
-//    fun provideCredentialRequest(
-//        googleIdOption:GetGoogleIdOption,
-//        passwordOption:GetPasswordOption
-//    ): GetCredentialRequest =
-//        GetCredentialRequest(listOf(googleIdOption, passwordOption))
 
     @Provides
     @Singleton

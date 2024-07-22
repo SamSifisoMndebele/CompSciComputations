@@ -1,10 +1,6 @@
 package com.compscicomputations.ui.auth.login
 
-import android.app.Activity
 import android.util.Log
-import androidx.credentials.ClearCredentialStateRequest
-import androidx.credentials.CreatePasswordRequest
-import androidx.credentials.CredentialManager
 import androidx.credentials.exceptions.CreateCredentialException
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -19,7 +15,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
 
@@ -30,23 +25,23 @@ class PasswordLoginViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(PasswordLoginUiState())
     val uiState: StateFlow<PasswordLoginUiState> = _uiState.asStateFlow()
 
-    init {
-        viewModelScope.launch(Dispatchers.IO) {
-            authRepository.passwordCredentialsFlow
-                .catch { e ->
-                    Log.e(TAG, "passwordCredentialsFlow::error", e)
-                }
-                .first()
-                .let { credentials ->
-                    _uiState.value = _uiState.value.copy(
-                        password = credentials?.password ?: "",
-                        email = credentials?.email ?: "",
-                        canShowCredentials = credentials == null
-                    )
-                    if (credentials != null) onLogin()
-                }
-        }
-    }
+//    init {
+//        viewModelScope.launch(Dispatchers.IO) {
+//            authRepository.basicAuthCredentialsFlow
+//                .catch { e ->
+//                    Log.e(TAG, "passwordCredentialsFlow::error", e)
+//                }
+//                .first()
+//                .let { credentials ->
+//                    _uiState.value = _uiState.value.copy(
+//                        password = credentials?.password ?: "",
+//                        email = credentials?.username ?: "",
+//                        canShowPassword = credentials == null
+//                    )
+//                    if (credentials != null) onLogin { _, _->}
+//                }
+//        }
+//    }
 
     fun onEmailChange(email: String) {
         _uiState.value = _uiState.value.copy(email = email, emailError = null)
@@ -54,8 +49,12 @@ class PasswordLoginViewModel @Inject constructor(
 
     fun onPasswordChange(password: String) {
         _uiState.value = _uiState.value.copy(password = password, passwordError = null)
-        if (!_uiState.value.canShowCredentials && password.isBlank())
-            _uiState.value = _uiState.value.copy(canShowCredentials = true)
+        if (!_uiState.value.canShowPassword && password.isBlank())
+            _uiState.value = _uiState.value.copy(canShowPassword = true)
+    }
+
+    fun setCanShowPassword(showPassword: Boolean) {
+        _uiState.value = _uiState.value.copy(canShowPassword = showPassword)
     }
 
     fun onProgressStateChange(progressState: ProgressState) {
@@ -63,11 +62,11 @@ class PasswordLoginViewModel @Inject constructor(
     }
 
     private var loginJob: Job? = null
-    fun onLogin(savePassword: suspend (email: String, password: String) -> Unit = {_,_->}) {
+    fun onLogin(savePassword: suspend (email: String, password: String) -> Unit) {
         _uiState.value = _uiState.value.copy(progressState = ProgressState.Loading("Login..."))
         loginJob = viewModelScope.launch {
             try {
-                authRepository.continuePassword(_uiState.value.email, _uiState.value.password)
+                authRepository.login(_uiState.value.email, _uiState.value.password)
                 savePassword(_uiState.value.email, _uiState.value.password)
                 _uiState.value = _uiState.value.copy(progressState = ProgressState.Success)
             } catch (e: CreateCredentialException) {

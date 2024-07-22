@@ -6,12 +6,13 @@ option java_multiple_files = true;
 message LocalUser {
   string id = 1;
   string email = 2;
-  string names = 3;
-  string lastname = 4;
-  string photoUrl = 5;
-  string phone = 6;
-  bool isAdmin = 7;
-  bool isStudent = 8;
-  string createdAt = 9;
-  string updatedAt = 10;
+  string password = 3;
+  string idToken = 4;
+  string displayName = 5;
+  int32 imageId = 6;
+  bytes imageBytes = 11;
+  string phone = 7;
+  bool isAdmin = 8;
+  bool isStudent = 9;
+  bool isEmailVerified = 10;
 }

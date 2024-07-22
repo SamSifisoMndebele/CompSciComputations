@@ -28,7 +28,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.compscicomputations.R
-import com.compscicomputations.client.auth.data.source.local.UserDataStore.isUserSignedInFlow
+import com.compscicomputations.client.auth.data.source.local.UserDataStore.Companion.isUserSignedIn
 import com.compscicomputations.theme.comicNeueFamily
 import com.compscicomputations.ui.navigation.Auth
 import com.compscicomputations.ui.navigation.Main
@@ -43,7 +43,7 @@ fun SplashScreen(navController: NavHostController) {
     val context = LocalContext.current
     val connectivityState by rememberConnectivityState()
     LaunchedEffect(connectivityState) {
-        if (context.isUserSignedInFlow.first()) navController.navigate(route = Main) {
+        if (context.isUserSignedIn()) navController.navigate(route = Main) {
             popUpTo<Splash> { inclusive = true }
             launchSingleTop = true
         }

@@ -9,20 +9,20 @@ import io.ktor.client.plugins.auth.providers.bearer
 import io.ktor.client.plugins.plugin
 import javax.inject.Inject
 
-class BearerCredentialsUpdateUseCase @Inject constructor(
-    private val client: HttpClient
-) {
-    operator fun invoke(idToken: String) {
-        val auth = client.plugin(Auth)
-        auth.providers.removeIf { it is BearerAuthProvider }
-        auth.bearer {
-            loadTokens {
-                Log.d("IdToken Update", "IdToken: $idToken")
-                BearerTokens(idToken, "refreshToken")
-            }
-            sendWithoutRequest { request ->
-                request.url.pathSegments == listOf("users", "google")
-            }
-        }
-    }
-}
+//class BearerCredentialsUpdateUseCase @Inject constructor(
+//    private val client: HttpClient
+//) {
+//    operator fun invoke(idToken: String) {
+//        val auth = client.plugin(Auth)
+//        auth.providers.removeIf { it is BearerAuthProvider }
+//        auth.bearer {
+//            loadTokens {
+//                Log.d("IdToken Update", "IdToken: $idToken")
+//                BearerTokens(idToken, "refreshToken")
+//            }
+//            sendWithoutRequest { request ->
+//                request.url.pathSegments == listOf("users", "google")
+//            }
+//        }
+//    }
+//}

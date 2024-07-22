@@ -36,7 +36,7 @@ class ProfileViewModel @Inject constructor(
                         email = user.email,
                         isAdmin = user.isAdmin,
                         isStudent = user.isStudent,
-                        photoUrl = user.photoUrl,
+//                        photoUrl = user.photoUrl,
                         displayName = user.displayName,
                         progressState = ProgressState.Idle
                     )
@@ -60,7 +60,7 @@ class ProfileViewModel @Inject constructor(
                         phone = user.phone,
                         isAdmin = user.isAdmin,
                         isStudent = user.isStudent,
-                        photoUrl = user.photoUrl,
+//                        photoUrl = user.photoUrl,
                         isSignedIn = true,
                         displayName = user.displayName,
                         progressState = ProgressState.Idle

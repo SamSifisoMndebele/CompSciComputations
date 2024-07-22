@@ -9,18 +9,18 @@ import io.ktor.client.plugins.auth.providers.basic
 import io.ktor.client.plugins.plugin
 import javax.inject.Inject
 
-class BasicCredentialsUpdateUseCase @Inject constructor(
-    private val client: HttpClient
-) {
-    operator fun invoke(email: String, password: String) {
-        val auth = client.plugin(Auth)
-        auth.providers.removeIf { it is BasicAuthProvider }
-        auth.basic {
-            credentials {
-                Log.d("PasswordCredentials Update", "Email: $email\nPassword: $password")
-                BasicAuthCredentials(email, password)
-            }
-            sendWithoutRequest { true }
-        }
-    }
-}
+//class BasicCredentialsUpdateUseCase @Inject constructor(
+//    private val client: HttpClient
+//) {
+//    operator fun invoke(email: String, password: String) {
+//        val auth = client.plugin(Auth)
+//        auth.providers.removeIf { it is BasicAuthProvider }
+//        auth.basic {
+//            credentials {
+//                Log.d("PasswordCredentials Update", "Email: $email\nPassword: $password")
+//                BasicAuthCredentials(email, password)
+//            }
+//            sendWithoutRequest { true }
+//        }
+//    }
+//}

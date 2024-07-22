@@ -5,32 +5,36 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Base64
-import android.util.Log
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 
 @Throws(IOException::class)
-fun Context.readBytesFromUri(uri: Uri?): ByteArray? =
-    uri?.let { contentResolver.openInputStream(it)?.use { io -> io.buffered().readBytes() } }
+private fun Context.readBytes(uri: Uri): ByteArray? =
+    contentResolver.openInputStream(uri)?.use { io -> io.buffered().readBytes() }
 
+
+@Throws(IOException::class)
+fun Context.asScaledByteArray(uri: Uri, maxSize: Int = 1024): ByteArray {
+    val bytes = readBytes(uri)
+    val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes!!.size)
+    val size = if(bitmap.width < bitmap.height) bitmap.width else bitmap.height
+    val newSize = if (size <= maxSize) size else maxSize
+    val scaledBitmap = Bitmap.createScaledBitmap(bitmap, newSize, newSize, true)
+    return ByteArrayOutputStream().use {
+        scaledBitmap.compress(Bitmap.CompressFormat.PNG, 100, it)
+        it.toByteArray()
+    }
+}
 
 /**
  * Converts bitmap to encoded string in PNG format
  */
 fun Bitmap.encodeToString(): String {
-    var baos: ByteArrayOutputStream? = null
-    try {
-        baos = ByteArrayOutputStream()
-        this.compress(Bitmap.CompressFormat.PNG, 100, baos)
-        val bytes = baos.toByteArray()
-        return Base64.encodeToString(bytes, Base64.DEFAULT)
-    } finally {
-        try {
-            baos?.close()
-        } catch (e: IOException) {
-            Log.e("BitmapUtils::encodeToString", "ByteArrayOutputStream was not closed")
-        }
+    val bytes = ByteArrayOutputStream().use {
+        compress(Bitmap.CompressFormat.PNG, 100, it)
+        it.toByteArray()
     }
+    return Base64.encodeToString(bytes, Base64.DEFAULT)
 }
 
 /**
@@ -43,8 +47,6 @@ fun String.decodeToBitmap(): Bitmap {
 
 
 
-//        val uri: Uri = data.getData()
-//        val bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri)
 
 //    /**
 //     * Converts bitmap to the byte array without compression

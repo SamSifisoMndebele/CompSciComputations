@@ -15,7 +15,6 @@ object AuthDataStore {
 
     private val firstLaunchKey = booleanPreferencesKey("first_launch")
     private val termsAcceptedKey = booleanPreferencesKey("terms_accepted")
-    private fun profileCompleteKey(uid: String?) = booleanPreferencesKey(uid ?: "profile_complete")
 
     val Context.firstLaunchFlow: Flow<Boolean>
         get() = preferencesDataStore.data.map { preferences ->
@@ -33,14 +32,15 @@ object AuthDataStore {
         preferences[termsAcceptedKey] = isAccepted
     }
 
-    val Context.profileComplete: Flow<Boolean?>
-        get() = preferencesDataStore.data.map { preferences ->
-//            preferences[profileCompleteKey(Firebase.auth.currentUser?.uid)]
-            TODO()
-        }
-    suspend fun Context.setProfileComplete(isComplete: Boolean) = preferencesDataStore.edit { preferences ->
-//        preferences[profileCompleteKey(Firebase.auth.currentUser?.uid)] = isComplete
-        TODO()
-    }
+//    private fun profileCompleteKey(uid: String?) = booleanPreferencesKey(uid ?: "profile_complete")
+//    val Context.profileComplete: Flow<Boolean?>
+//        get() = preferencesDataStore.data.map { preferences ->
+////            preferences[profileCompleteKey(Firebase.auth.currentUser?.uid)]
+//            TODO()
+//        }
+//    suspend fun Context.setProfileComplete(isComplete: Boolean) = preferencesDataStore.edit { preferences ->
+////        preferences[profileCompleteKey(Firebase.auth.currentUser?.uid)] = isComplete
+//        TODO()
+//    }
 
 }

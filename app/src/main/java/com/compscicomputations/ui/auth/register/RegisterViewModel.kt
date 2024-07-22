@@ -7,13 +7,13 @@ import androidx.credentials.exceptions.CreateCredentialException
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.compscicomputations.client.auth.data.source.AuthRepository
-import com.compscicomputations.client.auth.data.source.remote.NewUser
+import com.compscicomputations.client.auth.data.source.remote.RegisterUser
 import com.compscicomputations.theme.emailRegex
 import com.compscicomputations.theme.namesRegex
 import com.compscicomputations.theme.strongPasswordRegex
 import com.compscicomputations.ui.utils.ProgressState
+import com.compscicomputations.utils.asScaledByteArray
 import com.compscicomputations.utils.notMatches
-import com.compscicomputations.utils.readBytesFromUri
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -34,11 +34,8 @@ class RegisterViewModel @Inject constructor(
     fun setPhotoUri(photoUri: Uri) {
         _uiState.value = _uiState.value.copy(imageUri = photoUri)
     }
-    fun onNamesChange(names: String) {
-        _uiState.value = _uiState.value.copy(names = names, namesError = null)
-    }
-    fun onLastnameChange(lastname: String) {
-        _uiState.value = _uiState.value.copy(lastname = lastname, lastnameError = null)
+    fun onDisplayNameChange(displayName: String) {
+        _uiState.value = _uiState.value.copy(displayName = displayName, displayNameError = null)
     }
     fun onEmailChange(email: String) {
         _uiState.value = _uiState.value.copy(email = email, emailError = null)
@@ -67,13 +64,10 @@ class RegisterViewModel @Inject constructor(
             try {
 
                 authRepository.createUser(
-                    NewUser(
-                        email = _uiState.value.email,
-                        password = _uiState.value.password,
-                        names = _uiState.value.names,
-                        lastname = _uiState.value.lastname,
-                    ),
-                    context.readBytesFromUri(_uiState.value.imageUri)
+                    email = _uiState.value.email,
+                    password = _uiState.value.password,
+                    displayName = _uiState.value.displayName,
+                    imageBytes = _uiState.value.imageUri?.let { context.asScaledByteArray(it) }
                 ) { bytesSent, totalBytes ->
                     _uiState.value = _uiState.value.copy(progressState = ProgressState.Loading("Uploading image..." +
                             "${(bytesSent/1024.0).roundToInt()}MB/${(totalBytes/1024.0).roundToInt()}MB"))
@@ -101,18 +95,11 @@ class RegisterViewModel @Inject constructor(
 
     private fun fieldsAreValid(): Boolean {
         var valid = true
-        if (_uiState.value.names.isBlank()) {
-            _uiState.value = _uiState.value.copy(namesError = "Enter your names.")
+        if (_uiState.value.displayName.isBlank()) {
+            _uiState.value = _uiState.value.copy(displayNameError = "Enter your display name.")
             valid = false
-        } else if (_uiState.value.names.notMatches(namesRegex)) {
-            _uiState.value = _uiState.value.copy(namesError = "Enter valid names.")
-            valid = false
-        }
-        if (_uiState.value.lastname.isBlank()) {
-            _uiState.value = _uiState.value.copy(lastnameError = "Enter your lastname.")
-            valid = false
-        } else if (_uiState.value.lastname.notMatches(namesRegex)) {
-            _uiState.value = _uiState.value.copy(lastnameError = "Enter a valid lastname.")
+        } else if (_uiState.value.displayName.notMatches(namesRegex)) {
+            _uiState.value = _uiState.value.copy(displayNameError = "Enter valid display name.")
             valid = false
         }
         if (_uiState.value.email.isBlank()) {

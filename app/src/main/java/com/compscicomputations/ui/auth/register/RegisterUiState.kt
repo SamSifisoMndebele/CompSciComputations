@@ -5,15 +5,13 @@ import com.compscicomputations.ui.utils.ProgressState
 
 data class RegisterUiState(
     val imageUri: Uri? = null,
-    val names: String = "",
-    val lastname: String = "",
+    val displayName: String = "",
     val email: String = "",
     val password: String = "",
     val passwordConfirm: String = "",
     val termsAccepted: Boolean = false,
 
-    val namesError: String? = null,
-    val lastnameError: String? = null,
+    val displayNameError: String? = null,
     val emailError: String? = null,
     val passwordError: String? = null,
     val passwordConfirmError: String? = null,
@@ -22,5 +20,7 @@ data class RegisterUiState(
     val progressState: ProgressState = ProgressState.Idle
 ) {
     val isValid: Boolean
-        get() = email.isNotBlank() && password.isNotBlank() && passwordConfirm.isNotBlank() && termsAccepted
+        get() = displayName.isNotBlank() && email.isNotBlank() &&
+                password.isNotBlank() && passwordConfirm.isNotBlank() &&
+                termsAccepted
 }

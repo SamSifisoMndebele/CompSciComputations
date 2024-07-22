@@ -1,12 +1,7 @@
 package com.compscicomputations.di
 
 import android.content.Context
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.booleanPreferencesKey
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.preferencesDataStore
-import com.compscicomputations.BuildConfig
+import com.compscicomputations.client.BuildConfig
 import com.compscicomputations.utils.network.ConnectionState
 import com.compscicomputations.utils.network.Connectivity.currentConnectivityState
 import com.compscicomputations.utils.network.Connectivity.observeConnectivityAsFlow

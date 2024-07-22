@@ -2,8 +2,6 @@ package com.compscicomputations.client.usecase
 
 import android.content.Context
 import android.util.Log
-import com.compscicomputations.client.auth.data.source.local.AuthDataStore.profileComplete
-import com.compscicomputations.client.auth.data.source.local.AuthDataStore.setProfileComplete
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow

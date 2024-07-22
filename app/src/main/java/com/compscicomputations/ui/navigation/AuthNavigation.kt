@@ -21,6 +21,7 @@ import com.compscicomputations.client.auth.data.source.local.AuthDataStore.setTe
 import com.compscicomputations.client.auth.data.source.local.AuthDataStore.termsAcceptedFlow
 import com.compscicomputations.ui.auth.login.LoginScreen
 import com.compscicomputations.ui.auth.login.PasswordLoginScreen
+import com.compscicomputations.ui.auth.login.PasswordLoginViewModel
 import com.compscicomputations.ui.auth.onboarding.OnboardingScreen
 import com.compscicomputations.ui.auth.register.RegisterScreen
 import com.compscicomputations.ui.auth.register.RegisterViewModel
@@ -48,7 +49,9 @@ fun NavGraphBuilder.authNavigation(navController: NavHostController) {
             LoginScreen(
                 navigateOnboarding = { navController.navigate(route = Onboarding) { launchSingleTop = true } },
                 navigateRegister = { navController.navigate(route = Register) { launchSingleTop = true } },
-                navigatePasswordLogin = { navController.navigate(route = PasswordLogin) { launchSingleTop = true } }
+                navigatePasswordLogin = { email, password ->
+                    navController.navigate(route = PasswordLogin(email, password)) { launchSingleTop = true }
+                }
             ) {
                 navController.navigate(route = Main) {
                     popUpTo<Auth> { inclusive = true }
@@ -56,8 +59,18 @@ fun NavGraphBuilder.authNavigation(navController: NavHostController) {
                 }
             }
         }
-        composable<PasswordLogin> {
+        composable<PasswordLogin> { backStackEntry ->
+            val viewModel: PasswordLoginViewModel = hiltViewModel()
+            val passwordLogin: PasswordLogin = backStackEntry.toRoute()
+            passwordLogin.email?.let { email ->
+                viewModel.onEmailChange(email)
+                passwordLogin.password?.let { password ->
+                    viewModel.onPasswordChange(password)
+                    viewModel.onLogin{_,_->}
+                }
+            }
             PasswordLoginScreen(
+                viewModel = viewModel,
                 navigateOnboarding = { navController.navigate(route = Onboarding) { launchSingleTop = true } },
                 navigateRegister = { navController.navigate(route = Register) { launchSingleTop = true } },
                 navigateUp = { navController.navigateUp() },
