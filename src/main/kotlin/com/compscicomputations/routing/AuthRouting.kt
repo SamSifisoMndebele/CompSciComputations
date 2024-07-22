@@ -1,38 +1,26 @@
 package com.compscicomputations.routing
 
-import com.compscicomputations.services.auth.models.response.User
-import com.compscicomputations.plugins.authenticateAdmin
 import com.compscicomputations.plugins.authenticateGoogle
-import com.compscicomputations.plugins.validateAdminPinLimit
 import com.compscicomputations.services.auth.AuthService
-import com.compscicomputations.services.auth.models.*
-import com.compscicomputations.services.auth.models.requests.NewAdminPin
+import com.compscicomputations.services.auth.models.Files
+import com.compscicomputations.services.auth.models.Users
 import com.compscicomputations.services.auth.models.requests.RegisterUser
-import com.compscicomputations.services.auth.models.requests.UpdateUser
-import com.compscicomputations.services.auth.models.response.AuthFile
-import com.compscicomputations.utils.OKOrNotFound
+import com.compscicomputations.services.auth.models.response.User
 import io.ktor.http.*
-import io.ktor.http.content.*
-import io.ktor.resources.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
-import io.ktor.server.plugins.ratelimit.*
 import io.ktor.server.request.*
 import io.ktor.server.resources.*
 import io.ktor.server.resources.post
-import io.ktor.server.resources.put
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import org.koin.ktor.ext.inject
-import java.io.File
-import java.io.FileNotFoundException
-import java.util.*
 
 fun Routing.authRouting() {
     val authService by inject<AuthService>()
 
     authenticateGoogle {
-        // Create a user or create if not exists
+        // Get a user or create if not exists
         get<Users.Google> {
             try {
                 val user = call.principal<User>()!!
@@ -43,19 +31,8 @@ fun Routing.authRouting() {
         }
     }
 
-    // Create a user
-    post<Users> {
-        try {
-            val userRequest = call.receive<RegisterUser>()
-            val user = authService.createUser(userRequest)
-            call.respond(HttpStatusCode.Created, user)
-        } catch (e: Exception) {
-            call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
-        }
-    }
-
     //Upload user image
-    post<Users.Id.Images> {
+    post<Files.Users.Images> {
         try {
             val multipartData = call.receiveMultipart()
             val fileSize = call.request.header(HttpHeaders.ContentLength)
@@ -66,20 +43,58 @@ fun Routing.authRouting() {
         }
     }
 
-    //Get user image by id
-    get<Users.Id.Images> {
+    // Create a user
+    post<Users> {
         try {
-            val directory = File("file-storage/users/${it.parent.id}/images")
-            val file = File(directory, "profile_image.png")
-            if (!file.exists()) throw FileNotFoundException("The user image does not exists.")
-            if (!file.canRead()) throw Exception("The user image is corrupted.")
-            call.respondBytes(file.readBytes(), contentType = ContentType.Image.PNG)
+            val userRequest = call.receive<RegisterUser>()
+            val user = authService.registerUser(userRequest)
+            call.respond(HttpStatusCode.Created, user)
         } catch (e: Exception) {
             call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
         }
     }
 
-    authenticateAdmin {
+    authenticate {
+        // Read a user
+        get<Users.Me> {
+            try {
+                val user = call.principal<User>()!!
+                call.respond(HttpStatusCode.OK, user)
+            } catch (e: Exception) {
+                call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
+            }
+        }
+    }
+
+    //Get user image by id
+    get<Files.Users.Images.Id> {
+        try {
+            val userImageBytes = authService.downloadFile(it.id)
+            call.respondBytes(userImageBytes, contentType = ContentType.Image.PNG)
+        } catch (e: Exception) {
+            call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   /* authenticateAdmin {
+        // Read an admin user
         get<Admins.Me> {
             try {
                 val user = call.principal<User>()!!
@@ -90,16 +105,13 @@ fun Routing.authRouting() {
         }
     }
 
+
+
+
+
+
+
     authenticate {
-        // Read myself as a user
-        get<Users.Me> {
-            try {
-                val user = call.principal<User>()!!
-                call.respond(HttpStatusCode.OK, user)
-            } catch (e: Exception) {
-                call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
-            }
-        }
 
         // Update myself as a user
         put<Users.Me> {
@@ -219,5 +231,5 @@ fun Routing.authRouting() {
                 call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
             }
         }
-    }
+    }*/
 }

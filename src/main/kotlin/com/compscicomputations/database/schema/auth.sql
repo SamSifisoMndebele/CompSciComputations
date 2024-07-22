@@ -20,7 +20,7 @@ create table if not exists auth.users(
     email text unique not null,
     password_hash text default null,
     display_name text not null,
-    photo_id integer unique default null,
+    image_id integer unique default null,
     phone text default null,
     is_admin boolean default false not null,
     is_student boolean default false not null,
@@ -28,5 +28,5 @@ create table if not exists auth.users(
     created_at timestamptz default (now() at time zone 'SAST') not null,
     updated_at timestamptz default null,
 
-    foreign key (photo_id) references auth.files on delete cascade on update cascade
+    foreign key (image_id) references auth.files on delete cascade on update cascade
 );

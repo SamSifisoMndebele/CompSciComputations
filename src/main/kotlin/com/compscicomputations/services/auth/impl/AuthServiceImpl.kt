@@ -2,7 +2,6 @@ package com.compscicomputations.services.auth.impl
 
 import com.compscicomputations.plugins.connectToPostgres
 import com.compscicomputations.services.auth.AuthService
-import com.compscicomputations.services.auth.models.Users
 import com.compscicomputations.services.auth.models.requests.NewAdminPin
 import com.compscicomputations.services.auth.models.requests.RegisterUser
 import com.compscicomputations.services.auth.models.requests.UpdateUser
@@ -17,14 +16,10 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.http.content.*
-import io.ktor.resources.*
-import io.ktor.server.application.*
-import io.ktor.server.request.*
-import io.ktor.server.response.*
+import org.apache.http.auth.InvalidCredentialsException
 import org.slf4j.LoggerFactory
 import java.sql.Connection
 import java.sql.ResultSet
-import java.sql.SQLType
 import java.sql.Types
 
 
@@ -46,121 +41,42 @@ internal class AuthServiceImpl : AuthService {
         }
     }
 
+    private val googleVerifier by lazy { GoogleVerifier() }
+
     companion object {
         private val logger = LoggerFactory.getLogger("AuthService")
 
-//        internal class UserExistsException(val email: String? = null) : Exception("The user${
-//            if (email != null) " with the provided email: $email" else "" } already exists")
+        private fun ResultSet.getUser(): User = User(
+            id = getObject("id").toString(),
+            email = getString("email"),
+            displayName = getString("display_name"),
+            imageId = getInt("photo_id"),
+            phone = getString("phone"),
+            isAdmin = getBoolean("is_admin"),
+            isStudent = getBoolean("is_student"),
+            isEmailVerified = getBoolean("is_email_verified"),
+        )
 
-        private fun ResultSet.getUser(): User {
-            return User(
-                id = getObject("id").toString(),
-                email = getString("email"),
-                displayName = getString("display_name"),
-                photoId = getInt("photo_id"),
-                phone = getString("phone"),
-                isAdmin = getBoolean("is_admin"),
-                isStudent = getBoolean("is_student"),
-                isEmailVerified = getBoolean("is_email_verified"),
-            )
-        }
-    }
-
-    override suspend fun userIdByEmail(email: String): String? = dbQuery(conn) {
-        executeQuerySingleOrNull("select id from auth.users where email like '$email';", { getString("id") })
-    }
-
-    override suspend fun createUser(user: RegisterUser): User = dbQuery(conn) {
-        try {
-            executeQuerySingle(
-                """
-/*do
-$$
-    declare
-        _email text := ?;
-        rec record;
-    begin
-        insert into auth.users (email, password_hash, display_name)
-        values (_email, ext.crypt(?, ext.gen_salt('md5')), ?)
-        returning * into strict rec;
-
-    exception
-        when unique_violation then
-            raise exception 'User with email: % already exists', _email
-                using hint = 'Login to your account or reset your forgotten password.';
-        when foreign_key_violation then
-            raise exception 'User image does not exist on the database';
-    end
-$$*/
-                insert into auth.users (email, password_hash, display_name, photo_id)
-                values (?, ext.crypt(?, ext.gen_salt('md5')), ?, ?)
-                returning *;
-            """.trimMargin(), { getUser() }
-            ) {
-                setString(1, user.email)
-                setString(2, user.password)
-                setString(3, user.displayName)
-                setObject(4, user.imageId, Types.INTEGER)
-            }
-        } catch (e: Exception) {
-            throw e;
-        }
-    }
-
-    override suspend fun createUser(googleToken: GoogleToken): User = dbQuery(conn)  {
-        if (googleToken.photoUrl == null) {
-            return@dbQuery createUser(RegisterUser(
-                email = googleToken.email,
-                password = null,
-                displayName = googleToken.displayName,
-                imageId = null
-            ))
-        }
-        val response = client.get(googleToken.photoUrl)
-        val bytes = when {
-            response.status == HttpStatusCode.OK -> response.body<ByteArray>()
-            else -> {
-                logger.warn(response.bodyAsText())
-                return@dbQuery createUser(RegisterUser(
-                    email = googleToken.email,
-                    password = null,
-                    displayName = googleToken.displayName,
-                    imageId = null
-                ))
-            }
-        }
-        val fileSize = response.headers[HttpHeaders.ContentLength]
-        val fileId = saveAuthFile(AuthFile(
-            name = googleToken.displayName ?: googleToken.email,
-            description = "Google profile image.",
-            data = bytes,
-            size = fileSize.toString(),
-        ))
-
-        createUser(RegisterUser(
-            email = googleToken.email,
-            password = null,
-            displayName = googleToken.displayName,
-            imageId = fileId
-        ))
-    }
-
-    private suspend fun saveAuthFile(authFile: AuthFile): Int = dbQuery(conn)  {
-        try {
-            executeQuerySingle("""
+        private fun Connection.saveAuthFile(authFile: AuthFile): Int =
+            querySingle("""
                 insert into auth.files (name, description, data, size)
                 values (?, ?, ?, ?)
                 returning id;
             """.trimMargin(), { getInt("id") }
-            ) {
-                setString(1, authFile.name)
-                setString(2, authFile.description)
-                setBytes(3, authFile.data)
-                setString(4, authFile.size)
-            }
-        } catch (e: Exception) {
-            throw e;
+        ) {
+            setString(1, authFile.name)
+            setString(2, authFile.description)
+            setBytes(3, authFile.data)
+            setString(4, authFile.size)
         }
+
+//        private fun ResultSet.getAuthFile(): AuthFile = AuthFile(
+//            name = getString("name"),
+//            description = getString("description"),
+//            data = getBytes("data"),
+//            size = getString("size"),
+//            createdAt = getString("created_at"),
+//        )
     }
 
     override suspend fun uploadFile(multipartData: MultiPartData, fileSize: String): Int = dbQuery(conn)  {
@@ -191,26 +107,96 @@ $$*/
         ))
     }
 
-    override suspend fun readUser(id: String): User? = dbQuery(conn) {
-        executeQuerySingleOrNull("select * from auth.users where id = ?::uuid", { getUser() }) {
-            setString(1, id)
+    override suspend fun downloadFile(id: Int): ByteArray = dbQuery(conn) {
+        querySingle("""
+                select data from auth.files
+                where id = ?
+            """.trimMargin(), { getBytes("data") }
+        ) {
+            setInt(1, id)
         }
     }
 
-    override suspend fun readUserByEmail(email: String): User? = dbQuery(conn) {
-        executeQuerySingleOrNull("select * from auth.users where email like ?", { getUser() }) {
+    override suspend fun registerUser(registerUser: RegisterUser): User = dbQuery(conn) {
+        querySingle("select * from auth.insert_user(?,?,?,?)", { getUser() }) {
+            setString(1, registerUser.email)
+            setString(2, registerUser.password)
+            setString(3, registerUser.displayName)
+            setObject(4, registerUser.imageId, Types.INTEGER)
+        }
+    }
+
+    override suspend fun readUser(idTokenString: String): User = dbQuery(conn) {
+        val googleToken = googleVerifier.authenticate(idTokenString)
+            ?: throw InvalidCredentialsException("Invalid google token.")
+
+        querySingleOrNull("select * from auth.users where email like ?", { getUser() }) {
+            setString(1, googleToken.email)
+        } ?: let {
+            logger.warn("Goggle user does not exists, creating user...")
+            if (googleToken.photoUrl == null) {
+                return@dbQuery registerUser(RegisterUser(
+                    email = googleToken.email,
+                    password = null,
+                    displayName = googleToken.displayName,
+                    imageId = null
+                ))
+            }
+            val response = client.get(googleToken.photoUrl)
+            val bytes = when {
+                response.status == HttpStatusCode.OK -> response.body<ByteArray>()
+                else -> {
+                    logger.warn(response.bodyAsText())
+                    return@dbQuery registerUser(RegisterUser(
+                        email = googleToken.email,
+                        password = null,
+                        displayName = googleToken.displayName,
+                        imageId = null
+                    ))
+                }
+            }
+            val fileSize = response.headers[HttpHeaders.ContentLength]
+            val fileId = saveAuthFile(AuthFile(
+                name = googleToken.email,
+                description = "Google profile image.",
+                data = bytes,
+                size = fileSize.toString()
+            ))
+
+            querySingle("select * from auth.insert_user(?,?,?,?)", { getUser() }) {
+                setString(1, googleToken.email)
+                setString(2, null)
+                setString(3, googleToken.displayName)
+                setObject(4, fileId, Types.INTEGER)
+            }
+        }
+    }
+
+    override suspend fun readUser(email: String, password: String): User = dbQuery(conn) {
+        querySingle("select * from auth.validate_password_n_get_user(?, ?)", { getUser() }){
             setString(1, email)
+            setString(2, password)
         }
     }
 
     override suspend fun readUsers(limit: Int): List<User> = dbQuery(conn) {
-        executeQuery("select * from auth.users order by users.email limit $limit", { getUser() })
+        query("select * from auth.users order by users.display_name limit $limit", { getUser() })
     }
 
-    override suspend fun updateUser(id: String, user: UpdateUser): User = dbQuery(conn) {
+
+
+
+
+
+
+
+
+
+
+    /*override suspend fun updateUser(id: String, user: UpdateUser): User = dbQuery(conn) {
         try {
             if (user.isAdmin == true) {
-                executeQuerySingle("select * from auth.insert_admin(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", { getUser() }) {
+                querySingle("select * from auth.insert_admin(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", { getUser() }) {
                     setString(1, user.email)
                     setString(2, user.password)
                     setString(3, user.adminPin)
@@ -223,7 +209,7 @@ $$*/
                     setString(10, user.school)
                 }
             } else {
-                executeQuerySingle("select * from auth.insert_user(?, ?, ?, ?, ?, ?, ?, ?, ?);", { getUser() }) {
+                querySingle("select * from auth.insert_user(?, ?, ?, ?, ?, ?, ?, ?, ?);", { getUser() }) {
                     setString(1, user.email)
                     setString(2, user.password)
                     setString(3, user.displayName)
@@ -247,34 +233,27 @@ $$*/
     }
 
     override suspend fun createAdminPin(adminPin: NewAdminPin): Unit = dbQuery(conn) {
-        executeUpdate("call auth.upsert_admin_pin(?, ?)") {
+        update("call auth.upsert_admin_pin(?, ?)") {
             setString(1, adminPin.email)
             setString(2, adminPin.pin)
         }
     }
 
     override suspend fun validateAdminPin(email: String, pin: String): Int = dbQuery(conn) {
-        executeQuerySingle("select auth.validate_admin_pin(?, ?)", { getInt(1) }) {
+        querySingle("select auth.validate_admin_pin(?, ?)", { getInt(1) }) {
             setString(1, email)
             setString(2, pin)
         }
     }
 
     override suspend fun deleteUser(id: String): Unit = dbQuery(conn) {
-        executeUpdate("delete from auth.users where id like ?") {
+        update("delete from auth.users where id like ?") {
             setString(1, id)
         }
     }
 
-    override suspend fun validatePassword(email: String, password: String): User = dbQuery(conn) {
-        executeQuerySingle("select * from auth.validate_password_n_get_user(?, ?)", { getUser() }){
-            setString(1, email)
-            setString(2, password)
-        }
-    }
-
     override suspend fun updatePassword(id: String, password: String): Unit = dbQuery(conn) {
-        executeUpdate("""
+        update("""
             update auth.users 
             set password_hash = ext.crypt(?, ext.gen_salt('md5'))
             where id = ?::uuid
@@ -283,5 +262,5 @@ $$*/
             setString(1, password)
             setString(2, id)
         }
-    }
+    }*/
 }

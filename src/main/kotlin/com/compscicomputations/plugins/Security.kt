@@ -1,7 +1,6 @@
 package com.compscicomputations.plugins
 
 import com.compscicomputations.services.auth.AuthService
-import com.compscicomputations.services.auth.impl.GoogleVerifier
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.routing.*
@@ -11,7 +10,6 @@ import org.slf4j.LoggerFactory
 
 internal fun Application.configureSecurity() {
     val logger = LoggerFactory.getLogger("Security")
-    val googleVerifier = GoogleVerifier()
     val authService by inject<AuthService>()
 
     install(Authentication) {
@@ -19,15 +17,9 @@ internal fun Application.configureSecurity() {
             realm = "Authenticate google user."
             authenticate {
                 try {
-                    val googleToken = googleVerifier.authenticate(it.token)
-                        ?: throw InvalidCredentialsException("Invalid google token.")
-                    authService.readUserByEmail(googleToken.email)
-                        ?: let {
-                            logger.warn("Goggle user does not exists.")
-                            authService.createUser(googleToken)
-                        }
+                    authService.readUser(it.token)
                 } catch (e: Exception) {
-                    logger.warn("Goggle Auth", e)
+                    logger.warn("GoggleBearer", e)
                     null
                 }
             }
@@ -38,7 +30,7 @@ internal fun Application.configureSecurity() {
             validate { credentials ->
                 val email = credentials.name
                 try {
-                    authService.validatePassword(email, credentials.password)
+                    authService.readUser(email, credentials.password)
                 } catch (e: Exception) {
                     logger.warn("Basic::User", e)
                     null
@@ -51,7 +43,7 @@ internal fun Application.configureSecurity() {
             validate { credentials ->
                 val email = credentials.name
                 try {
-                    authService.validatePassword(email, credentials.password).let {
+                    authService.readUser(email, credentials.password).let {
                         if (it.isAdmin) it
                         else throw InvalidCredentialsException("User with email: $email is not an admin.")
                     }

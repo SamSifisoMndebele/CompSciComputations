@@ -1,5 +1,6 @@
 package com.compscicomputations.services.auth.models.response
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -8,6 +9,8 @@ data class AuthFile(
     val description: String?,
     val data: ByteArray,
     val size: String,
+    @SerialName("created_at")
+    val createdAt: String? = null,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -19,6 +22,7 @@ data class AuthFile(
         if (description != other.description) return false
         if (!data.contentEquals(other.data)) return false
         if (size != other.size) return false
+        if (createdAt != other.createdAt) return false
 
         return true
     }
@@ -28,6 +32,7 @@ data class AuthFile(
         result = 31 * result + (description?.hashCode() ?: 0)
         result = 31 * result + data.contentHashCode()
         result = 31 * result + size.hashCode()
+        result = 31 * result + (createdAt?.hashCode() ?: 0)
         return result
     }
 }

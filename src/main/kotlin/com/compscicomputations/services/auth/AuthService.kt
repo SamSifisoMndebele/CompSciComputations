@@ -1,107 +1,101 @@
 package com.compscicomputations.services.auth
 
-import com.compscicomputations.services.auth.impl.GoogleToken
 import com.compscicomputations.services.auth.models.requests.NewAdminPin
 import com.compscicomputations.services.auth.models.requests.RegisterUser
 import com.compscicomputations.services.auth.models.requests.UpdateUser
-import com.compscicomputations.services.auth.models.response.AuthFile
 import com.compscicomputations.services.auth.models.response.User
 import io.ktor.http.content.*
 
 internal interface AuthService {
-    /**
-     * Get user unique identifier given the user email.
-     * @param email the user email address.
-     * @return `id` the user identifier or `null` if it does not exist.
-     */
-    suspend fun userIdByEmail(email: String): String?
 
     /**
-     * Create a user on the database.
-     * @param user [RegisterUser] the information about the user.
-     * @throws UserExistsException if the user email exists.
-     * @return [User] the created user record.
-     */
-    suspend fun createUser(user: RegisterUser): User
-
-    /**
-     * Create a user on the database.
-     * @param googleToken [GoogleToken] the user record.
-     * @throws UserExistsException if the user email exists.
-     * @return [User] the created user record.
-     */
-    suspend fun createUser(googleToken: GoogleToken): User
-
-    /**
-     * Create a user on the database.
+     * Save a file from multipartDara to the database.
      * @param multipartData MultiPartData containing the file info.
      * @return the uploaded file id.
      */
     suspend fun uploadFile(multipartData: MultiPartData, fileSize: String): Int
 
     /**
-     * Reads the user information from the database.
-     * @param id the user unique identifier.
-     * @return [User] the database user information otherwise `null` if it doesn't exist.
+     * Get a file from the database.
+     * @param id the file unique identifier
+     * @return [ByteArray] the database file bytes.
      */
-    suspend fun readUser(id: String): User?
+    suspend fun downloadFile(id: Int): ByteArray
 
     /**
-     * Reads the user information from the database.
-     * @param email the user email.
-     * @return [User] the database user information otherwise `null` if it doesn't exist.
+     * Create a user to the database.
+     * @param registerUser [RegisterUser] the information about the user.
+     * @return [User] the created user record.
      */
-    suspend fun readUserByEmail(email: String): User?
+    suspend fun registerUser(registerUser: RegisterUser): User
+
+    /**
+     * Validate the Google id token string and, reads the user information from the database.
+     * @param idTokenString the user email.
+     * @return [User] the database user record.
+     * @throws Exception if the operation wasn't successful.
+     */
+    suspend fun readUser(idTokenString: String): User
+
+    /**
+     * Validate the email and password combination and, reads the user information from the database.
+     * @param email user email address
+     * @param password user raw password
+     * @return [User] the database user record.
+     * @throws Exception if the operation wasn't successful.
+     */
+    suspend fun readUser(email: String, password: String): User
 
     /**
      * Reads the user information from the database.
      * @return [User] list from a database, ordered by email.
      */
-    suspend fun readUsers(limit: Int = 100): List<User>
+    suspend fun readUsers(limit: Int): List<User>
 
-    /**
+//    /**
+//     * Validate an email and password combination for a user account
+//     * @param email user email address
+//     * @param password user raw password
+//     * @param adminPin admin raw PIN
+//     * @return [User] the user record.
+//     * @throws Exception if the operation wasn't successful.
+//     */
+//    suspend fun readAdminUser(email: String, password: String, adminPin: String): User
+/*
+    *//**
      * Updates the user information on the database.
      * @param id the user unique identifier.
      * @param updateUser [UpdateUser] the user information to be updated,
      * if a field value is null it remains unchanged.
      * @return [User] the database user information.
-     */
+     *//*
     suspend fun updateUser(id: String, user: UpdateUser): User
 
-    /**
+    *//**
      * Create a admin user verification code.
      * @param adminPin [NewAdminPin]
-     */
+     *//*
     suspend fun createAdminPin(adminPin: NewAdminPin)
 
-    /**
+    *//**
      * Checks if admin code is valid.
      * @param email admin email
      * @param pin admin verification pin
      * @return the row number of the admin pin.
      * @throws Exception if the pin not valid or does not exist.
-     */
+     *//*
     suspend fun validateAdminPin(email: String, pin: String): Int
 
-    /**
+    *//**
      * Deletes the user on database.
      * @param id the user unique identifier.
-     */
+     *//*
     suspend fun deleteUser(id: String)
 
-    /**
-     * Validate an email and password combination for a user account
-     * @param email user email address
-     * @param password user raw password
-     * @return [User] the user record.
-     * @throws Exception if user credential not valid
-     */
-    suspend fun validatePassword(email: String, password: String): User
-
-    /**
+    *//**
      * Update user password with email
      * @param id user unique identifier
      * @param password user raw password
-     */
-    suspend fun updatePassword(id: String, password: String)
+     *//*
+    suspend fun updatePassword(id: String, password: String)*/
 }

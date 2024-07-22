@@ -3,7 +3,7 @@ package com.compscicomputations.services.auth.models
 import io.ktor.resources.*
 
 @Resource("users")
-class Users(val limit: Int = 10) {
+class Users(val limit: Int = 501) {
     @Resource("me")
     class Me(val parent: Users = Users())
 
@@ -11,13 +11,22 @@ class Users(val limit: Int = 10) {
     class Google(val parent: Users = Users())
 
     @Resource("{id}")
-    class Id(val parent: Users = Users(), val id: String) {
-        @Resource("images")
-        class Images(val parent: Id)
-    }
+    class Id(val parent: Users = Users(), val id: String)
 
     @Resource("{email}")
     class Email(val parent: Users = Users(), val email: String)
+}
+
+@Resource("files")
+class Files {
+    @Resource("users")
+    class Users(val parent: Files = Files()) {
+        @Resource("images")
+        class Images(val parent: Users = Users()) {
+            @Resource("{id}")
+            class Id(val parent: Images = Images(), val id: Int)
+        }
+    }
 }
 
 @Resource("admins")
