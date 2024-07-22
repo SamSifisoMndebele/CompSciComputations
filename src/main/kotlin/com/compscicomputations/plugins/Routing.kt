@@ -2,7 +2,7 @@ package com.compscicomputations.plugins
 
 import com.compscicomputations.routing.authRouting
 import com.compscicomputations.routing.publicRouting
-import com.compscicomputations.services.auth.models.Admins
+import com.compscicomputations.services.auth.models.Admin
 import com.compscicomputations.services.auth.models.Users
 import com.compscicomputations.services.auth.models.response.User
 import io.ktor.http.*
@@ -118,11 +118,10 @@ fun Application.configureRouting() {
     }
 
     // Redirects
-    val resourcesFormat = plugin(Resources).resourcesFormat
-    routing {
-        get<Admins.Me> { call.respondRedirect(href(resourcesFormat, Users.Me())) }
-        authenticateAdmin {
-            get<Admins.Id> { call.respondRedirect(href(resourcesFormat, Users.Id(id = it.id))) }
-        }
-    }
+//    val resourcesFormat = plugin(Resources).resourcesFormat
+//    routing {
+//        href(resourcesFormat, Users.Me())
+//        authenticateAdmin {
+//        }
+//    }
 }
