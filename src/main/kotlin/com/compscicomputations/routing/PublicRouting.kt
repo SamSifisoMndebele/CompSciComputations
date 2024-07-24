@@ -1,7 +1,7 @@
 package com.compscicomputations.routing
 
+import com.compscicomputations.plugins.Onboarding
 import com.compscicomputations.services.publik.PublicService
-import com.compscicomputations.services.publik.models.Onboarding
 import com.compscicomputations.services.publik.models.requests.NewOnboardingItem
 import com.compscicomputations.services.publik.models.requests.UpdateOnboardingItem
 import io.ktor.http.*
