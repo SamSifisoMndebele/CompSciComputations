@@ -29,32 +29,37 @@ class OnboardingRepository @Inject constructor(
         return onboardingItem
     }
 
-    fun onboardingItemsFlow(): Flow<List<OnboardingItem>> = flow {
-        if (onboardingItemDao.isEmpty()) {
-            Log.d(TAG, "Fetching onboarding items from remote data source.")
-            remoteDataSource.getOnboardingItems().let { remoteOnboardingItems ->
-                val onboardingItems = remoteOnboardingItems.map { it.asOnboardingItem }.toTypedArray()
-                onboardingItemDao.insert(*onboardingItems)
+    val onboardingItemsFlow: Flow<List<OnboardingItem>>
+        get() = flow {
+            if (onboardingItemDao.isEmpty()) {
+                Log.d(TAG, "Fetching onboarding items from remote data source.")
+                remoteDataSource.getOnboardingItems().let { remoteOnboardingItems ->
+                    val onboardingItems =
+                        remoteOnboardingItems.map { it.asOnboardingItem }.toTypedArray()
+                    onboardingItemDao.insert(*onboardingItems)
+                }
+            } else {
+                try {
+                    val itemsIds = onboardingItemDao.selectIds()
+                    Log.d(
+                        TAG,
+                        "Fetching except (${itemsIds.joinToString()}) onboarding items from remote data source."
+                    )
+                    //TODO:
+                } catch (e: Exception) {
+                    emitAll(onboardingItemDao.selectAll())
+                    throw e
+                }
             }
-        } else {
-            try {
-                val itemsIds = onboardingItemDao.selectIds()
-                Log.d(TAG, "Fetching except (${itemsIds.joinToString()}) onboarding items from remote data source.")
-                //TODO:
-            } catch (e:Exception) {
-                emitAll(onboardingItemDao.selectAll())
-                throw e
-            }
-        }
 //        onboardingItemDao.delete(*onboardingItemDao.selectAll().first().toTypedArray())
 
-        Log.d(TAG, "Fetching onboarding items from local database.")
-        emitAll(onboardingItemDao.selectAll())
+            Log.d(TAG, "Fetching onboarding items from local database.")
+            emitAll(onboardingItemDao.selectAll())
 
-    }.retry(2) {
-        Log.w(TAG, "Error fetching onboarding items, retrying.", it)
-        true
-    }
+        }.retry(2) {
+            Log.w(TAG, "Error fetching onboarding items, retrying.", it)
+            true
+        }
 
 
 }

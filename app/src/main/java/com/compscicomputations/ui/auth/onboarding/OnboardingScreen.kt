@@ -1,9 +1,9 @@
 package com.compscicomputations.ui.auth.onboarding
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -34,7 +34,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -48,16 +51,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.AsyncImage
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
-import com.compscicomputations.client.publik.models.SourceType
+import com.compscicomputations.R
+import com.compscicomputations.client.publik.models.FileType
 import com.compscicomputations.theme.comicNeueFamily
 import com.compscicomputations.ui.utils.ui.ExceptionDialog
 import com.compscicomputations.ui.utils.ui.LoadingDialog
-import com.compscicomputations.ui.utils.ui.UrlAsImageBitmap
 import com.compscicomputations.ui.utils.isLoading
 import com.compscicomputations.utils.rememberConnectivityState
 import com.compscicomputations.ui.utils.ui.shimmerBackground
@@ -141,72 +145,34 @@ fun OnboardingScreen(
                 verticalArrangement = Arrangement.Center,
                 modifier = Modifier.fillMaxSize()
             ) {
-                when(uiState.items[page].sourceType) {
-                    SourceType.IMAGE -> {
-                        UrlAsImageBitmap(
-                            imageUrl = uiState.items[page].sourceUrl,
-                        ) { imageBitmap, showShimmer ->
-                            Image(
-                                bitmap = imageBitmap,
-                                modifier = Modifier
-                                    .shimmerBackground(showShimmer = showShimmer)
-                                    .fillMaxWidth()
-                                    .padding(8.dp)
-                                    .height(280.dp)
-                                    .clip(RoundedCornerShape(18.dp)),
-                                contentDescription = "On boarding image.",
-                                contentScale = ContentScale.FillWidth,
-                            )
-                        }
-                    }
-                    SourceType.LOTTIE -> {
-                        val lottieComposition = rememberLottieComposition(
-                            LottieCompositionSpec.Url(url = uiState.items[page].sourceUrl),
-                            onRetry = { _, _ -> true }
-                        )
-                        val preloaderProgress by animateLottieCompositionAsState(
-                            lottieComposition.value,
-                            iterations = LottieConstants.IterateForever
-                        )
-                        val connectivityState by rememberConnectivityState()
-                        Box {
-                            if (connectivityState.isUnavailable && lottieComposition.isLoading) {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(8.dp)
-                                        .background(
-                                            MaterialTheme.colorScheme.errorContainer.copy(
-                                                alpha = .75f
-                                            ), CircleShape
-                                        )
-                                ) {
-                                    Text(
-                                        text = "Connectivity unavailable, please check your internet connection.",
-                                        maxLines = 2,
-                                        overflow = TextOverflow.Ellipsis,
-                                        fontWeight = FontWeight.Bold,
-                                        color = MaterialTheme.colorScheme.onErrorContainer,
-                                        fontSize = 12.sp,
-                                        fontFamily = comicNeueFamily,
-                                        modifier = Modifier.padding(8.dp)
-                                    )
-                                }
-                            }
-                            LottieAnimation(
-                                composition = lottieComposition.value,
-                                progress = preloaderProgress,
-                                modifier = Modifier
-                                    .shimmerBackground(showShimmer = !lottieComposition.isSuccess)
-                                    .fillMaxWidth()
-                                    .padding(8.dp)
-                                    .height(280.dp)
-                                    .clip(RoundedCornerShape(18.dp)),
-                                contentScale = ContentScale.FillWidth
-                            )
-                        }
-                    }
-                }
+                var showShimmer by remember { mutableStateOf(true) }
+                AsyncImage(
+                    modifier = Modifier
+                        .shimmerBackground(showShimmer = showShimmer)
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                        .height(280.dp)
+                        .clip(RoundedCornerShape(18.dp)),
+                    model = uiState.items[page].imageBytes,
+                    contentDescription = "On boarding image.",
+                    contentScale = ContentScale.FillWidth,
+                    onSuccess = { showShimmer = false }
+                )
+//                UrlAsImageBitmap(
+//                    imageUrl = uiState.items[page].sourceUrl,
+//                ) { imageBitmap, showShimmer ->
+//                    Image(
+//                        bitmap = imageBitmap,
+//                        modifier = Modifier
+//                            .shimmerBackground(showShimmer = showShimmer)
+//                            .fillMaxWidth()
+//                            .padding(8.dp)
+//                            .height(280.dp)
+//                            .clip(RoundedCornerShape(18.dp)),
+//                        contentDescription = "On boarding image.",
+//                        contentScale = ContentScale.FillWidth,
+//                    )
+//                }
 
                 Spacer(modifier = Modifier.height(25.dp))
                 Text(
@@ -235,6 +201,60 @@ fun OnboardingScreen(
                         letterSpacing = 1.sp,
                     )
                 }
+            }
+        }
+
+        AnimatedVisibility(visible = false) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxSize()
+            ) {
+                val lottieComposition = rememberLottieComposition(
+                    LottieCompositionSpec.RawRes(R.raw.welcome_enim),
+                    onRetry = { _, _ -> true }
+                )
+                val preloaderProgress by animateLottieCompositionAsState(
+                    lottieComposition.value,
+                    iterations = LottieConstants.IterateForever
+                )
+                LottieAnimation(
+                    composition = lottieComposition.value,
+                    progress = preloaderProgress,
+                    modifier = Modifier
+                        .shimmerBackground(showShimmer = !lottieComposition.isSuccess)
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                        .height(280.dp)
+                        .clip(RoundedCornerShape(18.dp)),
+                    contentScale = ContentScale.FillWidth
+                )
+
+                Spacer(modifier = Modifier.height(25.dp))
+                Text(
+                    modifier = Modifier
+                        .shimmerBackground(showShimmer = uiState.progressState.isLoading)
+                        .widthIn(64.dp),
+                    text = "Get Started",
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                    letterSpacing = 1.sp,
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    modifier = Modifier
+                        .shimmerBackground(showShimmer = uiState.progressState.isLoading)
+                        .fillMaxWidth()
+                        .padding(10.dp),
+                    text = "Login or create an account.",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    fontWeight = FontWeight.Light,
+                    textAlign = TextAlign.Center,
+                    letterSpacing = 1.sp,
+                )
             }
         }
 

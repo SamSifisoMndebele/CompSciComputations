@@ -27,7 +27,7 @@ class OnboardingViewModel @Inject constructor(
     }
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            onboardingRepository.onboardingItemsFlow()
+            onboardingRepository.onboardingItemsFlow
                 .catch {
                     Log.e(TAG, "Error fetching onboarding items", it)
                     _uiState.value = _uiState.value.copy(progressState = ProgressState.Error(it.localizedMessage))
