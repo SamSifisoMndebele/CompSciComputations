@@ -24,8 +24,3 @@ import kotlinx.serialization.Serializable
 @Serializable object Help
 @Serializable object Feedback
 @Serializable object Settings
-@Serializable data class DynamicFeatureRoute(
-    val moduleName: String,
-    val className: String,
-    val methodName: String
-)

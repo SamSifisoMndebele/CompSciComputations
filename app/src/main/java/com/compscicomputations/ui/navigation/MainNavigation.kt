@@ -13,6 +13,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import androidx.navigation.toRoute
 import com.compscicomputations.BuildConfig
+import com.compscicomputations.client.auth.data.model.DynamicFeature
 import com.compscicomputations.ui.main.dashboard.DashboardScreen
 import com.compscicomputations.ui.main.feedback.FeedbackScreen
 import com.compscicomputations.ui.main.help.HelpScreen
@@ -34,14 +35,11 @@ fun NavGraphBuilder.mainNavigation(navController: NavHostController) {
                     try {
                         if (feature.methodName == null) {
                             context.startActivity(Intent().setClassName(
-                                BuildConfig.APPLICATION_ID, "${feature.module}.${feature.className}"
+                                feature.module,
+                                feature.className
                             ))
                         } else {
-                            navController.navigate(route = DynamicFeatureRoute(
-                                moduleName = feature.moduleName,
-                                className = feature.className,
-                                methodName = feature.methodName!!
-                            ))
+                            navController.navigate(route = feature)
                         }
                     } catch (e: Exception) {
                         Toast.makeText(context, e.message, Toast.LENGTH_LONG).show()
@@ -79,11 +77,11 @@ fun NavGraphBuilder.mainNavigation(navController: NavHostController) {
                 navigateUp = { navController.navigateUp() }
             )
         }
-        composable<DynamicFeatureRoute> { backStackEntry ->
-            val dynamicFeature: DynamicFeatureRoute = backStackEntry.toRoute()
+        composable<DynamicFeature> { backStackEntry ->
+            val dynamicFeature: DynamicFeature = backStackEntry.toRoute()
             loadDynamicFeature(
-                className = dynamicFeature.className,
-                methodName = dynamicFeature.methodName,
+                className = dynamicFeature.clazz,
+                methodName = dynamicFeature.methodName!!,
                 navigateUp = { navController.navigateUp() }
             )
         }

@@ -34,8 +34,10 @@ import com.compscicomputations.ui.navigation.Auth
 import com.compscicomputations.ui.navigation.Main
 import com.compscicomputations.ui.navigation.Splash
 import com.compscicomputations.utils.rememberConnectivityState
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @Composable

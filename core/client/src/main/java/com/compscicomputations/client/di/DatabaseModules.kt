@@ -99,28 +99,28 @@ object DatabaseModules {
 
     private fun <T: HttpClientEngineConfig> HttpClientConfig<T>.installAuth(context: Context) {
         install(Auth) {
-            bearer {
-                loadTokens {
-                    context.bearerCredentialsFlow.first()
-                        ?.let {
-                            Log.d("BearerTokens", "IdToken: ${it.accessToken}")
-                            it
-                        }
-                }
-                sendWithoutRequest { request ->
-                    request.url.pathSegments == listOf("users", "google")
-                }
-            }
-            basic {
-                credentials {
-                    context.basicAuthCredentialsFlow.first()
-                        ?.let {
-                            Log.d("BasicAuthCredentials", "Email: ${it.username}, Password: ${it.password}")
-                            it
-                        }
-                }
-                sendWithoutRequest { true }
-            }
+//            bearer {
+//                loadTokens {
+//                    context.bearerCredentialsFlow.first()
+//                        ?.let {
+//                            Log.d("BearerTokens", "IdToken: ${it.accessToken}")
+//                            it
+//                        }
+//                }
+//                sendWithoutRequest { request ->
+//                    request.url.pathSegments == listOf("users", "google")
+//                }
+//            }
+//            basic {
+//                credentials {
+//                    context.basicAuthCredentialsFlow.first()
+//                        ?.let {
+//                            Log.d("BasicAuthCredentials", "Email: ${it.username}, Password: ${it.password}")
+//                            it
+//                        }
+//                }
+//                sendWithoutRequest { true }
+//            }
         }
     }
 

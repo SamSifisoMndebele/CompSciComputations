@@ -121,10 +121,10 @@ fun OnboardingScreen(
         }
 
         LoadingDialog(progressState = uiState.progressState) {
-            navigateLogin(true)
+            viewModel.cancel()
         }
         ExceptionDialog(progressState = uiState.progressState) {
-            navigateLogin(true)
+            viewModel.cancel()
         }
 
         // Boarding section

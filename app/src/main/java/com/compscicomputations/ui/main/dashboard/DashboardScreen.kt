@@ -107,7 +107,7 @@ fun DashboardScreen(
                                         .size(128.dp)
                                         .padding(8.dp)
                                         .clip(CircleShape),
-                                    model = uiState.imageBitmap?.asImageBitmap(),
+                                    model = uiState.imageBitmap,
                                     contentScale = ContentScale.FillBounds,
                                     contentDescription = "Profile",
                                 )

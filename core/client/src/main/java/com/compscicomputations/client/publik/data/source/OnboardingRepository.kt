@@ -33,14 +33,14 @@ class OnboardingRepository @Inject constructor(
     val onboardingItemsFlow: Flow<List<OnboardingItem>>
         get() = flow {
             if (onboardingItemDao.isEmpty()) {
-                Log.d(TAG, "Fetching onboarding items from remote data source.")
+                Log.d(TAG, "Sync onboarding items from remote data source.")
                 remoteDataSource.getOnboardingItems().let { remoteOnboardingItems ->
                     onboardingItemDao.insert(*remoteOnboardingItems.asOnboardingItems)
                 }
             } else {
                 try {
                     val itemsIds = onboardingItemDao.selectIds()
-                    Log.d(TAG, "Fetching except (${itemsIds.joinToString()}) onboarding items from remote data source.")
+                    Log.d(TAG, "Sync onboarding items from remote data source, except (${itemsIds.joinToString()}).")
                     remoteDataSource.getOnboardingItems(itemsIds).let { remoteOnboardingItems ->
                         onboardingItemDao.delete(*itemsIds)
                         onboardingItemDao.insert(*remoteOnboardingItems.asOnboardingItems)
@@ -50,13 +50,10 @@ class OnboardingRepository @Inject constructor(
                     throw e
                 }
             }
-//        onboardingItemDao.delete(*onboardingItemDao.selectAll().first().toTypedArray())
-
             Log.d(TAG, "Fetching onboarding items from local database.")
             emitAll(onboardingItemDao.selectAll())
-
-        }.retry(2) {
-            Log.w(TAG, "Error fetching onboarding items, retrying.", it)
+        }.retry(1) {
+            Log.w(TAG, "Error syncing onboarding items, retrying.", it)
             true
         }
 

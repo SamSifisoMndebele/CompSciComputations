@@ -7,6 +7,8 @@ import com.compscicomputations.client.publik.data.source.OnboardingRepository
 import com.compscicomputations.ui.utils.ProgressState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,19 +20,24 @@ import javax.inject.Inject
 class OnboardingViewModel @Inject constructor(
     private val onboardingRepository: OnboardingRepository
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow(OnboardingUiState())
-    val uiState: StateFlow<OnboardingUiState> = _uiState.asStateFlow()
-
-
     companion object {
         private const val TAG = "OnboardingViewModel"
     }
+    private val _uiState = MutableStateFlow(OnboardingUiState())
+    val uiState: StateFlow<OnboardingUiState> = _uiState.asStateFlow()
+
+    private var job: Job? = null
+    fun cancel() {
+        job?.cancel()
+        job = null
+        _uiState.value = _uiState.value.copy(progressState = ProgressState.Idle)
+    }
     init {
-        viewModelScope.launch(Dispatchers.IO) {
+        job = viewModelScope.launch(Dispatchers.IO) {
             onboardingRepository.onboardingItemsFlow
                 .catch {
                     Log.e(TAG, "Error fetching onboarding items", it)
-                    _uiState.value = _uiState.value.copy(progressState = ProgressState.Error(it.localizedMessage))
+                    _uiState.value = _uiState.value.copy(progressState = ProgressState.Idle)
                 }.collect { items ->
                     _uiState.value = _uiState.value.copy(items = items, progressState = ProgressState.Idle)
                 }

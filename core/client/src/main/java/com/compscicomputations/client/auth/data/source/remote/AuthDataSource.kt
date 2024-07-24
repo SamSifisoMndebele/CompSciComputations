@@ -5,12 +5,14 @@ import com.compscicomputations.client.utils.Users
 import com.compscicomputations.client.utils.ktorRequest
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.plugins.auth.providers.BasicAuthCredentials
 import io.ktor.client.plugins.onDownload
 import io.ktor.client.plugins.onUpload
 import io.ktor.client.plugins.resources.get
 import io.ktor.client.plugins.resources.post
 import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
+import io.ktor.client.request.headers
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
@@ -19,6 +21,7 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.append
 import io.ktor.http.contentType
+import io.ktor.util.encodeBase64
 import javax.inject.Inject
 
 class AuthDataSource @Inject constructor(
@@ -39,8 +42,12 @@ class AuthDataSource @Inject constructor(
      * @throws UnauthorizedException if the id token is not valid.
      * @throws ExpectationFailedException if the was server side error.
      */
-    internal suspend fun continueWithGoogle(): RemoteUser = ktorRequest {
-        val response = client.get(Users.Google())
+    internal suspend fun continueWithGoogle(idTokenString: String): RemoteUser = ktorRequest {
+        val response = client.get(Users.Google()) {
+            headers {
+                append(HttpHeaders.Authorization, "Bearer $idTokenString")
+            }
+        }
         when (response.status) {
             HttpStatusCode.Unauthorized -> throw UnauthorizedException(response.body<String?>())
             HttpStatusCode.ExpectationFailed -> throw ExpectationFailedException(response.bodyAsText())
@@ -112,9 +119,14 @@ class AuthDataSource @Inject constructor(
      * @throws ExpectationFailedException if the was server side error.
      */
     internal suspend fun getRemoteUser(
+        email: String,
+        password: String?,
         onProgress: (bytesReceived: Long, totalBytes: Long) -> Unit
     ): RemoteUser = ktorRequest {
         val response = client.get(Users.Me()) {
+            headers {
+                append(HttpHeaders.Authorization, "$email $password".encodeBase64())
+            }
             onDownload { bytesSentTotal, contentLength ->
                 println("onDownload: Received $bytesSentTotal bytes from $contentLength")
                 onProgress(bytesSentTotal, contentLength)

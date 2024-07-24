@@ -1,5 +1,6 @@
 package com.compscicomputations.client.auth.data.source
 
+import android.content.Context
 import android.util.Log
 import com.compscicomputations.client.auth.data.source.local.UserDataStore
 import com.compscicomputations.client.auth.data.source.remote.AuthDataSource
@@ -7,13 +8,18 @@ import com.compscicomputations.client.auth.data.source.remote.AuthDataSource.Com
 import com.compscicomputations.client.auth.data.source.remote.AuthDataSource.Companion.UnauthorizedException
 import com.compscicomputations.client.auth.data.source.remote.RegisterUser
 import com.compscicomputations.client.auth.data.model.User
+import com.compscicomputations.client.auth.data.source.local.UserDataStore.Companion.basicAuthCredentialsFlow
+import com.compscicomputations.client.auth.data.source.local.UserDataStore.Companion.bearerCredentialsFlow
 import com.compscicomputations.client.utils.asBitmap
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.retry
 import javax.inject.Inject
 
 class AuthRepository @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val remoteDataSource: AuthDataSource,
     private val localDataStore: UserDataStore,
 ) {
@@ -29,7 +35,7 @@ class AuthRepository @Inject constructor(
      */
     suspend fun continueWithGoogle(googleIdTokenString: String) {
         localDataStore.saveGoogleIdToken(googleIdTokenString)
-        remoteDataSource.continueWithGoogle().let { user ->
+        remoteDataSource.continueWithGoogle(googleIdTokenString).let { user ->
             localDataStore.saveUser(user.asUser)
         }
     }
@@ -67,7 +73,7 @@ class AuthRepository @Inject constructor(
      */
     suspend fun login(email: String, password: String) {
         localDataStore.savePasswordCredentials(email, password)
-        remoteDataSource.getRemoteUser {_,_->} .let { user ->
+        remoteDataSource.getRemoteUser(email, password) {_,_->} .let { user ->
             localDataStore.saveUser(user.asUser)
         }
     }
@@ -84,8 +90,9 @@ class AuthRepository @Inject constructor(
         get() = localDataStore.userFlow
 
     val refreshUserFlow: Flow<User?>
-        get() = flow<User?> {
-            remoteDataSource.getRemoteUser { bytesReceived, totalBytes ->
+        get() = flow {
+            val credentials = context.basicAuthCredentialsFlow.first() ?: return@flow emit(null)
+            remoteDataSource.getRemoteUser(credentials.username, credentials.password) { bytesReceived, totalBytes ->
                 Log.d(TAG, "onDownload User Image: Received $bytesReceived bytes from $totalBytes")
             }.asUser
                 .let { user ->

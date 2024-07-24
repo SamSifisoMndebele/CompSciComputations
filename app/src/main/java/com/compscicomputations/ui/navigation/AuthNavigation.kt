@@ -31,6 +31,7 @@ import com.compscicomputations.utils.rememberConnectivityState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalCoroutinesApi::class)
 fun NavGraphBuilder.authNavigation(navController: NavHostController, gotoOnboarding: MutableState<Boolean>) {
@@ -93,11 +94,11 @@ fun NavGraphBuilder.authNavigation(navController: NavHostController, gotoOnboard
             OnboardingScreen(
                 navigateRegister = {
                     navController.navigate(route = Register) { launchSingleTop = true }
-                    coroutineScope.launch { context.setFirstLaunch(false) }
+                    coroutineScope.launch(Dispatchers.IO) { context.setFirstLaunch(false) }
                 },
                 navigateLogin = { firstLaunch ->
                     navController.navigate(route = Login) { launchSingleTop = true }
-                    coroutineScope.launch { context.setFirstLaunch(firstLaunch) }
+                    coroutineScope.launch(Dispatchers.IO) { context.setFirstLaunch(firstLaunch) }
                 }
             )
         }
@@ -107,7 +108,9 @@ fun NavGraphBuilder.authNavigation(navController: NavHostController, gotoOnboard
             val context = LocalContext.current
             val termsAccepted by context.termsAcceptedFlow.collectAsStateWithLifecycle(initialValue = false)
             LaunchedEffect(termsAccepted) {
-                viewModel.setTermsAccepted(termsAccepted)
+                withContext(Dispatchers.IO) {
+                    viewModel.setTermsAccepted(termsAccepted)
+                }
             }
             RegisterScreen(
                 viewModel = viewModel,

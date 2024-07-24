@@ -62,7 +62,6 @@ class RegisterViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(progressState = ProgressState.Loading("Creating account..."))
         registerJob = viewModelScope.launch {
             try {
-
                 authRepository.createUser(
                     email = _uiState.value.email,
                     password = _uiState.value.password,
