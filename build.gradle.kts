@@ -60,9 +60,11 @@ dependencies {
     implementation("io.ktor:ktor-server-rate-limit-jvm")
     implementation("io.ktor:ktor-server-resources-jvm")
 
-
     implementation("io.ktor:ktor-client-core-jvm")
     implementation("io.ktor:ktor-client-cio-jvm")
     implementation("io.ktor:ktor-client-logging-jvm")
     implementation("io.ktor:ktor-client-resources-jvm")
+
+
+    implementation("io.ktor:ktor-client-content-negotiation-jvm")
 }

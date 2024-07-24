@@ -3,7 +3,6 @@ package com.compscicomputations.services.publik
 import com.compscicomputations.plugins.connectToPostgres
 import com.compscicomputations.services._contrast.PublicServiceContrast
 import com.compscicomputations.services.publik.models.requests.NewOnboardingItem
-import com.compscicomputations.services.publik.models.requests.UpdateOnboardingItem
 import com.compscicomputations.services.publik.models.response.OnboardingItem
 import com.compscicomputations.utils.*
 import java.sql.Connection
@@ -41,38 +40,14 @@ class PublicService : PublicServiceContrast {
         }
     }
 
-    override suspend fun updateOnboardingItem(id: Int, item: UpdateOnboardingItem): Unit = dbQuery(conn) {
-        val current = getOnboardingItem(id) ?: return@dbQuery
-        update("""
-            update public.onboarding_items
-            set title = ?,
-                description = ?,
-                image_bytes = ?
-            where id = ?
-        """.trimIndent()) {
-            setString(1, item.title ?: current.title)
-            setString(2, item.description ?: current.description)
-            setBytes(3, item.imageBytes ?: current.imageBytes)
-            setInt(5, id)
+    override suspend fun getOnboardingItems(except: IntArray?): List<OnboardingItem> = dbQuery(conn) {
+        when(except) {
+            null -> query("select * from public.onboarding_items", { getOnboardingItem() })
+            else -> query("select * from public.onboarding_items where id not in (${except.joinToString()})", { getOnboardingItem() })
         }
     }
 
-    override suspend fun getOnboardingItem(id: Int): OnboardingItem? = dbQuery(conn) {
-        querySingleOrNull("select * from public.onboarding_items where id = ?", { getOnboardingItem() }) {
-            setInt(1, id)
-        }
-    }
-
-    override suspend fun getOnboardingItems(): List<OnboardingItem> = dbQuery(conn) {
-        query("select * from public.onboarding_items", { getOnboardingItem() })
-    }
-
-    override suspend fun getOnboardingItemsExcept(ids: IntArray): List<OnboardingItem> = dbQuery(conn) {
-        query("select * from public.sql.onboarding_items where id not in (${ids.joinToString()})",
-            { getOnboardingItem() })
-    }
-
-    override suspend fun deleteOnboardingItems(id: Int): Unit = dbQuery(conn) {
+    override suspend fun deleteOnboardingItem(id: Int): Unit = dbQuery(conn) {
         update("delete from public.onboarding_items where id = ?") {
             setInt(1, id)
         }
