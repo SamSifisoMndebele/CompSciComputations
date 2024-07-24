@@ -1,6 +1,7 @@
 package com.compscicomputations.ui.navigation
 
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -32,18 +33,19 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalCoroutinesApi::class)
-fun NavGraphBuilder.authNavigation(navController: NavHostController) {
+fun NavGraphBuilder.authNavigation(navController: NavHostController, gotoOnboarding: MutableState<Boolean>) {
     navigation<Auth>(startDestination = Login) {
         composable<Login> {
             val context = LocalContext.current
             val firstLaunch by context.firstLaunchFlow.collectAsState(initial = false)
             val connectivityState by rememberConnectivityState()
-            var gotoOnboarding by remember { mutableStateOf(true) }
             LaunchedEffect(firstLaunch) {
-                if (firstLaunch && connectivityState.isAvailable && gotoOnboarding) navController.navigate(route = Onboarding) {
-                    popUpTo<Login> { inclusive = true }
-                    launchSingleTop = true
-                    gotoOnboarding = false
+                if (firstLaunch && connectivityState.isAvailable && gotoOnboarding.value) {
+                    gotoOnboarding.value = false
+                    navController.navigate(route = Onboarding) {
+                        popUpTo<Login> { inclusive = true }
+                        launchSingleTop = true
+                    }
                 }
             }
             LoginScreen(

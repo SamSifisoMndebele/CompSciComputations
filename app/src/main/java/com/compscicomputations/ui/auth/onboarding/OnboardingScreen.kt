@@ -4,6 +4,8 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -43,10 +45,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -58,18 +58,14 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.compscicomputations.R
-import com.compscicomputations.client.publik.models.FileType
 import com.compscicomputations.theme.comicNeueFamily
+import com.compscicomputations.ui.utils.isLoading
 import com.compscicomputations.ui.utils.ui.ExceptionDialog
 import com.compscicomputations.ui.utils.ui.LoadingDialog
-import com.compscicomputations.ui.utils.isLoading
-import com.compscicomputations.utils.rememberConnectivityState
 import com.compscicomputations.ui.utils.ui.shimmerBackground
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @Composable
 fun OnboardingScreen(
     viewModel: OnboardingViewModel = hiltViewModel(),
@@ -78,8 +74,7 @@ fun OnboardingScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val coroutineScope = rememberCoroutineScope()
-    val pageState = rememberPagerState { uiState.items.size }
-    val context = LocalContext.current
+    val pageState = rememberPagerState { uiState.items.size + 1 }
 
     Column(
         modifier = Modifier
@@ -114,7 +109,7 @@ fun OnboardingScreen(
                 TextButton(
                     onClick = {
                         coroutineScope.launch {
-                            pageState.scrollToPage(uiState.items.size - 1)
+                            pageState.scrollToPage(uiState.items.size)
                         }
                     },
                     modifier = Modifier.align(Alignment.CenterEnd),
@@ -132,32 +127,85 @@ fun OnboardingScreen(
             navigateLogin(true)
         }
 
-
         // Boarding section
         HorizontalPager(
-            state = pageState,
             modifier = Modifier
-                .fillMaxHeight(0.9f)
-                .fillMaxWidth()
+                .weight(.9f)
+                .fillMaxWidth(),
+            state = pageState,
         ) { page ->
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
-                modifier = Modifier.fillMaxSize()
-            ) {
-                var showShimmer by remember { mutableStateOf(true) }
-                AsyncImage(
-                    modifier = Modifier
-                        .shimmerBackground(showShimmer = showShimmer)
-                        .fillMaxWidth()
-                        .padding(8.dp)
-                        .height(280.dp)
-                        .clip(RoundedCornerShape(18.dp)),
-                    model = uiState.items[page].imageBytes,
-                    contentDescription = "On boarding image.",
-                    contentScale = ContentScale.FillWidth,
-                    onSuccess = { showShimmer = false }
-                )
+            if (page == uiState.items.size) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    val lottieComposition = rememberLottieComposition(
+                        LottieCompositionSpec.RawRes(R.raw.welcome_enim)
+                    )
+                    val preloaderProgress by animateLottieCompositionAsState(
+                        lottieComposition.value,
+                        iterations = LottieConstants.IterateForever
+                    )
+                    LottieAnimation(
+                        composition = lottieComposition.value,
+                        progress = preloaderProgress,
+                        modifier = Modifier
+                            .shimmerBackground(showShimmer = lottieComposition.isLoading)
+                            .fillMaxWidth()
+                            .padding(8.dp)
+                            .height(280.dp)
+                            .clip(RoundedCornerShape(18.dp)),
+                        contentScale = ContentScale.FillWidth
+                    )
+
+                    Spacer(modifier = Modifier.height(25.dp))
+                    Text(
+                        modifier = Modifier
+                            .shimmerBackground(showShimmer = lottieComposition.isLoading)
+                            .widthIn(64.dp),
+                        text = "Get Started",
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = MaterialTheme.colorScheme.onBackground,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center,
+                        letterSpacing = 1.sp,
+                        fontFamily = comicNeueFamily
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        modifier = Modifier
+                            .shimmerBackground(showShimmer = lottieComposition.isLoading)
+                            .fillMaxWidth()
+                            .padding(10.dp),
+                        text = "Login or create an account.",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onBackground,
+                        fontWeight = FontWeight.Light,
+                        textAlign = TextAlign.Center,
+                        letterSpacing = 1.sp,
+                        fontFamily = comicNeueFamily
+                    )
+                }
+            } else {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    var showShimmer by remember { mutableStateOf(true) }
+                    AsyncImage(
+                        modifier = Modifier
+                            .shimmerBackground(showShimmer = showShimmer)
+                            .fillMaxWidth()
+                            .padding(8.dp)
+                            .height(280.dp)
+                            .clip(RoundedCornerShape(18.dp)),
+                        model = uiState.items[page].imageBytes,
+                        contentDescription = "On boarding image.",
+                        contentScale = ContentScale.FillWidth,
+                        onSuccess = { showShimmer = false }
+                    )
 //                UrlAsImageBitmap(
 //                    imageUrl = uiState.items[page].sourceUrl,
 //                ) { imageBitmap, showShimmer ->
@@ -174,87 +222,36 @@ fun OnboardingScreen(
 //                    )
 //                }
 
-                Spacer(modifier = Modifier.height(25.dp))
-                Text(
-                    modifier = Modifier
-                        .shimmerBackground(showShimmer = uiState.progressState.isLoading)
-                        .widthIn(64.dp),
-                    text = uiState.items[page].title,
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,
-                    letterSpacing = 1.sp,
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                uiState.items[page].description?.let {
+                    Spacer(modifier = Modifier.height(25.dp))
                     Text(
                         modifier = Modifier
                             .shimmerBackground(showShimmer = uiState.progressState.isLoading)
-                            .fillMaxWidth()
-                            .padding(10.dp),
-                        text = it,
-                        style = MaterialTheme.typography.bodyLarge,
+                            .widthIn(64.dp),
+                        text = uiState.items[page].title,
+                        style = MaterialTheme.typography.headlineMedium,
                         color = MaterialTheme.colorScheme.onBackground,
-                        fontWeight = FontWeight.Light,
+                        fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Center,
                         letterSpacing = 1.sp,
+                        fontFamily = comicNeueFamily
                     )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    uiState.items[page].description?.let {
+                        Text(
+                            modifier = Modifier
+                                .shimmerBackground(showShimmer = uiState.progressState.isLoading)
+                                .fillMaxWidth()
+                                .padding(10.dp),
+                            text = it,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onBackground,
+                            fontWeight = FontWeight.Light,
+                            textAlign = TextAlign.Center,
+                            letterSpacing = 1.sp,
+                            fontFamily = comicNeueFamily
+                        )
+                    }
                 }
-            }
-        }
-
-        AnimatedVisibility(visible = false) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
-                modifier = Modifier.fillMaxSize()
-            ) {
-                val lottieComposition = rememberLottieComposition(
-                    LottieCompositionSpec.RawRes(R.raw.welcome_enim),
-                    onRetry = { _, _ -> true }
-                )
-                val preloaderProgress by animateLottieCompositionAsState(
-                    lottieComposition.value,
-                    iterations = LottieConstants.IterateForever
-                )
-                LottieAnimation(
-                    composition = lottieComposition.value,
-                    progress = preloaderProgress,
-                    modifier = Modifier
-                        .shimmerBackground(showShimmer = !lottieComposition.isSuccess)
-                        .fillMaxWidth()
-                        .padding(8.dp)
-                        .height(280.dp)
-                        .clip(RoundedCornerShape(18.dp)),
-                    contentScale = ContentScale.FillWidth
-                )
-
-                Spacer(modifier = Modifier.height(25.dp))
-                Text(
-                    modifier = Modifier
-                        .shimmerBackground(showShimmer = uiState.progressState.isLoading)
-                        .widthIn(64.dp),
-                    text = "Get Started",
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,
-                    letterSpacing = 1.sp,
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    modifier = Modifier
-                        .shimmerBackground(showShimmer = uiState.progressState.isLoading)
-                        .fillMaxWidth()
-                        .padding(10.dp),
-                    text = "Login or create an account.",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    fontWeight = FontWeight.Light,
-                    textAlign = TextAlign.Center,
-                    letterSpacing = 1.sp,
-                )
             }
         }
 
@@ -262,6 +259,7 @@ fun OnboardingScreen(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
+                .weight(.1f)
                 .padding(8.dp)
         ) {
             // Indicators
@@ -272,7 +270,7 @@ fun OnboardingScreen(
                     .padding(start = 8.dp)
                     .align(Alignment.CenterStart)
             ) {
-                repeat(uiState.items.size) {
+                repeat(uiState.items.size + 1) {
                     Indicator(isSelected = it == pageState.currentPage)
                 }
             }
@@ -299,7 +297,6 @@ fun OnboardingScreen(
                 }
             }
             else {
-                // Done
                 Row(
                     modifier = Modifier.align(Alignment.CenterEnd)
                 ) {

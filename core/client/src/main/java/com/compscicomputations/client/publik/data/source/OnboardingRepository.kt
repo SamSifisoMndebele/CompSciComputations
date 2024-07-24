@@ -7,6 +7,7 @@ import com.compscicomputations.client.publik.data.source.local.OnboardingItemDao
 import com.compscicomputations.client.publik.data.source.remote.NewOnboardingItem
 import com.compscicomputations.client.publik.data.source.remote.OnboardingDataSource
 import com.compscicomputations.client.publik.data.source.remote.RemoteOnboardingItem
+import com.compscicomputations.client.publik.data.source.remote.RemoteOnboardingItem.Companion.asOnboardingItems
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
@@ -34,18 +35,16 @@ class OnboardingRepository @Inject constructor(
             if (onboardingItemDao.isEmpty()) {
                 Log.d(TAG, "Fetching onboarding items from remote data source.")
                 remoteDataSource.getOnboardingItems().let { remoteOnboardingItems ->
-                    val onboardingItems =
-                        remoteOnboardingItems.map { it.asOnboardingItem }.toTypedArray()
-                    onboardingItemDao.insert(*onboardingItems)
+                    onboardingItemDao.insert(*remoteOnboardingItems.asOnboardingItems)
                 }
             } else {
                 try {
                     val itemsIds = onboardingItemDao.selectIds()
-                    Log.d(
-                        TAG,
-                        "Fetching except (${itemsIds.joinToString()}) onboarding items from remote data source."
-                    )
-                    //TODO:
+                    Log.d(TAG, "Fetching except (${itemsIds.joinToString()}) onboarding items from remote data source.")
+                    remoteDataSource.getOnboardingItems(itemsIds).let { remoteOnboardingItems ->
+                        onboardingItemDao.delete(*itemsIds)
+                        onboardingItemDao.insert(*remoteOnboardingItems.asOnboardingItems)
+                    }
                 } catch (e: Exception) {
                     emitAll(onboardingItemDao.selectAll())
                     throw e

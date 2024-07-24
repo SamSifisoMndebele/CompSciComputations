@@ -15,7 +15,9 @@ import androidx.core.content.ContextCompat.startActivity
 import com.compscicomputations.utils.network.ConnectionState
 import com.compscicomputations.utils.network.Connectivity.currentConnectivityState
 import com.compscicomputations.utils.network.Connectivity.observeConnectivityAsFlow
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flowOn
 
 
 infix fun CharSequence.notMatches(regex: Regex): Boolean = !regex.matches(this)
@@ -43,6 +45,8 @@ fun rememberConnectivityState(): State<ConnectionState> {
     // Creates a State<ConnectionState> with current connectivity state as initial value
     return produceState(initialValue = context.currentConnectivityState) {
         // In a coroutine, can make suspend calls
-        context.observeConnectivityAsFlow().collect { value = it }
+        context.observeConnectivityAsFlow()
+            .flowOn(Dispatchers.IO)
+            .collect { value = it }
     }
 }

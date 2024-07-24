@@ -12,6 +12,10 @@ data class RemoteOnboardingItem(
     @SerialName("image_bytes")
     val imageBytes: ByteArray?,
 ) {
+    companion object {
+        val List<RemoteOnboardingItem>.asOnboardingItems
+            get() = map { it.asOnboardingItem }.toTypedArray()
+    }
     val asOnboardingItem: OnboardingItem
         get() = OnboardingItem(
             id = id,

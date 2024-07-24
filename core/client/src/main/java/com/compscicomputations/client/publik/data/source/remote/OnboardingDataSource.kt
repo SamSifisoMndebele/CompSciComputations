@@ -28,26 +28,14 @@ class OnboardingDataSource @Inject constructor(
      * @return [RemoteOnboardingItem] list from the database.
      * @throws ExpectationFailedException if the was server side error.
      */
-    internal suspend fun getOnboardingItems(): List<RemoteOnboardingItem> = ktorRequest {
-        val response = client.get(Onboarding.Items())
+    internal suspend fun getOnboardingItems(except: IntArray? = null): List<RemoteOnboardingItem> = ktorRequest {
+        val response = client.get(Onboarding.Items()) {
+            contentType(ContentType.Application.Json)
+            setBody(except)
+        }
         when (response.status) {
             HttpStatusCode.ExpectationFailed -> throw ExpectationFailedException(response.bodyAsText())
             HttpStatusCode.OK -> response.body<List<RemoteOnboardingItem>>()
-            else -> throw Exception("Unexpected response.")
-        }
-    }
-    /**
-     * @param id the onboarding item unique identifier
-     * @return [RemoteOnboardingItem] from the database.
-     * @throws NotFoundException if the is no corresponding onboarding item.
-     * @throws ExpectationFailedException if the was server side error.
-     */
-    internal suspend fun getOnboardingItem(id: Int): RemoteOnboardingItem = ktorRequest {
-        val response = client.get(Onboarding.Items.Id(id = id))
-        when (response.status) {
-            HttpStatusCode.NotFound -> throw NotFoundException(response.body<String?>())
-            HttpStatusCode.ExpectationFailed -> throw ExpectationFailedException(response.bodyAsText())
-            HttpStatusCode.OK -> response.body<RemoteOnboardingItem>()
             else -> throw Exception("Unexpected response.")
         }
     }
@@ -69,25 +57,4 @@ class OnboardingDataSource @Inject constructor(
         }
     }
 
-
-
-
-
-
-
-
-    suspend fun updateOnboardingItem(id: Int, item: UpdateOnboardingItem) = ktorRequest {
-        val response = client.post(Onboarding.Items.Id(id = id)) {
-            contentType(ContentType.Application.Json)
-            setBody(item)
-        }
-        if (response.status != HttpStatusCode.OK) throw Exception(response.bodyAsText())
-    }
-    suspend fun deleteOnboardingItems(id: Int) = ktorRequest {
-        val response = client.delete(Onboarding.Items.Id(id = id))
-        when {
-            response.status != HttpStatusCode.OK -> throw Exception(response.bodyAsText())
-            else -> {}
-        }
-    }
 }

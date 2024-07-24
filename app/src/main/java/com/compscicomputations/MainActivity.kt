@@ -7,6 +7,10 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -27,6 +31,7 @@ class MainActivity : ComponentActivity() {
             CompSciComputationsTheme(
                 dynamicColor = false
             ) {
+                val gotoOnboarding = remember { mutableStateOf(true) }
                 val navController = rememberNavController()
                 NavHost(
                     modifier = Modifier.fillMaxSize(),
@@ -39,7 +44,7 @@ class MainActivity : ComponentActivity() {
                     ) {
                         SplashScreen(navController)
                     }
-                    authNavigation(navController)
+                    authNavigation(navController, gotoOnboarding)
                     mainNavigation(navController)
                 }
             }

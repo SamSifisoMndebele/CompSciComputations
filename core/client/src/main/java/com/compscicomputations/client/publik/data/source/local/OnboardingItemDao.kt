@@ -16,8 +16,8 @@ interface OnboardingItemDao {
     @Update
     suspend fun update(vararg onboardingItems: OnboardingItem)
 
-    @Delete
-    suspend fun delete(vararg onboardingItems: OnboardingItem)
+    @Query("delete from onboardingitem where id in (:ids)")
+    suspend fun delete(vararg ids: Int)
 
     @Query("SELECT * FROM onboardingitem WHERE id = :id")
     fun select(id: Int): Flow<OnboardingItem>

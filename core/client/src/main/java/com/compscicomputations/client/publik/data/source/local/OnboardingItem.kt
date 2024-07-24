@@ -2,10 +2,11 @@ package com.compscicomputations.client.publik.data.source.local
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.PrimaryKey
 
 @Entity
 data class OnboardingItem(
-    val id: Int,
+    @PrimaryKey val id: Int,
     val title: String,
     val description: String?,
     @ColumnInfo("image_bytes")
