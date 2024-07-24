@@ -26,7 +26,7 @@ internal object UserSerializer : Serializer<LocalUser> {
             id = id,
             email = email,
             displayName = displayName,
-            imageBitmap = imageBytes.asBitmap,
+            imageBitmap = imageBytes?.asBitmap,
             phone = phone,
             isAdmin = isAdmin,
             isStudent = isStudent,
