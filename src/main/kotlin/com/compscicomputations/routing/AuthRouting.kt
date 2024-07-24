@@ -2,8 +2,7 @@ package com.compscicomputations.routing
 
 import com.compscicomputations.plugins.authenticateGoogle
 import com.compscicomputations.services.auth.AuthService
-import com.compscicomputations.services.auth.models.Files
-import com.compscicomputations.services.auth.models.Users
+import com.compscicomputations.plugins.Users
 import com.compscicomputations.services.auth.models.requests.RegisterUser
 import com.compscicomputations.services.auth.models.response.User
 import io.ktor.http.*
@@ -20,7 +19,7 @@ fun Routing.authRouting() {
     val authService by inject<AuthService>()
 
     authenticateGoogle {
-        // Get a user or create if not exists
+        // Create a user or get if exists
         get<Users.Google> {
             try {
                 val user = call.principal<User>()!!
@@ -31,25 +30,23 @@ fun Routing.authRouting() {
         }
     }
 
-    //Upload user image
-    post<Files.Images.Users> {
-        try {
-            val multipartData = call.receiveMultipart()
-            val fileSize = call.request.header(HttpHeaders.ContentLength)
-            val fileId = authService.uploadFile(multipartData, fileSize.toString())
-            authService.updateUserImage(it.id, fileId)
-            call.respond(HttpStatusCode.OK, fileId)
-        } catch (e: Exception) {
-            call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
-        }
-    }
-
     // Create a user
     post<Users> {
         try {
             val userRequest = call.receive<RegisterUser>()
             val user = authService.registerUser(userRequest)
             call.respond(HttpStatusCode.Created, user)
+        } catch (e: Exception) {
+            call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
+        }
+    }
+
+    // Upload user image by id
+    post<Users.Id.Image> {
+        try {
+            val multipartData = call.receiveMultipart()
+            authService.updateUserImage(it.parent.id, multipartData)
+            call.respond(HttpStatusCode.OK)
         } catch (e: Exception) {
             call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
         }
@@ -67,15 +64,15 @@ fun Routing.authRouting() {
         }
     }
 
-    //Get user image by id
-    get<Files.Images.Id> {
-        try {
-            val userImageBytes = authService.downloadFile(it.id)
-            call.respondBytes(userImageBytes, contentType = ContentType.Image.PNG)
-        } catch (e: Exception) {
-            call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
-        }
-    }
+//    //Get user image by id
+//    get<Files.Images.Id> {
+//        try {
+//            val userImageBytes = authService.downloadFile(it.id)
+//            call.respondBytes(userImageBytes, contentType = ContentType.Image.PNG)
+//        } catch (e: Exception) {
+//            call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
+//        }
+//    }
 
 
 

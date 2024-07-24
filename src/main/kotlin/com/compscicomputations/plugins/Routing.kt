@@ -2,16 +2,9 @@ package com.compscicomputations.plugins
 
 import com.compscicomputations.routing.authRouting
 import com.compscicomputations.routing.publicRouting
-import com.compscicomputations.services.auth.models.Admin
-import com.compscicomputations.services.auth.models.Users
-import com.compscicomputations.services.auth.models.response.User
 import io.ktor.http.*
-import io.ktor.resources.*
 import io.ktor.server.application.*
-import io.ktor.server.auth.*
 import io.ktor.server.http.content.*
-import io.ktor.server.resources.*
-import io.ktor.server.resources.Resources
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import org.apache.commons.mail.DefaultAuthenticator

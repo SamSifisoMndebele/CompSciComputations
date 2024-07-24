@@ -1,9 +1,10 @@
 drop function if exists auth.insert_user;
 create or replace function auth.insert_user(
     _email text,
-    _password text,
     _display_name text,
-    _image_id int default null
+    _password text default null,
+    _image_bytes bytea default null,
+    _is_email_verified boolean default false
 ) returns auth.users
     language plpgsql
 as
@@ -11,8 +12,8 @@ $code$
 declare
     _user auth.users;
 begin
-    insert into auth.users (email, password_hash, display_name, image_id)
-    values (_email, ext.crypt(_password, ext.gen_salt('md5')), _display_name, _image_id)
+    insert into auth.users (email, password_hash, display_name, image_bytes, is_email_verified)
+    values (_email, ext.crypt(_password, ext.gen_salt('md5')), _display_name, _image_bytes, _is_email_verified)
     returning * into strict _user;
 
     return _user;

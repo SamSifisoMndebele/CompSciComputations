@@ -1,4 +1,4 @@
-package com.compscicomputations.services.auth.impl
+package com.compscicomputations.services.auth
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier
 import com.google.api.client.http.apache.v2.ApacheHttpTransport
@@ -8,6 +8,7 @@ data class GoogleToken(
     val email: String,
     val displayName: String?,
     val photoUrl: String?,
+    val emailVerified: Boolean,
 )
 
 internal class GoogleVerifier {
@@ -24,6 +25,7 @@ internal class GoogleVerifier {
                     email = it.email,
                     photoUrl = it["picture"] as String?,
                     displayName = it["name"] as String?,
+                    emailVerified = it.emailVerified,
                 )
             }
     }
