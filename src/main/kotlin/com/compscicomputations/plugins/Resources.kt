@@ -8,7 +8,7 @@ class Users {
     class Me(val parent: Users = Users())
 
     @Resource("{id}")
-    class Id(val parent: Users = Users(), val id: String) {
+    class Id(val parent: Users = Users(), val id: Int) {
         @Resource("image")
         class Image(val parent: Id)
     }
@@ -39,7 +39,7 @@ class Onboarding {
 //    @Resource("users")
 //    class Users {
 //        @Resource("{id}")
-//        class Id(val parent: Users = Users(), val id: String)
+//        class Id(val parent: Users = Users(), val id: Int)
 //
 //        @Resource("{email}")
 //        class Email(val parent: Users = Users(), val email: String)

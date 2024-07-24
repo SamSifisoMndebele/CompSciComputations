@@ -34,7 +34,7 @@ interface AuthServiceContrast {
      * @param id the user unique identifier.
      * @param multipartData MultiPartData containing the image bytes.
      */
-    suspend fun updateUserImage(id: String, multipartData: MultiPartData)
+    suspend fun updateUserImage(id: Int, multipartData: MultiPartData)
 
     /**
      * Validate the Google id token string and, reads the user information from the database.
@@ -76,7 +76,7 @@ interface AuthServiceContrast {
      * if a field value is null it remains unchanged.
      * @return [User] the database user information.
      *//*
-    suspend fun updateUser(id: String, user: UpdateUser): User
+    suspend fun updateUser(id: Int, user: UpdateUser): User
 
     *//**
      * Create a admin user verification code.
@@ -104,5 +104,5 @@ interface AuthServiceContrast {
      * @param id user unique identifier
      * @param password user raw password
      *//*
-    suspend fun updatePassword(id: String, password: String)*/
+    suspend fun updatePassword(id: Int, password: String)*/
 }

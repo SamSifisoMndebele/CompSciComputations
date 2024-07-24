@@ -3,7 +3,6 @@ package com.compscicomputations.services.auth
 import com.compscicomputations.plugins.connectToPostgres
 import com.compscicomputations.services._contrast.AuthServiceContrast
 import com.compscicomputations.services.auth.models.requests.RegisterUser
-import com.compscicomputations.services.auth.models.response.AuthFile
 import com.compscicomputations.services.auth.models.response.User
 import com.compscicomputations.utils.*
 import io.ktor.client.*
@@ -18,7 +17,6 @@ import org.apache.http.auth.InvalidCredentialsException
 import org.slf4j.LoggerFactory
 import java.sql.Connection
 import java.sql.ResultSet
-import java.sql.Types
 
 
 internal class AuthService : AuthServiceContrast {
@@ -45,36 +43,15 @@ internal class AuthService : AuthServiceContrast {
         private val logger = LoggerFactory.getLogger("AuthService")
 
         private fun ResultSet.getUser(): User = User(
-            id = getObject("id").toString(),
+            id = getInt("id"),
             email = getString("email"),
             displayName = getString("display_name"),
-            imageId = getInt("image_id"),
+            imageBytes = getBytes("image_bytes"),
             phone = getString("phone"),
             isAdmin = getBoolean("is_admin"),
             isStudent = getBoolean("is_student"),
             isEmailVerified = getBoolean("is_email_verified"),
         )
-
-//        private fun Connection.saveAuthFile(authFile: AuthFile): Int =
-//            querySingle("""
-//                insert into auth.files (name, description, data, size)
-//                values (?, ?, ?, ?)
-//                returning id;
-//            """.trimMargin(), { getInt("id") }
-//        ) {
-//            setString(1, authFile.name)
-//            setString(2, authFile.description)
-//            setBytes(3, authFile.data)
-//            setString(4, authFile.size)
-//        }
-
-//        private fun ResultSet.getAuthFile(): AuthFile = AuthFile(
-//            name = getString("name"),
-//            description = getString("description"),
-//            data = getBytes("data"),
-//            size = getString("size"),
-//            createdAt = getString("created_at"),
-//        )
     }
 
     override suspend fun registerUser(registerUser: RegisterUser): User = dbQuery(conn) {
@@ -85,7 +62,7 @@ internal class AuthService : AuthServiceContrast {
         }
     }
 
-    override suspend fun updateUserImage(id: String, multipartData: MultiPartData): Unit = dbQuery(conn) {
+    override suspend fun updateUserImage(id: Int, multipartData: MultiPartData): Unit = dbQuery(conn) {
         multipartData.forEachPart { part ->
             when (part) {
                 is PartData.FormItem -> {
@@ -94,9 +71,9 @@ internal class AuthService : AuthServiceContrast {
                 is PartData.FileItem -> {
 //                    fileName = part.originalFileName as String
                     val imageBytes = part.streamProvider().readBytes()
-                    update("update auth.users set image_bytes = ? where id = ?::uuid") {
+                    update("update auth.users set image_bytes = ? where id = ?") {
                         setBytes(1, imageBytes)
-                        setString(2, id)
+                        setInt(2, id)
                     }
                 }
                 is PartData.BinaryChannelItem -> {}
@@ -139,7 +116,7 @@ internal class AuthService : AuthServiceContrast {
     }
 
     override suspend fun readUser(email: String, password: String): User = dbQuery(conn) {
-        querySingle("select * from auth.validate_password_n_get_user(?, ?)", { getUser() }){
+        querySingle("select * from auth.get_user(?, ?)", { getUser() }){
             setString(1, email)
             setString(2, password)
         }
@@ -260,7 +237,7 @@ internal class AuthService : AuthServiceContrast {
         update("""
             update auth.users 
             set password_hash = ext.crypt(?, ext.gen_salt('md5'))
-            where id = ?::uuid
+            where id = ?
             """.trimMargin()
         ) {
             setString(1, password)

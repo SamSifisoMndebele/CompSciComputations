@@ -6,7 +6,7 @@
 
 drop table if exists auth.users;
 create table if not exists auth.users(
-    id uuid primary key default ext.gen_random_uuid(),
+    id int primary key generated always as identity,
     email text unique not null,
     password_hash text default null,
     display_name text not null,
