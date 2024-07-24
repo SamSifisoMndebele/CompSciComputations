@@ -4,12 +4,9 @@ import android.content.Context
 import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.dataStore
-import com.compscicomputations.client.auth.data.source.local.UserDataStore.Companion.userDataStore
 import com.compscicomputations.client.auth.data.source.local.UserSerializer.asUser
-import com.compscicomputations.client.auth.data.source.remote.RemoteUser
-import com.compscicomputations.client.auth.models.User
-import com.compscicomputations.core.client.LocalUser
-import com.google.protobuf.ByteString
+import com.compscicomputations.client.auth.data.model.User
+import com.compscicomputations.client.utils.asByteString
 import dagger.hilt.android.qualifiers.ApplicationContext
 import io.ktor.client.plugins.auth.providers.BasicAuthCredentials
 import io.ktor.client.plugins.auth.providers.BearerTokens
@@ -17,7 +14,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
-import okio.ByteString.Companion.toByteString
 import javax.inject.Inject
 
 class UserDataStore @Inject constructor(
@@ -64,12 +60,11 @@ class UserDataStore @Inject constructor(
                 .setId(user.id)
                 .setEmail(user.email)
                 .setDisplayName(user.displayName)
-                .setImageId(user.imageId ?: 0)
-                .setPhone(user.phone ?: "")
                 .setIsAdmin(user.isAdmin)
                 .setIsStudent(user.isStudent)
                 .setIsEmailVerified(user.isEmailVerified)
-            user.imageBytes?.let { builder.setImageBytes(ByteString.copyFrom(it)) }
+            user.imageBitmap?.let { builder.setImageBytes(it.asByteString) }
+            user.phone?.let { builder.setPhone(it) }
 
             builder.build()
         }

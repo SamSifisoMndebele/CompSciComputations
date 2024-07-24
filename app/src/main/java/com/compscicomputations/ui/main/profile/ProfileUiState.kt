@@ -2,7 +2,7 @@ package com.compscicomputations.ui.main.profile
 
 import android.net.Uri
 import androidx.compose.material3.SnackbarHostState
-import com.compscicomputations.client.auth.models.User
+import com.compscicomputations.client.auth.data.model.User
 import com.compscicomputations.ui.utils.ProgressState
 
 data class ProfileUiState(

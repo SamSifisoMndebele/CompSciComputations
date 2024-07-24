@@ -1,4 +1,4 @@
-package com.compscicomputations.client.auth.models
+package com.compscicomputations.client.auth.data.model
 
 data class DynamicFeature(
     val title: String,

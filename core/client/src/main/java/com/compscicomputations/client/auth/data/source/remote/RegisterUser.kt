@@ -9,6 +9,4 @@ data class RegisterUser(
     val password: String?,
     @SerialName("display_name")
     val displayName: String?,
-    @SerialName("image_id")
-    val imageId: Int?,
 )

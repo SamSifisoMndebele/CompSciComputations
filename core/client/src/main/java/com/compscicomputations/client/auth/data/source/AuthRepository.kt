@@ -6,14 +6,11 @@ import com.compscicomputations.client.auth.data.source.remote.AuthDataSource
 import com.compscicomputations.client.auth.data.source.remote.AuthDataSource.Companion.ExpectationFailedException
 import com.compscicomputations.client.auth.data.source.remote.AuthDataSource.Companion.UnauthorizedException
 import com.compscicomputations.client.auth.data.source.remote.RegisterUser
-import com.compscicomputations.client.auth.models.User
-import io.ktor.client.plugins.auth.providers.BasicAuthCredentials
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
+import com.compscicomputations.client.auth.data.model.User
+import com.compscicomputations.client.utils.asBitmap
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.retry
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class AuthRepository @Inject constructor(
@@ -57,10 +54,9 @@ class AuthRepository @Inject constructor(
             email = email,
             password = password,
             displayName = displayName,
-            imageId = null
         )).let {
-            val imageId = imageBytes?.let { bytes -> remoteDataSource.uploadProfileImage(it.id, bytes, onProgress) }
-            localDataStore.saveUser(it.asUser.copy(imageId = imageId))
+            imageBytes?.let { bytes -> remoteDataSource.uploadProfileImage(it.id, bytes, onProgress) }
+            localDataStore.saveUser(it.asUser.copy(imageBitmap = imageBytes?.asBitmap))
         }
     }
 
@@ -71,7 +67,7 @@ class AuthRepository @Inject constructor(
      */
     suspend fun login(email: String, password: String) {
         localDataStore.savePasswordCredentials(email, password)
-        remoteDataSource.getUser().let { user ->
+        remoteDataSource.getRemoteUser {_,_->} .let { user ->
             localDataStore.saveUser(user.asUser)
         }
     }
@@ -89,13 +85,9 @@ class AuthRepository @Inject constructor(
 
     val refreshUserFlow: Flow<User?>
         get() = flow<User?> {
-            val remoteUser = remoteDataSource.getUser()
-            val userImage = remoteUser.imageId?.let { imageId ->
-                remoteDataSource.downloadProfileImage(imageId) { bytesReceived, totalBytes ->
-                    Log.d(TAG, "onDownload User Image: Received $bytesReceived bytes from $totalBytes")
-                }
-            }
-            remoteUser.asUser.copy(imageBytes = userImage)
+            remoteDataSource.getRemoteUser { bytesReceived, totalBytes ->
+                Log.d(TAG, "onDownload User Image: Received $bytesReceived bytes from $totalBytes")
+            }.asUser
                 .let { user ->
                     localDataStore.saveUser(user)
                     emit(user)

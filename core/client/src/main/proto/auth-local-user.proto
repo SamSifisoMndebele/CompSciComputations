@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option java_package = "com.compscicomputations.core.client";
+option java_package = "com.compscicomputations.client.auth.data.source.local";
 option java_multiple_files = true;
 
 message LocalUser {
@@ -9,8 +9,7 @@ message LocalUser {
   string password = 3;
   string idToken = 4;
   string displayName = 5;
-  int32 imageId = 6;
-  bytes imageBytes = 11;
+  bytes imageBytes = 6;
   string phone = 7;
   bool isAdmin = 8;
   bool isStudent = 9;

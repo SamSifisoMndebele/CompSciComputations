@@ -1,6 +1,6 @@
 package com.compscicomputations.client.publik.data.source.remote
 
-import com.compscicomputations.client.publik.models.Onboarding
+import com.compscicomputations.client.utils.Onboarding
 import com.compscicomputations.client.utils.ktorRequest
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body

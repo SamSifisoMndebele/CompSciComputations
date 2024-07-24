@@ -1,8 +1,7 @@
 package com.compscicomputations.client.auth.data.source.remote
 
 import android.util.Log
-import com.compscicomputations.client.auth.models.Files
-import com.compscicomputations.client.auth.models.Users
+import com.compscicomputations.client.utils.Users
 import com.compscicomputations.client.utils.ktorRequest
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -10,7 +9,6 @@ import io.ktor.client.plugins.onDownload
 import io.ktor.client.plugins.onUpload
 import io.ktor.client.plugins.resources.get
 import io.ktor.client.plugins.resources.post
-import io.ktor.client.request.accept
 import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.setBody
@@ -47,7 +45,24 @@ class AuthDataSource @Inject constructor(
             HttpStatusCode.Unauthorized -> throw UnauthorizedException(response.body<String?>())
             HttpStatusCode.ExpectationFailed -> throw ExpectationFailedException(response.bodyAsText())
             HttpStatusCode.OK -> response.body<RemoteUser>()
-            else -> throw Exception("Unexpected response.")
+            else -> throw Exception(response.bodyAsText())
+        }
+    }
+
+    /**
+     * @param registerUser [RegisterUser] the new user information.
+     * @return [RemoteUser] the database user record.
+     * @throws ExpectationFailedException if the was server side error.
+     */
+    internal suspend fun createUser(registerUser: RegisterUser): RemoteUser = ktorRequest {
+        val response = client.post(Users()) {
+            contentType(ContentType.Application.Json)
+            setBody(registerUser)
+        }
+        when (response.status) {
+            HttpStatusCode.ExpectationFailed -> throw ExpectationFailedException(response.bodyAsText())
+            HttpStatusCode.Created -> response.body<RemoteUser>()
+            else -> throw Exception(response.bodyAsText())
         }
     }
 
@@ -61,8 +76,8 @@ class AuthDataSource @Inject constructor(
         id: String,
         imageBytes: ByteArray,
         onProgress: (bytesSent: Long, totalBytes: Long) -> Unit
-    ): Int = ktorRequest {
-        val response = client.post(Files.Images.Users(id = id)) {
+    ): Unit = ktorRequest {
+        val response = client.post(Users.Id.Image(Users.Id(id = id))) {
             contentType(ContentType.MultiPart.FormData)
             setBody(
                 MultiPartFormDataContent(
@@ -83,66 +98,58 @@ class AuthDataSource @Inject constructor(
         }
 
         when (response.status) {
+            HttpStatusCode.OK -> {}
             HttpStatusCode.ExpectationFailed -> throw ExpectationFailedException(response.bodyAsText())
-            HttpStatusCode.OK -> response.body<Int>()
-            else -> throw Exception("Unexpected response.")
+            else -> throw Exception(response.bodyAsText())
         }
     }
 
-    /**
-     * @param registerUser [RegisterUser] the new user information.
-     * @return [RemoteUser] the database user record.
-     * @throws ExpectationFailedException if the was server side error.
-     */
-    internal suspend fun createUser(registerUser: RegisterUser): RemoteUser = ktorRequest {
-        val response = client.post(Users()) {
-            contentType(ContentType.Application.Json)
-            setBody(registerUser)
-        }
-        when (response.status) {
-            HttpStatusCode.ExpectationFailed -> throw ExpectationFailedException(response.bodyAsText())
-            HttpStatusCode.Created -> response.body<RemoteUser>()
-            else -> throw Exception("Unexpected response.")
-        }
-    }
 
     /**
+     * @param onProgress user image download progress callback.
      * @return [RemoteUser] the database user record.
      * @throws UnauthorizedException if the user credentials are not correct.
      * @throws ExpectationFailedException if the was server side error.
      */
-    internal suspend fun getUser(): RemoteUser = ktorRequest {
-        val response = client.get(Users.Me())
-        when (response.status) {
-            HttpStatusCode.Unauthorized -> throw UnauthorizedException(response.body<String?>())
-            HttpStatusCode.ExpectationFailed -> throw ExpectationFailedException(response.bodyAsText())
-            HttpStatusCode.OK -> response.body<RemoteUser>()
-            else -> throw Exception("Unexpected response.")
-        }
-    }
-
-    /**
-     * @param id this user unique identifier.
-     * @param onProgress the image download progress callback.
-     * @throws ExpectationFailedException if the was server side error.
-     * @return [ByteArray] the user profile image bytearray.
-     */
-    internal suspend fun downloadProfileImage(
-        id: Int,
+    internal suspend fun getRemoteUser(
         onProgress: (bytesReceived: Long, totalBytes: Long) -> Unit
-    ): ByteArray = ktorRequest {
-        val response = client.get(Files.Images.Id(id = id)) {
+    ): RemoteUser = ktorRequest {
+        val response = client.get(Users.Me()) {
             onDownload { bytesSentTotal, contentLength ->
                 println("onDownload: Received $bytesSentTotal bytes from $contentLength")
                 onProgress(bytesSentTotal, contentLength)
             }
         }
         when (response.status) {
+            HttpStatusCode.Unauthorized -> throw UnauthorizedException(response.body<String?>())
             HttpStatusCode.ExpectationFailed -> throw ExpectationFailedException(response.bodyAsText())
-            HttpStatusCode.OK -> response.body<ByteArray>()
-            else -> throw Exception("Unexpected response.")
+            HttpStatusCode.OK -> response.body<RemoteUser>()
+            else -> throw Exception(response.bodyAsText())
         }
     }
+
+//    /**
+//     * @param id this user unique identifier.
+//     * @param onProgress the image download progress callback.
+//     * @throws ExpectationFailedException if the was server side error.
+//     * @return [ByteArray] the user profile image bytearray.
+//     */
+//    internal suspend fun downloadProfileImage(
+//        id: Int,
+//        onProgress: (bytesReceived: Long, totalBytes: Long) -> Unit
+//    ): ByteArray = ktorRequest {
+//        val response = client.get(Files.Images.Id(id = id)) {
+//            onDownload { bytesSentTotal, contentLength ->
+//                println("onDownload: Received $bytesSentTotal bytes from $contentLength")
+//                onProgress(bytesSentTotal, contentLength)
+//            }
+//        }
+//        when (response.status) {
+//            HttpStatusCode.ExpectationFailed -> throw ExpectationFailedException(response.bodyAsText())
+//            HttpStatusCode.OK -> response.body<ByteArray>()
+//            else -> throw Exception("Unexpected response.")
+//        }
+//    }
 
 
 

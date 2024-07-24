@@ -294,7 +294,7 @@ fun RegisterScreen(
         val credentialManager by lazy { CredentialManager.create(activity) }
         Button(
             onClick = {
-                viewModel.onRegister(context) { email, password ->
+                viewModel.onRegister { email, password ->
                     val createPasswordRequest = CreatePasswordRequest(email, password)
                     credentialManager.createCredential(activity, createPasswordRequest)
                 }

@@ -7,12 +7,11 @@ import androidx.credentials.exceptions.CreateCredentialException
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.compscicomputations.client.auth.data.source.AuthRepository
-import com.compscicomputations.client.auth.data.source.remote.RegisterUser
+import com.compscicomputations.client.utils.ScaledByteArrayUseCase
 import com.compscicomputations.theme.emailRegex
 import com.compscicomputations.theme.namesRegex
 import com.compscicomputations.theme.strongPasswordRegex
 import com.compscicomputations.ui.utils.ProgressState
-import com.compscicomputations.utils.asScaledByteArray
 import com.compscicomputations.utils.notMatches
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -26,7 +25,8 @@ import kotlin.math.roundToInt
 
 @HiltViewModel
 class RegisterViewModel @Inject constructor(
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val scaledByteArray: ScaledByteArrayUseCase
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(RegisterUiState())
     val uiState: StateFlow<RegisterUiState> = _uiState.asStateFlow()
@@ -56,7 +56,7 @@ class RegisterViewModel @Inject constructor(
     }
 
     private var registerJob: Job? = null
-    fun onRegister(context: Context, savePassword: suspend (email: String, password: String) -> Unit = {_,_->}) {
+    fun onRegister(savePassword: suspend (email: String, password: String) -> Unit = {_,_->}) {
         if (!fieldsAreValid()) return
 
         _uiState.value = _uiState.value.copy(progressState = ProgressState.Loading("Creating account..."))
@@ -67,7 +67,7 @@ class RegisterViewModel @Inject constructor(
                     email = _uiState.value.email,
                     password = _uiState.value.password,
                     displayName = _uiState.value.displayName,
-                    imageBytes = _uiState.value.imageUri?.let { context.asScaledByteArray(it) }
+                    imageBytes = _uiState.value.imageUri?.let { scaledByteArray(it) }
                 ) { bytesSent, totalBytes ->
                     _uiState.value = _uiState.value.copy(progressState = ProgressState.Loading("Uploading image..." +
                             "${(bytesSent/1024.0).roundToInt()}kB/${(totalBytes/1024.0).roundToInt()}kB"))

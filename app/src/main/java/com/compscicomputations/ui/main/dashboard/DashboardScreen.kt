@@ -29,6 +29,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -36,13 +37,12 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
-import com.compscicomputations.client.auth.models.DynamicFeature
+import com.compscicomputations.client.auth.data.model.DynamicFeature
 import com.compscicomputations.theme.comicNeueFamily
+import com.compscicomputations.ui.utils.isLoading
 import com.compscicomputations.ui.utils.ui.CompSciScaffold
 import com.compscicomputations.ui.utils.ui.OptionButton
-import com.compscicomputations.ui.utils.isLoading
 import com.compscicomputations.ui.utils.ui.shimmerBackground
-import com.compscicomputations.utils.decodeToBitmap
 
 @Composable
 fun DashboardScreen(
@@ -91,15 +91,24 @@ fun DashboardScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
 //                                val showShimmer = rememberShimmerBrushState()
+//                                Image(
+//                                    modifier = Modifier
+//                                        .shimmerBackground(showShimmer = uiState.progressState.isLoading)
+//                                        .size(128.dp)
+//                                        .padding(8.dp)
+//                                        .clip(CircleShape),
+//                                    bitmap = uiState.imageBitmap?.asImageBitmap(),
+//                                    contentDescription = "Profile Image",
+//                                    contentScale = ContentScale.FillBounds,
+//                                )
                                 AsyncImage(
                                     modifier = Modifier
                                         .shimmerBackground(showShimmer = uiState.progressState.isLoading)
                                         .size(128.dp)
                                         .padding(8.dp)
                                         .clip(CircleShape),
-                                    model = uiState.imageBytes?.decodeToBitmap(),
+                                    model = uiState.imageBitmap?.asImageBitmap(),
                                     contentScale = ContentScale.FillBounds,
-//                                    onSuccess = { showShimmer.value = false },
                                     contentDescription = "Profile",
                                 )
                                 Column(
@@ -124,7 +133,10 @@ fun DashboardScreen(
                                     Text(
                                         modifier = Modifier
                                             .widthIn(min = 128.dp)
-                                            .shimmerBackground(uiState.progressState.isLoading, CircleShape),
+                                            .shimmerBackground(
+                                                uiState.progressState.isLoading,
+                                                CircleShape
+                                            ),
                                         text = uiState.displayName,
                                         fontSize = 20.sp,
                                         fontWeight = FontWeight.Bold,
@@ -134,7 +146,10 @@ fun DashboardScreen(
                                     Text(
                                         modifier = Modifier
                                             .widthIn(min = 180.dp)
-                                            .shimmerBackground(uiState.progressState.isLoading, CircleShape),
+                                            .shimmerBackground(
+                                                uiState.progressState.isLoading,
+                                                CircleShape
+                                            ),
                                         text = uiState.email,
                                         fontSize = 14.sp,
                                     )
