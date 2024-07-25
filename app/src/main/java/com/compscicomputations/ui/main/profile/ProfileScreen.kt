@@ -139,16 +139,14 @@ fun ProfileScreen(
                                 modifier = Modifier.padding(end = 8.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-//                                val showShimmer = rememberShimmerBrushState()
                                 AsyncImage(
                                     modifier = Modifier
                                         .size(180.dp)
                                         .padding(8.dp)
                                         .shimmerBackground(uiState.progressState.isLoading, CircleShape)
                                         .clip(CircleShape),
-                                    model = uiState.photoUrl,
+                                    model = uiState.imageBitmap,
                                     contentScale = ContentScale.FillBounds,
-//                                    onSuccess = { showShimmer.value = false },
                                     contentDescription = "Profile",
                                 )
                                 Column(

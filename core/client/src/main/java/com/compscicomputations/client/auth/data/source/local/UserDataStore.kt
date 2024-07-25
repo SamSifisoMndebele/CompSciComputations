@@ -4,12 +4,11 @@ import android.content.Context
 import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.dataStore
+import com.compscicomputations.client.auth.data.model.AuthCredentials
 import com.compscicomputations.client.auth.data.source.local.UserSerializer.asUser
 import com.compscicomputations.client.auth.data.model.User
 import com.compscicomputations.client.utils.asByteString
 import dagger.hilt.android.qualifiers.ApplicationContext
-import io.ktor.client.plugins.auth.providers.BasicAuthCredentials
-import io.ktor.client.plugins.auth.providers.BearerTokens
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
@@ -25,33 +24,22 @@ class UserDataStore @Inject constructor(
             fileName = "user.pb",
             serializer = UserSerializer
         )
-        suspend fun Context.isUserSignedIn(): Boolean = !userDataStore.data.first().id.isNullOrBlank()
+        suspend fun Context.isUserSignedIn(): Boolean {
+            val localUser = userDataStore.data.first()
+            return !(localUser.id == 0 || localUser.email.isNullOrBlank())
+        }
 
-
-        internal val Context.basicAuthCredentialsFlow: Flow<BasicAuthCredentials?>
-            get() = flow {
-                userDataStore.data.collect { localUser ->
-                    if (localUser.email.isNullOrBlank() || localUser.password.isNullOrBlank()) emit(null)
-                    else emit(BasicAuthCredentials(
-                        username = localUser.email,
-                        password = localUser.password
-                    ))
-                }
-            }.catch { e ->
-                Log.w("Error collecting password credentials.", e)
-                emit(null)
+        class AuthCredentialsUseCase @Inject constructor(
+            @ApplicationContext private val context: Context
+        ) {
+            suspend operator fun invoke(): AuthCredentials {
+                return context.userDataStore.data
+                    .first()
+                    .let {
+                        AuthCredentials(it.email, it.password, it.idToken)
+                    }
             }
-
-        internal val Context.bearerCredentialsFlow: Flow<BearerTokens?>
-            get() = flow {
-                userDataStore.data.collect { localUser ->
-                    if (localUser.idToken.isNullOrBlank()) emit(null)
-                    else emit(BearerTokens(localUser.idToken, "refreshToken"))
-                }
-            }.catch { e ->
-                Log.w("Error collecting password credentials.", e)
-                emit(null)
-            }
+        }
     }
 
     internal suspend fun saveUser(user: User) {
@@ -100,7 +88,7 @@ class UserDataStore @Inject constructor(
     internal val userFlow: Flow<User?>
         get() = flow {
             context.userDataStore.data.collect { localUser ->
-                if (localUser.id.isNullOrBlank() || localUser.email.isNullOrBlank()) emit(null)
+                if (localUser.id == 0 || localUser.email.isNullOrBlank()) emit(null)
                 else emit(localUser.asUser)
             }
         }.catch { e ->

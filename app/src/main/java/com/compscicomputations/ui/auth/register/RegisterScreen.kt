@@ -1,6 +1,7 @@
 package com.compscicomputations.ui.auth.register
 
 import android.Manifest
+import android.app.Activity
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -76,13 +77,13 @@ import com.compscicomputations.ui.utils.ui.CompSciAuthScaffold
 import com.compscicomputations.ui.utils.ProgressState
 import com.compscicomputations.ui.utils.isSuccess
 import com.compscicomputations.ui.utils.ui.shimmerBackground
-import com.compscicomputations.utils.asActivity
 import com.compscicomputations.utils.createImageFile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Composable
 fun RegisterScreen(
+    activity: Activity,
     viewModel: RegisterViewModel,
     navigateUp: () -> Unit,
     navigateTerms: () -> Unit,
@@ -290,13 +291,11 @@ fun RegisterScreen(
             uiState.termsAcceptedError.showMessage()
         }
 
-        val activity by lazy { context.asActivity }
-        val credentialManager by lazy { CredentialManager.create(activity) }
         Button(
             onClick = {
                 viewModel.onRegister { email, password ->
                     val createPasswordRequest = CreatePasswordRequest(email, password)
-                    credentialManager.createCredential(activity, createPasswordRequest)
+                    CredentialManager.create(activity).createCredential(activity, createPasswordRequest)
                 }
             },
             enabled = uiState.isValid,

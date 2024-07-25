@@ -17,6 +17,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
@@ -72,6 +74,7 @@ fun OptionButton(
     padding: PaddingValues = PaddingValues(bottom = 8.dp),
     iconUrl: String?,
     text: String,
+    tint: Color? = null,
     onClick: () -> Unit
 ) {
     Card(
@@ -100,7 +103,8 @@ fun OptionButton(
                         .clip(RoundedCornerShape(8.dp)),
                     model = iconUrl,
                     contentDescription = "$text Icon",
-                    contentScale = ContentScale.FillHeight
+                    contentScale = ContentScale.FillHeight,
+                    colorFilter = tint?.let { ColorFilter.tint(color = it) }
                 )
             }
             Text(

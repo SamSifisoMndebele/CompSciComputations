@@ -13,7 +13,6 @@ import kotlinx.serialization.Serializable
 
 // Routes inside Authentication nested graph
 @Serializable object Login
-@Serializable data class PasswordLogin(val email: String?, val password: String?)
 @Serializable object Register
 @Serializable object Terms
 @Serializable data class PasswordReset(val email: String? = null)

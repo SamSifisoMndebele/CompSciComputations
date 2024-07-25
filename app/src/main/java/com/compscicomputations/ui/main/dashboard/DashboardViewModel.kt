@@ -58,18 +58,20 @@ class DashboardViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(
             installedFeatures = setOf(
                 DynamicFeature(
-                    "Karnaugh Maps",
-                    "karnaugh_maps",
-                    "KarnaughActivity",
-                    null,
+                    title = "Karnaugh Maps",
+                    module = "karnaugh_maps",
+                    iconUrl = "https://firebasestorage.googleapis.com/v0/b/compsci-computations.appspot.com/o/icons%2Fic_grid.png?alt=media&token=b21781bd-14fd-4c93-9eab-514a79f57d61",
+                    clazz = "KarnaughActivity",
                 ),
                 DynamicFeature(
-                    "Number Systems",
-                    "number_systems",
+                    title = "Number Systems",
+                    module = "number_systems",
+                    iconUrl = "https://firebasestorage.googleapis.com/v0/b/compsci-computations.appspot.com/o/icons%2Fic_number_64.png?alt=media&token=979b04f0-b701-42a5-a7e6-ba24b9547691"
                 ),
                 DynamicFeature(
-                    "Polish Expressions",
-                    "polish_expressions",
+                    title = "Polish Expressions",
+                    module = "polish_expressions",
+                    iconUrl = "https://firebasestorage.googleapis.com/v0/b/compsci-computations.appspot.com/o/icons%2Fic_abc.png?alt=media&token=83d5caa2-83d0-4c8a-805c-f0b74d0dc3d0"
                 ),
             )
         )

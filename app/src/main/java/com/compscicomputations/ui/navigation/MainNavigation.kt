@@ -12,7 +12,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import androidx.navigation.toRoute
-import com.compscicomputations.BuildConfig
 import com.compscicomputations.client.auth.data.model.DynamicFeature
 import com.compscicomputations.ui.main.dashboard.DashboardScreen
 import com.compscicomputations.ui.main.feedback.FeedbackScreen
@@ -34,10 +33,9 @@ fun NavGraphBuilder.mainNavigation(navController: NavHostController) {
                 navigateDynamicFeature = { feature ->
                     try {
                         if (feature.methodName == null) {
-                            context.startActivity(Intent().setClassName(
-                                feature.module,
-                                feature.className
-                            ))
+                            val activityClass = Class.forName(feature.className)
+                            context.startActivity(Intent().setClass(context, activityClass))
+
                         } else {
                             navController.navigate(route = feature)
                         }
@@ -80,7 +78,7 @@ fun NavGraphBuilder.mainNavigation(navController: NavHostController) {
         composable<DynamicFeature> { backStackEntry ->
             val dynamicFeature: DynamicFeature = backStackEntry.toRoute()
             loadDynamicFeature(
-                className = dynamicFeature.clazz,
+                className = dynamicFeature.className,
                 methodName = dynamicFeature.methodName!!,
                 navigateUp = { navController.navigateUp() }
             )

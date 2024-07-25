@@ -1,17 +1,18 @@
 package com.compscicomputations.ui.main.profile
 
+import android.graphics.Bitmap
 import android.net.Uri
 import androidx.compose.material3.SnackbarHostState
 import com.compscicomputations.client.auth.data.model.User
 import com.compscicomputations.ui.utils.ProgressState
 
 data class ProfileUiState(
-    val id: String = "",
+    val id: Int = 0,
     val isAdmin: Boolean = false,
     val isStudent: Boolean = false,
     val adminCode: String? = null,
     val photoUri: Uri? = null,
-    val photoUrl: String? = null,
+    val imageBitmap: Bitmap? = null,
     val displayName: String = "",
     val email: String = "",
     val phone: String? = null,

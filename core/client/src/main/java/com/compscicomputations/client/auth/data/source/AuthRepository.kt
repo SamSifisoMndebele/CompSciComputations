@@ -2,18 +2,16 @@ package com.compscicomputations.client.auth.data.source
 
 import android.content.Context
 import android.util.Log
+import com.compscicomputations.client.auth.data.model.AuthCredentials
 import com.compscicomputations.client.auth.data.source.local.UserDataStore
 import com.compscicomputations.client.auth.data.source.remote.AuthDataSource
 import com.compscicomputations.client.auth.data.source.remote.AuthDataSource.Companion.ExpectationFailedException
 import com.compscicomputations.client.auth.data.source.remote.AuthDataSource.Companion.UnauthorizedException
 import com.compscicomputations.client.auth.data.source.remote.RegisterUser
 import com.compscicomputations.client.auth.data.model.User
-import com.compscicomputations.client.auth.data.source.local.UserDataStore.Companion.basicAuthCredentialsFlow
-import com.compscicomputations.client.auth.data.source.local.UserDataStore.Companion.bearerCredentialsFlow
 import com.compscicomputations.client.utils.asBitmap
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.retry
 import javax.inject.Inject
@@ -28,6 +26,18 @@ class AuthRepository @Inject constructor(
     }
 
     /**
+     * Login with email and password
+     * @throws UnauthorizedException if the user credentials are not correct.
+     * @throws ExpectationFailedException if the was server side error.
+     */
+    suspend fun login(email: String, password: String) {
+        localDataStore.savePasswordCredentials(email, password)
+        remoteDataSource.getRemoteUser {_,_->} .let { user ->
+            localDataStore.saveUser(user.asUser)
+        }
+    }
+
+    /**
      * Login or register with google credentials.
      * If theres non, it will create a new user with google user information.
      * @throws UnauthorizedException if the id token is not valid.
@@ -35,7 +45,7 @@ class AuthRepository @Inject constructor(
      */
     suspend fun continueWithGoogle(googleIdTokenString: String) {
         localDataStore.saveGoogleIdToken(googleIdTokenString)
-        remoteDataSource.continueWithGoogle(googleIdTokenString).let { user ->
+        remoteDataSource.getRemoteUser {_,_->}.let { user ->
             localDataStore.saveUser(user.asUser)
         }
     }
@@ -63,18 +73,7 @@ class AuthRepository @Inject constructor(
         )).let {
             imageBytes?.let { bytes -> remoteDataSource.uploadProfileImage(it.id, bytes, onProgress) }
             localDataStore.saveUser(it.asUser.copy(imageBitmap = imageBytes?.asBitmap))
-        }
-    }
-
-    /**
-     * Login with email and password
-     * @throws UnauthorizedException if the user credentials are not correct.
-     * @throws ExpectationFailedException if the was server side error.
-     */
-    suspend fun login(email: String, password: String) {
-        localDataStore.savePasswordCredentials(email, password)
-        remoteDataSource.getRemoteUser(email, password) {_,_->} .let { user ->
-            localDataStore.saveUser(user.asUser)
+            localDataStore.savePasswordCredentials(email, password)
         }
     }
 
@@ -91,8 +90,7 @@ class AuthRepository @Inject constructor(
 
     val refreshUserFlow: Flow<User?>
         get() = flow {
-            val credentials = context.basicAuthCredentialsFlow.first() ?: return@flow emit(null)
-            remoteDataSource.getRemoteUser(credentials.username, credentials.password) { bytesReceived, totalBytes ->
+            remoteDataSource.getRemoteUser { bytesReceived, totalBytes ->
                 Log.d(TAG, "onDownload User Image: Received $bytesReceived bytes from $totalBytes")
             }.asUser
                 .let { user ->

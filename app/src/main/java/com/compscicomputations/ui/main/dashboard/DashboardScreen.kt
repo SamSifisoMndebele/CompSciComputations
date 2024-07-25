@@ -38,6 +38,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.compscicomputations.client.auth.data.model.DynamicFeature
+import com.compscicomputations.theme.AppRed
 import com.compscicomputations.theme.comicNeueFamily
 import com.compscicomputations.ui.utils.isLoading
 import com.compscicomputations.ui.utils.ui.CompSciScaffold
@@ -90,17 +91,6 @@ fun DashboardScreen(
                                 modifier = Modifier.padding(end = 8.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-//                                val showShimmer = rememberShimmerBrushState()
-//                                Image(
-//                                    modifier = Modifier
-//                                        .shimmerBackground(showShimmer = uiState.progressState.isLoading)
-//                                        .size(128.dp)
-//                                        .padding(8.dp)
-//                                        .clip(CircleShape),
-//                                    bitmap = uiState.imageBitmap?.asImageBitmap(),
-//                                    contentDescription = "Profile Image",
-//                                    contentScale = ContentScale.FillBounds,
-//                                )
                                 AsyncImage(
                                     modifier = Modifier
                                         .shimmerBackground(showShimmer = uiState.progressState.isLoading)
@@ -172,10 +162,10 @@ fun DashboardScreen(
                                 padding = PaddingValues(start = 8.dp, end = 8.dp, bottom = 8.dp),
                                 iconUrl = feature.iconUrl?.ifBlank { null },
                                 text = feature.title,
-                                onClick = {
-                                    navigateDynamicFeature(feature)
-                                }
-                            )
+                                tint = AppRed
+                            ) {
+                                navigateDynamicFeature(feature)
+                            }
                         }
                     }
                 }

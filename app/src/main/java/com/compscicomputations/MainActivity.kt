@@ -44,7 +44,7 @@ class MainActivity : ComponentActivity() {
                     ) {
                         SplashScreen(navController)
                     }
-                    authNavigation(navController, gotoOnboarding)
+                    authNavigation(this@MainActivity, navController, gotoOnboarding)
                     mainNavigation(navController)
                 }
             }

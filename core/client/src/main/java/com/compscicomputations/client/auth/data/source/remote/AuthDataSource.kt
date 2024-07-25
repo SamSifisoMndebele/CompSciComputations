@@ -1,11 +1,12 @@
 package com.compscicomputations.client.auth.data.source.remote
 
 import android.util.Log
+import com.compscicomputations.client.auth.data.model.AuthCredentials
+import com.compscicomputations.client.auth.data.source.local.UserDataStore.Companion.AuthCredentialsUseCase
 import com.compscicomputations.client.utils.Users
 import com.compscicomputations.client.utils.ktorRequest
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
-import io.ktor.client.plugins.auth.providers.BasicAuthCredentials
 import io.ktor.client.plugins.onDownload
 import io.ktor.client.plugins.onUpload
 import io.ktor.client.plugins.resources.get
@@ -21,39 +22,18 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.append
 import io.ktor.http.contentType
-import io.ktor.util.encodeBase64
 import javax.inject.Inject
 
 class AuthDataSource @Inject constructor(
-    private val client: HttpClient
+    private val client: HttpClient,
+    private val authCredentialsUseCase: AuthCredentialsUseCase
 ) {
     companion object {
         const val TAG = "AuthDataSource"
 
 //        class NotFoundException(message: String? = null): Exception(message)
-        class UnauthorizedException(message: String? = null): Exception(message)
+        class UnauthorizedException: Exception("Invalid credentials!")
         class ExpectationFailedException(message: String? = null): Exception(message)
-    }
-
-    /**
-     * Login or register with google credentials.
-     * @return [RemoteUser] the database user record.
-     * If theres non, it will create a new user with google user information.
-     * @throws UnauthorizedException if the id token is not valid.
-     * @throws ExpectationFailedException if the was server side error.
-     */
-    internal suspend fun continueWithGoogle(idTokenString: String): RemoteUser = ktorRequest {
-        val response = client.get(Users.Google()) {
-            headers {
-                append(HttpHeaders.Authorization, "Bearer $idTokenString")
-            }
-        }
-        when (response.status) {
-            HttpStatusCode.Unauthorized -> throw UnauthorizedException(response.body<String?>())
-            HttpStatusCode.ExpectationFailed -> throw ExpectationFailedException(response.bodyAsText())
-            HttpStatusCode.OK -> response.body<RemoteUser>()
-            else -> throw Exception(response.bodyAsText())
-        }
     }
 
     /**
@@ -80,7 +60,7 @@ class AuthDataSource @Inject constructor(
      * @throws ExpectationFailedException if the was server side error.
      */
     internal suspend fun uploadProfileImage(
-        id: String,
+        id: Int,
         imageBytes: ByteArray,
         onProgress: (bytesSent: Long, totalBytes: Long) -> Unit
     ): Unit = ktorRequest {
@@ -111,21 +91,20 @@ class AuthDataSource @Inject constructor(
         }
     }
 
-
     /**
+     * Login or register with google credentials, or login with password credentials.
      * @param onProgress user image download progress callback.
      * @return [RemoteUser] the database user record.
      * @throws UnauthorizedException if the user credentials are not correct.
      * @throws ExpectationFailedException if the was server side error.
      */
     internal suspend fun getRemoteUser(
-        email: String,
-        password: String?,
         onProgress: (bytesReceived: Long, totalBytes: Long) -> Unit
     ): RemoteUser = ktorRequest {
+        val authCredentials = authCredentialsUseCase()
         val response = client.get(Users.Me()) {
             headers {
-                append(HttpHeaders.Authorization, "$email $password".encodeBase64())
+                append(HttpHeaders.Authorization, authCredentials())
             }
             onDownload { bytesSentTotal, contentLength ->
                 println("onDownload: Received $bytesSentTotal bytes from $contentLength")
@@ -133,10 +112,10 @@ class AuthDataSource @Inject constructor(
             }
         }
         when (response.status) {
-            HttpStatusCode.Unauthorized -> throw UnauthorizedException(response.body<String?>())
+            HttpStatusCode.Unauthorized -> throw UnauthorizedException()
             HttpStatusCode.ExpectationFailed -> throw ExpectationFailedException(response.bodyAsText())
             HttpStatusCode.OK -> response.body<RemoteUser>()
-            else -> throw Exception(response.bodyAsText())
+            else -> throw Exception("response.bodyAsText()")
         }
     }
 

@@ -29,15 +29,8 @@ object AuthModule {
 
     @Provides
     @Singleton
-    @Named("google")
-    fun provideGoogleCredentialRequest(
+    fun provideCredentialRequest(
+        passwordOption:GetPasswordOption,
         googleIdOption:GetGoogleIdOption
-    ): GetCredentialRequest = GetCredentialRequest(listOf(googleIdOption))
-
-    @Provides
-    @Singleton
-    @Named("password")
-    fun providePasswordCredentialRequest(
-        passwordOption:GetPasswordOption
-    ): GetCredentialRequest = GetCredentialRequest(listOf(passwordOption))
+    ): GetCredentialRequest = GetCredentialRequest(listOf(passwordOption, googleIdOption))
 }

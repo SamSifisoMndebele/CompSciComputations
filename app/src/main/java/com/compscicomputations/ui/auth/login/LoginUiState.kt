@@ -2,7 +2,7 @@ package com.compscicomputations.ui.auth.login
 
 import com.compscicomputations.ui.utils.ProgressState
 
-data class PasswordLoginUiState(
+data class LoginUiState(
     val email: String = "",
     val password: String = "",
 
@@ -11,4 +11,7 @@ data class PasswordLoginUiState(
 
     val progressState: ProgressState = ProgressState.Idle,
     val canShowPassword: Boolean = false
-)
+) {
+    val isValid: Boolean
+        get() = email.isNotBlank() && password.isNotBlank()
+}

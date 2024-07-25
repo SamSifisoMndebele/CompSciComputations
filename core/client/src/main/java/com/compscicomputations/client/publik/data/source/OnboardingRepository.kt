@@ -32,26 +32,15 @@ class OnboardingRepository @Inject constructor(
 
     val onboardingItemsFlow: Flow<List<OnboardingItem>>
         get() = flow {
-            if (onboardingItemDao.isEmpty()) {
-                Log.d(TAG, "Sync onboarding items from remote data source.")
-                remoteDataSource.getOnboardingItems().let { remoteOnboardingItems ->
-                    onboardingItemDao.insert(*remoteOnboardingItems.asOnboardingItems)
-                }
-            } else {
-                try {
-                    val itemsIds = onboardingItemDao.selectIds()
-                    Log.d(TAG, "Sync onboarding items from remote data source, except (${itemsIds.joinToString()}).")
-                    remoteDataSource.getOnboardingItems(itemsIds).let { remoteOnboardingItems ->
-                        onboardingItemDao.delete(*itemsIds)
-                        onboardingItemDao.insert(*remoteOnboardingItems.asOnboardingItems)
-                    }
-                } catch (e: Exception) {
-                    emitAll(onboardingItemDao.selectAll())
-                    throw e
-                }
-            }
             Log.d(TAG, "Fetching onboarding items from local database.")
-            emitAll(onboardingItemDao.selectAll())
+            emit(onboardingItemDao.selectAll().first())
+
+            val itemsIds = onboardingItemDao.selectIds()
+            Log.d(TAG, "Sync onboarding items from remote data source, except (${itemsIds.joinToString()}).")
+            remoteDataSource.getOnboardingItems(itemsIds).let { remoteOnboardingItems ->
+                onboardingItemDao.insert(*remoteOnboardingItems.asOnboardingItems)
+                emit(onboardingItemDao.selectAll().first())
+            }
         }.retry(1) {
             Log.w(TAG, "Error syncing onboarding items, retrying.", it)
             true

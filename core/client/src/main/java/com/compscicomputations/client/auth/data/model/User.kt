@@ -7,7 +7,7 @@ import com.compscicomputations.client.utils.asByteArray
 import com.compscicomputations.client.utils.asByteString
 
 data class User(
-    val id: String,
+    val id: Int,
     val email: String,
     val displayName: String,
     val imageBitmap: Bitmap?,

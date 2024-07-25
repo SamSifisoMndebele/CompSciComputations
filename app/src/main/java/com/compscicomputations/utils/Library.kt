@@ -22,20 +22,15 @@ import kotlinx.coroutines.flow.flowOn
 
 infix fun CharSequence.notMatches(regex: Regex): Boolean = !regex.matches(this)
 
-internal inline val Context.asActivity: Activity
-    get() {
-        var context = this
-        while (context is ContextWrapper) {
-            if (context is Activity) return context
-            context = context.baseContext
-        }
-        throw IllegalStateException("Permissions should be called in the context of an Activity")
-    }
-
-internal fun Context.restartActivity() {
-    asActivity.recreate()
-}
-
+//internal inline val Context.asActivity: Activity
+//    get() {
+//        var context = this
+//        while (context is ContextWrapper) {
+//            if (context is Activity) return context
+//            context = context.baseContext
+//        }
+//        throw IllegalStateException("Permissions should be called in the context of an Activity")
+//    }
 
 @ExperimentalCoroutinesApi
 @Composable

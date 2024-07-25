@@ -4,7 +4,7 @@ option java_package = "com.compscicomputations.client.auth.data.source.local";
 option java_multiple_files = true;
 
 message LocalUser {
-  string id = 1;
+  int32 id = 1;
   string email = 2;
   string password = 3;
   string idToken = 4;
