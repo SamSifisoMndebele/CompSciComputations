@@ -17,6 +17,7 @@ begin
     returning * into strict _user;
 
     return _user;
+
 exception
     when unique_violation then
         raise exception 'User with email: % already exists', _email

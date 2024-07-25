@@ -7,5 +7,5 @@ create table if not exists storage.files(
      description text,
      data bytea not null,
      size text not null,
-     created_at timestamptz default (now() at time zone 'SAST') not null
+     created_at timestamp default ext.nowsast() not null
 );

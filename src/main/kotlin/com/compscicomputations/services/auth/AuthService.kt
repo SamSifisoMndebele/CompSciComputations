@@ -2,6 +2,7 @@ package com.compscicomputations.services.auth
 
 import com.compscicomputations.plugins.connectToPostgres
 import com.compscicomputations.services._contrast.AuthServiceContrast
+import com.compscicomputations.services.auth.models.PasswordOTP
 import com.compscicomputations.services.auth.models.requests.RegisterUser
 import com.compscicomputations.services.auth.models.response.User
 import com.compscicomputations.utils.*
@@ -127,13 +128,19 @@ internal class AuthService : AuthServiceContrast {
         query("select * from auth.users order by users.display_name limit $limit", { getUser() })
     }
 
-
-
-
-
-
-
-
+    override suspend fun getPasswordResetOTP(email: String): PasswordOTP = dbQuery(conn) {
+        querySingle("select * from auth.create_password_otp(?)",
+            {
+                PasswordOTP(
+                    getString("email"),
+                    getString("otp_hash"),
+                    getTimestamp("valid_until").toString(),
+                )
+            }
+        ) {
+            setString(1, email)
+        }
+    }
 
 
 //    override suspend fun uploadFile(multipartData: MultiPartData, fileSize: String): Unit = dbQuery(conn)  {

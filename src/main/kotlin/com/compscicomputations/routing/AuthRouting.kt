@@ -5,6 +5,8 @@ import com.compscicomputations.plugins.Users
 import com.compscicomputations.plugins.authenticateUser
 import com.compscicomputations.services.auth.models.requests.RegisterUser
 import com.compscicomputations.services.auth.models.response.User
+import com.compscicomputations.utils.RESET_PASSWORD_EMAIL
+import com.compscicomputations.utils.asString
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -13,6 +15,7 @@ import io.ktor.server.resources.*
 import io.ktor.server.resources.post
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import org.apache.commons.mail.DefaultAuthenticator
 import org.koin.ktor.ext.inject
 
 fun Routing.authRouting() {
@@ -52,15 +55,38 @@ fun Routing.authRouting() {
         }
     }
 
-//    //Get user image by id
-//    get<Files.Images.Id> {
-//        try {
-//            val userImageBytes = authService.downloadFile(it.id)
-//            call.respondBytes(userImageBytes, contentType = ContentType.Image.PNG)
-//        } catch (e: Exception) {
-//            call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
-//        }
-//    }
+
+    get<Users.Email.PasswordReset> {
+        try {
+            val passwordOTP = authService.getPasswordResetOTP(it.parent.email)
+
+            val email = org.apache.commons.mail.HtmlEmail()
+            email.hostName = "smtp.gmail.com"
+            email.setSmtpPort(465)
+            val emailAddress = System.getenv("EMAIL_ADDR")
+            val emailPassword = System.getenv("EMAIL_PASS")
+            email.setAuthenticator(DefaultAuthenticator(emailAddress, emailPassword))
+            email.isSSLOnConnect = true
+            email.setFrom(emailAddress)
+            email.subject = "Reset your password for CompSci Computations."
+            email.setHtmlMsg(
+                RESET_PASSWORD_EMAIL
+                    .replaceFirst("{{email_to}}", passwordOTP.email)
+                    .replaceFirst("{{otp}}", passwordOTP.otp)
+                    .replaceFirst("{{expiration_time}}", passwordOTP.validUntil.substring(11, 19))
+            )
+            email.addTo(passwordOTP.email)
+            email.send()
+
+            call.respond(HttpStatusCode.OK, passwordOTP)
+//            call.respond(HttpStatusCode.OK, "OTP sent to ${passwordOTP.email}.")
+
+        } catch (e: Exception) {
+            call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
+        }
+    }
+
+
 
 
 

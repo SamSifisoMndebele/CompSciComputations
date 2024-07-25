@@ -1,5 +1,6 @@
 package com.compscicomputations.services._contrast
 
+import com.compscicomputations.services.auth.models.PasswordOTP
 import com.compscicomputations.services.auth.models.requests.NewAdminPin
 import com.compscicomputations.services.auth.models.requests.RegisterUser
 import com.compscicomputations.services.auth.models.requests.UpdateUser
@@ -58,6 +59,13 @@ interface AuthServiceContrast {
      * @return [User] list from a database, ordered by email.
      */
     suspend fun readUsers(limit: Int): List<User>
+
+    /**
+     * Get a new reset password OTP
+     * @param email user email to reset password.
+     * @return [PasswordOTP] the raw otp to be sent by email.
+     */
+    suspend fun getPasswordResetOTP(email: String): PasswordOTP
 
 //    /**
 //     * Validate an email and password combination for a user account

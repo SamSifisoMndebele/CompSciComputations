@@ -44,3 +44,15 @@ begin
     return floor((random() * 9 + 1) * power(10, _digits - 1))::text;
 end;
 $code$;
+
+create or replace function ext.nowSAST()
+returns timestamp
+    stable
+    strict
+    language plpgsql
+as
+$code$
+begin
+    return (now() at time zone 'Africa/Johannesburg');
+end;
+$code$;
