@@ -2,6 +2,7 @@ package com.compscicomputations.ui.auth.reset
 
 import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.compscicomputations.client.auth.data.source.AuthRepository
 import com.compscicomputations.theme.emailRegex
 import com.compscicomputations.theme.strongPasswordRegex
@@ -9,9 +10,11 @@ import com.compscicomputations.ui.utils.ProgressState
 import com.compscicomputations.utils.notMatches
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -37,16 +40,37 @@ class PasswordResetViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(passwordConfirm = passwordConfirm, passwordConfirmError = null)
     }
 
-    private var registerJob: Job? = null
+    private var job: Job? = null
 
-    fun onPasswordReset() {
-        if (!fieldsAreValid()) return
-        _uiState.value = _uiState.value.copy(progressState = ProgressState.Loading("Resetting password..."))
+    fun onSendOtp() {
+        if (_uiState.value.email.isBlank()) {
+            _uiState.value = _uiState.value.copy(emailError = "Enter your email.")
+            return
+        } else if (_uiState.value.email.notMatches(emailRegex)) {
+            _uiState.value = _uiState.value.copy(emailError = "Enter a valid email.")
+            return
+        }
+
+        _uiState.value = _uiState.value.copy(progressState = ProgressState.Loading("Sending otp..."))
+        job = viewModelScope.launch {
+            delay(2000)
+            _uiState.value = _uiState.value.copy(progressState = ProgressState.Idle, otpSent = true)
+        }
 
     }
 
-    fun cancelRegister() {
-        registerJob?.cancel()
+    fun onPasswordReset() {
+        if (!fieldsAreValid()) return
+
+        _uiState.value = _uiState.value.copy(progressState = ProgressState.Loading("Resetting password..."))
+        job = viewModelScope.launch {
+            delay(3000)
+            _uiState.value = _uiState.value.copy(progressState = ProgressState.Success)
+        }
+    }
+
+    fun cancel() {
+        job?.cancel()
     }
 
     private fun fieldsAreValid(): Boolean {

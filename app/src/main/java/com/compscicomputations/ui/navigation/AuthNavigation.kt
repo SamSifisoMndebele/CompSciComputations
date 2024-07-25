@@ -26,6 +26,8 @@ import com.compscicomputations.ui.auth.onboarding.OnboardingScreen
 import com.compscicomputations.ui.auth.register.RegisterScreen
 import com.compscicomputations.ui.auth.register.RegisterViewModel
 import com.compscicomputations.ui.auth.register.TermsScreen
+import com.compscicomputations.ui.auth.reset.PasswordResetScreen
+import com.compscicomputations.ui.auth.reset.PasswordResetViewModel
 import com.compscicomputations.utils.rememberConnectivityState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -119,6 +121,13 @@ fun NavGraphBuilder.authNavigation(
         }
         composable<PasswordReset> { backStackEntry ->
             val passwordReset: PasswordReset = backStackEntry.toRoute()
+            val viewModel: PasswordResetViewModel = hiltViewModel()
+            passwordReset.email?.let { viewModel.onEmailChange(it) }
+            PasswordResetScreen(
+                viewModel = viewModel,
+                navigateOnboarding = { navController.navigate(route = Onboarding) { launchSingleTop = true } },
+                navigateUp = { navController.navigateUp() },
+            )
         }
     }
 }
