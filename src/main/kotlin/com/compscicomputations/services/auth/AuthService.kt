@@ -129,7 +129,7 @@ internal class AuthService : AuthServiceContrast {
     }
 
     override suspend fun getPasswordResetOTP(email: String): PasswordOTP = dbQuery(conn) {
-        querySingle("select * from auth.create_password_otp(?)",
+        querySingle("select * from auth.create_otp(?)",
             {
                 PasswordOTP(
                     getString("email"),

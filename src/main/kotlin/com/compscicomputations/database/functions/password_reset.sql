@@ -1,7 +1,6 @@
-drop function if exists auth.create_password_otp;
-drop function if exists auth.validate_password_otp;
 
-create or replace function auth.create_password_otp(
+drop function if exists auth.create_otp;
+create or replace function auth.create_otp(
     _email text
 ) returns auth.password_otp
     security definer
@@ -38,7 +37,8 @@ end
 $code$;
 
 
-create or replace function auth.validate_password_otp(
+drop function if exists auth.validate_otp;
+create or replace function auth.validate_otp(
     _email text,
     _otp text
 ) returns boolean
@@ -74,5 +74,51 @@ exception
         raise exception 'PasswordOTP for email: % does not exists or it has expired.', _email
             using hint = 'Request a new PasswordOTP.';
 
+end
+$code$;
+
+
+drop procedure if exists auth.reset_password_otp;
+create or replace procedure auth.reset_password_otp(
+    _email text,
+    _password text,
+    _otp text
+) language plpgsql
+as
+$code$
+begin
+    select auth.validate_otp(_email, _otp);
+
+    update auth.users
+    set password_hash = ext.crypt(_password, ext.gen_salt('md5'))
+    where email like _email;
+end
+$code$;
+
+
+drop procedure if exists auth.reset_password;
+create or replace procedure auth.reset_password(
+    _email text,
+    _password text,
+    _old_password text
+) language plpgsql
+as
+$code$
+declare _password_hash text;
+begin
+    select password_hash into strict _password_hash
+    from auth.users
+    where email like _email;
+
+    if _password_hash is null then
+        raise exception 'Your email: %, do not have a password!', _email
+            using hint = 'Request OTP to set your password.';
+    elsif _password_hash <> ext.crypt(_old_password, _password_hash) then
+        raise exception 'Your password: % is not valid!', _old_password;
+    end if;
+
+    update auth.users
+    set password_hash = ext.crypt(_password, ext.gen_salt('md5'))
+    where email like _email;
 end
 $code$;
