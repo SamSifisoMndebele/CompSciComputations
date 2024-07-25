@@ -1,8 +1,8 @@
 package com.compscicomputations.routing
 
-import com.compscicomputations.plugins.authenticateGoogle
 import com.compscicomputations.services.auth.AuthService
 import com.compscicomputations.plugins.Users
+import com.compscicomputations.plugins.authenticateUser
 import com.compscicomputations.services.auth.models.requests.RegisterUser
 import com.compscicomputations.services.auth.models.response.User
 import io.ktor.http.*
@@ -17,18 +17,6 @@ import org.koin.ktor.ext.inject
 
 fun Routing.authRouting() {
     val authService by inject<AuthService>()
-
-    authenticateGoogle {
-        // Create a user or get if exists
-        get<Users.Google> {
-            try {
-                val user = call.principal<User>()!!
-                call.respond(HttpStatusCode.OK, user)
-            } catch (e: Exception) {
-                call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
-            }
-        }
-    }
 
     // Create a user
     post<Users> {
@@ -52,7 +40,7 @@ fun Routing.authRouting() {
         }
     }
 
-    authenticate {
+    authenticateUser {
         // Read a user
         get<Users.Me> {
             try {

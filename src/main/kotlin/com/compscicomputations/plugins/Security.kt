@@ -14,7 +14,7 @@ internal fun Application.configureSecurity() {
 
     install(Authentication) {
         bearer("google") {
-            realm = "Authenticate google user."
+            realm = "Authentication with google."
             authenticate {
                 try {
                     authService.googleUser(it.token)
@@ -24,13 +24,12 @@ internal fun Application.configureSecurity() {
                 }
             }
         }
-
-        basic {
-            realm = "User access."
-            validate { credentials ->
-                val email = credentials.name
+        basic("password") {
+            realm = "Authentication with password."
+            validate {
+                val email = it.name
                 try {
-                    authService.readUser(email, credentials.password)
+                    authService.readUser(email, it.password)
                 } catch (e: Exception) {
                     logger.warn("Basic::User", e)
                     null
@@ -38,13 +37,27 @@ internal fun Application.configureSecurity() {
             }
         }
 
-        basic("admin") {
-            realm = "Admin access."
-            validate { credentials ->
-                val email = credentials.name
+        bearer("admin-google") {
+            realm = "Admin authentication with google."
+            authenticate {
                 try {
-                    authService.readUser(email, credentials.password).let {
-                        if (it.isAdmin) it
+                    authService.googleUser(it.token).let { user ->
+                        if (user.isAdmin) user
+                        else throw InvalidCredentialsException("User with email: ${user.email} is not an admin.")
+                    }
+                } catch (e: Exception) {
+                    logger.warn("GoggleBearer", e)
+                    null
+                }
+            }
+        }
+        basic("admin-password") {
+            realm = "Admin authentication with password."
+            validate {
+                val email = it.name
+                try {
+                    authService.readUser(email, it.password).let { user ->
+                        if (user.isAdmin) user
                         else throw InvalidCredentialsException("User with email: $email is not an admin.")
                     }
                 } catch (e: Exception) {
@@ -56,11 +69,11 @@ internal fun Application.configureSecurity() {
     }
 }
 
-internal fun Route.authenticateGoogle(
+internal fun Route.authenticateUser(
     build: Route.() -> Unit
-): Route = authenticate("google", build = build)
+): Route = authenticate("google", "password", build = build)
 
 internal fun Route.authenticateAdmin(
     optional: Boolean = false,
     build: Route.() -> Unit
-): Route = authenticate("admin", optional = optional, build = build)
+): Route = authenticate("admin-google", "admin-password", optional = optional, build = build)

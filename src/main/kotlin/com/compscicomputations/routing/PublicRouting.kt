@@ -1,6 +1,7 @@
 package com.compscicomputations.routing
 
 import com.compscicomputations.plugins.Onboarding
+import com.compscicomputations.plugins.authenticateAdmin
 import com.compscicomputations.services.publik.PublicService
 import com.compscicomputations.services.publik.models.requests.NewOnboardingItem
 import io.ktor.http.*
@@ -17,13 +18,15 @@ import org.koin.ktor.ext.inject
 fun Routing.publicRouting() {
     val publicService by inject<PublicService>()
 
-    post<Onboarding.Items> {
-        try {
-            val request = call.receive<NewOnboardingItem>()
-            publicService.createOnboardingItem(request)
-            call.respond(HttpStatusCode.OK)
-        } catch (e: Exception) {
-            call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
+    authenticateAdmin {
+        post<Onboarding.Items> {
+            try {
+                val request = call.receive<NewOnboardingItem>()
+                publicService.createOnboardingItem(request)
+                call.respond(HttpStatusCode.OK)
+            } catch (e: Exception) {
+                call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
+            }
         }
     }
 

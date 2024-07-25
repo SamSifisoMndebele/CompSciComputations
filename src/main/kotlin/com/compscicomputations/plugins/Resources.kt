@@ -12,9 +12,6 @@ class Users {
         @Resource("image")
         class Image(val parent: Id)
     }
-
-    @Resource("google")
-    class Google(val parent: Users = Users())
 }
 
 

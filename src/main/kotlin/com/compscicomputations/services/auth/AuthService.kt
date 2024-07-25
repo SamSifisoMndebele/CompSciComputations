@@ -87,6 +87,7 @@ internal class AuthService : AuthServiceContrast {
         val googleToken = googleVerifier.authenticate(idTokenString)
             ?: throw InvalidCredentialsException("Invalid google token.")
 
+
         querySingleOrNull("select * from auth.users where email like ?", { getUser() }) {
             setString(1, googleToken.email)
         } ?: let {

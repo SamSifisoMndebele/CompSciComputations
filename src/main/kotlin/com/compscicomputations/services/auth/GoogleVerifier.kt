@@ -1,6 +1,7 @@
 package com.compscicomputations.services.auth
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier
+import com.google.api.client.googleapis.auth.oauth2.GoogleRefreshTokenRequest
 import com.google.api.client.http.apache.v2.ApacheHttpTransport
 import com.google.api.client.json.gson.GsonFactory
 
