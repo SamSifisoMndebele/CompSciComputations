@@ -78,9 +78,7 @@ fun Routing.authRouting() {
             email.addTo(passwordOTP.email)
             email.send()
 
-            call.respond(HttpStatusCode.OK, passwordOTP)
-//            call.respond(HttpStatusCode.OK, "OTP sent to ${passwordOTP.email}.")
-
+            call.respond(HttpStatusCode.OK, "OTP sent to ${passwordOTP.email}.")
         } catch (e: Exception) {
             call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
         }
