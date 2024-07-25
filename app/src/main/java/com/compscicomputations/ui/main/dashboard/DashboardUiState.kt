@@ -2,7 +2,7 @@ package com.compscicomputations.ui.main.dashboard
 
 import android.graphics.Bitmap
 import androidx.compose.material3.SnackbarHostState
-import com.compscicomputations.client.auth.data.model.DynamicFeature
+import com.compscicomputations.client.publik.data.model.DynamicFeature
 import com.compscicomputations.ui.utils.ProgressState
 
 data class DashboardUiState(

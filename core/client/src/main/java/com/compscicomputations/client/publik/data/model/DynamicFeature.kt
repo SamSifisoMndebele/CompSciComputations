@@ -1,4 +1,4 @@
-package com.compscicomputations.client.auth.data.model
+package com.compscicomputations.client.publik.data.model
 
 import kotlinx.serialization.Serializable
 

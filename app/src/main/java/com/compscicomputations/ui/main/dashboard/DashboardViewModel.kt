@@ -1,10 +1,9 @@
 package com.compscicomputations.ui.main.dashboard
 
 import android.util.Log
-import androidx.compose.material3.SnackbarHostState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.compscicomputations.client.auth.data.model.DynamicFeature
+import com.compscicomputations.client.publik.data.model.DynamicFeature
 import com.compscicomputations.client.auth.data.source.AuthRepository
 import com.compscicomputations.ui.utils.ProgressState
 import com.google.android.play.core.splitinstall.SplitInstallManager
@@ -13,10 +12,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
