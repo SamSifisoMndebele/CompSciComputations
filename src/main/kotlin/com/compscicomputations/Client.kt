@@ -31,20 +31,20 @@ import io.ktor.util.*
 //    }
 //}
 
-suspend fun main() {
-    val client = HttpClient(CIO) {
-        install(ContentNegotiation) { json() }
-    }
-    val encoded = "sams.mndebele@gmail.com:Mndebele@9".encodeBase64()
-    val response = client.get("http://localhost:8080/users/me") {
-        headers {
-            append(HttpHeaders.Authorization, "Basic $encoded")
-        }
-    }
-    when (response.status) {
-        HttpStatusCode.Unauthorized -> println("UnauthorizedException: " + response.bodyAsText())
-        HttpStatusCode.ExpectationFailed -> println("ExpectationFailedException: " + response.bodyAsText())
-        HttpStatusCode.OK -> println(response.body<User>())
-        else -> throw Exception(response.bodyAsText())
-    }
-}
+//suspend fun main() {
+//    val client = HttpClient(CIO) {
+//        install(ContentNegotiation) { json() }
+//    }
+//    val encoded = "sams.mndebele@gmail.com:Mndebele@9".encodeBase64()
+//    val response = client.get("http://localhost:8080/users/me") {
+//        headers {
+//            append(HttpHeaders.Authorization, "Basic $encoded")
+//        }
+//    }
+//    when (response.status) {
+//        HttpStatusCode.Unauthorized -> println("UnauthorizedException: " + response.bodyAsText())
+//        HttpStatusCode.ExpectationFailed -> println("ExpectationFailedException: " + response.bodyAsText())
+//        HttpStatusCode.OK -> println(response.body<User>())
+//        else -> throw Exception(response.bodyAsText())
+//    }
+//}
