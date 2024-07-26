@@ -1,6 +1,7 @@
 package com.compscicomputations.plugins
 
 import com.compscicomputations.services.auth.models.requests.NewAdminPin
+import com.compscicomputations.services.auth.models.requests.NewPassword
 import com.compscicomputations.services.auth.models.requests.RegisterUser
 import com.compscicomputations.services.auth.models.requests.UpdateUser
 import com.compscicomputations.utils.isEmailValid
@@ -45,6 +46,15 @@ internal fun Application.configureRequestValidation() {
         validate<NewAdminPin> { request ->
             when {
                 !request.email.isEmailValid() -> ValidationResult.Invalid("The email is not valid.")
+                else -> ValidationResult.Valid
+            }
+        }
+        validate<NewPassword> { request ->
+            when {
+                !request.email.isEmailValid() -> ValidationResult.Invalid("The email is not valid.")
+                request.password.isBlank() -> ValidationResult.Invalid("Password is blank.")
+                request.otp.isEmailValid() && request.oldPassword.isNullOrBlank() ->
+                    ValidationResult.Invalid("OTP and old password are both null.")
                 else -> ValidationResult.Valid
             }
         }

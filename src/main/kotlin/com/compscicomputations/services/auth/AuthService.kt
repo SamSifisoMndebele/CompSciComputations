@@ -129,7 +129,7 @@ internal class AuthService : AuthServiceContrast {
         query("select * from auth.users order by users.display_name limit $limit", { getUser() })
     }
 
-    override suspend fun getPasswordResetOTP(email: String): PasswordOTP = dbQuery(conn) {
+    override suspend fun passwordResetOTP(email: String): PasswordOTP = dbQuery(conn) {
         querySingle("select * from auth.create_otp(?)",
             {
                 PasswordOTP(
@@ -143,11 +143,25 @@ internal class AuthService : AuthServiceContrast {
         }
     }
 
-    suspend fun passwordReset(newPassword: NewPassword): Unit = dbQuery(conn) {
-        update("call auth.reset_password_otp(?, ?, ?)") {
-            setString(1, newPassword.email)
-            setString(2, newPassword.password)
-            setString(3, newPassword.otp)
+    override suspend fun passwordReset(newPassword: NewPassword): Unit = dbQuery(conn) {
+        when {
+            !newPassword.otp.isNullOrBlank() -> update("call auth.reset_password_otp(?, ?, ?)") {
+                setString(1, newPassword.email)
+                setString(2, newPassword.password)
+                setString(3, newPassword.otp)
+            }
+            !newPassword.oldPassword.isNullOrBlank() -> update("call auth.reset_password(?, ?, ?)") {
+                setString(1, newPassword.email)
+                setString(2, newPassword.password)
+                setString(3, newPassword.oldPassword)
+            }
+            else -> throw IllegalArgumentException("OTP and old password are null or empty.")
+        }
+    }
+
+    override suspend fun deleteUser(email: String): Unit = dbQuery(conn) {
+        update("delete from auth.users where email like ?") {
+            setString(1, email)
         }
     }
 
@@ -243,21 +257,5 @@ internal class AuthService : AuthServiceContrast {
         }
     }
 
-    override suspend fun deleteUser(id: String): Unit = dbQuery(conn) {
-        update("delete from auth.users where id like ?") {
-            setString(1, id)
-        }
-    }
-
-    override suspend fun updatePassword(id: String, password: String): Unit = dbQuery(conn) {
-        update("""
-            update auth.users 
-            set password_hash = ext.crypt(?, ext.gen_salt('md5'))
-            where id = ?
-            """.trimMargin()
-        ) {
-            setString(1, password)
-            setString(2, id)
-        }
-    }*/
+    */
 }

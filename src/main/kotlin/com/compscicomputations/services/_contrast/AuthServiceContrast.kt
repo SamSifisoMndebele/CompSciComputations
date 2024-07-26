@@ -2,6 +2,7 @@ package com.compscicomputations.services._contrast
 
 import com.compscicomputations.services.auth.models.PasswordOTP
 import com.compscicomputations.services.auth.models.requests.NewAdminPin
+import com.compscicomputations.services.auth.models.requests.NewPassword
 import com.compscicomputations.services.auth.models.requests.RegisterUser
 import com.compscicomputations.services.auth.models.requests.UpdateUser
 import com.compscicomputations.services.auth.models.response.User
@@ -65,7 +66,20 @@ interface AuthServiceContrast {
      * @param email user email to reset password.
      * @return [PasswordOTP] the raw otp to be sent by email.
      */
-    suspend fun getPasswordResetOTP(email: String): PasswordOTP
+    suspend fun passwordResetOTP(email: String): PasswordOTP
+
+    /**
+     * Reset the user password using OTP or old password.
+     * @param newPassword [NewPassword] the user new password values from a request.
+     */
+    suspend fun passwordReset(newPassword: NewPassword)
+
+    /**
+    * Deletes the user on a database.
+    * @param email the user unique email.
+    */
+    suspend fun deleteUser(email: String)
+
 
 //    /**
 //     * Validate an email and password combination for a user account
@@ -101,16 +115,6 @@ interface AuthServiceContrast {
      *//*
     suspend fun validateAdminPin(email: String, pin: String): Int
 
-    *//**
-     * Deletes the user on database.
-     * @param id the user unique identifier.
-     *//*
-    suspend fun deleteUser(id: String)
 
-    *//**
-     * Update user password with email
-     * @param id user unique identifier
-     * @param password user raw password
-     *//*
-    suspend fun updatePassword(id: Int, password: String)*/
+    */
 }

@@ -7,7 +7,6 @@ import com.compscicomputations.services.auth.models.requests.NewPassword
 import com.compscicomputations.services.auth.models.requests.RegisterUser
 import com.compscicomputations.services.auth.models.response.User
 import com.compscicomputations.utils.RESET_PASSWORD_EMAIL
-import com.compscicomputations.utils.asString
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -54,12 +53,23 @@ fun Routing.authRouting() {
                 call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
             }
         }
+
+        // Delete a user
+        delete<Users.Me> {
+            try {
+                val user = call.principal<User>()!!
+                authService.deleteUser(user.email)
+                call.respond(HttpStatusCode.OK, user)
+            } catch (e: Exception) {
+                call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
+            }
+        }
     }
 
 
     get<Users.PasswordReset.Email> {
         try {
-            val passwordOTP = authService.getPasswordResetOTP(it.email)
+            val passwordOTP = authService.passwordResetOTP(it.email)
 
             val email = org.apache.commons.mail.HtmlEmail()
             email.hostName = "smtp.gmail.com"
@@ -110,22 +120,7 @@ fun Routing.authRouting() {
 
 
 
-
-
-
-
-   /* authenticateAdmin {
-        // Read an admin user
-        get<Admins.Me> {
-            try {
-                val user = call.principal<User>()!!
-                call.respond(HttpStatusCode.OK, user)
-            } catch (e: Exception) {
-                call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
-            }
-        }
-    }
-
+    /*
 
 
 
@@ -146,64 +141,9 @@ fun Routing.authRouting() {
                 call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
             }
         }
-
-        // Delete myself as a user
-        delete<Users.Me> {
-            try {
-                val firebase = call.principal<User>()!!
-
-                authService.deleteUser(firebase.id)
-                call.respond(HttpStatusCode.OK)
-            } catch (e: Exception) {
-                call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
-            }
-        }
     }
 
     authenticateAdmin {
-        // Read all database users
-        get<Users> {
-            try {
-                val users = authService.readUsers(it.limit)
-
-                call.respond(users.OKOrNotFound, users)
-            } catch (e: Exception) {
-                call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
-            }
-        }
-
-        // Read a user with id
-        get<Users.Id> { id ->
-            try {
-                val user = authService.readUser(id.id)
-                call.respondNullable(user.OKOrNotFound, user)
-            } catch (e: Exception) {
-                call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
-            }
-        }
-
-        // Update a user with id
-        put<Users.Id> { id ->
-            try {
-                val userRequest = call.receive<UpdateUser>()
-
-                val user = authService.updateUser(id.id, userRequest)
-                call.respond(user.OKOrNotFound, user)
-            } catch (e: Exception) {
-                call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
-            }
-        }
-
-        // Delete user with id
-        delete<Users.Id> { id ->
-            try {
-                authService.deleteUser(id.id)
-                call.respond(HttpStatusCode.OK)
-            } catch (e: Exception) {
-                call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
-            }
-        }
-
 
         // Create admin code
         post<Admins.Pins> {
