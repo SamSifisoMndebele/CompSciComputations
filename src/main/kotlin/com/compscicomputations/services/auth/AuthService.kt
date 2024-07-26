@@ -3,6 +3,7 @@ package com.compscicomputations.services.auth
 import com.compscicomputations.plugins.connectToPostgres
 import com.compscicomputations.services._contrast.AuthServiceContrast
 import com.compscicomputations.services.auth.models.PasswordOTP
+import com.compscicomputations.services.auth.models.requests.NewPassword
 import com.compscicomputations.services.auth.models.requests.RegisterUser
 import com.compscicomputations.services.auth.models.response.User
 import com.compscicomputations.utils.*
@@ -134,7 +135,7 @@ internal class AuthService : AuthServiceContrast {
                 PasswordOTP(
                     getString("email"),
                     getString("otp_hash"),
-                    getTimestamp("valid_until").toString(),
+                    getTimestamp("valid_until").toString().substring(11, 19),
                 )
             }
         ) {
@@ -142,6 +143,13 @@ internal class AuthService : AuthServiceContrast {
         }
     }
 
+    suspend fun passwordReset(newPassword: NewPassword): Unit = dbQuery(conn) {
+        update("call auth.reset_password_otp(?, ?, ?)") {
+            setString(1, newPassword.email)
+            setString(2, newPassword.password)
+            setString(3, newPassword.otp)
+        }
+    }
 
 //    override suspend fun uploadFile(multipartData: MultiPartData, fileSize: String): Unit = dbQuery(conn)  {
 //        var fileName = ""

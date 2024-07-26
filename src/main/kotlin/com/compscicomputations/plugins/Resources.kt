@@ -13,11 +13,10 @@ class Users {
         class Image(val parent: Id)
     }
 
-    @Resource("{email}")
-    class Email(val parent: Users = Users(), val email: String) {
-        @Resource("password-reset")
-        class PasswordReset(val parent: Email)
-
+    @Resource("password-reset")
+    class PasswordReset(val parent: Users = Users()) {
+        @Resource("{email}")
+        class Email(val parent: PasswordReset = PasswordReset(), val email: String)
     }
 }
 

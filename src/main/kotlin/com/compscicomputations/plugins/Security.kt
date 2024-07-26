@@ -71,9 +71,9 @@ internal fun Application.configureSecurity() {
 
 internal fun Route.authenticateUser(
     build: Route.() -> Unit
-): Route = authenticate("google", "password", build = build)
+): Route = authenticate("password", "google", build = build)
 
 internal fun Route.authenticateAdmin(
     optional: Boolean = false,
     build: Route.() -> Unit
-): Route = authenticate("admin-google", "admin-password", optional = optional, build = build)
+): Route = authenticate("admin-password", "admin-google", optional = optional, build = build)

@@ -14,8 +14,8 @@ create table if not exists auth.users(
     updated_at timestamp default null
 );
 
-drop table if exists auth.password_otp cascade ;
-create table if not exists auth.password_otp(
+drop table if exists auth.otps;
+create table if not exists auth.otps(
     id integer generated always as identity primary key,
     email text not null unique,
     otp_hash text not null,

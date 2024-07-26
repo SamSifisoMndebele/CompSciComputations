@@ -3,6 +3,7 @@ package com.compscicomputations.routing
 import com.compscicomputations.services.auth.AuthService
 import com.compscicomputations.plugins.Users
 import com.compscicomputations.plugins.authenticateUser
+import com.compscicomputations.services.auth.models.requests.NewPassword
 import com.compscicomputations.services.auth.models.requests.RegisterUser
 import com.compscicomputations.services.auth.models.response.User
 import com.compscicomputations.utils.RESET_PASSWORD_EMAIL
@@ -56,9 +57,9 @@ fun Routing.authRouting() {
     }
 
 
-    get<Users.Email.PasswordReset> {
+    get<Users.PasswordReset.Email> {
         try {
-            val passwordOTP = authService.getPasswordResetOTP(it.parent.email)
+            val passwordOTP = authService.getPasswordResetOTP(it.email)
 
             val email = org.apache.commons.mail.HtmlEmail()
             email.hostName = "smtp.gmail.com"
@@ -73,12 +74,22 @@ fun Routing.authRouting() {
                 RESET_PASSWORD_EMAIL
                     .replaceFirst("{{email_to}}", passwordOTP.email)
                     .replaceFirst("{{otp}}", passwordOTP.otp)
-                    .replaceFirst("{{expiration_time}}", passwordOTP.validUntil.substring(11, 19))
+                    .replaceFirst("{{expiration_time}}", passwordOTP.validUntil)
             )
             email.addTo(passwordOTP.email)
             email.send()
 
             call.respond(HttpStatusCode.OK, "OTP sent to ${passwordOTP.email}.")
+        } catch (e: Exception) {
+            call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
+        }
+    }
+
+    post<Users.PasswordReset> {
+        try {
+            val newPassword = call.receive<NewPassword>()
+            authService.passwordReset(newPassword)
+            call.respond(HttpStatusCode.OK, "Your password reset was successful!")
         } catch (e: Exception) {
             call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
         }

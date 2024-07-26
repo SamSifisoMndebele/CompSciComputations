@@ -82,8 +82,8 @@ inline fun <T: Any> Connection.querySingleOrNull(
 inline fun Connection.update(
     @Language("postgresql") sql: String,
     args: PreparedStatement.() -> Unit = {},
-): Int {
+) {
     val stmt = prepareStatement(sql)
     stmt.args()
-    return stmt.executeUpdate()
+    stmt.executeUpdate()
 }
