@@ -1,4 +1,4 @@
-package com.compscicomputations.feature.number_systems.ui.excess
+package com.compscicomputations.number_systems.ui.excess
 
 data class ExcessConversion(
     val decimal: String = "",

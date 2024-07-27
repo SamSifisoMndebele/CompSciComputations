@@ -1,13 +1,15 @@
-package com.compscicomputations.feature.number_systems.ui.conversion
+package com.compscicomputations.number_systems.ui.bases
 
-import com.compscicomputations.feature.number_systems.utils.binaryNumbersRegex
-import com.compscicomputations.feature.number_systems.utils.decimalNumberRegex
-import com.compscicomputations.feature.number_systems.utils.hexNumbersRegex
-import com.compscicomputations.feature.number_systems.utils.octalNumbersRegex
+import com.compscicomputations.number_systems.utils.binaryNumbersRegex
+import com.compscicomputations.number_systems.utils.decimalNumberRegex
+import com.compscicomputations.number_systems.utils.hexNumbersRegex
+import com.compscicomputations.number_systems.utils.octalNumbersRegex
 import com.compscicomputations.utils.notMatches
 import kotlin.math.pow
 
 object BaseConverter {
+
+    val baseConversion = BaseConversion()
 
     private val hexLetters = mapOf(
         'A' to 10,

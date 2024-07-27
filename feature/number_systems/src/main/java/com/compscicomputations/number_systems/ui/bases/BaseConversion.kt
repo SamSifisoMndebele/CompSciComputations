@@ -1,4 +1,4 @@
-package com.compscicomputations.feature.number_systems.ui.conversion
+package com.compscicomputations.number_systems.ui.bases
 
 data class BaseConversion(
     val decimal: String = "",

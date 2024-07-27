@@ -1,4 +1,4 @@
-package com.compscicomputations.feature.number_systems.utils
+package com.compscicomputations.number_systems.utils
 
 class Conversion {
 

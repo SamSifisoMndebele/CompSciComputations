@@ -3,9 +3,10 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.jetbrains.kotlin.compose.compiler)
     alias(libs.plugins.google.devtools.ksp)
+    id("androidx.navigation.safeargs")
 }
 android {
-    namespace = "com.compscicomputations.feature.number_systems"
+    namespace = "com.compscicomputations.number_systems"
     compileSdk = 34
 
     defaultConfig {
@@ -39,6 +40,14 @@ android {
 }
 
 dependencies {
+
+    /**Machine Learning*/
+    implementation(libs.play.services.mlkit.text.recognition)
+    implementation(libs.generativeai)
+
+    /**DI*/
+    implementation(libs.koin.android)
+    implementation(libs.koin.androidx.compose)
 
     /**Local database*/
     implementation(libs.androidx.room.runtime)

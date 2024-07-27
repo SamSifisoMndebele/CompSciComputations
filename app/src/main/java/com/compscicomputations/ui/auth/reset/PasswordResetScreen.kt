@@ -5,8 +5,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -21,21 +19,21 @@ import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -46,14 +44,11 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.compscicomputations.theme.AppRed
 import com.compscicomputations.theme.comicNeueFamily
 import com.compscicomputations.theme.hintEmail
 import com.compscicomputations.theme.hintNewPassword
 import com.compscicomputations.theme.hintOtp
-import com.compscicomputations.theme.hintPassword
 import com.compscicomputations.theme.hintPasswordConfirm
 import com.compscicomputations.ui.auth.isError
 import com.compscicomputations.ui.auth.showMessage
@@ -73,7 +68,7 @@ fun PasswordResetScreen(
     LaunchedEffect(uiState.progressState) {
         if (uiState.progressState.isSuccess) {
             navigateUp()
-            Toast.makeText(context, "Password reset successfully!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Password reset was successful, please login.", Toast.LENGTH_LONG).show()
         }
     }
     LaunchedEffect(uiState.otpSent) {
@@ -114,6 +109,7 @@ fun PasswordResetScreen(
                     modifier = Modifier
                         .focusRequester(field1)
                         .focusProperties { next = field2 }
+                        .onFocusChanged { if (!it.isFocused) showOtp = false }
                         .fillMaxWidth()
                         .padding(vertical = 4.dp),
                     value = uiState.otp,
@@ -137,6 +133,7 @@ fun PasswordResetScreen(
                     modifier = Modifier
                         .focusRequester(field2)
                         .focusProperties { next = field3 }
+                        .onFocusChanged { if (!it.isFocused) showPassword = false }
                         .fillMaxWidth()
                         .padding(vertical = 4.dp),
                     value = uiState.password,
@@ -159,6 +156,7 @@ fun PasswordResetScreen(
                 OutlinedTextField(
                     modifier = Modifier
                         .focusRequester(field3)
+                        .onFocusChanged { if (!it.isFocused) showPasswordConfirm = false }
                         .fillMaxWidth()
                         .padding(vertical = 4.dp),
                     value = uiState.passwordConfirm,
@@ -181,13 +179,8 @@ fun PasswordResetScreen(
 
         OutlinedButton(
             onClick = {
-                if (uiState.otpSent) {
-                    // Validate and change password
-                    viewModel.onPasswordReset()
-                } else {
-                    //Send OTP to email
-                    viewModel.onSendOtp()
-                }
+                if (uiState.otpSent) viewModel.onPasswordReset()
+                else viewModel.onSendOtp()
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -204,14 +197,14 @@ fun PasswordResetScreen(
                     .size(64.dp),
                 imageVector = if (uiState.otpSent) Icons.Default.Password else Icons.Default.Email,
                 contentDescription = null,
-                tint = AppRed
+                tint = MaterialTheme.colorScheme.primary
             )
             Text(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(end = 68.dp),
                 text = if (uiState.otpSent) "Reset Password" else "Sent OTP",
-                color = AppRed,
+                color = MaterialTheme.colorScheme.primary,
                 fontWeight = FontWeight.Bold,
                 fontSize = 22.sp,
                 fontFamily = comicNeueFamily,

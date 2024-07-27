@@ -23,9 +23,9 @@ import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
@@ -44,6 +44,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -63,19 +64,17 @@ import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.compscicomputations.client.auth.data.source.local.AuthDataStore.setTermsAccepted
-import com.compscicomputations.theme.AppRed
 import com.compscicomputations.theme.comicNeueFamily
 import com.compscicomputations.theme.hintEmail
-import com.compscicomputations.theme.hintLastname
 import com.compscicomputations.theme.hintNames
 import com.compscicomputations.theme.hintPassword
 import com.compscicomputations.theme.hintPasswordConfirm
 import com.compscicomputations.theme.hintProfileImage
 import com.compscicomputations.ui.auth.isError
 import com.compscicomputations.ui.auth.showMessage
-import com.compscicomputations.ui.utils.ui.CompSciAuthScaffold
 import com.compscicomputations.ui.utils.ProgressState
 import com.compscicomputations.ui.utils.isSuccess
+import com.compscicomputations.ui.utils.ui.CompSciAuthScaffold
 import com.compscicomputations.ui.utils.ui.shimmerBackground
 import com.compscicomputations.utils.createImageFile
 import kotlinx.coroutines.Dispatchers
@@ -174,7 +173,7 @@ fun RegisterScreen(
                         modifier = Modifier
                             .padding(bottom = 4.dp),
                         text = hintProfileImage,
-                        color = AppRed,
+                        color = MaterialTheme.colorScheme.primary,
                         fontSize = 18.sp
                     )
                     Text(
@@ -233,6 +232,7 @@ fun RegisterScreen(
             modifier = Modifier
                 .focusRequester(field3)
                 .focusProperties { next = field4 }
+                .onFocusChanged { if (!it.isFocused) showPassword = false }
                 .fillMaxWidth()
                 .padding(vertical = 4.dp),
             value = uiState.password,
@@ -255,6 +255,7 @@ fun RegisterScreen(
         OutlinedTextField(
             modifier = Modifier
                 .focusRequester(field4)
+                .onFocusChanged { if (!it.isFocused) showPasswordConfirm = false }
                 .fillMaxWidth()
                 .padding(vertical = 4.dp),
             value = uiState.passwordConfirm,

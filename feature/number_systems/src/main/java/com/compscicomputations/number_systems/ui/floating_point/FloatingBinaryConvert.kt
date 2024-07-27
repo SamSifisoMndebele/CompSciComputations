@@ -1,8 +1,8 @@
-package com.compscicomputations.feature.number_systems.ui.floating_point
+package com.compscicomputations.number_systems.ui.floating_point
 
-import com.compscicomputations.feature.number_systems.utils.BinaryArithmetic.fillBits
-import com.compscicomputations.feature.number_systems.ui.conversion.BaseConverter.toDecimal
-import com.compscicomputations.feature.number_systems.utils.Conversion
+import com.compscicomputations.number_systems.utils.BinaryArithmetic.fillBits
+import com.compscicomputations.number_systems.ui.bases.BaseConverter.toDecimal
+import com.compscicomputations.number_systems.utils.Conversion
 
 object FloatingBinaryConvert {
 

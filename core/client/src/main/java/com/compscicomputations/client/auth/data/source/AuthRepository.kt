@@ -9,6 +9,7 @@ import com.compscicomputations.client.auth.data.source.remote.AuthDataSource.Com
 import com.compscicomputations.client.auth.data.source.remote.AuthDataSource.Companion.UnauthorizedException
 import com.compscicomputations.client.auth.data.source.remote.RegisterUser
 import com.compscicomputations.client.auth.data.model.User
+import com.compscicomputations.client.auth.data.source.remote.NewPassword
 import com.compscicomputations.client.utils.asBitmap
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
@@ -76,6 +77,17 @@ class AuthRepository @Inject constructor(
             localDataStore.savePasswordCredentials(email, password)
         }
     }
+
+    suspend fun requestOtp(email: String) = remoteDataSource.requestOtp(email)
+    suspend fun passwordReset(
+        email: String,
+        otp: String,
+        password: String,
+    ) = remoteDataSource.passwordReset(NewPassword(
+        email = email,
+        otp = otp,
+        password = password,
+    ))
 
     /**
      * Logout the current user.

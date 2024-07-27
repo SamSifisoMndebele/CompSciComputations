@@ -37,7 +37,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.compscicomputations.client.publik.data.model.DynamicFeature
-import com.compscicomputations.theme.AppRed
 import com.compscicomputations.theme.comicNeueFamily
 import com.compscicomputations.ui.utils.isLoading
 import com.compscicomputations.ui.utils.ui.CompSciScaffold
@@ -161,7 +160,7 @@ fun DashboardScreen(
                                 padding = PaddingValues(start = 8.dp, end = 8.dp, bottom = 8.dp),
                                 iconUrl = feature.iconUrl?.ifBlank { null },
                                 text = feature.title,
-                                tint = AppRed
+                                tint = MaterialTheme.colorScheme.primary,
                             ) {
                                 navigateDynamicFeature(feature)
                             }

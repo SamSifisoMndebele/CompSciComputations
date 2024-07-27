@@ -1,4 +1,4 @@
-package com.compscicomputations.feature.number_systems.ui.excess
+package com.compscicomputations.number_systems.ui.excess
 
 enum class ExcessError(val message: String) {
     SIZE_ERROR("Size error"),

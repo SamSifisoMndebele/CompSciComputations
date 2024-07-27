@@ -27,15 +27,18 @@ fun NavGraphBuilder.mainNavigation(navController: NavHostController) {
             val context = LocalContext.current
             DashboardScreen(
                 navigateProfile = { navController.navigate(route = Profile) },
-                navigateHelp = { navController.navigate(route = Help) },
+                navigateHelp = {
+                    val activityClass = Class.forName("com.compscicomputations.number_systems.MainActivity")
+                    context.startActivity(Intent().setClass(context, activityClass))
+//                    navController.navigate(route = Help)
+                               },
                 navigateFeedback = { navController.navigate(route = Feedback) },
                 navigateSettings = { navController.navigate(route = Settings) },
                 navigateDynamicFeature = { feature ->
                     try {
-                        if (feature.methodName == null) {
+                        if (feature.clazz == "MainActivity") {
                             val activityClass = Class.forName(feature.className)
                             context.startActivity(Intent().setClass(context, activityClass))
-
                         } else {
                             navController.navigate(route = feature)
                         }
@@ -78,8 +81,8 @@ fun NavGraphBuilder.mainNavigation(navController: NavHostController) {
         composable<DynamicFeature> { backStackEntry ->
             val dynamicFeature: DynamicFeature = backStackEntry.toRoute()
             loadDynamicFeature(
-                className = dynamicFeature.className,
-                methodName = dynamicFeature.methodName!!,
+                className = dynamicFeature.className2,
+                methodName = "MainKt",
                 navigateUp = { navController.navigateUp() }
             )
         }

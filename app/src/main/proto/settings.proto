@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+option java_package = "com.compscicomputations.ui.main.settings";
+option java_multiple_files = true;
+
+message SettingsPreferences {
+  enum Themes {
+    SYSTEM = 0;
+    DARK = 1;
+    LIGHT = 2;
+  }
+  Themes theme = 1;
+  bool dynamicColor = 2;
+}

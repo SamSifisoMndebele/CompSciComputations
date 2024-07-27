@@ -1,10 +1,10 @@
-package com.compscicomputations.feature.number_systems.ui.complement
+package com.compscicomputations.number_systems.ui.complement
 
-import com.compscicomputations.feature.number_systems.utils.Conversion
-import com.compscicomputations.feature.number_systems.utils.BinaryArithmetic.complimentBin
-import com.compscicomputations.feature.number_systems.utils.BinaryArithmetic.fillBits
-import com.compscicomputations.feature.number_systems.ui.conversion.BaseConverter.toDecimal
-import com.compscicomputations.feature.number_systems.utils.BinaryArithmetic
+import com.compscicomputations.number_systems.utils.Conversion
+import com.compscicomputations.number_systems.utils.BinaryArithmetic.complimentBin
+import com.compscicomputations.number_systems.utils.BinaryArithmetic.fillBits
+import com.compscicomputations.number_systems.ui.bases.BaseConverter.toDecimal
+import com.compscicomputations.number_systems.utils.BinaryArithmetic
 import kotlin.math.abs
 
 object ComplementConvert {

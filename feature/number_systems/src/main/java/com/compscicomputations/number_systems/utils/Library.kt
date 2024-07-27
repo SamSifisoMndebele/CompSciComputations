@@ -1,9 +1,9 @@
-package com.compscicomputations.feature.number_systems.utils
+package com.compscicomputations.number_systems.utils
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import com.compscicomputations.feature.number_systems.ui.conversion.BaseError
+import com.compscicomputations.number_systems.ui.bases.BaseError
 
 val decimalNumberRegex = Regex("^-[0-9]+|[0-9]*$")
 val decimalFieldRegex = Regex("^[0-9-+ ]*$")

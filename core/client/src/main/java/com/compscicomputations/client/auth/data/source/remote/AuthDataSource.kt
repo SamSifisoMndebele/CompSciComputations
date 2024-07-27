@@ -53,6 +53,27 @@ class AuthDataSource @Inject constructor(
         }
     }
 
+    internal suspend fun requestOtp(email: String): String = ktorRequest {
+        val response = client.get(Users.PasswordReset.Email(email = email))
+        when (response.status) {
+            HttpStatusCode.ExpectationFailed -> throw ExpectationFailedException(response.bodyAsText())
+            HttpStatusCode.OK -> response.bodyAsText()
+            else -> throw Exception(response.bodyAsText())
+        }
+    }
+
+    internal suspend fun passwordReset(newPassword: NewPassword): Unit = ktorRequest {
+        val response = client.post(Users.PasswordReset()) {
+            contentType(ContentType.Application.Json)
+            setBody(newPassword)
+        }
+        when (response.status) {
+            HttpStatusCode.ExpectationFailed -> throw ExpectationFailedException(response.bodyAsText())
+            HttpStatusCode.OK -> { }
+            else -> throw Exception(response.bodyAsText())
+        }
+    }
+
     /**
      * @param id user unique identifier
      * @param imageBytes the user profile image bytearray.

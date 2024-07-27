@@ -1,7 +1,7 @@
-package com.compscicomputations.feature.number_systems.ui.excess
+package com.compscicomputations.number_systems.ui.excess
 
-import com.compscicomputations.feature.number_systems.utils.BinaryArithmetic.fillBits
-import com.compscicomputations.feature.number_systems.ui.conversion.BaseConverter.toDecimal
+import com.compscicomputations.number_systems.utils.BinaryArithmetic.fillBits
+import com.compscicomputations.number_systems.ui.bases.BaseConverter.toDecimal
 
 
 object ExcessConverter {

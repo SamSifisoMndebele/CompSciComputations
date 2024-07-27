@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.currentComposer
@@ -14,7 +15,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.compscicomputations.theme.AppRed
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
 
@@ -78,7 +78,7 @@ private fun invokeMethod(method: Method, obj: Any, vararg args: Any): Boolean {
 private fun DFNotFoundScreen() {
     Column(
         modifier = androidx.compose.ui.Modifier
-            .background(AppRed)
+            .background(MaterialTheme.colorScheme.primary)
             .fillMaxWidth()
             .fillMaxHeight()
             .padding(8.dp),

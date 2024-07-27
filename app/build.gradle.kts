@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.google.firebase.crashlytics)
     alias(libs.plugins.google.dagger.hilt.android)
     alias(libs.plugins.jetbrains.kotlin.compose.compiler)
+    alias(libs.plugins.google.protobuf)
     alias(libs.plugins.google.devtools.ksp)
     alias(libs.plugins.google.android.libraries.mapsplatform.secrets.gradle.plugin)
     id("androidx.navigation.safeargs")
@@ -14,6 +15,12 @@ plugins {
 android {
     namespace = "com.compscicomputations"
     compileSdk = 34
+
+    sourceSets {
+        getByName("main") {
+            java.srcDirs("src/main/proto")
+        }
+    }
 
     defaultConfig {
         applicationId = "com.compscicomputations"
@@ -60,15 +67,30 @@ android {
     )
 }
 
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:4.26.1"
+    }
+    generateProtoTasks {
+        all().forEach { task ->
+            task.builtins {
+                create("java")
+            }
+        }
+    }
+}
+
 dependencies {
+    implementation(libs.protobuf.java)
+
     /** Auth */
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services.auth)
     implementation(libs.googleid)
 
-    /**Machine Learning*/
-    implementation(libs.play.services.mlkit.text.recognition)
-    implementation(libs.generativeai)
+//    /**Machine Learning*/
+//    implementation(libs.play.services.mlkit.text.recognition)
+//    implementation(libs.generativeai)
 //    implementation (libs.tensorflow.lite.task.vision.play.services)
 //    implementation (libs.play.services.tflite.gpu)
 

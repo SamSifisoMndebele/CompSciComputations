@@ -63,7 +63,8 @@ class DashboardViewModel @Inject constructor(
                 DynamicFeature(
                     title = "Number Systems",
                     module = "number_systems",
-                    iconUrl = "https://firebasestorage.googleapis.com/v0/b/compsci-computations.appspot.com/o/icons%2Fic_number_64.png?alt=media&token=979b04f0-b701-42a5-a7e6-ba24b9547691"
+                    iconUrl = "https://firebasestorage.googleapis.com/v0/b/compsci-computations.appspot.com/o/icons%2Fic_number_64.png?alt=media&token=979b04f0-b701-42a5-a7e6-ba24b9547691",
+                    clazz = "MainActivity"
                 ),
                 DynamicFeature(
                     title = "Polish Expressions",

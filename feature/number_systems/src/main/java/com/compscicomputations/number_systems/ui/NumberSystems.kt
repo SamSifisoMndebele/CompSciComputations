@@ -1,4 +1,4 @@
-package com.compscicomputations.feature.number_systems
+package com.compscicomputations.number_systems.ui
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Icon
@@ -12,14 +12,15 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import com.compscicomputations.feature.number_systems.ui.complement.ComplementScreen
-import com.compscicomputations.feature.number_systems.ui.conversion.ConversionScreen
-import com.compscicomputations.feature.number_systems.ui.excess.ExcessScreen
-import com.compscicomputations.feature.number_systems.ui.floating_point.FloatingPointScreen
+import com.compscicomputations.number_systems.R
+import com.compscicomputations.number_systems.ui.bases.BasesScreen
+import com.compscicomputations.number_systems.ui.complement.ComplementScreen
+import com.compscicomputations.number_systems.ui.excess.ExcessScreen
+import com.compscicomputations.number_systems.ui.floating_point.FloatingPointScreen
 import com.compscicomputations.ui.utils.ui.CompSciScaffold
 
 @Composable
-fun MainScreen(
+fun NumberSystems(
     navigateUp: () -> Unit,
 ) {
     var selectedItem by rememberSaveable { mutableIntStateOf(0) }
@@ -32,15 +33,16 @@ fun MainScreen(
             NavigationBar {
                 items.forEachIndexed { index, item ->
                     NavigationBarItem(
-                        icon = { Icon(when(index) {
-                            0 -> painterResource(id = R.drawable.ic_num_system)
-                            1 -> painterResource(id = R.drawable.ic_excess)
-                            2 -> painterResource(id = R.drawable.ic_complement)
-                            3 -> painterResource(id = R.drawable.ic_floating)
-                            else -> painterResource(id = R.drawable.ic_num_system) },
-                            contentDescription = item,
-//                            tint = Color.White
-                        )
+                        icon = {
+                            Icon(
+                                painter = when(index) {
+                                    0 -> painterResource(id = R.drawable.ic_num_system)
+                                    1 -> painterResource(id = R.drawable.ic_excess)
+                                    2 -> painterResource(id = R.drawable.ic_complement)
+                                    3 -> painterResource(id = R.drawable.ic_floating)
+                                    else -> painterResource(id = R.drawable.ic_num_system) },
+                                contentDescription = item,
+                            )
                         },
                         label = { Text(item) },
                         selected = selectedItem == index,
@@ -51,7 +53,7 @@ fun MainScreen(
         },
     ) { contentPadding ->
         when(selectedItem){
-            0 -> ConversionScreen(contentPadding,)
+            0 -> BasesScreen(contentPadding)
             1 -> ExcessScreen(contentPadding)
             2 -> ComplementScreen(contentPadding)
             3 -> FloatingPointScreen(contentPadding)

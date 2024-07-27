@@ -1,9 +1,53 @@
-package com.compscicomputations.feature.number_systems.ui.conversion
+package com.compscicomputations.number_systems.ui.bases
 
+import android.graphics.Bitmap
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.compscicomputations.ui.main.dashboard.DashboardUiState
+import com.google.ai.client.generativeai.GenerativeModel
+import com.google.ai.client.generativeai.type.content
+import com.google.mlkit.vision.text.TextRecognizer
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
-class BasesViewModel : ViewModel() {
+class BasesViewModel(
+    private val generativeModel: GenerativeModel,
+    private val textRecognizer: TextRecognizer
+) : ViewModel() {
+    private val _uiState = MutableStateFlow(BasesUiState())
+    val uiState = _uiState.asStateFlow()
+
+    fun setConvertFrom(convertFrom: ConvertFrom) {
+        _uiState.value = _uiState.value.copy(convertFrom = convertFrom)
+    }
+
+
+    fun sendPrompt(
+        bitmap: Bitmap,
+        prompt: String
+    ) {
+//        _uiState.value = UiState.Loading
+
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val response = generativeModel.generateContent(
+                    content {
+                        image(bitmap)
+                        text(prompt)
+                    }
+                )
+                response.text?.let { outputContent ->
+//                    _uiState.value = UiState.Success(outputContent)
+                }
+            } catch (e: Exception) {
+//                _uiState.value = UiState.Error(e.localizedMessage ?: "")
+            }
+        }
+    }
+
     var decimal = mutableStateOf("")
         private set
     var binary = mutableStateOf("")

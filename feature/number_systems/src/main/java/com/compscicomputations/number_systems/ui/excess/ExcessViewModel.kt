@@ -1,4 +1,4 @@
-package com.compscicomputations.feature.number_systems.ui.excess
+package com.compscicomputations.number_systems.ui.excess
 
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf

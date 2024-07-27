@@ -12,6 +12,12 @@ class Users {
         @Resource("image")
         class Image(val parent: Id)
     }
+
+    @Resource("password-reset")
+    class PasswordReset(val parent: Users = Users()) {
+        @Resource("{email}")
+        class Email(val parent: PasswordReset = PasswordReset(), val email: String)
+    }
 }
 
 

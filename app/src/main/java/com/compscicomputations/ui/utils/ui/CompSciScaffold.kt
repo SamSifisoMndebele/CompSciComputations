@@ -54,7 +54,6 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.compscicomputations.R
-import com.compscicomputations.theme.AppRed
 import com.compscicomputations.theme.comicNeueFamily
 import com.compscicomputations.ui.utils.ProgressState
 import dev.jakhongirmadaminov.glassmorphiccomposables.fastblur
@@ -92,7 +91,7 @@ fun CompSciScaffold(
                 CenterAlignedTopAppBar(
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                        titleContentColor = MaterialTheme.colorScheme.secondary,
+                        titleContentColor = MaterialTheme.colorScheme.onSecondaryContainer,
                     ),
                     navigationIcon = {
                         if (navigateUp != null)
@@ -100,7 +99,7 @@ fun CompSciScaffold(
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.ArrowBackIos,
                                     contentDescription = "Back Button",
-                                    tint = Color.White,
+                                    tint = MaterialTheme.colorScheme.onSecondaryContainer,
                                 )
                             }
                         else
@@ -110,7 +109,7 @@ fun CompSciScaffold(
                                 modifier = Modifier
                                     .height(32.dp)
                                     .padding(start = 8.dp),
-                                tint = Color.White,
+                                tint = MaterialTheme.colorScheme.onSecondaryContainer,
                             )
                     },
                     title = {
@@ -118,7 +117,7 @@ fun CompSciScaffold(
                             title,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer,
                             fontWeight = FontWeight.Bold,
                             fontSize = 26.sp,
                             fontFamily = comicNeueFamily
@@ -293,7 +292,7 @@ fun CompSciAuthScaffold(
                 Text(
                     text = title,
                     fontFamily = comicNeueFamily,
-                    color = AppRed,
+                    color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold,
                     fontStyle = FontStyle.Italic,
                     fontSize = 52.sp,

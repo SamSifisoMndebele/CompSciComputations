@@ -1,6 +1,6 @@
-package com.compscicomputations.feature.number_systems.utils
+package com.compscicomputations.number_systems.utils
 
-import com.compscicomputations.feature.number_systems.ui.conversion.BaseConverter.toDecimal
+import com.compscicomputations.number_systems.ui.bases.BaseConverter.toDecimal
 import kotlin.math.roundToInt
 
 object BinaryArithmetic {

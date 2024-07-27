@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -35,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -51,7 +53,6 @@ import androidx.credentials.CredentialManager
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.compscicomputations.R
-import com.compscicomputations.theme.AppRed
 import com.compscicomputations.theme.comicNeueFamily
 import com.compscicomputations.theme.hintEmail
 import com.compscicomputations.theme.hintPassword
@@ -110,6 +111,7 @@ fun LoginScreen(
         OutlinedTextField(
             modifier = Modifier
                 .focusRequester(field2)
+                .onFocusChanged { if (!it.isFocused) showPassword = false }
                 .fillMaxWidth()
                 .padding(vertical = 4.dp),
             value = uiState.password,
@@ -173,14 +175,14 @@ fun LoginScreen(
                     .size(64.dp),
                 imageVector = Icons.Default.Password,
                 contentDescription = "Password Button Icon",
-                tint = AppRed
+                tint = MaterialTheme.colorScheme.primary
             )
             Text(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(end = 68.dp),
                 text = "Login",
-                color = AppRed,
+                color = MaterialTheme.colorScheme.primary,
                 fontWeight = FontWeight.Bold,
                 fontSize = 22.sp,
                 fontFamily = comicNeueFamily,
@@ -217,7 +219,7 @@ fun LoginScreen(
                     .fillMaxWidth()
                     .padding(end = 68.dp),
                 text = "Continue with Google",
-                color = AppRed,
+                color = MaterialTheme.colorScheme.primary,
                 fontWeight = FontWeight.Bold,
                 fontSize = 22.sp,
                 fontFamily = comicNeueFamily,
