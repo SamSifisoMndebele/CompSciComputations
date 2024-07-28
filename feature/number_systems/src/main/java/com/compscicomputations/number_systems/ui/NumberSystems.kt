@@ -1,6 +1,7 @@
 package com.compscicomputations.number_systems.ui
 
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -12,6 +13,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.sp
 import com.compscicomputations.number_systems.R
 import com.compscicomputations.number_systems.ui.bases.BasesScreen
 import com.compscicomputations.number_systems.ui.complement.ComplementScreen
@@ -24,7 +26,7 @@ fun NumberSystems(
     navigateUp: () -> Unit,
 ) {
     var selectedItem by rememberSaveable { mutableIntStateOf(0) }
-    val items = listOf("Conversion", "Excess", "Complement", "Floating Point")
+    val items = listOf("Base N", "Excess", "Complement", "Floating Point")
     CompSciScaffold(
         modifier = Modifier.fillMaxSize(),
         title = "Number Systems",

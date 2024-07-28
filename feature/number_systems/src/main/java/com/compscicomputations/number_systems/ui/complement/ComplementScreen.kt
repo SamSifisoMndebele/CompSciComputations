@@ -65,6 +65,14 @@ fun ComplementScreen(
             .fillMaxSize()
             .padding(contentPadding),
     ) {
+        Text(
+            modifier = Modifier.padding(16.dp),
+            text = "Complement notation",
+            fontSize = 22.sp,
+            color = MaterialTheme.colorScheme.primary,
+            fontFamily = comicNeueFamily,
+            fontWeight = FontWeight.Bold
+        )
         var expanded by remember { mutableStateOf(false) }
         ExposedDropdownMenuBox(
             expanded = expanded,
@@ -144,7 +152,7 @@ fun ComplementScreen(
                 fontFamily = comicNeueFamily,
                 color = MaterialTheme.colorScheme.onBackground
             ),
-            label = { Text(text = "Binary") },
+            label = { Text(text = "Complement 1") },
             shape = RoundedCornerShape(18.dp),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             isError = uiState.convertFrom.isComplement1 && uiState.error != null,
@@ -157,7 +165,7 @@ fun ComplementScreen(
                 .padding(vertical = 4.dp),
             enabled = uiState.convertFrom.isComplement2,
             value = uiState.complement2,
-            onValueChange = { if (it.matches(octalNumbersRegex)) viewModel.onComplement2Change(it) },
+            onValueChange = { if (it.matches(binaryNumbersRegex)) viewModel.onComplement2Change(it) },
             textStyle = TextStyle(
                 lineBreak = LineBreak.Simple,
                 hyphens = Hyphens.Auto,
@@ -165,7 +173,7 @@ fun ComplementScreen(
                 fontFamily = comicNeueFamily,
                 color = MaterialTheme.colorScheme.onBackground
             ),
-            label = { Text(text = "Octal") },
+            label = { Text(text = "Complement 2") },
             shape = RoundedCornerShape(18.dp),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             isError = uiState.convertFrom.isComplement2 && uiState.error != null,
@@ -175,7 +183,7 @@ fun ComplementScreen(
         Spacer(modifier = Modifier.height(32.dp))
         OutlinedButton(
             onClick = { viewModel.sendPrompt() },
-            enabled = uiState.decimal.isNotBlank(),
+            enabled = uiState.decimal.removeSuffix("-").isNotBlank(),
             modifier = Modifier
                 .fillMaxWidth()
                 .height(68.dp)

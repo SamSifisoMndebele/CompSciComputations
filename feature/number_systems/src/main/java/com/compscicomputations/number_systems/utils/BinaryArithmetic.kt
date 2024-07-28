@@ -1,22 +1,23 @@
 package com.compscicomputations.number_systems.utils
 
 import com.compscicomputations.number_systems.ui.bases.BaseConverter.toDecimal
-import kotlin.math.roundToInt
+import kotlin.math.ceil
+import kotlin.math.ln
+import kotlin.math.pow
 
 object BinaryArithmetic {
     /**
      * Fill binary strings to nearest 4 bits
      */
-    fun String.fillBits(isNegative : Boolean = false): String {
-        val bits = ((length.toDouble() + 2)/ 4 - 0.01).roundToInt() * 4
-        return if (isNegative) padStart(bits + 4, '0')
-        else padStart(bits, '0')
+    fun String.fillBits(): String {
+        val bits = 2.0.pow(ceil(ln(trim().length.toDouble()) / ln(2.0))).toInt()
+        return padStart(bits, '0')
     }
 
     /**
      * Binary string with [bits] bits. Filled `0` bit on start.
      */
-    fun String.fillBits(bits: Int): String = padStart(bits-length, '0')
+    fun String.fillBits(bits: Int): String = padStart(bits, '0')
 
     /**
      * Compliment of the binary string

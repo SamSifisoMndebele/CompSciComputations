@@ -27,7 +27,7 @@ object BaseConverter {
 
     fun BasesUiState.fromDecimal(decimal: String): BasesUiState {
         val decimalStr = decimal.removeSuffix("-")
-        if (decimalStr.isEmpty()) return BasesUiState()
+        if (decimal.isEmpty()) return BasesUiState()
         if (decimalStr.split(" ").any{ it.notMatches(decimalNumberRegex)})
             return copy(error = INVALID_DECIMAL)
 

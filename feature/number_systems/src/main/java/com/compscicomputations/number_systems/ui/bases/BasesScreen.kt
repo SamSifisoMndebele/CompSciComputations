@@ -67,6 +67,14 @@ fun BasesScreen(
             .fillMaxSize()
             .padding(contentPadding),
     ) {
+        Text(
+            modifier = Modifier.padding(16.dp),
+            text = "Base N",
+            fontSize = 22.sp,
+            color = MaterialTheme.colorScheme.primary,
+            fontFamily = comicNeueFamily,
+            fontWeight = FontWeight.Bold
+        )
         var expanded by remember { mutableStateOf(false) }
         ExposedDropdownMenuBox(
             expanded = expanded,
@@ -226,7 +234,7 @@ fun BasesScreen(
         Spacer(modifier = Modifier.height(32.dp))
         OutlinedButton(
             onClick = { viewModel.sendPrompt() },
-            enabled = uiState.decimal.isNotBlank(),
+            enabled = uiState.decimal.removeSuffix("-").isNotBlank(),
             modifier = Modifier
                 .fillMaxWidth()
                 .height(68.dp)

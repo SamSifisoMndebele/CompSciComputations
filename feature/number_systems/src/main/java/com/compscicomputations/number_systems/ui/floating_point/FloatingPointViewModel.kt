@@ -1,4 +1,4 @@
-package com.compscicomputations.number_systems.ui.complement
+package com.compscicomputations.number_systems.ui.floating_point
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -14,10 +14,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class ComplementViewModel(
+class FloatingPointViewModel(
     private val generativeModel: GenerativeModel
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow(ComplementUiState())
+    private val _uiState = MutableStateFlow(FloatingPointUiState())
     val uiState = _uiState.asStateFlow()
 
     fun setConvertFrom(convertFrom: ConvertFrom) {
@@ -28,20 +28,20 @@ class ComplementViewModel(
         _uiState.value = _uiState.value.copy(progressState = progressState)
     }
 
-    fun onDecimalChange(decimalStr: String) {
-        _uiState.value = _uiState.value.fromDecimal(decimalStr)
-            .copy(convertFrom = ConvertFrom.Decimal)
-    }
-
-    fun onComplement1Change(complement1Str: String) {
-        _uiState.value = _uiState.value.fromComplement1(complement1Str)
-            .copy(convertFrom = ConvertFrom.Complement1)
-    }
-
-    fun onComplement2Change(complement2Str: String) {
-        _uiState.value = _uiState.value.fromComplement2(complement2Str)
-            .copy(convertFrom = ConvertFrom.Complement2)
-    }
+//    fun onDecimalChange(decimalStr: String) {
+//        _uiState.value = _uiState.value.fromDecimal(decimalStr)
+//            .copy(convertFrom = ConvertFrom.Decimal)
+//    }
+//
+//    fun onComplement1Change(complement1Str: String) {
+//        _uiState.value = _uiState.value.fromComplement1(complement1Str)
+//            .copy(convertFrom = ConvertFrom.Complement1)
+//    }
+//
+//    fun onComplement2Change(complement2Str: String) {
+//        _uiState.value = _uiState.value.fromComplement2(complement2Str)
+//            .copy(convertFrom = ConvertFrom.Complement2)
+//    }
 
     fun sendPrompt() {
         _uiState.value = _uiState.value.copy(

@@ -7,7 +7,7 @@ import com.compscicomputations.number_systems.ui.bases.BaseConverter.toDecimal
 object ExcessConverter {
     private fun String.decimalToExcess(excessIdentifier: Long, excessBits : Int): String {
         val excessLong = this.toLong() + excessIdentifier
-        val binary = java.lang.Long.toBinaryString(excessLong).fillBits(true)
+        val binary = java.lang.Long.toBinaryString(excessLong).fillBits()
 
         if (excessLong < 0 || excessIdentifier*2-1 < binary.toDecimal())
             throw Exception()

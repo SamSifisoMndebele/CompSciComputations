@@ -8,6 +8,8 @@ import com.compscicomputations.BuildConfig
 import com.compscicomputations.number_systems.ui.NumberSystems
 import com.compscicomputations.number_systems.ui.bases.BasesViewModel
 import com.compscicomputations.number_systems.ui.complement.ComplementViewModel
+import com.compscicomputations.number_systems.ui.excess.ExcessViewModel
+import com.compscicomputations.number_systems.ui.floating_point.FloatingPointViewModel
 import com.compscicomputations.theme.CompSciComputationsTheme
 import com.google.ai.client.generativeai.GenerativeModel
 import com.google.ai.client.generativeai.type.GenerationConfig
@@ -41,6 +43,8 @@ private val appModule = module {
 
     viewModel { BasesViewModel(get()) }
     viewModel { ComplementViewModel(get()) }
+    viewModel { ExcessViewModel(get()) }
+    viewModel { FloatingPointViewModel(get()) }
 }
 
 class MainActivity : ComponentActivity() {

@@ -4,7 +4,7 @@ import com.compscicomputations.number_systems.utils.BinaryArithmetic.fillBits
 import com.compscicomputations.number_systems.ui.bases.BaseConverter.toDecimal
 import com.compscicomputations.number_systems.utils.Conversion
 
-object FloatingBinaryConvert {
+object FloatingPointConverter {
 
     fun fromDecimal(decimalString: String): Conversion {
         var conversion = Conversion()
