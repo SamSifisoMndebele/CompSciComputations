@@ -1,13 +1,11 @@
-package com.compscicomputations.number_systems.ui.bases
+package com.compscicomputations.number_systems.ui.complement
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.compscicomputations.number_systems.ui.bases.BaseConverter.fromAscii
-import com.compscicomputations.number_systems.ui.bases.BaseConverter.fromBinary
-import com.compscicomputations.number_systems.ui.bases.BaseConverter.fromDecimal
-import com.compscicomputations.number_systems.ui.bases.BaseConverter.fromHex
-import com.compscicomputations.number_systems.ui.bases.BaseConverter.fromOctal
+import com.compscicomputations.number_systems.ui.complement.ComplementConverter.fromComplement1
+import com.compscicomputations.number_systems.ui.complement.ComplementConverter.fromComplement2
+import com.compscicomputations.number_systems.ui.complement.ComplementConverter.fromDecimal
 import com.compscicomputations.ui.utils.ProgressState
 import com.google.ai.client.generativeai.GenerativeModel
 import com.google.ai.client.generativeai.type.content
@@ -16,10 +14,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class BasesViewModel(
+class ComplementViewModel(
     private val generativeModel: GenerativeModel
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow(BasesUiState())
+    private val _uiState = MutableStateFlow(ComplementUiState())
     val uiState = _uiState.asStateFlow()
 
     fun setConvertFrom(convertFrom: ConvertFrom) {
@@ -35,24 +33,14 @@ class BasesViewModel(
             .copy(convertFrom = ConvertFrom.Decimal)
     }
 
-    fun onBinaryChange(binaryStr: String) {
-        _uiState.value = _uiState.value.fromBinary(binaryStr)
-            .copy(convertFrom = ConvertFrom.Binary)
+    fun onComplement1Change(complement1Str: String) {
+        _uiState.value = _uiState.value.fromComplement1(complement1Str)
+            .copy(convertFrom = ConvertFrom.Complement1)
     }
 
-    fun onOctalChange(octalStr: String) {
-        _uiState.value = _uiState.value.fromOctal(octalStr)
-            .copy(convertFrom = ConvertFrom.Octal)
-    }
-
-    fun onHexadecimalChange(hexadecimalStr: String) {
-        _uiState.value = _uiState.value.fromHex(hexadecimalStr)
-            .copy(convertFrom = ConvertFrom.Hexadecimal)
-    }
-
-    fun fromAscii(asciiStr: String) {
-        _uiState.value = _uiState.value.fromAscii(asciiStr)
-            .copy(convertFrom = ConvertFrom.ASCII)
+    fun onComplement2Change(complement2Str: String) {
+        _uiState.value = _uiState.value.fromComplement2(complement2Str)
+            .copy(convertFrom = ConvertFrom.Complement2)
     }
 
     fun sendPrompt() {
@@ -60,11 +48,9 @@ class BasesViewModel(
             progressState = ProgressState.Loading("Loading Steps...")
         )
         val text: String = when(_uiState.value.convertFrom) {
-            ConvertFrom.Decimal -> "Show me steps how to convert the decimal number: ${_uiState.value.decimal} to binary, octal, hexadecimal, and extended ascii"
-            ConvertFrom.Binary -> "Show me steps how to convert the binary number: ${_uiState.value.binary} to decimal, octal, hexadecimal, and extended ascii"
-            ConvertFrom.Octal -> "Show me steps how to convert the octal number: ${_uiState.value.octal} to decimal, binary, hexadecimal, and extended ascii"
-            ConvertFrom.Hexadecimal -> "Show me steps how to convert the hexadecimal number: ${_uiState.value.hexadecimal} to decimal, binary, octal, and extended ascii"
-            ConvertFrom.ASCII -> "Show me steps how to convert the extended ascii character: ${_uiState.value.ascii} to decimal, binary, octal, and hexadecimal"
+            ConvertFrom.Decimal -> "Show me steps how to convert the decimal number: ${_uiState.value.decimal} to first and second complement notation"
+            ConvertFrom.Complement1 -> "Show me steps how to convert the first complement notation: ${_uiState.value.complement1} to decimal number and second complement notation"
+            ConvertFrom.Complement2 -> "Show me steps how to convert the second complement notation: ${_uiState.value.complement2} to decimal number and first complement notation"
         }
         viewModelScope.launch(Dispatchers.IO) {
             try {

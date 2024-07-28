@@ -17,12 +17,19 @@ object BaseConverter {
         'E' to 14,
         'F' to 15
     )
+    private const val INVALID_NUM = "Invalid number"
+    private const val SIZE_ERROR = "Size error"
+    private const val INVALID_DECIMAL = "Invalid decimal number"
+    private const val INVALID_BINARY = "Invalid binary number"
+    private const val INVALID_OCT = "Invalid octal number"
+    private const val INVALID_HEX = "Invalid hexadecimal number"
+    private const val INVALID_ASCII = "Invalid ascii character"
 
     fun BasesUiState.fromDecimal(decimal: String): BasesUiState {
         val decimalStr = decimal.removeSuffix("-")
         if (decimalStr.isEmpty()) return BasesUiState()
         if (decimalStr.split(" ").any{ it.notMatches(decimalNumberRegex)})
-            return copy(error = BaseError.INVALID_DECIMAL)
+            return copy(error = INVALID_DECIMAL)
 
         var binaryStr = ""
         var octalStr = ""
@@ -34,7 +41,7 @@ object BaseConverter {
             val long = try {
                 dec.toLong()
             } catch (e: NumberFormatException) {
-                return copy(error = BaseError.SIZE_ERROR)
+                return copy(error = SIZE_ERROR)
             }
 
             binaryStr += java.lang.Long.toBinaryString(long) + " "
@@ -53,6 +60,9 @@ object BaseConverter {
         )
     }
 
+    /**
+     * @throws NumberFormatException
+     */
     private fun BasesUiState.fromRadix(string: String, base: Int): BasesUiState {
         if (string.isEmpty()) return BasesUiState()
         var decimalStr = ""
@@ -61,10 +71,8 @@ object BaseConverter {
             try {
                 val decimal = number.toDecimal(base)
                 decimalStr = "$decimalStr$decimal "
-            } catch (e: NumberFormatException) {
-                return BasesUiState().copy(error = BaseError errorOf base)
             } catch (e: SizeException) {
-                return BasesUiState().copy(error = BaseError.SIZE_ERROR)
+                return copy(error =  SIZE_ERROR)
             }
         }
         return fromDecimal(decimalStr)
@@ -73,23 +81,35 @@ object BaseConverter {
     fun BasesUiState.fromBinary(binaryStr: String): BasesUiState {
         if (binaryStr.isEmpty()) return BasesUiState()
         if (binaryStr.notMatches(binaryNumbersRegex)) {
-            return copy(error = BaseError.INVALID_BINARY)
+            return copy(error = INVALID_BINARY)
         }
-        return fromRadix(binaryStr, 2)
+        return try {
+            fromRadix(binaryStr, 2)
+        } catch (e: NumberFormatException) {
+            copy(error = INVALID_BINARY)
+        }
     }
     fun BasesUiState.fromOctal(octalStr: String): BasesUiState {
         if (octalStr.isEmpty()) return BasesUiState()
         if (octalStr.notMatches(octalNumbersRegex)) {
-            return copy(error = BaseError.INVALID_OCT)
+            return copy(error = INVALID_OCT)
         }
-        return fromRadix(octalStr, 8)
+        return try {
+            fromRadix(octalStr, 8)
+        } catch (e: NumberFormatException) {
+            copy(error = INVALID_OCT)
+        }
     }
     fun BasesUiState.fromHex(hexadecimalStr: String): BasesUiState {
         if (hexadecimalStr.isEmpty()) return BasesUiState()
         if (hexadecimalStr.notMatches(hexNumbersRegex)) {
-            return copy(error = BaseError.INVALID_HEX)
+            return copy(error = INVALID_HEX)
         }
-        return fromRadix(hexadecimalStr, 16)
+        return try {
+            fromRadix(hexadecimalStr, 16)
+        } catch (e: NumberFormatException) {
+            copy(error = INVALID_HEX)
+        }
     }
 
     fun BasesUiState.fromAscii(charArray: CharSequence): BasesUiState {
@@ -103,7 +123,10 @@ object BaseConverter {
     class SizeException : Exception("Size Error")
 
     /*----------- Convert Any base number string to Decimal --------------------------------------*/
-    @Throws(NumberFormatException::class, SizeException::class)
+    /**
+     * @throws NumberFormatException
+     * @throws SizeException
+     */
     fun String.toDecimal(base: Int = 2): Long {
         val b = base.toDouble()
         var decimal: Long = 0

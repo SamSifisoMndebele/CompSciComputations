@@ -4,33 +4,39 @@ import com.compscicomputations.number_systems.ui.bases.BaseConverter.toDecimal
 import kotlin.math.roundToInt
 
 object BinaryArithmetic {
-    /*----------- Fill Binary strings to nearest 4 bits ------------------------------------------------*/
+    /**
+     * Fill binary strings to nearest 4 bits
+     */
     fun String.fillBits(isNegative : Boolean = false): String {
-        val bits = ((this.length.toDouble() + 2)/ 4 - 0.01).roundToInt() * 4
-        return if (isNegative) this.padStart(bits + 4, '0')
-        else this.padStart(bits, '0')
-    }
-    fun String.fillBits(bits : Int): String {
-        return this.padStart(bits-this.length, '0')
+        val bits = ((length.toDouble() + 2)/ 4 - 0.01).roundToInt() * 4
+        return if (isNegative) padStart(bits + 4, '0')
+        else padStart(bits, '0')
     }
 
-    /*----------- Compliment of Binary ------------------------------------------------*/
-    fun String.complimentBin(): String {
-        return buildString {
-            this@complimentBin.forEach { char ->
-                if (char == '0') append('1')
-                else append('0')
-            }
+    /**
+     * Binary string with [bits] bits. Filled `0` bit on start.
+     */
+    fun String.fillBits(bits: Int): String = padStart(bits-length, '0')
+
+    /**
+     * Compliment of the binary string
+     */
+    fun String.negateBin(): String = buildString {
+        this@negateBin.forEach { char ->
+            if (char == '0') append('1')
+            else append('0')
         }
     }
 
 
-    /*-------------------------- add ------------------------------------------------------------*/
-    @Throws(NumberFormatException::class)
-    fun addBinary(a: String, b: String): String {
-        val sum = a.toDecimal() + b.toDecimal()
-        return java.lang.Long.toBinaryString(sum)
-    }
+    /**
+     * Adds two binary strings
+     * @throws NumberFormatException
+     */
+    fun addBinary(a: String, b: String): String =
+        java.lang.Long.toBinaryString(a.toDecimal() + b.toDecimal())
+
+
 
 
 

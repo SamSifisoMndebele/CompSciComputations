@@ -1,9 +1,7 @@
 package com.compscicomputations.number_systems.ui.bases
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -12,21 +10,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults.TrailingIcon
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -36,7 +29,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -47,9 +39,8 @@ import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.compscicomputations.number_systems.utils.StepsDialog
 import com.compscicomputations.number_systems.utils.binaryNumbersRegex
 import com.compscicomputations.number_systems.utils.decimalFieldRegex
 import com.compscicomputations.number_systems.utils.errorTextIf
@@ -60,7 +51,6 @@ import com.compscicomputations.ui.utils.ProgressState
 import com.compscicomputations.ui.utils.isError
 import com.compscicomputations.ui.utils.isLoading
 import com.compscicomputations.ui.utils.isSuccess
-import com.compscicomputations.ui.utils.ui.AnnotatedText
 import com.compscicomputations.ui.utils.ui.ExceptionDialog
 import com.compscicomputations.ui.utils.ui.LoadingDialog
 import org.koin.androidx.compose.koinViewModel
@@ -276,56 +266,10 @@ fun BasesScreen(
         visible = progressState.isError,
         onDismiss = { viewModel.setProgressState(ProgressState.Idle) },
     )
-    BasesStepsDialog(
+    StepsDialog(
         text = uiState.stepsContent,
         visible = progressState.isSuccess,
         onDismiss = { viewModel.setProgressState(ProgressState.Idle) }
     )
 
-}
-
-@Composable
-private fun BasesStepsDialog(
-    text: String,
-    visible: Boolean,
-    onDismiss: () -> Unit
-) {
-    if (visible) {
-        Dialog(
-            onDismissRequest = onDismiss,
-            properties = DialogProperties(
-                dismissOnClickOutside = false,
-                dismissOnBackPress = true,
-                usePlatformDefaultWidth = false
-            )
-        ) {
-            Card(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.background.copy(alpha = 0.9f)),
-                shape = RoundedCornerShape(22.dp)
-            ) {
-                Box {
-                    val scrollState = rememberScrollState()
-                    AnnotatedText(
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp)
-                            .verticalScroll(scrollState),
-                        text = text
-                    )
-
-                    IconButton(
-                        onClick = onDismiss,
-                        modifier = Modifier.align(Alignment.TopEnd)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Close,
-                            contentDescription = "Back",
-                            tint = MaterialTheme.colorScheme.error
-                        )
-                    }
-                }
-            }
-        }
-    }
 }

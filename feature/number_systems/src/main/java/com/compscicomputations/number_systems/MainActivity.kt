@@ -7,6 +7,7 @@ import androidx.activity.compose.setContent
 import com.compscicomputations.BuildConfig
 import com.compscicomputations.number_systems.ui.NumberSystems
 import com.compscicomputations.number_systems.ui.bases.BasesViewModel
+import com.compscicomputations.number_systems.ui.complement.ComplementViewModel
 import com.compscicomputations.theme.CompSciComputationsTheme
 import com.google.ai.client.generativeai.GenerativeModel
 import com.google.ai.client.generativeai.type.GenerationConfig
@@ -38,7 +39,8 @@ private val appModule = module {
         TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
     }
 
-    viewModel { BasesViewModel(get(), get()) }
+    viewModel { BasesViewModel(get()) }
+    viewModel { ComplementViewModel(get()) }
 }
 
 class MainActivity : ComponentActivity() {
