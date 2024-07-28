@@ -11,9 +11,10 @@ val binaryNumbersRegex = Regex("^[01 ]*$")
 val octalNumbersRegex = Regex("^[0-7 ]*$")
 val hexNumbersRegex = Regex("^[0-9A-Fa-f ]*$")
 
+
 infix fun BaseError?.errorTextIf(isSelected: Boolean): @Composable (() -> Unit)? {
     if (!isSelected || this == null) return null
     return {
-        Text(text = this.message, color = MaterialTheme.colorScheme.errorContainer)
+        Text(text = message, color = MaterialTheme.colorScheme.errorContainer)
     }
 }

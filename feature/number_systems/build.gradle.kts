@@ -4,6 +4,8 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.compose.compiler)
     alias(libs.plugins.google.devtools.ksp)
     id("androidx.navigation.safeargs")
+    alias(libs.plugins.google.android.libraries.mapsplatform.secrets.gradle.plugin)
+    alias(libs.plugins.jetbrains.kotlin.plugin.serialization)
 }
 android {
     namespace = "com.compscicomputations.number_systems"
@@ -54,6 +56,8 @@ dependencies {
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.datastore.preferences)
 
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.glassmorphic.composables)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.navigation.compose)

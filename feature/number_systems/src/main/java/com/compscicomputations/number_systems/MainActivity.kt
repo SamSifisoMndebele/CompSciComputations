@@ -9,6 +9,7 @@ import com.compscicomputations.number_systems.ui.NumberSystems
 import com.compscicomputations.number_systems.ui.bases.BasesViewModel
 import com.compscicomputations.theme.CompSciComputationsTheme
 import com.google.ai.client.generativeai.GenerativeModel
+import com.google.ai.client.generativeai.type.GenerationConfig
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.TextRecognizer
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
@@ -23,7 +24,14 @@ private val appModule = module {
     single<GenerativeModel> {
         GenerativeModel(
             modelName = "gemini-1.5-flash", //"gemini-pro-vision",
-            apiKey = BuildConfig.GENERATIVE_AI_KEY
+            apiKey = BuildConfig.GENERATIVE_AI_KEY,
+            generationConfig = GenerationConfig
+                .Builder().apply {
+                    stopSequences = listOf(
+                        "Let me know"
+                    )
+                }
+                .build()
         )
     }
     single<TextRecognizer> {

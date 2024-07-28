@@ -15,7 +15,7 @@
 
     <application tools:ignore="MissingApplicationIcon">
         <activity
-            android:name=".KarnaughActivity"
+            android:name=".MainActivity"
             android:exported="true"
             android:theme="@style/Theme.CompSciComputations">
             <intent-filter>

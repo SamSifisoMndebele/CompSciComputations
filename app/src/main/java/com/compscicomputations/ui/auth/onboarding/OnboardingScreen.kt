@@ -59,6 +59,8 @@ import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.compscicomputations.R
 import com.compscicomputations.theme.comicNeueFamily
+import com.compscicomputations.ui.utils.ProgressState
+import com.compscicomputations.ui.utils.isError
 import com.compscicomputations.ui.utils.isLoading
 import com.compscicomputations.ui.utils.ui.ExceptionDialog
 import com.compscicomputations.ui.utils.ui.LoadingDialog
@@ -120,12 +122,18 @@ fun OnboardingScreen(
             }
         }
 
-        LoadingDialog(progressState = uiState.progressState) {
-            viewModel.cancel()
-        }
-        ExceptionDialog(progressState = uiState.progressState) {
-            viewModel.cancel()
-        }
+        val progressState = uiState.progressState
+        LoadingDialog(
+            message = if (progressState is ProgressState.Loading) progressState.message else "",
+            visible = progressState.isLoading,
+            onDismiss = { viewModel.cancel() },
+        )
+        ExceptionDialog(
+            message = (if (progressState is ProgressState.Error) progressState.message else "")
+                ?:"An unexpected error occurred.",
+            visible = progressState.isError,
+            onDismiss = { viewModel.cancel() },
+        )
 
         // Boarding section
         HorizontalPager(

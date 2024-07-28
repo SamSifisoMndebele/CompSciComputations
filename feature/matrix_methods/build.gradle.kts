@@ -5,7 +5,7 @@ plugins {
     alias(libs.plugins.google.devtools.ksp)
 }
 android {
-    namespace = "com.compscicomputations.feature.matrix_methods"
+    namespace = "com.compscicomputations.matrix_methods"
     compileSdk = 34
 
     defaultConfig {
@@ -33,11 +33,18 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+    buildFeatures {
+        compose = true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.1"
+    }
 }
 
 dependencies {
     /**Local database*/
     implementation(libs.androidx.room.runtime)
+    androidTestImplementation(libs.androidx.ui.test.junit4)
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.datastore.preferences)
 

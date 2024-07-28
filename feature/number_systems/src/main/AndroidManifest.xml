@@ -13,17 +13,13 @@
         <dist:fusing dist:include="true" />
     </dist:module>
 
-    <application
-        tools:ignore="MissingApplicationIcon">
+    <application tools:ignore="MissingApplicationIcon">
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:label="@string/title_number_systems"
             android:theme="@style/Theme.CompSciComputations">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
+                <action android:name="android.intent.action.VIEW" />
             </intent-filter>
         </activity>
     </application>

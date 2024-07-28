@@ -56,6 +56,8 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import com.compscicomputations.R
 import com.compscicomputations.theme.comicNeueFamily
 import com.compscicomputations.ui.utils.ProgressState
+import com.compscicomputations.ui.utils.isError
+import com.compscicomputations.ui.utils.isLoading
 import dev.jakhongirmadaminov.glassmorphiccomposables.fastblur
 import dev.shreyaspatil.capturable.Capturable
 import dev.shreyaspatil.capturable.controller.rememberCaptureController
@@ -309,12 +311,15 @@ fun CompSciAuthScaffold(
             withContext(Dispatchers.Main) { captureController.capture() }
     }
     LoadingDialog(
-        progressState = progressState,
+        message = if (progressState is ProgressState.Loading) progressState.message else "",
+        visible = progressState.isLoading,
         onDismiss = onLoadingDismiss,
         backgroundBitmap = capturedBitmap
     )
     ExceptionDialog(
-        progressState = progressState,
+        message = (if (progressState is ProgressState.Error) progressState.message else "")
+            ?:"An unexpected error occurred.",
+        visible = progressState.isError,
         onDismiss = onExceptionDismiss,
         backgroundBitmap = capturedBitmap
     )

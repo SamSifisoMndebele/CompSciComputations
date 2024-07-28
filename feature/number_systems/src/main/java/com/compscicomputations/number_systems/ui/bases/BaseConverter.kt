@@ -9,8 +9,6 @@ import kotlin.math.pow
 
 object BaseConverter {
 
-    val baseConversion = BaseConversion()
-
     private val hexLetters = mapOf(
         'A' to 10,
         'B' to 11,
@@ -20,33 +18,23 @@ object BaseConverter {
         'F' to 15
     )
 
-    fun fromCharSeq(charArray: CharSequence): BaseConversion {
-        var decimalStr = ""
-        for (char in charArray) {
-            decimalStr += char.code.toString() + " "
-        }
-        return fromDecimal(decimalStr)
-    }
-
-    fun fromDecimal(decimalStr: String): BaseConversion {
-        if (decimalStr.isEmpty()) return BaseConversion()
-        if (decimalStr.split(" ").any{ it.notMatches(decimalNumberRegex)}) {
-            return BaseConversion().apply {
-                error = BaseError.INVALID_DECIMAL
-            }
-        }
+    fun BasesUiState.fromDecimal(decimal: String): BasesUiState {
+        val decimalStr = decimal.removeSuffix("-")
+        if (decimalStr.isEmpty()) return BasesUiState()
+        if (decimalStr.split(" ").any{ it.notMatches(decimalNumberRegex)})
+            return copy(error = BaseError.INVALID_DECIMAL)
 
         var binaryStr = ""
         var octalStr = ""
         var hexStr = ""
         var asciiStr = ""
 
-        for (decimal in decimalStr.split(" ")) {
-            if (decimal.isEmpty()) continue
+        for (dec in decimalStr.split(" ")) {
+            if (dec.isEmpty()) continue
             val long = try {
-                decimal.toLong()
+                dec.toLong()
             } catch (e: NumberFormatException) {
-                return BaseConversion().apply { error = BaseError.SIZE_ERROR }
+                return copy(error = BaseError.SIZE_ERROR)
             }
 
             binaryStr += java.lang.Long.toBinaryString(long) + " "
@@ -54,11 +42,19 @@ object BaseConverter {
             hexStr += java.lang.Long.toHexString(long).uppercase() + " "
             asciiStr += long.toInt().toChar()
         }
-        return BaseConversion(decimalStr, binaryStr, octalStr, hexStr, asciiStr)
+        return copy(
+            decimal = decimal,
+            binary = binaryStr,
+            octal = octalStr,
+            hexadecimal = hexStr,
+            ascii = asciiStr,
+            convertFrom = ConvertFrom.Decimal,
+            error = null
+        )
     }
 
-    private fun fromRadix(string: String, base: Int): BaseConversion {
-        if (string.isEmpty()) return BaseConversion()
+    private fun BasesUiState.fromRadix(string: String, base: Int): BasesUiState {
+        if (string.isEmpty()) return BasesUiState()
         var decimalStr = ""
         for (number in string.uppercase().split(" ")) {
             if (number.isEmpty()) continue
@@ -66,46 +62,43 @@ object BaseConverter {
                 val decimal = number.toDecimal(base)
                 decimalStr = "$decimalStr$decimal "
             } catch (e: NumberFormatException) {
-                return BaseConversion().apply {
-                    error = BaseError errorOf base
-                }
+                return BasesUiState().copy(error = BaseError errorOf base)
             } catch (e: SizeException) {
-                return BaseConversion().apply {
-                    error = BaseError.SIZE_ERROR
-                }
+                return BasesUiState().copy(error = BaseError.SIZE_ERROR)
             }
         }
         return fromDecimal(decimalStr)
     }
 
-    fun fromBinary(binaryStr: String): BaseConversion {
-        if (binaryStr.isEmpty()) return BaseConversion()
+    fun BasesUiState.fromBinary(binaryStr: String): BasesUiState {
+        if (binaryStr.isEmpty()) return BasesUiState()
         if (binaryStr.notMatches(binaryNumbersRegex)) {
-            return BaseConversion().apply {
-                error = BaseError.INVALID_BINARY
-            }
+            return copy(error = BaseError.INVALID_BINARY)
         }
         return fromRadix(binaryStr, 2)
     }
-    fun fromOctal(octalStr: String): BaseConversion {
-        if (octalStr.isEmpty()) return BaseConversion()
+    fun BasesUiState.fromOctal(octalStr: String): BasesUiState {
+        if (octalStr.isEmpty()) return BasesUiState()
         if (octalStr.notMatches(octalNumbersRegex)) {
-            return BaseConversion().apply {
-                error = BaseError.INVALID_OCT
-            }
+            return copy(error = BaseError.INVALID_OCT)
         }
         return fromRadix(octalStr, 8)
     }
-    fun fromHex(hexadecimalStr: String): BaseConversion {
-        if (hexadecimalStr.isEmpty()) return BaseConversion()
+    fun BasesUiState.fromHex(hexadecimalStr: String): BasesUiState {
+        if (hexadecimalStr.isEmpty()) return BasesUiState()
         if (hexadecimalStr.notMatches(hexNumbersRegex)) {
-            return BaseConversion().apply {
-                error = BaseError.INVALID_HEX
-            }
+            return copy(error = BaseError.INVALID_HEX)
         }
         return fromRadix(hexadecimalStr, 16)
     }
 
+    fun BasesUiState.fromAscii(charArray: CharSequence): BasesUiState {
+        var decimalStr = ""
+        for (char in charArray) {
+            decimalStr += char.code.toString() + " "
+        }
+        return fromDecimal(decimalStr)
+    }
 
     class SizeException : Exception("Size Error")
 

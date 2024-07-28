@@ -3,21 +3,19 @@ package com.compscicomputations.ui.navigation
 import kotlinx.serialization.Serializable
 
 
-// Routes
+/// Routes
 @Serializable object Splash
-@Serializable object Onboarding
-
-// Route for nested graph
 @Serializable object Auth
 @Serializable object Main
 
-// Routes inside Authentication nested graph
+/// Routes inside Auth nested graph
 @Serializable object Login
+@Serializable object Onboarding
 @Serializable object Register
 @Serializable object Terms
-@Serializable data class PasswordReset(val email: String? = null)
+@Serializable data class PasswordReset(val email: String?)
 
-// Routes inside Main nested graph
+/// Routes inside Main nested graph
 @Serializable object Dashboard
 @Serializable object Profile
 @Serializable object Help

@@ -32,51 +32,50 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.compscicomputations.R
 import com.compscicomputations.ui.utils.ProgressState
+import com.compscicomputations.ui.utils.isError
+import com.compscicomputations.ui.utils.isLoading
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 
 @Composable
 fun LoadingDialog(
-    progressState: ProgressState,
+    message: String,
+    visible: Boolean,
     backgroundBitmap: Bitmap? = null,
-    onDismiss: (() -> Unit)? = null,
+    onDismiss: () -> Unit,
 ) {
-    AnimatedVisibility(
-        modifier = Modifier.fillMaxSize(),
-        visible = progressState is ProgressState.Loading,
-        enter = fadeIn(),
-        exit = fadeOut()
-    ) {
-        Surface(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background.copy(alpha = 0.9f)),
+    if (visible) {
+        Dialog(
+            onDismissRequest = onDismiss,
+            properties = DialogProperties(
+                dismissOnClickOutside = false,
+                dismissOnBackPress = false,
+                usePlatformDefaultWidth = false
+            )
         ) {
-            Box {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background.copy(alpha = 0.75f)),
+            ) {
                 backgroundBitmap?.asImageBitmap()?.let {
                     Image(
+                        modifier = Modifier.fillMaxSize(),
                         bitmap = it,
                         contentDescription = "Background Image",
-                        modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.FillWidth
                     )
                 }
                 Column(
                     modifier = Modifier.fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
                 ) {
-                    if (onDismiss != null) {
-                        Row(horizontalArrangement = Arrangement.End,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(end = 16.dp, top = 8.dp)) {
-                            TextButton(onClick = onDismiss) {
-                                Text(text = "Cancel", fontSize = 18.sp)
-                            }
-                        }
-                    }
-                    Spacer(modifier = Modifier.weight(1f))
                     CircularProgressIndicator(
                         strokeWidth = 6.dp,
                         modifier = Modifier
@@ -85,7 +84,6 @@ fun LoadingDialog(
                         color = MaterialTheme.colorScheme.secondary,
                         trackColor = MaterialTheme.colorScheme.surfaceVariant,
                     )
-                    val message = if (progressState is ProgressState.Loading) progressState.message else ""
                     Text(
                         modifier = Modifier.padding(horizontal = 16.dp),
                         text = message,
@@ -93,7 +91,13 @@ fun LoadingDialog(
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.secondary
                     )
-                    Spacer(modifier = Modifier.weight(1.3f))
+                }
+                TextButton(
+                    onClick = onDismiss,
+                    modifier = Modifier.align(Alignment.TopEnd)
+                        .padding(end = 16.dp, top = 8.dp)
+                ) {
+                    Text(text = "Cancel", fontSize = 18.sp)
                 }
             }
         }
@@ -102,70 +106,69 @@ fun LoadingDialog(
 
 @Composable
 fun ExceptionDialog(
-    progressState: ProgressState,
-    delayMillis: Long = 6000,
+    message: String,
+    visible: Boolean,
     backgroundBitmap: Bitmap? = null,
-    onDismiss: (() -> Unit)?,
+    delayMillis: Long = 6000,
+    onDismiss: () -> Unit,
 ) {
-    LaunchedEffect(progressState) {
-        if (progressState is ProgressState.Error) {
-            delay(delayMillis)
-            onDismiss?.invoke()
+    LaunchedEffect(visible) {
+        withContext(Dispatchers.IO) {
+            if (visible) {
+                delay(delayMillis)
+                onDismiss.invoke()
+            }
         }
     }
-    AnimatedVisibility(
-        modifier = Modifier.fillMaxSize(),
-        visible = progressState is ProgressState.Error,
-        enter = fadeIn(),
-        exit = fadeOut()
-    ) {
-        Surface(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.9f)),
+    if (visible) {
+        Dialog(
+            onDismissRequest = onDismiss,
+            properties = DialogProperties(
+                dismissOnClickOutside = false,
+                dismissOnBackPress = false,
+                usePlatformDefaultWidth = false
+            )
         ) {
-            Box {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.75f)),
+            ) {
                 backgroundBitmap?.asImageBitmap()?.let {
                     Image(
+                        modifier = Modifier.fillMaxSize(),
                         bitmap = it,
                         contentDescription = "Background Image",
-                        modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.FillWidth
                     )
                 }
                 Column(
-                    modifier = Modifier.padding(bottom = 64.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
                 ) {
-                    if (onDismiss != null) {
-                        Row(horizontalArrangement = Arrangement.End,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(end = 16.dp, top = 8.dp)) {
-                            TextButton(onClick = onDismiss) {
-                                Text(text = "Cancel", fontSize = 18.sp)
-                            }
-                        }
-                    }
-                    Spacer(modifier = Modifier.weight(1f))
                     Image(
                         modifier = Modifier
-                            .size(180.dp)
+                            .size(160.dp)
                             .padding(bottom = 8.dp)
                             .clip(RoundedCornerShape(36.dp)),
                         painter = painterResource(id = R.drawable.img_error),
                         contentDescription = "Error image",
                     )
-                    Spacer(modifier = Modifier.weight(.2f))
-                    val message = if (progressState is ProgressState.Error) progressState.message else ""
                     Text(
                         modifier = Modifier.padding(horizontal = 16.dp),
-                        text = message ?:"An unexpected error occurred.",
+                        text = message,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.secondary
                     )
-                    Spacer(modifier = Modifier.weight(1f))
+                }
+                TextButton(
+                    onClick = onDismiss,
+                    modifier = Modifier.align(Alignment.TopEnd)
+                        .padding(end = 16.dp, top = 8.dp)
+                ) {
+                    Text(text = "Cancel", fontSize = 18.sp)
                 }
             }
         }

@@ -9,6 +9,8 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.paddingFromBaseline
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -29,7 +31,14 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.compscicomputations.theme.comicNeueFamily
 
 @Composable
 fun Modifier.shimmerBackground(
@@ -70,13 +79,47 @@ fun Modifier.shimmerBackground(
 )
 
 
+val boldRegex = Regex("(?<!\\*)\\*\\*(?!\\*).*?(?<!\\*)\\*\\*(?!\\*)")
+
+@Composable
+fun AnnotatedText(
+    text: String,
+    modifier: Modifier = Modifier,
+) {
+    val keywords = boldRegex.findAll(text).map { it.value }.toList()
+
+    val annotatedString = buildAnnotatedString {
+        append("\n\n")
+        var startIndex = 0
+        keywords.forEach { keyword ->
+            val  indexOf = text.indexOf(keyword, startIndex)
+            append(text.substring(startIndex, indexOf).replace("*", "●"))
+            startIndex = indexOf + keyword.length
+            withStyle(
+                style = SpanStyle(fontWeight = FontWeight.ExtraBold,)
+            ) {
+                append(keyword.removeSurrounding("**"))
+            }
+        }
+        append(text.substring(startIndex, text.length).replace("*", "●"))
+        append("\n")
+    }
+
+    Text(
+        text = annotatedString,
+        modifier = modifier.fillMaxWidth(),
+        fontSize = 18.sp,
+        fontFamily = comicNeueFamily
+    )
+}
 
 @Composable
 fun Demo_DropDownMenu() {
     var expanded by remember { mutableStateOf(false) }
 
     Box(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
             .wrapContentSize(Alignment.TopEnd)
     ) {
         IconButton(onClick = { expanded = !expanded }) {

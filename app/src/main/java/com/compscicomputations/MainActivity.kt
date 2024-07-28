@@ -6,21 +6,18 @@ import androidx.activity.compose.setContent
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.compscicomputations.theme.CompSciComputationsTheme
 import com.compscicomputations.ui.auth.onboarding.SplashScreen
 import com.compscicomputations.ui.navigation.Splash
-import com.compscicomputations.ui.navigation.authNavigation
-import com.compscicomputations.ui.navigation.mainNavigation
+import com.compscicomputations.ui.navigation.navigationAuth
+import com.compscicomputations.ui.navigation.navigationMain
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -43,8 +40,8 @@ class MainActivity : ComponentActivity() {
                     ) {
                         SplashScreen(navController)
                     }
-                    authNavigation(this@MainActivity, navController, gotoOnboarding)
-                    mainNavigation(navController)
+                    navigationAuth(this@MainActivity, navController, gotoOnboarding)
+                    navigationMain(navController)
                 }
             }
         }

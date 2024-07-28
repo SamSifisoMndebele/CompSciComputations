@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:dist="http://schemas.android.com/apk/distribution">
+<manifest xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:dist="http://schemas.android.com/apk/distribution">
 
     <dist:module
         dist:instant="false"
@@ -10,5 +12,13 @@
 
         <dist:fusing dist:include="true" />
     </dist:module>
+
+    <application tools:ignore="MissingApplicationIcon">
+        <activity
+            android:name="com.compscicomputations.polish_expressions.MainActivity"
+            android:exported="true"
+            android:label="@string/title_polish_expressions"
+            android:theme="@style/Theme.CompSciComputations" />
+    </application>
 
 </manifest>

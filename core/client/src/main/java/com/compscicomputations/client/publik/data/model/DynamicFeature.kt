@@ -6,16 +6,8 @@ import kotlinx.serialization.Serializable
 data class DynamicFeature(
     val title: String,
     val module: String,
-    val clazz: String = "MainActivity",
-    val iconUrl: String? = null,
+    val iconUrl: String,
 ) {
     val className: String
-        get() = "com.compscicomputations.$module.$clazz"
-
-
-    @Deprecated("Use className instead",
-        ReplaceWith("className")
-    )
-    val className2: String
-        get() = "com.compscicomputations.feature.$module.$clazz"
+        get() = "com.compscicomputations.$module.MainActivity"
 }

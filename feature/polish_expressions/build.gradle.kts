@@ -3,9 +3,11 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.jetbrains.kotlin.compose.compiler)
     alias(libs.plugins.google.devtools.ksp)
+    id("androidx.navigation.safeargs")
+    alias(libs.plugins.google.android.libraries.mapsplatform.secrets.gradle.plugin)
 }
 android {
-    namespace = "com.compscicomputations.feature.polish_expressions"
+    namespace = "com.compscicomputations.polish_expressions"
     compileSdk = 34
 
     defaultConfig {
@@ -36,9 +38,20 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.1"
+    }
 }
 
 dependencies {
+
+//    /**Machine Learning*/
+//    implementation(libs.play.services.mlkit.text.recognition)
+//    implementation(libs.generativeai)
+
+//    /**DI*/
+//    implementation(libs.koin.android)
+//    implementation(libs.koin.androidx.compose)
 
     /**Local database*/
     implementation(libs.androidx.room.runtime)

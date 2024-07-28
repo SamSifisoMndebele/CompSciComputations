@@ -5,7 +5,7 @@ plugins {
     alias(libs.plugins.google.devtools.ksp)
 }
 android {
-    namespace = "com.compscicomputations.feature.karnaugh_maps"
+    namespace = "com.compscicomputations.karnaugh_maps"
     compileSdk = 34
 
     defaultConfig {

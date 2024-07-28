@@ -8,46 +8,32 @@ data class BasesUiState(
     val octal: String = "",
     val hexadecimal: String = "",
     val ascii: String = "",
+    val convertFrom: ConvertFrom = ConvertFrom.Decimal,
 
     val error: BaseError? = null,
 
-    val convertFrom: ConvertFrom = ConvertFrom.Decimal,
     val progressState: ProgressState = ProgressState.Idle,
+
+    val stepsContent: String = "",
 )
 
-sealed interface ConvertFrom {
-    val name: String
-    data object Decimal : ConvertFrom {
-        override val name = "Decimal"
-    }
-    data object Binary : ConvertFrom {
-        override val name = "Binary"
-    }
-    data object Octal : ConvertFrom {
-        override val name = "Octal"
-    }
-    data object Hexadecimal : ConvertFrom {
-        override val name = "Hexadecimal"
-    }
-    data object ASCII : ConvertFrom {
-        override val name = "ASCII Character(s)"
-    }
+enum class ConvertFrom(val text: String) {
+    Decimal("Decimal"),
+    Binary("Binary"),
+    Octal("Octal"),
+    Hexadecimal("Hexadecimal"),
+    ASCII("ASCII Character(s)");
 
-    companion object {
-        val list = listOf(
-            Decimal, Binary, Octal, Hexadecimal, ASCII
-        )
-        val ConvertFrom.isDecimal: Boolean
-            get() = this is ConvertFrom.Decimal
-        val ConvertFrom.isBinary: Boolean
-            get() = this is ConvertFrom.Binary
-        val ConvertFrom.isOctal: Boolean
-            get() = this is ConvertFrom.Octal
-        val ConvertFrom.isHexadecimal: Boolean
-            get() = this is ConvertFrom.Hexadecimal
-        val ConvertFrom.isASCII: Boolean
-            get() = this is ConvertFrom.ASCII
-    }
+    val isDecimal: Boolean
+        get() = this == Decimal
+    val isBinary: Boolean
+        get() = this == Binary
+    val isOctal: Boolean
+        get() = this == Octal
+    val isHexadecimal: Boolean
+        get() = this == Hexadecimal
+    val isASCII: Boolean
+        get() = this == ASCII
 }
 
 enum class BaseError(val message: String) {

@@ -1,10 +1,14 @@
 package com.compscicomputations.number_systems.ui.bases
 
-import android.graphics.Bitmap
-import androidx.compose.runtime.mutableStateOf
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.compscicomputations.ui.main.dashboard.DashboardUiState
+import com.compscicomputations.number_systems.ui.bases.BaseConverter.fromAscii
+import com.compscicomputations.number_systems.ui.bases.BaseConverter.fromBinary
+import com.compscicomputations.number_systems.ui.bases.BaseConverter.fromDecimal
+import com.compscicomputations.number_systems.ui.bases.BaseConverter.fromHex
+import com.compscicomputations.number_systems.ui.bases.BaseConverter.fromOctal
+import com.compscicomputations.ui.utils.ProgressState
 import com.google.ai.client.generativeai.GenerativeModel
 import com.google.ai.client.generativeai.type.content
 import com.google.mlkit.vision.text.TextRecognizer
@@ -24,96 +28,68 @@ class BasesViewModel(
         _uiState.value = _uiState.value.copy(convertFrom = convertFrom)
     }
 
+    fun setProgressState(progressState: ProgressState) {
+        _uiState.value = _uiState.value.copy(progressState = progressState)
+    }
 
-    fun sendPrompt(
-        bitmap: Bitmap,
-        prompt: String
-    ) {
-//        _uiState.value = UiState.Loading
+    fun onDecimalChange(decimalStr: String) {
+        _uiState.value = _uiState.value.fromDecimal(decimalStr)
+            .copy(convertFrom = ConvertFrom.Decimal)
+    }
 
+    fun onBinaryChange(binaryStr: String) {
+        _uiState.value = _uiState.value.fromBinary(binaryStr)
+            .copy(convertFrom = ConvertFrom.Binary)
+    }
+
+    fun onOctalChange(octalStr: String) {
+        _uiState.value = _uiState.value.fromOctal(octalStr)
+            .copy(convertFrom = ConvertFrom.Octal)
+    }
+
+    fun onHexadecimalChange(hexadecimalStr: String) {
+        _uiState.value = _uiState.value.fromHex(hexadecimalStr)
+            .copy(convertFrom = ConvertFrom.Hexadecimal)
+    }
+
+    fun fromAscii(asciiStr: String) {
+        _uiState.value = _uiState.value.fromAscii(asciiStr)
+            .copy(convertFrom = ConvertFrom.ASCII)
+    }
+
+    fun sendPrompt() {
+        _uiState.value = _uiState.value.copy(
+            progressState = ProgressState.Loading("Loading Steps...")
+        )
+        val text: String = when(_uiState.value.convertFrom) {
+            ConvertFrom.Decimal -> "Show me steps how to convert decimal number: ${_uiState.value.decimal} to binary, octal, hexadecimal, and ascii"
+            ConvertFrom.Binary -> "Show me steps how to convert binary number: ${_uiState.value.decimal} to decimal, octal, hexadecimal, and ascii"
+            ConvertFrom.Octal -> "Show me steps how to convert octal number: ${_uiState.value.decimal} to decimal, binary, hexadecimal, and ascii"
+            ConvertFrom.Hexadecimal -> "Show me steps how to convert hexadecimal number: ${_uiState.value.decimal} to decimal, binary, octal, and ascii"
+            ConvertFrom.ASCII -> "Show me steps how to convert ascii character: ${_uiState.value.decimal} to decimal, binary, octal, and hexadecimal"
+        }
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val response = generativeModel.generateContent(
                     content {
-                        image(bitmap)
-                        text(prompt)
+//                        image(bitmap)
+                        text(text)
                     }
                 )
                 response.text?.let { outputContent ->
-//                    _uiState.value = UiState.Success(outputContent)
-                }
+                    Log.d("sendPrompt", outputContent)
+                    _uiState.value = _uiState.value.copy(
+                        progressState = ProgressState.Success,
+                        stepsContent = outputContent
+                    )
+                } ?: throw Exception("Empty content generated.")
             } catch (e: Exception) {
-//                _uiState.value = UiState.Error(e.localizedMessage ?: "")
+                Log.w("sendPrompt", e)
+                _uiState.value = _uiState.value.copy(
+                    progressState = ProgressState.Error(e.localizedMessage)
+                )
             }
         }
     }
 
-    var decimal = mutableStateOf("")
-        private set
-    var binary = mutableStateOf("")
-        private set
-    var octal = mutableStateOf("")
-        private set
-    var hexadecimal = mutableStateOf("")
-        private set
-    var ascii = mutableStateOf("")
-        private set
-
-    var error = mutableStateOf<BaseError?>(null)
-        private set
-
-    fun fromDecimal(decimalStr: String) {
-        val fromDecimal = BaseConverter.fromDecimal(decimalStr.removeSuffix("-"))
-
-        decimal.value = decimalStr
-        binary.value = fromDecimal.binary
-        octal.value = fromDecimal.octal
-        hexadecimal.value = fromDecimal.hexadecimal
-        ascii.value = fromDecimal.ascii
-        error.value = fromDecimal.error
-    }
-
-    fun fromBinary(binaryStr: String) {
-        val fromBinary = BaseConverter.fromBinary(binaryStr)
-
-        decimal.value = fromBinary.decimal
-        binary.value = binaryStr
-        octal.value = fromBinary.octal
-        hexadecimal.value = fromBinary.hexadecimal
-        ascii.value = fromBinary.ascii
-        error.value = fromBinary.error
-    }
-
-    fun fromOctal(octalStr: String) {
-        val fromOctal = BaseConverter.fromOctal(octalStr)
-
-        decimal.value = fromOctal.decimal
-        binary.value = fromOctal.binary
-        octal.value = octalStr
-        hexadecimal.value = fromOctal.hexadecimal
-        ascii.value = fromOctal.ascii
-        error.value = fromOctal.error
-    }
-
-
-    fun fromHex(hexadecimalStr: String) {
-        val fromHex = BaseConverter.fromHex(hexadecimalStr)
-
-        decimal.value = fromHex.decimal
-        binary.value = fromHex.binary
-        octal.value = fromHex.octal
-        hexadecimal.value = hexadecimalStr
-        ascii.value = fromHex.ascii
-        error.value = fromHex.error
-    }
-    fun fromAscii(asciiStr: String) {
-        val fromAscii = BaseConverter.fromCharSeq(asciiStr)
-
-        decimal.value = fromAscii.decimal
-        binary.value = fromAscii.binary
-        octal.value = fromAscii.octal
-        hexadecimal.value = fromAscii.hexadecimal
-        ascii.value = asciiStr
-        error.value = fromAscii.error
-    }
 }
