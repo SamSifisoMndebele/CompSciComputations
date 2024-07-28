@@ -62,11 +62,11 @@ class BasesViewModel(
             progressState = ProgressState.Loading("Loading Steps...")
         )
         val text: String = when(_uiState.value.convertFrom) {
-            ConvertFrom.Decimal -> "Show me steps how to convert decimal number: ${_uiState.value.decimal} to binary, octal, hexadecimal, and ascii"
-            ConvertFrom.Binary -> "Show me steps how to convert binary number: ${_uiState.value.decimal} to decimal, octal, hexadecimal, and ascii"
-            ConvertFrom.Octal -> "Show me steps how to convert octal number: ${_uiState.value.decimal} to decimal, binary, hexadecimal, and ascii"
-            ConvertFrom.Hexadecimal -> "Show me steps how to convert hexadecimal number: ${_uiState.value.decimal} to decimal, binary, octal, and ascii"
-            ConvertFrom.ASCII -> "Show me steps how to convert ascii character: ${_uiState.value.decimal} to decimal, binary, octal, and hexadecimal"
+            ConvertFrom.Decimal -> "Show me steps how to convert the decimal number: ${_uiState.value.decimal} to binary, octal, hexadecimal, and extended ascii"
+            ConvertFrom.Binary -> "Show me steps how to convert the binary number: ${_uiState.value.binary} to decimal, octal, hexadecimal, and extended ascii"
+            ConvertFrom.Octal -> "Show me steps how to convert the octal number: ${_uiState.value.octal} to decimal, binary, hexadecimal, and extended ascii"
+            ConvertFrom.Hexadecimal -> "Show me steps how to convert the hexadecimal number: ${_uiState.value.hexadecimal} to decimal, binary, octal, and extended ascii"
+            ConvertFrom.ASCII -> "Show me steps how to convert the extended ascii character: ${_uiState.value.ascii} to decimal, binary, octal, and hexadecimal"
         }
         viewModelScope.launch(Dispatchers.IO) {
             try {
