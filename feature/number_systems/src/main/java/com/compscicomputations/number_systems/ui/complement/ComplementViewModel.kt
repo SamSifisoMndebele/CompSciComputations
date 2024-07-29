@@ -3,6 +3,12 @@ package com.compscicomputations.number_systems.ui.complement
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.compscicomputations.number_systems.ui.bases.BasesUiState
+import com.compscicomputations.number_systems.ui.bases.ConvertFrom.Binary
+import com.compscicomputations.number_systems.ui.bases.ConvertFrom.Decimal
+import com.compscicomputations.number_systems.ui.bases.ConvertFrom.Hexadecimal
+import com.compscicomputations.number_systems.ui.bases.ConvertFrom.Octal
+import com.compscicomputations.number_systems.ui.bases.ConvertFrom.Unicode
 import com.compscicomputations.number_systems.ui.complement.ComplementConverter.fromComplement1
 import com.compscicomputations.number_systems.ui.complement.ComplementConverter.fromComplement2
 import com.compscicomputations.number_systems.ui.complement.ComplementConverter.fromDecimal
@@ -47,17 +53,12 @@ class ComplementViewModel(
         _uiState.value = _uiState.value.copy(
             progressState = ProgressState.Loading("Loading Steps...")
         )
-        val text: String = when(_uiState.value.convertFrom) {
-            ConvertFrom.Decimal -> "Show me steps how to convert the decimal number: ${_uiState.value.decimal} to first and second complement notation using ${_uiState.value.complement1.trim().length} bits"
-            ConvertFrom.Complement1 -> "Show me steps how to convert the first complement notation: ${_uiState.value.complement1} to decimal number and second complement notation using ${_uiState.value.complement1.trim().length} bits"
-            ConvertFrom.Complement2 -> "Show me steps how to convert the second complement notation: ${_uiState.value.complement2} to decimal number and first complement notation using ${_uiState.value.complement1.trim().length} bits"
-        }
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val response = generativeModel.generateContent(
                     content {
 //                        image(bitmap)
-                        text(text)
+                        text(_uiState.value.aiText)
                     }
                 )
                 response.text?.let { outputContent ->
@@ -75,5 +76,12 @@ class ComplementViewModel(
             }
         }
     }
+
+    private val ComplementUiState.aiText: String
+        get() = when(convertFrom) {
+            ConvertFrom.Decimal -> TODO()
+            ConvertFrom.Complement1 -> TODO()
+            ConvertFrom.Complement2 -> TODO()
+        }
 
 }

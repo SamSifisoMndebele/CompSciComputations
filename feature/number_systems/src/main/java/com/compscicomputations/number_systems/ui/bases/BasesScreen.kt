@@ -123,7 +123,7 @@ fun BasesScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 4.dp),
-            enabled = uiState.convertFrom.isDecimal,
+            enabled = uiState.convertFrom.decimal,
             value = uiState.decimal,
             onValueChange = { if (it.matches(decimalFieldRegex)) viewModel.onDecimalChange(it) },
             textStyle = TextStyle(
@@ -136,15 +136,15 @@ fun BasesScreen(
             label = { Text(text = "Decimal") },
             shape = RoundedCornerShape(18.dp),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-            isError = uiState.convertFrom.isDecimal && uiState.error != null,
-            supportingText = uiState.error errorTextIf uiState.convertFrom.isDecimal
+            isError = uiState.convertFrom.decimal && uiState.error != null,
+            supportingText = uiState.error errorTextIf uiState.convertFrom.decimal
         )
 
         OutlinedTextField(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 4.dp),
-            enabled = uiState.convertFrom.isBinary,
+            enabled = uiState.convertFrom.binary,
             value = uiState.binary,
             onValueChange = { if (it.matches(binaryNumbersRegex)) viewModel.onBinaryChange(it) },
             textStyle = TextStyle(
@@ -157,15 +157,15 @@ fun BasesScreen(
             label = { Text(text = "Binary") },
             shape = RoundedCornerShape(18.dp),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            isError = uiState.convertFrom.isBinary && uiState.error != null,
-            supportingText = uiState.error errorTextIf uiState.convertFrom.isBinary
+            isError = uiState.convertFrom.binary && uiState.error != null,
+            supportingText = uiState.error errorTextIf uiState.convertFrom.binary
         )
 
         OutlinedTextField(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 4.dp),
-            enabled = uiState.convertFrom.isOctal,
+            enabled = uiState.convertFrom.octal,
             value = uiState.octal,
             onValueChange = { if (it.matches(octalNumbersRegex)) viewModel.onOctalChange(it) },
             textStyle = TextStyle(
@@ -178,15 +178,15 @@ fun BasesScreen(
             label = { Text(text = "Octal") },
             shape = RoundedCornerShape(18.dp),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            isError = uiState.convertFrom.isOctal && uiState.error != null,
-            supportingText = uiState.error errorTextIf uiState.convertFrom.isOctal
+            isError = uiState.convertFrom.octal && uiState.error != null,
+            supportingText = uiState.error errorTextIf uiState.convertFrom.octal
         )
 
         OutlinedTextField(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 4.dp),
-            enabled = uiState.convertFrom.isHexadecimal,
+            enabled = uiState.convertFrom.hexadecimal,
             value = uiState.hexadecimal,
             onValueChange = { if (it.matches(hexNumbersRegex)) viewModel.onHexadecimalChange(it) },
             textStyle = TextStyle(
@@ -203,17 +203,17 @@ fun BasesScreen(
                 autoCorrectEnabled = false,
                 keyboardType = KeyboardType.Text
             ),
-            isError = uiState.convertFrom.isHexadecimal && uiState.error != null,
-            supportingText = uiState.error errorTextIf uiState.convertFrom.isHexadecimal
+            isError = uiState.convertFrom.hexadecimal && uiState.error != null,
+            supportingText = uiState.error errorTextIf uiState.convertFrom.hexadecimal
         )
 
         OutlinedTextField(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 4.dp),
-            enabled = uiState.convertFrom.isASCII,
-            value = uiState.ascii,
-            onValueChange = { viewModel.fromAscii(it) },
+            enabled = uiState.convertFrom.unicode,
+            value = uiState.unicode,
+            onValueChange = { viewModel.fromUnicode(it) },
             textStyle = TextStyle(
                 lineBreak = LineBreak.Simple,
                 hyphens = Hyphens.Auto,
@@ -221,14 +221,14 @@ fun BasesScreen(
                 fontFamily = comicNeueFamily,
                 color = MaterialTheme.colorScheme.onBackground
             ),
-            label = { Text(text = "ASCII Characters") },
+            label = { Text(text = "Unicode Characters") },
             shape = RoundedCornerShape(18.dp),
             keyboardOptions = KeyboardOptions(
                 autoCorrectEnabled = false,
                 keyboardType = KeyboardType.Text
             ),
-            isError = uiState.convertFrom.isASCII && uiState.error != null,
-            supportingText = uiState.error errorTextIf uiState.convertFrom.isASCII
+            isError = uiState.convertFrom.unicode && uiState.error != null,
+            supportingText = uiState.error errorTextIf uiState.convertFrom.unicode
         )
 
         Spacer(modifier = Modifier.height(32.dp))

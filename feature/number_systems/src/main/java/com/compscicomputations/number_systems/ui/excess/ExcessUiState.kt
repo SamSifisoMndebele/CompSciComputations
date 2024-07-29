@@ -4,11 +4,12 @@ import com.compscicomputations.ui.utils.ProgressState
 
 data class ExcessUiState(
     val decimal: String = "",
-    val complement1: String = "",
-    val complement2: String = "",
-    val convertFrom: ConvertFrom = ConvertFrom.Decimal,
-
+    val excess: String = "",
+    val excessIdentifier: String = "",
+    val excessBits: Int = 8,
     val error: String? = null,
+
+    val convertFrom: ConvertFrom = ConvertFrom.Decimal,
 
     val progressState: ProgressState = ProgressState.Idle,
 
@@ -17,13 +18,10 @@ data class ExcessUiState(
 
 enum class ConvertFrom(val text: String) {
     Decimal("Decimal"),
-    Complement1("Complement 1"),
-    Complement2("Complement 2");
+    Excess("Excess notation");
 
-    val isDecimal: Boolean
+    val decimal: Boolean
         get() = this == Decimal
-    val isComplement1: Boolean
-        get() = this == Complement1
-    val isComplement2: Boolean
-        get() = this == Complement2
+    val excess: Boolean
+        get() = this == Excess
 }

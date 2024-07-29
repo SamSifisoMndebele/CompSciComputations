@@ -4,8 +4,10 @@ import com.compscicomputations.ui.utils.ProgressState
 
 data class FloatingPointUiState(
     val decimal: String = "",
-    val complement1: String = "",
-    val complement2: String = "",
+    val float8: String = "", // semi IEEE754
+    val float16: String = "", // half IEEE754
+    val float32: String = "", // single IEEE754
+    val float64: String = "", // double IEEE754
     val convertFrom: ConvertFrom = ConvertFrom.Decimal,
 
     val error: String? = null,
@@ -17,13 +19,19 @@ data class FloatingPointUiState(
 
 enum class ConvertFrom(val text: String) {
     Decimal("Decimal"),
-    Complement1("Complement 1"),
-    Complement2("Complement 2");
+    Float8("Mini precedence"),
+    Float16("Half precedence"),
+    Float32("Single precedence"),
+    Float64("Double precedence");
 
-    val isDecimal: Boolean
+    val decimal: Boolean
         get() = this == Decimal
-    val isComplement1: Boolean
-        get() = this == Complement1
-    val isComplement2: Boolean
-        get() = this == Complement2
+    val float8: Boolean
+        get() = this == Float8
+    val float16: Boolean
+        get() = this == Float16
+    val float32: Boolean
+        get() = this == Float32
+    val float64: Boolean
+        get() = this == Float64
 }

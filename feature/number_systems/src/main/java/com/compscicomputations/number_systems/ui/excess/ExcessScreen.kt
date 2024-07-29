@@ -32,8 +32,6 @@ import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.compscicomputations.number_systems.ui.complement.ConvertFrom
 import com.compscicomputations.theme.comicNeueFamily
 import org.koin.androidx.compose.koinViewModel
 
@@ -106,13 +104,13 @@ fun ExcessScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 4.dp),
-            value = viewModel.excessBits.intValue.toString(),
+            value = uiState.excessBits.toString(),
             onValueChange = {
                 if (it.isBlank()) viewModel.setExcessBits(it)
                 else if (!it.contains('.') && it.toInt() <= 32) {
                     viewModel.setExcessBits(it)
-                    if (viewModel.decimal.value.isNotBlank())
-                        viewModel.fromDecimal(viewModel.decimal.value)
+                    if (uiState.decimal.isNotBlank())
+                        viewModel.fromDecimal(uiState.decimal)
                 }
             },
             label = {
@@ -128,7 +126,7 @@ fun ExcessScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 4.dp),
-            value = viewModel.decimal.value,
+            value = uiState.decimal,
             onValueChange = {
                 if (it.contains('.')) return@OutlinedTextField
                 viewModel.fromDecimal(it)
@@ -146,7 +144,7 @@ fun ExcessScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 4.dp),
-            value = viewModel.excess.value,
+            value = uiState.excess,
             onValueChange = {
                 if (it.contains('.')) return@OutlinedTextField
                 if (it.matches(Regex("[0*1*]*[1*0*]*"))) {

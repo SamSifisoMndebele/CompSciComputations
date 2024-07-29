@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.compscicomputations.number_systems.ui.complement.ComplementConverter.fromComplement1
 import com.compscicomputations.number_systems.ui.complement.ComplementConverter.fromComplement2
 import com.compscicomputations.number_systems.ui.complement.ComplementConverter.fromDecimal
+import com.compscicomputations.number_systems.ui.excess.ExcessUiState
 import com.compscicomputations.ui.utils.ProgressState
 import com.google.ai.client.generativeai.GenerativeModel
 import com.google.ai.client.generativeai.type.content
@@ -47,17 +48,12 @@ class FloatingPointViewModel(
         _uiState.value = _uiState.value.copy(
             progressState = ProgressState.Loading("Loading Steps...")
         )
-        val text: String = when(_uiState.value.convertFrom) {
-            ConvertFrom.Decimal -> "Show me steps how to convert the decimal number: ${_uiState.value.decimal} to first and second complement notation using ${_uiState.value.complement1.trim().length} bits"
-            ConvertFrom.Complement1 -> "Show me steps how to convert the first complement notation: ${_uiState.value.complement1} to decimal number and second complement notation using ${_uiState.value.complement1.trim().length} bits"
-            ConvertFrom.Complement2 -> "Show me steps how to convert the second complement notation: ${_uiState.value.complement2} to decimal number and first complement notation using ${_uiState.value.complement1.trim().length} bits"
-        }
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val response = generativeModel.generateContent(
                     content {
 //                        image(bitmap)
-                        text(text)
+                        text(_uiState.value.aiText)
                     }
                 )
                 response.text?.let { outputContent ->
@@ -75,5 +71,14 @@ class FloatingPointViewModel(
             }
         }
     }
+
+    private val FloatingPointUiState.aiText: String
+        get() = when(convertFrom) {
+            ConvertFrom.Decimal -> "Show me steps how to convert the decimal number: $decimal to first and second complement notation"
+            ConvertFrom.Float8 -> TODO()
+            ConvertFrom.Float16 -> TODO()
+            ConvertFrom.Float32 -> TODO()
+            ConvertFrom.Float64 -> TODO()
+        }
 
 }

@@ -35,7 +35,7 @@ object BinaryArithmetic {
      * @throws NumberFormatException
      */
     fun addBinary(a: String, b: String): String =
-        java.lang.Long.toBinaryString(a.toDecimal() + b.toDecimal())
+        java.lang.Long.toBinaryString(a.toDecimal(2) + b.toDecimal(2))
 
 
 

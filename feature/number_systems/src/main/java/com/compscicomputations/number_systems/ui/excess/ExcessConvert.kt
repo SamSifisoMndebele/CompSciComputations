@@ -22,7 +22,7 @@ object ExcessConvert {
         return try {
             val excessBits = this.toInt()
             val excessIdentifier = "1".padEnd(excessBits, '0')
-            excessIdentifier.toDecimal().toString()
+            excessIdentifier.toDecimal(2).toString()
         } catch (e: Exception) {
             ""
         }

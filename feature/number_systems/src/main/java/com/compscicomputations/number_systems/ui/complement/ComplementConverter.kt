@@ -48,11 +48,11 @@ object ComplementConverter {
 
     fun ComplementUiState.fromComplement1(complement1Str: String): ComplementUiState {
         return try {
-            var decimal = complement1Str.toDecimal()
+            var decimal = complement1Str.toDecimal(2)
             var decimalString = decimal.toString()
 
             if (complement1Str[0] == '1') {
-                decimal = complement1Str.negateBin().toDecimal()
+                decimal = complement1Str.negateBin().toDecimal(2)
                 decimalString = "-$decimal"
             }
             if (decimal < 0) copy(error = SIZE_ERROR)
@@ -64,11 +64,11 @@ object ComplementConverter {
 
     fun ComplementUiState.fromComplement2(complement2Str: String): ComplementUiState {
         return try {
-            var decimal = complement2Str.toDecimal()
+            var decimal = complement2Str.toDecimal(2)
             var decimalString = decimal.toString()
 
             if (complement2Str[0] == '1') {
-                decimal = complement2Str.negateBin().toDecimal()
+                decimal = complement2Str.negateBin().toDecimal(2)
                 decimalString = "-${decimal + 1}"
             }
             if (decimal + 1 < 0) copy(error = SIZE_ERROR)

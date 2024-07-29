@@ -20,10 +20,10 @@ enum class ConvertFrom(val text: String) {
     Complement1("Complement 1"),
     Complement2("Complement 2");
 
-    val isDecimal: Boolean
+    val decimal: Boolean
         get() = this == Decimal
-    val isComplement1: Boolean
+    val complement1: Boolean
         get() = this == Complement1
-    val isComplement2: Boolean
+    val complement2: Boolean
         get() = this == Complement2
 }

@@ -3,11 +3,12 @@ package com.compscicomputations.number_systems.ui.bases
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.compscicomputations.number_systems.ui.bases.BaseConverter.fromAscii
+import com.compscicomputations.number_systems.ui.bases.BaseConverter.fromUnicode
 import com.compscicomputations.number_systems.ui.bases.BaseConverter.fromBinary
 import com.compscicomputations.number_systems.ui.bases.BaseConverter.fromDecimal
 import com.compscicomputations.number_systems.ui.bases.BaseConverter.fromHex
 import com.compscicomputations.number_systems.ui.bases.BaseConverter.fromOctal
+import com.compscicomputations.number_systems.ui.bases.ConvertFrom.*
 import com.compscicomputations.ui.utils.ProgressState
 import com.google.ai.client.generativeai.GenerativeModel
 import com.google.ai.client.generativeai.type.content
@@ -32,57 +33,55 @@ class BasesViewModel(
 
     fun onDecimalChange(decimalStr: String) {
         _uiState.value = _uiState.value.fromDecimal(decimalStr)
-            .copy(convertFrom = ConvertFrom.Decimal)
+            .copy(convertFrom = Decimal)
     }
 
     fun onBinaryChange(binaryStr: String) {
         _uiState.value = _uiState.value.fromBinary(binaryStr)
-            .copy(convertFrom = ConvertFrom.Binary)
+            .copy(convertFrom = Binary)
     }
 
     fun onOctalChange(octalStr: String) {
         _uiState.value = _uiState.value.fromOctal(octalStr)
-            .copy(convertFrom = ConvertFrom.Octal)
+            .copy(convertFrom = Octal)
     }
 
     fun onHexadecimalChange(hexadecimalStr: String) {
         _uiState.value = _uiState.value.fromHex(hexadecimalStr)
-            .copy(convertFrom = ConvertFrom.Hexadecimal)
+            .copy(convertFrom = Hexadecimal)
     }
 
-    fun fromAscii(asciiStr: String) {
-        _uiState.value = _uiState.value.fromAscii(asciiStr)
-            .copy(convertFrom = ConvertFrom.ASCII)
+    fun fromUnicode(unicodeStr: String) {
+        _uiState.value = _uiState.value.fromUnicode(unicodeStr)
+            .copy(convertFrom = Unicode)
     }
 
     fun sendPrompt() {
         _uiState.value = _uiState.value.copy(
             progressState = ProgressState.Loading("Loading Steps...")
         )
-        val text: String = when(_uiState.value.convertFrom) {
-            ConvertFrom.Decimal -> "Show me steps how to convert the decimal number: ${_uiState.value.decimal} to binary, octal, hexadecimal, and extended ascii"
-            ConvertFrom.Binary -> "Show me steps how to convert the binary number: ${_uiState.value.binary} to decimal, octal, hexadecimal, and extended ascii"
-            ConvertFrom.Octal -> "Show me steps how to convert the octal number: ${_uiState.value.octal} to decimal, binary, hexadecimal, and extended ascii"
-            ConvertFrom.Hexadecimal -> "Show me steps how to convert the hexadecimal number: ${_uiState.value.hexadecimal} to decimal, binary, octal, and extended ascii"
-            ConvertFrom.ASCII -> "Show me steps how to convert the extended ascii character: ${_uiState.value.ascii} to decimal, binary, octal, and hexadecimal"
-        }
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val response = generativeModel.generateContent(
                     content {
 //                        image(bitmap)
-                        text(text)
+                        text(_uiState.value.aiText + "\n\n" +
+                                "Use UTF-16 for unicode characters encoding.\n" +
+                                "Do Not group binary digits because you are not grouping correct.")
                     }
                 )
                 response.text?.let { outputContent ->
-                    Log.d("sendPrompt", outputContent)
+                    Log.d("AI::response", outputContent)
                     _uiState.value = _uiState.value.copy(
                         progressState = ProgressState.Success,
                         stepsContent = outputContent
                     )
                 } ?: throw Exception("Empty content generated.")
+                Log.d("AI::totalToken", response.usageMetadata?.totalTokenCount.toString())
+                Log.d("AI::promptToken", response.usageMetadata?.promptTokenCount.toString())
+                Log.d("AI::candidatesToken", response.usageMetadata?.candidatesTokenCount.toString())
             } catch (e: Exception) {
-                Log.w("sendPrompt", e)
+                Log.w("AI::error", e)
                 _uiState.value = _uiState.value.copy(
                     progressState = ProgressState.Error(e.localizedMessage)
                 )
@@ -90,4 +89,12 @@ class BasesViewModel(
         }
     }
 
+    private val BasesUiState.aiText: String
+        get() = when(convertFrom) {
+            Decimal -> "Show me steps how to convert the decimal: $decimal to binary: $binary, octal: $octal, hexadecimal: $hexadecimal, and unicode character: $unicode"
+            Binary -> "Show me steps how to convert the binary: $binary to decimal: $decimal, octal: $octal, hexadecimal: $hexadecimal, and unicode character: $unicode"
+            Octal -> "Show me steps how to convert the octal: $octal to decimal: $decimal, binary: $binary, hexadecimal: $hexadecimal, and unicode character: $unicode"
+            Hexadecimal -> "Show me steps how to convert the hexadecimal: $hexadecimal to decimal: $decimal, binary: $binary, octal: $octal, and unicode character: $unicode"
+            Unicode -> "Show me steps how to convert the unicode character: $unicode to decimal: $decimal, binary: $binary, octal: $octal, and hexadecimal: $hexadecimal"
+        }
 }

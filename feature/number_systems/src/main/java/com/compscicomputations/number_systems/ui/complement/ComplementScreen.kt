@@ -43,7 +43,6 @@ import com.compscicomputations.number_systems.utils.StepsDialog
 import com.compscicomputations.number_systems.utils.binaryNumbersRegex
 import com.compscicomputations.number_systems.utils.decimalFieldRegex
 import com.compscicomputations.number_systems.utils.errorTextIf
-import com.compscicomputations.number_systems.utils.octalNumbersRegex
 import com.compscicomputations.theme.comicNeueFamily
 import com.compscicomputations.ui.utils.ProgressState
 import com.compscicomputations.ui.utils.isError
@@ -87,12 +86,12 @@ fun ComplementScreen(
                     .padding(vertical = 4.dp),
                 value = uiState.convertFrom.text,
                 onValueChange = {},
-                textStyle = TextStyle(
-                    lineBreak = LineBreak.Simple,
+                    textStyle = TextStyle(
+                        lineBreak = LineBreak.Simple,
                     hyphens = Hyphens.Auto,
                     fontSize = 20.sp,
                     fontFamily = comicNeueFamily,
-                    color = MaterialTheme.colorScheme.onBackground
+                    color = MaterialTheme.colorScheme.onBackground,
                 ),
                 label = { Text(text = "Convert from_") },
                 readOnly = true,
@@ -121,7 +120,7 @@ fun ComplementScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 4.dp),
-            enabled = uiState.convertFrom.isDecimal,
+            enabled = uiState.convertFrom.decimal,
             value = uiState.decimal,
             onValueChange = { if (it.matches(decimalFieldRegex)) viewModel.onDecimalChange(it) },
             textStyle = TextStyle(
@@ -134,15 +133,15 @@ fun ComplementScreen(
             label = { Text(text = "Decimal") },
             shape = RoundedCornerShape(18.dp),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-            isError = uiState.convertFrom.isDecimal && uiState.error != null,
-            supportingText = uiState.error errorTextIf uiState.convertFrom.isDecimal
+            isError = uiState.convertFrom.decimal && uiState.error != null,
+            supportingText = uiState.error errorTextIf uiState.convertFrom.decimal
         )
 
         OutlinedTextField(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 4.dp),
-            enabled = uiState.convertFrom.isComplement1,
+            enabled = uiState.convertFrom.complement1,
             value = uiState.complement1,
             onValueChange = { if (it.matches(binaryNumbersRegex)) viewModel.onComplement1Change(it) },
             textStyle = TextStyle(
@@ -155,15 +154,15 @@ fun ComplementScreen(
             label = { Text(text = "Complement 1") },
             shape = RoundedCornerShape(18.dp),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            isError = uiState.convertFrom.isComplement1 && uiState.error != null,
-            supportingText = uiState.error errorTextIf uiState.convertFrom.isComplement1
+            isError = uiState.convertFrom.complement1 && uiState.error != null,
+            supportingText = uiState.error errorTextIf uiState.convertFrom.complement1
         )
 
         OutlinedTextField(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 4.dp),
-            enabled = uiState.convertFrom.isComplement2,
+            enabled = uiState.convertFrom.complement2,
             value = uiState.complement2,
             onValueChange = { if (it.matches(binaryNumbersRegex)) viewModel.onComplement2Change(it) },
             textStyle = TextStyle(
@@ -176,8 +175,8 @@ fun ComplementScreen(
             label = { Text(text = "Complement 2") },
             shape = RoundedCornerShape(18.dp),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            isError = uiState.convertFrom.isComplement2 && uiState.error != null,
-            supportingText = uiState.error errorTextIf uiState.convertFrom.isComplement2
+            isError = uiState.convertFrom.complement2 && uiState.error != null,
+            supportingText = uiState.error errorTextIf uiState.convertFrom.complement2
         )
 
         Spacer(modifier = Modifier.height(32.dp))

@@ -7,7 +7,7 @@ data class BasesUiState(
     val binary: String = "",
     val octal: String = "",
     val hexadecimal: String = "",
-    val ascii: String = "",
+    val unicode: String = "",
     val convertFrom: ConvertFrom = ConvertFrom.Decimal,
 
     val error: String? = null,
@@ -22,16 +22,16 @@ enum class ConvertFrom(val text: String) {
     Binary("Binary"),
     Octal("Octal"),
     Hexadecimal("Hexadecimal"),
-    ASCII("ASCII Character(s)");
+    Unicode("Unicode Character(s)");
 
-    val isDecimal: Boolean
+    val decimal: Boolean
         get() = this == Decimal
-    val isBinary: Boolean
+    val binary: Boolean
         get() = this == Binary
-    val isOctal: Boolean
+    val octal: Boolean
         get() = this == Octal
-    val isHexadecimal: Boolean
+    val hexadecimal: Boolean
         get() = this == Hexadecimal
-    val isASCII: Boolean
-        get() = this == ASCII
+    val unicode: Boolean
+        get() = this == Unicode
 }

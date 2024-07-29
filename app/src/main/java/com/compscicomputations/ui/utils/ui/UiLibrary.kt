@@ -9,8 +9,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.paddingFromBaseline
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -33,8 +31,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -78,33 +76,46 @@ fun Modifier.shimmerBackground(
     shape
 )
 
-
-val boldRegex = Regex("(?<!\\*)\\*\\*(?!\\*).*?(?<!\\*)\\*\\*(?!\\*)")
+private val boldRegex = Regex("(?<!\\*)\\*\\*(?!\\*).*?(?<!\\*)\\*\\*(?!\\*)")
+private val subRegex = Regex("<sub>.*?</sub>")
 
 @Composable
 fun AnnotatedText(
     text: String,
     modifier: Modifier = Modifier,
 ) {
-    val keywords = boldRegex.findAll(text).map { it.value }.toList()
-
     val annotatedString = buildAnnotatedString {
         append("\n\n")
         var startIndex = 0
-        keywords.forEach { keyword ->
-            val  indexOf = text.indexOf(keyword, startIndex)
-            append(text.substring(startIndex, indexOf).replace("*", "●"))
-            startIndex = indexOf + keyword.length
-            withStyle(
-                style = SpanStyle(fontWeight = FontWeight.ExtraBold,)
-            ) {
-                append(keyword.removeSurrounding("**"))
+        boldRegex.findAll(text)
+            .map { it.value }
+            .forEach { keyword ->
+                val  indexOf = text.indexOf(keyword, startIndex)
+                append(text.substring(startIndex, indexOf).replace("*", "●"))
+                startIndex = indexOf + keyword.length
+                withStyle(
+                    style = SpanStyle(fontWeight = FontWeight.ExtraBold,)
+                ) {
+                    append(keyword.removeSurrounding("**"))
+                }
             }
-        }
         append(text.substring(startIndex, text.length).replace("*", "●"))
         append("\n")
-    }
 
+//        startIndex = 0
+//        subRegex.findAll(toString())
+//            .map { it.value }
+//            .forEach { keyword ->
+//                val  indexOf = toString().indexOf(keyword, startIndex)
+//                append(toString().substring(startIndex, indexOf))
+//                startIndex = indexOf + keyword.length
+//                withStyle(
+//                    style = SpanStyle(baselineShift = BaselineShift.Subscript)
+//                ) {
+//                    append(keyword.removeSurrounding("<sub>", "</sub>"))
+//                }
+//            }
+    }
     Text(
         text = annotatedString,
         modifier = modifier.fillMaxWidth(),

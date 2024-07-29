@@ -1,5 +1,6 @@
 package com.compscicomputations.number_systems.ui.bases
 
+import com.compscicomputations.number_systems.utils.BinaryArithmetic.fillBits
 import com.compscicomputations.number_systems.utils.binaryNumbersRegex
 import com.compscicomputations.number_systems.utils.decimalNumberRegex
 import com.compscicomputations.number_systems.utils.hexNumbersRegex
@@ -23,7 +24,7 @@ object BaseConverter {
     private const val INVALID_BINARY = "Invalid binary number"
     private const val INVALID_OCT = "Invalid octal number"
     private const val INVALID_HEX = "Invalid hexadecimal number"
-    private const val INVALID_ASCII = "Invalid ascii character"
+    private const val INVALID_ASCII = "Invalid unicode character"
 
     fun BasesUiState.fromDecimal(decimal: String): BasesUiState {
         val decimalStr = decimal.removeSuffix("-")
@@ -34,7 +35,7 @@ object BaseConverter {
         var binaryStr = ""
         var octalStr = ""
         var hexStr = ""
-        var asciiStr = ""
+        var unicodeStr = ""
 
         for (dec in decimalStr.split(" ")) {
             if (dec.isEmpty()) continue
@@ -47,17 +48,47 @@ object BaseConverter {
             binaryStr += java.lang.Long.toBinaryString(long) + " "
             octalStr += java.lang.Long.toOctalString(long) + " "
             hexStr += java.lang.Long.toHexString(long).uppercase() + " "
-            asciiStr += long.toInt().toChar()
+            unicodeStr += long.toInt().toChar()
         }
         return copy(
             decimal = decimal,
-            binary = binaryStr,
+            binary = binaryStr,//.fillBits(),
             octal = octalStr,
             hexadecimal = hexStr,
-            ascii = asciiStr,
+            unicode = unicodeStr,
             convertFrom = ConvertFrom.Decimal,
             error = null
         )
+    }
+
+    fun BasesUiState.fromUnicode(charArray: CharSequence): BasesUiState {
+        var decimalStr = ""
+        for (char in charArray) {
+            decimalStr += char.code.toString() + " "
+        }
+        return fromDecimal(decimalStr)
+    }
+
+
+    /**
+     * Convert Any base number string to Decimal
+     * @throws NumberFormatException
+     * @throws SizeException
+     */
+    fun String.toDecimal(base: Int): Long {
+        val b = base.toDouble()
+        var decimal: Long = 0
+        var i = 0
+        for (digit in reversed()) {
+            val num = hexLetters[digit] ?: digit.toString().toInt()
+            if (num >= base) throw NumberFormatException()
+
+            decimal += (num * b.pow(i++)).toLong()
+            if (java.lang.Double.isNaN(decimal.toDouble()))
+                throw SizeException()
+        }
+
+        return decimal
     }
 
     /**
@@ -112,34 +143,5 @@ object BaseConverter {
         }
     }
 
-    fun BasesUiState.fromAscii(charArray: CharSequence): BasesUiState {
-        var decimalStr = ""
-        for (char in charArray) {
-            decimalStr += char.code.toString() + " "
-        }
-        return fromDecimal(decimalStr)
-    }
-
     class SizeException : Exception("Size Error")
-
-    /*----------- Convert Any base number string to Decimal --------------------------------------*/
-    /**
-     * @throws NumberFormatException
-     * @throws SizeException
-     */
-    fun String.toDecimal(base: Int = 2): Long {
-        val b = base.toDouble()
-        var decimal: Long = 0
-        var i = 0
-        for (digit in this.reversed()) {
-            val num = hexLetters[digit] ?: digit.toString().toInt()
-            if (num >= base) throw NumberFormatException()
-
-            decimal += (num * b.pow(i++)).toLong()
-            if (java.lang.Double.isNaN(decimal.toDouble()))
-                throw SizeException()
-        }
-
-        return decimal
-    }
 }

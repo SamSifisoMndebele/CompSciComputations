@@ -28,7 +28,7 @@ object FloatingPointConverter {
         var conversion = Conversion()
         try {
             if (floatString.length > 9) {
-                val intBitsToFloat = java.lang.Float.intBitsToFloat(floatString.fillBits(32).toDecimal().toInt())
+                val intBitsToFloat = java.lang.Float.intBitsToFloat(floatString.fillBits(32).toDecimal(2).toInt())
                 if (1.0f + intBitsToFloat < 0.0f) {
                     conversion.error = true
                 }
@@ -48,7 +48,7 @@ object FloatingPointConverter {
         var conversion = Conversion()
         try {
             if (doubleString.length > 12) {
-                val longBitsToDouble = java.lang.Double.longBitsToDouble(doubleString.fillBits(64).toDecimal())
+                val longBitsToDouble = java.lang.Double.longBitsToDouble(doubleString.fillBits(64).toDecimal(2))
                 if (1.0 + longBitsToDouble < 0.0) {
                     conversion.error = true
                 }
