@@ -9,7 +9,7 @@ import com.compscicomputations.number_systems.ui.bases.BaseConverter.fromDecimal
 import com.compscicomputations.number_systems.ui.bases.BaseConverter.fromHex
 import com.compscicomputations.number_systems.ui.bases.BaseConverter.fromOctal
 import com.compscicomputations.number_systems.ui.bases.ConvertFrom.*
-import com.compscicomputations.ui.utils.ProgressState
+import com.compscicomputations.number_systems.utils.ProgressState
 import com.google.ai.client.generativeai.GenerativeModel
 import com.google.ai.client.generativeai.type.content
 import kotlinx.coroutines.Dispatchers
@@ -73,7 +73,7 @@ class BasesViewModel(
                 response.text?.let { outputContent ->
                     Log.d("AI::response", outputContent)
                     _uiState.value = _uiState.value.copy(
-                        progressState = ProgressState.Success,
+                        progressState = ProgressState.Success(outputContent),
                         stepsContent = outputContent
                     )
                 } ?: throw Exception("Empty content generated.")

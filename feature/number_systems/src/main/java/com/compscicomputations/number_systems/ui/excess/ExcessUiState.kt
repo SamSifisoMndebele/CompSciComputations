@@ -1,6 +1,6 @@
 package com.compscicomputations.number_systems.ui.excess
 
-import com.compscicomputations.ui.utils.ProgressState
+import com.compscicomputations.number_systems.utils.ProgressState
 
 data class ExcessUiState(
     val decimal: String = "",

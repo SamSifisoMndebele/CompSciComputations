@@ -40,17 +40,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.compscicomputations.number_systems.utils.ProgressState
 import com.compscicomputations.number_systems.utils.StepsDialog
 import com.compscicomputations.number_systems.utils.binaryNumbersRegex
 import com.compscicomputations.number_systems.utils.decimalFieldRegex
 import com.compscicomputations.number_systems.utils.errorTextIf
 import com.compscicomputations.number_systems.utils.hexNumbersRegex
+import com.compscicomputations.number_systems.utils.isError
+import com.compscicomputations.number_systems.utils.isLoading
+import com.compscicomputations.number_systems.utils.isSuccess
 import com.compscicomputations.number_systems.utils.octalNumbersRegex
 import com.compscicomputations.theme.comicNeueFamily
-import com.compscicomputations.ui.utils.ProgressState
-import com.compscicomputations.ui.utils.isError
-import com.compscicomputations.ui.utils.isLoading
-import com.compscicomputations.ui.utils.isSuccess
 import com.compscicomputations.ui.utils.ui.ExceptionDialog
 import com.compscicomputations.ui.utils.ui.LoadingDialog
 import org.koin.androidx.compose.koinViewModel
@@ -58,23 +58,13 @@ import org.koin.androidx.compose.koinViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BasesScreen(
-    contentPadding: PaddingValues,
     viewModel: BasesViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     Column(
         modifier = Modifier
-            .fillMaxSize()
-            .padding(contentPadding),
+            .fillMaxWidth()
     ) {
-        Text(
-            modifier = Modifier.padding(16.dp),
-            text = "Base N",
-            fontSize = 22.sp,
-            color = MaterialTheme.colorScheme.primary,
-            fontFamily = comicNeueFamily,
-            fontWeight = FontWeight.Bold
-        )
         var expanded by remember { mutableStateOf(false) }
         ExposedDropdownMenuBox(
             expanded = expanded,

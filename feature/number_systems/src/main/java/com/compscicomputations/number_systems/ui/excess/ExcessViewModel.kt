@@ -2,7 +2,7 @@ package com.compscicomputations.number_systems.ui.excess
 
 import androidx.lifecycle.ViewModel
 import com.compscicomputations.number_systems.ui.complement.ComplementUiState
-import com.compscicomputations.ui.utils.ProgressState
+import com.compscicomputations.number_systems.utils.ProgressState
 import com.google.ai.client.generativeai.GenerativeModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

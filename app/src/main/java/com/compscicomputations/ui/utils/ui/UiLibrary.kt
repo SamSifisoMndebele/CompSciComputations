@@ -85,7 +85,7 @@ fun AnnotatedText(
     modifier: Modifier = Modifier,
 ) {
     val annotatedString = buildAnnotatedString {
-        append("\n\n")
+        append("\n")
         var startIndex = 0
         boldRegex.findAll(text)
             .map { it.value }

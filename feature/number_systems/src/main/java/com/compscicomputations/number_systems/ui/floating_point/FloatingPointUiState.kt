@@ -1,6 +1,6 @@
 package com.compscicomputations.number_systems.ui.floating_point
 
-import com.compscicomputations.ui.utils.ProgressState
+import com.compscicomputations.number_systems.utils.ProgressState
 
 data class FloatingPointUiState(
     val decimal: String = "",

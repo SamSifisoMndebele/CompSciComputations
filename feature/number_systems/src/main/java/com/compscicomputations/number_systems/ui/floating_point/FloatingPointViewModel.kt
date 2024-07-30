@@ -7,7 +7,7 @@ import com.compscicomputations.number_systems.ui.complement.ComplementConverter.
 import com.compscicomputations.number_systems.ui.complement.ComplementConverter.fromComplement2
 import com.compscicomputations.number_systems.ui.complement.ComplementConverter.fromDecimal
 import com.compscicomputations.number_systems.ui.excess.ExcessUiState
-import com.compscicomputations.ui.utils.ProgressState
+import com.compscicomputations.number_systems.utils.ProgressState
 import com.google.ai.client.generativeai.GenerativeModel
 import com.google.ai.client.generativeai.type.content
 import kotlinx.coroutines.Dispatchers
@@ -59,7 +59,7 @@ class FloatingPointViewModel(
                 response.text?.let { outputContent ->
                     Log.d("sendPrompt", outputContent)
                     _uiState.value = _uiState.value.copy(
-                        progressState = ProgressState.Success,
+                        progressState = ProgressState.Success(outputContent),
                         stepsContent = outputContent
                     )
                 } ?: throw Exception("Empty content generated.")

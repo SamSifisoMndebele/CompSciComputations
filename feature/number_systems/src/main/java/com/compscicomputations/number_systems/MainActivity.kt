@@ -1,3 +1,5 @@
+@file:Suppress("TYPEALIAS_EXPANSION_DEPRECATION")
+
 package com.compscicomputations.number_systems
 
 import android.os.Bundle

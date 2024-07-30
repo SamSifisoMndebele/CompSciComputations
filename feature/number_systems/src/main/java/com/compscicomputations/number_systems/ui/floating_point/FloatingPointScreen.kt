@@ -35,23 +35,13 @@ import org.koin.androidx.compose.koinViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FloatingPointScreen(
-    contentPadding: PaddingValues,
     viewModel: FloatingPointViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     Column(
         modifier = Modifier
-            .fillMaxSize()
-            .padding(contentPadding),
+            .fillMaxWidth()
     ) {
-        Text(
-            modifier = Modifier.padding(16.dp),
-            text = "Floating point notation",
-            fontSize = 22.sp,
-            color = MaterialTheme.colorScheme.primary,
-            fontFamily = comicNeueFamily,
-            fontWeight = FontWeight.Bold
-        )
         var expanded by remember { mutableStateOf(false) }
         ExposedDropdownMenuBox(
             expanded = expanded,

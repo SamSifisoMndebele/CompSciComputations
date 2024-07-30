@@ -1,6 +1,6 @@
 package com.compscicomputations.number_systems.ui.complement
 
-import com.compscicomputations.ui.utils.ProgressState
+import com.compscicomputations.number_systems.utils.ProgressState
 
 data class ComplementUiState(
     val decimal: String = "",

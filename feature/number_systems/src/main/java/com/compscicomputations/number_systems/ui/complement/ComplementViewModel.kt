@@ -12,7 +12,7 @@ import com.compscicomputations.number_systems.ui.bases.ConvertFrom.Unicode
 import com.compscicomputations.number_systems.ui.complement.ComplementConverter.fromComplement1
 import com.compscicomputations.number_systems.ui.complement.ComplementConverter.fromComplement2
 import com.compscicomputations.number_systems.ui.complement.ComplementConverter.fromDecimal
-import com.compscicomputations.ui.utils.ProgressState
+import com.compscicomputations.number_systems.utils.ProgressState
 import com.google.ai.client.generativeai.GenerativeModel
 import com.google.ai.client.generativeai.type.content
 import kotlinx.coroutines.Dispatchers
@@ -64,7 +64,7 @@ class ComplementViewModel(
                 response.text?.let { outputContent ->
                     Log.d("sendPrompt", outputContent)
                     _uiState.value = _uiState.value.copy(
-                        progressState = ProgressState.Success,
+                        progressState = ProgressState.Success(outputContent),
                         stepsContent = outputContent
                     )
                 } ?: throw Exception("Empty content generated.")
