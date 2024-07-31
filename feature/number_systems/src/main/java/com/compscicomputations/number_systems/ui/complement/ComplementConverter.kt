@@ -1,13 +1,9 @@
 package com.compscicomputations.number_systems.ui.complement
 
-import com.compscicomputations.number_systems.ui.bases.BaseConverter.toDecimal
-import com.compscicomputations.number_systems.utils.BinaryArithmetic
-import com.compscicomputations.number_systems.utils.BinaryArithmetic.addBinary
-import com.compscicomputations.number_systems.utils.BinaryArithmetic.fillBits
-import com.compscicomputations.number_systems.utils.BinaryArithmetic.negateBin
+import com.compscicomputations.number_systems.utils.BinaryArithmetic.bitsLength
+import com.compscicomputations.number_systems.utils.BinaryArithmetic.fixBits
 import com.compscicomputations.number_systems.utils.decimalNumberRegex
 import com.compscicomputations.utils.notMatches
-import kotlin.math.abs
 
 object ComplementConverter {
 
@@ -16,66 +12,100 @@ object ComplementConverter {
     private const val INVALID_DECIMAL = "Invalid decimal number"
 
 
-    fun ComplementUiState.fromDecimal(decimal: String): ComplementUiState {
-        val decimalStr = decimal.removeSuffix("-")
-        if (decimal.isEmpty()) return ComplementUiState()
-        if (decimalStr.split(" ").any{ it.notMatches(decimalNumberRegex)})
-            return copy(error = INVALID_DECIMAL)
+    fun ComplementUiState.fromDecimal(decimalStr: String): ComplementUiState {
+        if (decimalStr.isBlank()) return ComplementUiState()
+        if (decimalStr.endsWith('-')) return copy(decimal = decimalStr)
+        val decimals = decimalStr.split(" ")
+        if (decimals.any{ it.notMatches(decimalNumberRegex)})
+            return copy(
+                decimal = decimalStr,
+                complement1 = "",
+                complement2 = "",
+                error = INVALID_DECIMAL
+            )
+        
+        val complement1 = mutableListOf<String>()
+        val complement2 = mutableListOf<String>()
 
-        var complement1 = ""
-        var complement2 = ""
-
-        for (dec in decimalStr.split(" ")) {
+        for (dec in decimals) {
             if (dec.isEmpty()) continue
             val long = try {
                 dec.toLong()
             } catch (e: NumberFormatException) {
-                return copy(error = SIZE_ERROR)
+                return copy(
+                    decimal = decimalStr,
+                    complement1 = "",
+                    complement2 = "",
+                    error = SIZE_ERROR
+                )
             }
-            val binary = java.lang.Long.toBinaryString(abs(dec.toLong())).fillBits()
 
-            complement1 += (if (long >= 0) binary else binary.negateBin()) + " "
-            complement2 += (if (long >= 0) binary else addBinary(binary.negateBin(), "1")) + " "
+            val length = long.bitsLength
+            complement1 += java.lang.Long.toBinaryString(if (long < 0) long - 1 else long).fixBits(length)
+            complement2 += java.lang.Long.toBinaryString(long).fixBits(length)
         }
-
         return copy(
-            decimal = decimal,
-            complement1 = complement1,
-            complement2 = complement2,
+            decimal = decimalStr,
+            complement1 = complement1.joinToString(" "),
+            complement2 = complement2.joinToString(" "),
             error = null
         )
     }
 
     fun ComplementUiState.fromComplement1(complement1Str: String): ComplementUiState {
-        return try {
-            var decimal = complement1Str.toDecimal(2)
-            var decimalString = decimal.toString()
+        val decimal = mutableListOf<String>()
+        val complement2 = mutableListOf<String>()
 
-            if (complement1Str[0] == '1') {
-                decimal = complement1Str.negateBin().toDecimal(2)
-                decimalString = "-$decimal"
+        for (binary in complement1Str.split(" ")) {
+            if (binary.isBlank()) continue
+            val long = try {
+                java.lang.Long.parseUnsignedLong(binary.fixBits(64, binary.startsWith('1')), 2)
+            } catch (e: NumberFormatException) {
+                return copy(
+                    decimal = "",
+                    complement1 = complement1Str,
+                    complement2 = "",
+                    error = SIZE_ERROR
+                )
             }
-            if (decimal < 0) copy(error = SIZE_ERROR)
-            else fromDecimal(decimalString)
-        } catch (unused: Exception) {
-            copy(error = SIZE_ERROR)
+            val complement1Long = if (long < 0) long + 1 else long
+            decimal += complement1Long.toString()
+            val length = complement1Long.bitsLength
+            complement2 += java.lang.Long.toBinaryString(complement1Long).fixBits(length)
         }
+        return copy(
+            decimal = decimal.joinToString(" "),
+            complement1 = complement1Str,
+            complement2 = complement2.joinToString(" "),
+            error = null
+        )
     }
 
     fun ComplementUiState.fromComplement2(complement2Str: String): ComplementUiState {
-        return try {
-            var decimal = complement2Str.toDecimal(2)
-            var decimalString = decimal.toString()
+        val decimal = mutableListOf<String>()
+        val complement1 = mutableListOf<String>()
 
-            if (complement2Str[0] == '1') {
-                decimal = complement2Str.negateBin().toDecimal(2)
-                decimalString = "-${decimal + 1}"
+        for (binary in complement2Str.split(" ")) {
+            if (binary.isBlank()) continue
+            val long = try {
+                java.lang.Long.parseUnsignedLong(binary.fixBits(64, binary.startsWith('1')), 2)
+            } catch (e: NumberFormatException) {
+                return copy(
+                    decimal = "",
+                    complement1 = "",
+                    complement2 = complement2Str,
+                    error = SIZE_ERROR
+                )
             }
-            if (decimal + 1 < 0) copy(error = SIZE_ERROR)
-            else fromDecimal(decimalString)
-        } catch (unused: Exception) {
-            copy(error = SIZE_ERROR)
+            decimal += long.toString()
+            val length = long.bitsLength
+            complement1 += java.lang.Long.toBinaryString(if (long < 0) long - 1 else long).fixBits(length)
         }
+        return copy(
+            decimal = decimal.joinToString(" "),
+            complement1 = complement1.joinToString(" "),
+            complement2 = complement2Str,
+            error = null
+        )
     }
-
 }

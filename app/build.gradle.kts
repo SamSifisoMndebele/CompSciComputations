@@ -81,7 +81,6 @@ protobuf {
 }
 
 dependencies {
-    implementation(libs.protobuf.java)
 
     /** Auth */
     implementation(libs.androidx.credentials)
@@ -103,8 +102,9 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
-    implementation(libs.androidx.datastore)
     implementation(libs.androidx.datastore.preferences)
+    implementation(libs.androidx.datastore)
+    implementation(libs.protobuf.java)
 
     /**Firebase*/
     implementation(platform(libs.firebase.bom))

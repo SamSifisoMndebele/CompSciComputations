@@ -1,8 +1,5 @@
 package com.compscicomputations.number_systems.ui.excess
 
-import com.compscicomputations.number_systems.ui.bases.BaseConverter.toDecimal
-
-
 object ExcessConvert {
 
 
@@ -22,7 +19,7 @@ object ExcessConvert {
         return try {
             val excessBits = this.toInt()
             val excessIdentifier = "1".padEnd(excessBits, '0')
-            excessIdentifier.toDecimal(2).toString()
+            java.lang.Long.parseUnsignedLong(excessIdentifier, 2).toString()
         } catch (e: Exception) {
             ""
         }

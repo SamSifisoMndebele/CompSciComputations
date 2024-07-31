@@ -1,66 +1,133 @@
 package com.compscicomputations.number_systems.ui.floating_point
 
-import com.compscicomputations.number_systems.utils.BinaryArithmetic.fillBits
-import com.compscicomputations.number_systems.ui.bases.BaseConverter.toDecimal
-import com.compscicomputations.number_systems.utils.Conversion
+import com.compscicomputations.number_systems.utils.BinaryArithmetic.padBits
+import com.compscicomputations.number_systems.utils.decimalNumberRegex
+import com.compscicomputations.utils.notMatches
 
 object FloatingPointConverter {
+    private const val SIZE_ERROR = "Size error"
+    private const val INVALID_DECIMAL = "Invalid decimal number"
 
-    fun fromDecimal(decimalString: String): Conversion {
-        var conversion = Conversion()
-        val decimal = decimalString.replace(',', '.')
+    fun FloatingPointUiState.fromDecimal(decimal: String): FloatingPointUiState {
+        val decimalStr = decimal.replace(',', '.')
+        if (decimalStr.notMatches(decimalNumberRegex))
+            return copy(
+                decimal = decimalStr,
+//                miniFloat = "",
+                binary16 = "",
+                binary32 = "",
+                binary64 = "",
+                error = INVALID_DECIMAL
+            )
+
         try {
-            val parseDouble = decimal.toDouble()
-            val parseFloat = decimal.toFloat()
+            val parseDouble = decimalStr.toDouble()
+            val parseFloat = decimalStr.toFloat()
 
-            val floatStr = if (parseFloat > 0.0f) "0" else ""
-            val float = floatStr + Integer.toBinaryString(java.lang.Float.floatToRawIntBits(parseFloat))
-            val doubleIEEE754 = floatStr + java.lang.Long.toBinaryString(java.lang.Double.doubleToLongBits(parseDouble))
+            val posBit = if (parseFloat > 0.0f) "0" else ""
+            val float = posBit + Integer.toBinaryString(java.lang.Float.floatToRawIntBits(parseFloat))
+            val double = posBit + java.lang.Long.toBinaryString(java.lang.Double.doubleToLongBits(parseDouble))
 
-            conversion = Conversion(decimal, float, doubleIEEE754)
+            return copy(
+                decimal = decimalStr,
+//                miniFloat = "",
+                binary16 = "",
+                binary32 = float,
+                binary64 = double,
+                error = null
+            )
         } catch (e: NumberFormatException) {
-            e.printStackTrace()
+            return copy(
+                decimal = decimalStr,
+//                miniFloat = "",
+                binary16 = "",
+                binary32 = "",
+                binary64 = "",
+                error = SIZE_ERROR
+            )
         }
-        return conversion
     }
 
-    fun fromIEEE754(floatString: String): Conversion {
-        var conversion = Conversion()
+    fun FloatingPointUiState.fromIEEE754(floatStr: String): FloatingPointUiState {
         try {
-            if (floatString.length > 9) {
-                val intBitsToFloat = java.lang.Float.intBitsToFloat(floatString.fillBits(32).toDecimal(2).toInt())
-                if (1.0f + intBitsToFloat < 0.0f) {
-                    conversion.error = true
-                }
-                val doubleIEEE754 = (if (intBitsToFloat < 0.0f) "1" else "0") + java.lang.Long.toBinaryString(
-                        java.lang.Double.doubleToLongBits(intBitsToFloat.toDouble())
+            if (floatStr.length > 9) {
+                val long = java.lang.Long.parseUnsignedLong(floatStr.padBits(64), 2)
+                val decimal = java.lang.Float.intBitsToFloat(long.toInt())
+                if (1.0f + decimal < 0.0f) {
+                    return copy(
+                        decimal = "",
+//                        miniFloat = "",
+                        binary16 = "",
+                        binary32 = floatStr,
+                        binary64 = "",
+                        error = INVALID_DECIMAL
                     )
+                }
+                val double = (if (decimal < 0.0f) "1" else "0") + java.lang.Long.toBinaryString(
+                    java.lang.Double.doubleToLongBits(decimal.toDouble())
+                )
 
-                conversion = Conversion(intBitsToFloat.toString(), floatString, doubleIEEE754)
+                return copy(
+                    decimal = decimal.toString(),
+//                    miniFloat = "",
+                    binary16 = "",
+                    binary32 = floatStr,
+                    binary64 = double,
+                    error = null
+                )
             }
+            else return FloatingPointUiState()
         } catch (e: Exception) {
-            e.printStackTrace()
+            return copy(
+                decimal = "",
+//                miniFloat = "",
+                binary16 = "",
+                binary32 = floatStr,
+                binary64 = "",
+                error = SIZE_ERROR
+            )
         }
-        return conversion
     }
 
-    fun fromDoubleIEEE754(doubleString: String): Conversion {
-        var conversion = Conversion()
+    fun FloatingPointUiState.fromDoubleIEEE754(doubleStr: String): FloatingPointUiState {
         try {
-            if (doubleString.length > 12) {
-                val longBitsToDouble = java.lang.Double.longBitsToDouble(doubleString.fillBits(64).toDecimal(2))
-                if (1.0 + longBitsToDouble < 0.0) {
-                    conversion.error = true
+            if (doubleStr.length > 12) {
+                val long = java.lang.Long.parseUnsignedLong(doubleStr.padBits(64), 2)
+                val decimal = java.lang.Double.longBitsToDouble(long)
+                if (1.0 + decimal < 0.0) {
+                    return copy(
+                        decimal = "",
+//                        miniFloat = "",
+                        binary16 = "",
+                        binary32 = "",
+                        binary64 = doubleStr,
+                        error = SIZE_ERROR
+                    )
                 }
 
-                val iEEE754 = (if (longBitsToDouble < 0.0) "1" else "0") +
-                        java.lang.Long.toBinaryString(java.lang.Float.floatToIntBits(longBitsToDouble.toFloat()).toLong())
+                val float = (if (decimal < 0.0) "1" else "0") + java.lang.Long.toBinaryString(
+                    java.lang.Float.floatToIntBits(decimal.toFloat()).toLong()
+                )
 
-                conversion = Conversion(longBitsToDouble.toString(), iEEE754, doubleString)
+                return copy(
+                    decimal = decimal.toString(),
+//                    miniFloat = "",
+                    binary16 = "",
+                    binary32 = float,
+                    binary64 = doubleStr,
+                    error = null
+                )
             }
+            else return FloatingPointUiState()
         } catch (e: Exception) {
-            e.printStackTrace()
+            return copy(
+                decimal = "",
+//                miniFloat = "",
+                binary16 = "",
+                binary32 = "",
+                binary64 = doubleStr,
+                error = SIZE_ERROR
+            )
         }
-        return conversion
     }
 }

@@ -1,37 +1,21 @@
 package com.compscicomputations.number_systems.ui.floating_point
 
-import com.compscicomputations.number_systems.utils.ProgressState
+import com.compscicomputations.number_systems.data.model.ConvertFrom
+import com.compscicomputations.number_systems.data.model.AIState
 
 data class FloatingPointUiState(
     val decimal: String = "",
-    val float8: String = "", // semi IEEE754
-    val float16: String = "", // half IEEE754
-    val float32: String = "", // single IEEE754
-    val float64: String = "", // double IEEE754
-    val convertFrom: ConvertFrom = ConvertFrom.Decimal,
+//    val miniFloat: String = "", // mini float (1,4,3)
+    val binary16: String = "", // half IEEE754 (1,5,10)
+    val binary32: String = "", // single IEEE754 (1,8,23)
+    val binary64: String = "", // double IEEE754 (1,11,52)
 
     val error: String? = null,
 
-    val progressState: ProgressState = ProgressState.Idle,
+    val convertFrom: ConvertFrom = ConvertFrom.Decimal,
 
-    val stepsContent: String = "",
-)
-
-enum class ConvertFrom(val text: String) {
-    Decimal("Decimal"),
-    Float8("Mini precedence"),
-    Float16("Half precedence"),
-    Float32("Single precedence"),
-    Float64("Double precedence");
-
-    val decimal: Boolean
-        get() = this == Decimal
-    val float8: Boolean
-        get() = this == Float8
-    val float16: Boolean
-        get() = this == Float16
-    val float32: Boolean
-        get() = this == Float32
-    val float64: Boolean
-        get() = this == Float64
+    val aiState: AIState = AIState.Idle
+) {
+    val isValid: Boolean
+        get() = decimal.isNotBlank()
 }

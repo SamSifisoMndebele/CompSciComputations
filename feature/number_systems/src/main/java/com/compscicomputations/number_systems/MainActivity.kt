@@ -28,12 +28,14 @@ import org.koin.dsl.module
 private val appModule = module {
     single<GenerativeModel> {
         GenerativeModel(
-            modelName = "gemini-1.5-flash", //"gemini-pro-vision",
+            modelName = "gemini-1.5-flash",
             apiKey = BuildConfig.GENERATIVE_AI_KEY,
             generationConfig = GenerationConfig
                 .Builder().apply {
                     stopSequences = listOf(
-                        "Let me know"
+                        "Let me know",
+                        "However, it seems you've already provided the correct results.",
+                        "there's a mistake in the provided results"
                     )
                 }
                 .build()

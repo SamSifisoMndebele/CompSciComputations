@@ -3,8 +3,6 @@ package com.compscicomputations.number_systems.ui.floating_point
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -23,21 +21,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.Hyphens
 import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.compscicomputations.number_systems.data.model.ConvertFrom
 import com.compscicomputations.theme.comicNeueFamily
-import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FloatingPointScreen(
-    viewModel: FloatingPointViewModel = koinViewModel()
+    viewModel: FloatingPointViewModel,
+    uiState: FloatingPointUiState
 ) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -73,7 +69,7 @@ fun FloatingPointScreen(
                 expanded = expanded,
                 onDismissRequest = { expanded = false }
             ) {
-                ConvertFrom.entries.forEach {
+                ConvertFrom.floatingPointNotation.forEach {
                     DropdownMenuItem(
                         text = { Text(text = it.text) },
                         onClick = {

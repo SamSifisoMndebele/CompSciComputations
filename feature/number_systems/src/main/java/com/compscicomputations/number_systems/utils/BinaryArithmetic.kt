@@ -1,41 +1,95 @@
 package com.compscicomputations.number_systems.utils
 
-import com.compscicomputations.number_systems.ui.bases.BaseConverter.toDecimal
+import kotlin.math.abs
 import kotlin.math.ceil
-import kotlin.math.ln
+import kotlin.math.floor
+import kotlin.math.log
 import kotlin.math.pow
 
 object BinaryArithmetic {
     /**
      * Fill binary strings to nearest 4 bits
      */
-    fun String.fillBits(): String {
-        val bits = 2.0.pow(ceil(ln(trim().length.toDouble()) / ln(2.0))).toInt()
+    fun String.padBits(): String {
+        val bits = 2.0.pow(ceil(log(trim().length.toDouble(),2.0))).toInt()
         return padStart(bits, '0')
+    }
+
+    val Long.bitsLength: Int
+        get() = 2.0.pow(
+            x = floor(log(
+                x = floor(log(
+                    x = abs(x = toDouble()),
+                    base = 2.0
+                )) + 1,
+                base = 2.0
+            )) + 1
+        ).toInt()
+
+    fun String.fixBits(length: Int, padOnes: Boolean = false): String {
+        return if (this.length > length) takeLast(length)
+        else padStart(length, if (padOnes) '1' else '0')
     }
 
     /**
      * Binary string with [bits] bits. Filled `0` bit on start.
      */
-    fun String.fillBits(bits: Int): String = padStart(bits, '0')
-
-    /**
-     * Compliment of the binary string
-     */
-    fun String.negateBin(): String = buildString {
-        this@negateBin.forEach { char ->
-            if (char == '0') append('1')
-            else append('0')
-        }
-    }
+    fun String.padBits(bits: Int): String = padStart(bits, '0')
 
 
-    /**
-     * Adds two binary strings
-     * @throws NumberFormatException
-     */
-    fun addBinary(a: String, b: String): String =
-        java.lang.Long.toBinaryString(a.toDecimal(2) + b.toDecimal(2))
+
+
+
+
+
+
+
+
+
+
+
+//    class SizeException : Exception("Size Error")
+//
+//    /**
+//     * Convert Any base number string to Decimal
+//     * @throws NumberFormatException
+//     * @throws SizeException
+//     */
+//    fun String.toDecimal(base: Int): Long {
+//        val b = base.toDouble()
+//        var decimal: Long = 0
+//        var i = 0
+//        for (digit in reversed()) {
+//            val num = hexLetters[digit] ?: digit.toString().toInt()
+//            if (num >= base) throw NumberFormatException()
+//
+//            decimal += (num * b.pow(i++)).toLong()
+//
+//            if (decimal.toDouble().isNaN()) throw SizeException()
+//        }
+//
+//        return decimal
+//    }
+
+
+
+//    /**
+//     * Compliment of the binary string
+//     */
+//    fun String.negateBin(): String = buildString {
+//        this@negateBin.forEach { char ->
+//            if (char == '0') append('1')
+//            else append('0')
+//        }
+//    }
+//
+//
+//    /**
+//     * Adds two binary strings
+//     * @throws NumberFormatException
+//     */
+//    fun addBinary(a: String, b: String): String =
+//        java.lang.Long.toBinaryString(a.toDecimal(2) + b.toDecimal(2))
 
 
 

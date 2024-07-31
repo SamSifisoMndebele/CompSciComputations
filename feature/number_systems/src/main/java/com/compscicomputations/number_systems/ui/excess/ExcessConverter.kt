@@ -1,8 +1,6 @@
 package com.compscicomputations.number_systems.ui.excess
 
-import com.compscicomputations.number_systems.utils.BinaryArithmetic.fillBits
-import com.compscicomputations.number_systems.ui.bases.BaseConverter.toDecimal
-
+import com.compscicomputations.number_systems.utils.BinaryArithmetic.padBits
 
 object ExcessConverter {
 
@@ -15,9 +13,10 @@ object ExcessConverter {
 
     private fun String.decimalToExcess(excessIdentifier: Long, excessBits : Int): String {
         val excessLong = this.toLong() + excessIdentifier
-        val binary = java.lang.Long.toBinaryString(excessLong).fillBits()
+        val binary = java.lang.Long.toBinaryString(excessLong).padBits(64)
 
-        if (excessLong < 0 || excessIdentifier*2-1 < binary.toDecimal(2))
+        val long = java.lang.Long.parseUnsignedLong(binary, 2)
+        if (excessLong < 0 || excessIdentifier*2-1 < long)
             throw Exception()
 
         val excessBinary = binary.takeLast(excessBits-1)
@@ -30,7 +29,7 @@ object ExcessConverter {
         return try {
             val excessBits = this
             val excessIdentifier = "1".padEnd(excessBits, '0')
-            excessIdentifier.toDecimal(2).toString()
+            java.lang.Long.parseUnsignedLong(excessIdentifier, 2).toString()
         } catch (e: Exception) {
             ""
         }

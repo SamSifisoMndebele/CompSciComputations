@@ -1,12 +1,10 @@
 package com.compscicomputations.number_systems.ui.bases
 
-import com.compscicomputations.number_systems.utils.BinaryArithmetic.fillBits
 import com.compscicomputations.number_systems.utils.binaryNumbersRegex
 import com.compscicomputations.number_systems.utils.decimalNumberRegex
 import com.compscicomputations.number_systems.utils.hexNumbersRegex
 import com.compscicomputations.number_systems.utils.octalNumbersRegex
 import com.compscicomputations.utils.notMatches
-import kotlin.math.pow
 
 object BaseConverter {
 
@@ -18,130 +16,160 @@ object BaseConverter {
         'E' to 14,
         'F' to 15
     )
-    private const val INVALID_NUM = "Invalid number"
     private const val SIZE_ERROR = "Size error"
     private const val INVALID_DECIMAL = "Invalid decimal number"
     private const val INVALID_BINARY = "Invalid binary number"
     private const val INVALID_OCT = "Invalid octal number"
     private const val INVALID_HEX = "Invalid hexadecimal number"
-    private const val INVALID_ASCII = "Invalid unicode character"
-
-    fun BasesUiState.fromDecimal(decimal: String): BasesUiState {
-        val decimalStr = decimal.removeSuffix("-")
-        if (decimal.isEmpty()) return BasesUiState()
-        if (decimalStr.split(" ").any{ it.notMatches(decimalNumberRegex)})
-            return copy(error = INVALID_DECIMAL)
-
-        var binaryStr = ""
-        var octalStr = ""
-        var hexStr = ""
-        var unicodeStr = ""
-
-        for (dec in decimalStr.split(" ")) {
-            if (dec.isEmpty()) continue
-            val long = try {
-                dec.toLong()
-            } catch (e: NumberFormatException) {
-                return copy(error = SIZE_ERROR)
-            }
-
-            binaryStr += java.lang.Long.toBinaryString(long) + " "
-            octalStr += java.lang.Long.toOctalString(long) + " "
-            hexStr += java.lang.Long.toHexString(long).uppercase() + " "
-            unicodeStr += long.toInt().toChar()
-        }
-        return copy(
-            decimal = decimal,
-            binary = binaryStr,//.fillBits(),
-            octal = octalStr,
-            hexadecimal = hexStr,
-            unicode = unicodeStr,
-            convertFrom = ConvertFrom.Decimal,
-            error = null
-        )
-    }
-
-    fun BasesUiState.fromUnicode(charArray: CharSequence): BasesUiState {
-        var decimalStr = ""
-        for (char in charArray) {
-            decimalStr += char.code.toString() + " "
-        }
-        return fromDecimal(decimalStr)
-    }
-
 
     /**
-     * Convert Any base number string to Decimal
      * @throws NumberFormatException
-     * @throws SizeException
      */
-    fun String.toDecimal(base: Int): Long {
-        val b = base.toDouble()
-        var decimal: Long = 0
-        var i = 0
-        for (digit in reversed()) {
-            val num = hexLetters[digit] ?: digit.toString().toInt()
-            if (num >= base) throw NumberFormatException()
+    private fun BasesUiState.fromDecimal(decimal: List<String>): BasesUiState {
+        val binary = mutableListOf<String>()
+        val octal = mutableListOf<String>()
+        val hexadecimal = mutableListOf<String>()
+        val unicode = mutableListOf<Char>()
 
-            decimal += (num * b.pow(i++)).toLong()
-            if (java.lang.Double.isNaN(decimal.toDouble()))
-                throw SizeException()
+        for (dec in decimal) {
+            if (dec.isEmpty()) continue
+            val long = dec.toLong()
+
+            binary.add(java.lang.Long.toBinaryString(long))
+            octal.add(java.lang.Long.toOctalString(long))
+            hexadecimal.add(java.lang.Long.toHexString(long).uppercase())
+            unicode.add(long.toInt().toChar())
         }
-
-        return decimal
+        return copy(
+            decimal = decimal.joinToString(" "),
+            binary = binary.joinToString(" "),
+            octal = octal.joinToString(" "),
+            hexadecimal = hexadecimal.joinToString(" "),
+            unicode = unicode.joinToString(""),
+            error = null
+        )
     }
 
     /**
      * @throws NumberFormatException
      */
     private fun BasesUiState.fromRadix(string: String, base: Int): BasesUiState {
-        if (string.isEmpty()) return BasesUiState()
-        var decimalStr = ""
+        val decimal = mutableListOf<String>()
         for (number in string.uppercase().split(" ")) {
-            if (number.isEmpty()) continue
-            try {
-                val decimal = number.toDecimal(base)
-                decimalStr = "$decimalStr$decimal "
-            } catch (e: SizeException) {
-                return copy(error =  SIZE_ERROR)
-            }
+            if (number.isBlank()) continue
+            decimal.add(java.lang.Long.parseUnsignedLong(number, base).toString())
         }
-        return fromDecimal(decimalStr)
+        return fromDecimal(decimal)
     }
 
+
+    fun BasesUiState.fromDecimal(decimalStr: String): BasesUiState {
+        if (decimalStr.isBlank()) return BasesUiState()
+        if (decimalStr.endsWith('-')) return copy(decimal = decimalStr)
+        val decimals = decimalStr.split(" ")
+        if (decimals.any{ it.notMatches(decimalNumberRegex)})
+            return copy(
+                decimal = decimalStr,
+                binary = "",
+                octal = "",
+                hexadecimal = "",
+                unicode = "",
+                error = INVALID_DECIMAL
+            )
+
+        return try {
+            fromDecimal(decimals)
+        } catch (e: NumberFormatException) {
+            copy(
+                decimal = decimalStr,
+                binary = "",
+                octal = "",
+                hexadecimal = "",
+                unicode = "",
+                error = SIZE_ERROR
+            )
+        }
+    }
     fun BasesUiState.fromBinary(binaryStr: String): BasesUiState {
-        if (binaryStr.isEmpty()) return BasesUiState()
+        if (binaryStr.isBlank()) return BasesUiState()
         if (binaryStr.notMatches(binaryNumbersRegex)) {
-            return copy(error = INVALID_BINARY)
+            return copy(
+                decimal = "",
+                binary = binaryStr,
+                octal = "",
+                hexadecimal = "",
+                unicode = "",
+                error = INVALID_BINARY
+            )
         }
         return try {
             fromRadix(binaryStr, 2)
         } catch (e: NumberFormatException) {
-            copy(error = INVALID_BINARY)
+            copy(
+                decimal = "",
+                binary = binaryStr,
+                octal = "",
+                hexadecimal = "",
+                unicode = "",
+                error = SIZE_ERROR
+            )
         }
     }
     fun BasesUiState.fromOctal(octalStr: String): BasesUiState {
-        if (octalStr.isEmpty()) return BasesUiState()
+        if (octalStr.isBlank()) return BasesUiState()
         if (octalStr.notMatches(octalNumbersRegex)) {
-            return copy(error = INVALID_OCT)
+            return copy(
+                decimal = "",
+                binary = "",
+                octal = octalStr,
+                hexadecimal = "",
+                unicode = "",
+                error = INVALID_OCT
+            )
         }
         return try {
             fromRadix(octalStr, 8)
         } catch (e: NumberFormatException) {
-            copy(error = INVALID_OCT)
+            copy(
+                decimal = "",
+                binary = "",
+                octal = octalStr,
+                hexadecimal = "",
+                unicode = "",
+                error = SIZE_ERROR
+            )
         }
     }
     fun BasesUiState.fromHex(hexadecimalStr: String): BasesUiState {
-        if (hexadecimalStr.isEmpty()) return BasesUiState()
+        if (hexadecimalStr.isBlank()) return BasesUiState()
         if (hexadecimalStr.notMatches(hexNumbersRegex)) {
-            return copy(error = INVALID_HEX)
+            return copy(
+                decimal = "",
+                binary = "",
+                octal = "",
+                hexadecimal = hexadecimalStr,
+                unicode = "",
+                error = INVALID_HEX
+            )
         }
         return try {
             fromRadix(hexadecimalStr, 16)
         } catch (e: NumberFormatException) {
-            copy(error = INVALID_HEX)
+            copy(
+                decimal = "",
+                binary = "",
+                octal = "",
+                hexadecimal = hexadecimalStr,
+                unicode = "",
+                error = SIZE_ERROR
+            )
         }
     }
 
-    class SizeException : Exception("Size Error")
+    fun BasesUiState.fromUnicode(charArray: CharSequence): BasesUiState {
+        if (charArray.isBlank()) return BasesUiState()
+        val decimal = mutableListOf<String>()
+        decimal.addAll(charArray.map { it.code.toString() })
+        return fromDecimal(decimal)
+    }
 }
