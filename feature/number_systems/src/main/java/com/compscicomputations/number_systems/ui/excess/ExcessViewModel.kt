@@ -3,14 +3,15 @@ package com.compscicomputations.number_systems.ui.excess
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.compscicomputations.number_systems.data.model.AiResponse
+import com.compscicomputations.number_systems.data.source.local.AiResponse
 import com.compscicomputations.number_systems.data.model.ConvertFrom
 import com.compscicomputations.number_systems.data.model.AIState
 import com.compscicomputations.number_systems.data.model.ConvertFrom.*
-import com.compscicomputations.number_systems.ui.complement.ComplementUiState
 import com.google.ai.client.generativeai.GenerativeModel
 import com.google.ai.client.generativeai.type.content
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -29,7 +30,7 @@ class ExcessViewModel(
         _uiState.value = _uiState.value.copy(convertFrom = convertFrom)
     }
 
-    fun setProgressState(aiState: AIState) {
+    fun setAiState(aiState: AIState) {
         _uiState.value = _uiState.value.copy(aiState = aiState)
     }
 
@@ -54,11 +55,21 @@ class ExcessViewModel(
     }
 
 
+    private var job: Job? = null
+    @OptIn(InternalCoroutinesApi::class)
+    fun cancelJob(handler: () -> Unit = {}) {
+        job?.cancel()
+        job?.invokeOnCompletion(true) {
+            job = null
+            setAiState(AIState.Idle)
+            handler()
+        }
+    }
 
 
-    fun showAISteps() {
+    fun generateSteps() {
         _uiState.value = _uiState.value.copy(aiState = AIState.Loading("Loading Steps..."))
-        viewModelScope.launch(Dispatchers.IO) {
+        job = viewModelScope.launch(Dispatchers.IO) {
             try {
                 val response = generativeModel.generateContent(
                     content {
@@ -73,6 +84,7 @@ class ExcessViewModel(
                     _uiState.value = _uiState.value.copy(
                         aiState = AIState.Success(
                             AiResponse(
+                                id = 0,
                                 convertFrom = _uiState.value.convertFrom,
                                 value = when(_uiState.value.convertFrom) {
                                     Decimal -> _uiState.value.decimal
@@ -94,6 +106,10 @@ class ExcessViewModel(
                 )
             }
         }
+    }
+
+    fun regenerateSteps() {
+
     }
 
     private val ExcessUiState.aiText: String

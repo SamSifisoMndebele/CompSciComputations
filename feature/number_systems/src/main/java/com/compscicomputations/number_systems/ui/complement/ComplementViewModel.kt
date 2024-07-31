@@ -4,23 +4,27 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.compscicomputations.number_systems.data.model.AIState
-import com.compscicomputations.number_systems.data.model.AiResponse
+import com.compscicomputations.number_systems.data.source.local.AiResponse
 import com.compscicomputations.number_systems.data.model.ConvertFrom
 import com.compscicomputations.number_systems.data.model.ConvertFrom.Complement1
 import com.compscicomputations.number_systems.data.model.ConvertFrom.Complement2
 import com.compscicomputations.number_systems.data.model.ConvertFrom.Decimal
+import com.compscicomputations.number_systems.data.source.local.AiResponseDao
 import com.compscicomputations.number_systems.ui.complement.ComplementConverter.fromComplement1
 import com.compscicomputations.number_systems.ui.complement.ComplementConverter.fromComplement2
 import com.compscicomputations.number_systems.ui.complement.ComplementConverter.fromDecimal
 import com.google.ai.client.generativeai.GenerativeModel
 import com.google.ai.client.generativeai.type.content
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class ComplementViewModel(
-    private val generativeModel: GenerativeModel
+    private val generativeModel: GenerativeModel,
+    private val aiResponseDao: AiResponseDao
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(ComplementUiState())
     val uiState = _uiState.asStateFlow()
@@ -33,7 +37,7 @@ class ComplementViewModel(
         _uiState.value = _uiState.value.copy(convertFrom = convertFrom)
     }
 
-    fun setProgressState(aiState: AIState) {
+    fun setAiState(aiState: AIState) {
         _uiState.value = _uiState.value.copy(aiState = aiState)
     }
 
@@ -58,10 +62,33 @@ class ComplementViewModel(
         }
     }
 
-    fun showAISteps() {
-        _uiState.value = _uiState.value.copy(aiState = AIState.Loading("Loading Steps..."))
-        viewModelScope.launch(Dispatchers.IO) {
+    private var job: Job? = null
+    @OptIn(InternalCoroutinesApi::class)
+    fun cancelJob(handler: () -> Unit = {}) {
+        job?.cancel()
+        job?.invokeOnCompletion(true) {
+            job = null
+            setAiState(AIState.Idle)
+            handler()
+        }
+    }
+
+    fun generateSteps() {
+        setAiState(AIState.Loading("Loading Steps..."))
+        job = viewModelScope.launch(Dispatchers.IO) {
             try {
+                val fromValue = when(_uiState.value.convertFrom) {
+                    Decimal -> _uiState.value.decimal
+                    Complement1 -> _uiState.value.complement1
+                    Complement2 -> _uiState.value.complement2
+                    else -> throw IllegalArgumentException("Invalid option.")
+                }
+                val aiResponse = aiResponseDao.select(_uiState.value.convertFrom, fromValue)
+                if (aiResponse != null) {
+                    setAiState(AIState.Success(aiResponse))
+                    return@launch
+                }
+
                 val response = generativeModel.generateContent(
                     content {
                         text(_uiState.value.aiText)
@@ -69,31 +96,24 @@ class ComplementViewModel(
                 )
                 response.text?.let { outputContent ->
                     Log.d("AI::response", outputContent)
-                    _uiState.value = _uiState.value.copy(
-                        aiState = AIState.Success(
-                            AiResponse(
-                                convertFrom = _uiState.value.convertFrom,
-                                value = when(_uiState.value.convertFrom) {
-                                    Decimal -> _uiState.value.decimal
-                                    Complement1 -> _uiState.value.complement1
-                                    Complement2 -> _uiState.value.complement2
-                                    else -> throw IllegalArgumentException("Invalid option.")
-                                },
-                                text = outputContent
-                            )
-                        )
+                    val newAiResponse = AiResponse(
+                        id = 0,
+                        convertFrom = _uiState.value.convertFrom,
+                        value = fromValue,
+                        text = outputContent
                     )
+                    setAiState(AIState.Success(newAiResponse))
+                    aiResponseDao.insert(newAiResponse)
                 } ?: throw Exception("Empty content generated.")
-                Log.d("AI::totalToken", response.usageMetadata?.totalTokenCount.toString())
-                Log.d("AI::promptToken", response.usageMetadata?.promptTokenCount.toString())
-                Log.d("AI::candidatesToken", response.usageMetadata?.candidatesTokenCount.toString())
             } catch (e: Exception) {
                 Log.w("AI::error", e)
-                _uiState.value = _uiState.value.copy(
-                    aiState = AIState.Error(e.localizedMessage)
-                )
+                setAiState(AIState.Error(e.localizedMessage))
             }
         }
+    }
+
+    fun regenerateSteps() {
+
     }
 
     private val ComplementUiState.aiText: String

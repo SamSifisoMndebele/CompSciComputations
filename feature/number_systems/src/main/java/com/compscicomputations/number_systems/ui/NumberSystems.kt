@@ -16,10 +16,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.List
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.BottomAppBarDefaults
@@ -38,7 +36,6 @@ import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.contentColorFor
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -73,7 +70,6 @@ import com.compscicomputations.number_systems.data.model.CurrentTab.*
 import com.compscicomputations.theme.comicNeueFamily
 import com.compscicomputations.ui.utils.ui.AnnotatedText
 import com.compscicomputations.ui.utils.ui.CompSciScaffold
-import com.compscicomputations.utils.network.ConnectionState
 import com.compscicomputations.utils.network.ConnectionState.*
 import com.compscicomputations.utils.rememberConnectivityState
 import kotlinx.coroutines.CoroutineScope
@@ -166,10 +162,10 @@ fun NumberSystems(
                             elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
                             onClick = {
                                 when (currentTab) {
-                                    BaseN -> basesViewModel.showAISteps()
-                                    Complement -> complementViewModel.showAISteps()
-                                    Excess -> excessViewModel.showAISteps()
-                                    FloatingPoint -> floatingPointViewModel.showAISteps()
+                                    BaseN -> basesViewModel.generateSteps()
+                                    Complement -> complementViewModel.generateSteps()
+                                    Excess -> excessViewModel.generateSteps()
+                                    FloatingPoint -> floatingPointViewModel.generateSteps()
                                 }
                             }
                         )
@@ -245,30 +241,30 @@ fun NumberSystems(
             BaseN -> StepsBox(
                 scope = scope,
                 aiState = basesUiState.aiState,
-                onDismissRequest = {
-                    basesViewModel.setProgressState(Idle)
-                }
+                onDismissRequest = { basesViewModel.setAiState(Idle) },
+                onCancel = { basesViewModel.cancelJob() },
+                onRegenerate = { basesViewModel.regenerateSteps() },
             )
             Complement -> StepsBox(
                 scope = scope,
                 aiState = complementUiState.aiState,
-                onDismissRequest = {
-                    complementViewModel.setProgressState(Idle)
-                }
+                onDismissRequest = { complementViewModel.setAiState(Idle) },
+                onCancel = { complementViewModel.cancelJob() },
+                onRegenerate = { complementViewModel.regenerateSteps() },
             )
             Excess -> StepsBox(
                 scope = scope,
                 aiState = excessUiState.aiState,
-                onDismissRequest = {
-                    excessViewModel.setProgressState(Idle)
-                }
+                onDismissRequest = { excessViewModel.setAiState(Idle) },
+                onCancel = { excessViewModel.cancelJob() },
+                onRegenerate = { excessViewModel.regenerateSteps() },
             )
             FloatingPoint -> StepsBox(
                 scope = scope,
                 aiState = floatingPointUiState.aiState,
-                onDismissRequest = {
-                    floatingPointViewModel.setProgressState(Idle)
-                }
+                onDismissRequest = { floatingPointViewModel.setAiState(Idle) },
+                onCancel = { floatingPointViewModel.cancelJob() },
+                onRegenerate = { floatingPointViewModel.regenerateSteps() },
             )
         }
     }
@@ -278,9 +274,12 @@ fun NumberSystems(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun StepsBox(
-    scope: CoroutineScope,
-    aiState: AIState,
-    onDismissRequest: () -> Unit
+    scope: CoroutineScope = rememberCoroutineScope(),
+    errorDelay: Long = 6000,
+    aiState: AIState = Idle,
+    onDismissRequest: () -> Unit,
+    onCancel: () -> Unit,
+    onRegenerate: () -> Unit,
 ) {
     val sheetState = rememberModalBottomSheetState()
     if (aiState !is Idle) {
@@ -325,7 +324,7 @@ private fun StepsBox(
                             onClick = {
                                 scope.launch { sheetState.hide() }
                                     .invokeOnCompletion {
-                                        if (!sheetState.isVisible) { onDismissRequest() }
+                                        if (!sheetState.isVisible) { onCancel() }
                                     }
                             },
                             modifier = Modifier
@@ -344,7 +343,7 @@ private fun StepsBox(
                 is Error -> {
                     LaunchedEffect(Unit) {
                         launch(Dispatchers.IO) {
-                            delay(5000)
+                            delay(errorDelay)
                             sheetState.hide()
                         }.invokeOnCompletion {
                             if (!sheetState.isVisible) { onDismissRequest() }
@@ -385,12 +384,23 @@ private fun StepsBox(
                 }
                 is Success -> {
                     val scrollState = rememberScrollState()
-                    AnnotatedText(
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp)
-                            .verticalScroll(scrollState),
-                        text = aiState.response.text
-                    )
+                    Box {
+                        AnnotatedText(
+                            modifier = Modifier
+                                .padding(16.dp)
+                                .verticalScroll(scrollState),
+                            text = aiState.response.text
+                        )
+                        TextButton(
+                            onClick = onRegenerate,
+                            modifier = Modifier.align(Alignment.BottomEnd)
+                        ) {
+                            Text(
+                                text = "Regenerate Steps",
+                                fontFamily = comicNeueFamily,
+                            )
+                        }
+                    }
                 }
                 else -> {}
             }

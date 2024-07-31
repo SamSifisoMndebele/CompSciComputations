@@ -1,6 +1,7 @@
 package com.compscicomputations.number_systems.data.model
 
 import androidx.compose.runtime.Stable
+import com.compscicomputations.number_systems.data.source.local.AiResponse
 
 @Stable
 sealed interface AIState {
