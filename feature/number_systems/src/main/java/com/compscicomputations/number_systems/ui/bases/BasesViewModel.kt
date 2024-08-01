@@ -12,58 +12,111 @@ import com.compscicomputations.number_systems.ui.bases.BaseConverter.fromOctal
 import com.compscicomputations.number_systems.data.model.ConvertFrom
 import com.compscicomputations.number_systems.data.model.ConvertFrom.*
 import com.compscicomputations.number_systems.data.model.AIState
+import com.compscicomputations.number_systems.data.model.CurrentTab.BaseN
 import com.compscicomputations.number_systems.data.source.local.AiResponseDao
+import com.compscicomputations.number_systems.data.source.local.datastore.BaseNDataStore
+import com.compscicomputations.number_systems.data.source.local.datastore.NumberSystemsDataStore
+import com.compscicomputations.number_systems.ui.excess.ExcessConverter.fromDecimal
+import com.compscicomputations.number_systems.utils.BinaryArithmetic.padBits
 import com.google.ai.client.generativeai.GenerativeModel
+import com.google.ai.client.generativeai.type.ServerException
 import com.google.ai.client.generativeai.type.content
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlin.coroutines.cancellation.CancellationException
 
 class BasesViewModel(
     private val generativeModel: GenerativeModel,
-    private val aiResponseDao: AiResponseDao
+    private val aiResponseDao: AiResponseDao,
+    private val dataStore: BaseNDataStore,
 ) : ViewModel() {
+    init {
+        viewModelScope.launch {
+            dataStore.lastState.first()
+                ?.let {
+                    Log.d("BasesViewModel", "init: $it")
+                    when(it.convertFrom) {
+                        Decimal -> _uiState.value = _uiState.value.fromDecimal(it.fromValue)
+                            .copy(convertFrom = Decimal)
+                        Binary -> _uiState.value = _uiState.value.fromBinary(it.fromValue)
+                            .copy(convertFrom = Binary)
+                        Octal -> _uiState.value = _uiState.value.fromOctal(it.fromValue)
+                            .copy(convertFrom = Octal)
+                        Hexadecimal -> _uiState.value = _uiState.value.fromHex(it.fromValue)
+                            .copy(convertFrom = Hexadecimal)
+                        Unicode -> _uiState.value = _uiState.value.fromUnicode(it.fromValue)
+                            .copy(convertFrom = Unicode)
+                        else -> {}
+                    }
+                }
+        }
+    }
+
     private val _uiState = MutableStateFlow(BasesUiState())
     val uiState = _uiState.asStateFlow()
-
-    fun clear() {
-        _uiState.value = BasesUiState()
-    }
-
-    fun setConvertFrom(convertFrom: ConvertFrom) {
-        _uiState.value = _uiState.value.copy(convertFrom = convertFrom)
-    }
 
     fun setAiState(aiState: AIState) {
         _uiState.value = _uiState.value.copy(aiState = aiState)
     }
 
+
+    fun clear() {
+        _uiState.value = BasesUiState(convertFrom = _uiState.value.convertFrom)
+        viewModelScope.launch(Dispatchers.IO) {
+            dataStore.setLastState(_uiState.value.convertFrom, "")
+        }
+    }
+
+    fun setConvertFrom(convertFrom: ConvertFrom) {
+        _uiState.value = _uiState.value.copy(convertFrom = convertFrom)
+        viewModelScope.launch(Dispatchers.IO) {
+            dataStore.setLastState(convertFrom, _uiState.value.fromValue)
+        }
+    }
     fun onDecimalChange(decimalStr: String) {
         _uiState.value = _uiState.value.fromDecimal(decimalStr)
             .copy(convertFrom = Decimal)
+        viewModelScope.launch(Dispatchers.IO) {
+            dataStore.setLastState(Decimal, decimalStr)
+        }
     }
 
     fun onBinaryChange(binaryStr: String) {
         _uiState.value = _uiState.value.fromBinary(binaryStr)
             .copy(convertFrom = Binary)
+        viewModelScope.launch(Dispatchers.IO) {
+            dataStore.setLastState(Binary, binaryStr)
+        }
     }
 
     fun onOctalChange(octalStr: String) {
         _uiState.value = _uiState.value.fromOctal(octalStr)
             .copy(convertFrom = Octal)
+        viewModelScope.launch(Dispatchers.IO) {
+            dataStore.setLastState(Octal, octalStr)
+        }
     }
 
     fun onHexadecimalChange(hexadecimalStr: String) {
         _uiState.value = _uiState.value.fromHex(hexadecimalStr)
             .copy(convertFrom = Hexadecimal)
+        viewModelScope.launch(Dispatchers.IO) {
+            dataStore.setLastState(Hexadecimal, hexadecimalStr)
+        }
     }
 
     fun onUnicodeChange(unicodeStr: String) {
         _uiState.value = _uiState.value.fromUnicode(unicodeStr)
             .copy(convertFrom = Unicode)
+        viewModelScope.launch(Dispatchers.IO) {
+            dataStore.setLastState(Unicode, unicodeStr)
+        }
     }
 
     private var job: Job? = null
@@ -89,6 +142,7 @@ class BasesViewModel(
             Log.d("AI::response", outputContent)
             AiResponse(
                 id = 0,
+                tab = BaseN,
                 convertFrom = _uiState.value.convertFrom,
                 value = _uiState.value.fromValue,
                 text = outputContent
@@ -97,10 +151,10 @@ class BasesViewModel(
     }
 
     fun generateSteps() {
+        setAiState(AIState.Loading("Loading Steps..."))
         job = viewModelScope.launch(Dispatchers.IO) {
-            setAiState(AIState.Loading("Loading Steps..."))
             try {
-                val aiResponse = aiResponseDao.select(_uiState.value.convertFrom, _uiState.value.fromValue)
+                val aiResponse = aiResponseDao.select(BaseN, _uiState.value.convertFrom, _uiState.value.fromValue)
                 if (aiResponse != null) {
                     setAiState(AIState.Success(aiResponse))
                     return@launch
@@ -110,21 +164,32 @@ class BasesViewModel(
                 aiResponseDao.insert(newAiResponse)
             } catch (e: Exception) {
                 Log.w("AI::error", e)
-                setAiState(AIState.Error(e.localizedMessage))
+                when {
+                    e.cause is CancellationException -> setAiState(AIState.Idle)
+                    e is ServerException -> setAiState(AIState.Error(Exception("An internal error has occurred. Please retry again.")))
+                    else -> setAiState(AIState.Error(e))
+                }
             }
         }
     }
 
     fun regenerateSteps() {
+        val currentResponse: AiResponse = (_uiState.value.aiState as AIState.Success).response
+        setAiState(AIState.Loading("Loading Steps..."))
         job = viewModelScope.launch {
-            setAiState(AIState.Loading("Loading Steps..."))
             try {
                 val newAiResponse = generateContent()
                 setAiState(AIState.Success(newAiResponse))
                 aiResponseDao.insert(newAiResponse)
             } catch (e: Exception) {
                 Log.w("AI::error", e)
-                setAiState(AIState.Error(e.localizedMessage))
+                when {
+                    e.cause is CancellationException -> setAiState(AIState.Idle)
+                    e is ServerException -> setAiState(AIState.Error(Exception("An internal error has occurred. Please retry again.")))
+                    else -> setAiState(AIState.Error(e))
+                }
+                delay(5000)
+                setAiState(AIState.Success(currentResponse))
             }
         }
     }
@@ -142,11 +207,11 @@ class BasesViewModel(
 
         private val BasesUiState.aiText: String
             get() = when(convertFrom) {
-                Decimal -> "Show me steps how to convert the decimal: $decimal to binary: $binary, octal: $octal, hexadecimal: $hexadecimal, and unicode character: $unicode"
-                Binary -> "Show me steps how to convert the binary: $binary to decimal: $decimal, octal: $octal, hexadecimal: $hexadecimal, and unicode character: $unicode"
-                Octal -> "Show me steps how to convert the octal: $octal to decimal: $decimal, binary: $binary, hexadecimal: $hexadecimal, and unicode character: $unicode"
-                Hexadecimal -> "Show me steps how to convert the hexadecimal: $hexadecimal to decimal: $decimal, binary: $binary, octal: $octal, and unicode character: $unicode"
-                Unicode -> "Show me steps how to convert the unicode character: $unicode to decimal: $decimal, binary: $binary, octal: $octal, and hexadecimal: $hexadecimal"
+                Decimal -> "Show me steps how to convert the decimal: $decimal to binary, octal, hexadecimal, and unicode character."
+                Binary -> "Show me steps how to convert the binary: ${binary.padBits()} to decimal, octal, hexadecimal, and unicode character."
+                Octal -> "Show me steps how to convert the octal: $octal to decimal, binary, hexadecimal, and unicode character."
+                Hexadecimal -> "Show me steps how to convert the hexadecimal: $hexadecimal to decimal, binary, octal, and unicode character."
+                Unicode -> "Show me steps how to convert the unicode character: $unicode to decimal, binary, octal, and hexadecimal."
                 else -> throw IllegalArgumentException("Invalid option.")
             }
     }

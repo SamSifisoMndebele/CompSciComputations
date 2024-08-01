@@ -30,11 +30,11 @@ import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.compscicomputations.number_systems.data.model.ConvertFrom
-import com.compscicomputations.number_systems.utils.binaryNumbersRegex
-import com.compscicomputations.number_systems.utils.decimalFieldRegex
+import com.compscicomputations.number_systems.utils.binaryFieldRegex
 import com.compscicomputations.number_systems.utils.errorTextIf
-import com.compscicomputations.number_systems.utils.hexNumbersRegex
-import com.compscicomputations.number_systems.utils.octalNumbersRegex
+import com.compscicomputations.number_systems.utils.hexadecimalFieldRegex
+import com.compscicomputations.number_systems.utils.numberFieldRegex
+import com.compscicomputations.number_systems.utils.octalFieldRegex
 import com.compscicomputations.theme.comicNeueFamily
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -97,7 +97,7 @@ fun BasesScreen(
                 .padding(vertical = 4.dp),
             enabled = uiState.convertFrom.decimal,
             value = uiState.decimal,
-            onValueChange = { if (it.matches(decimalFieldRegex)) viewModel.onDecimalChange(it) },
+            onValueChange = { if (it.matches(numberFieldRegex)) viewModel.onDecimalChange(it) },
             textStyle = TextStyle(
                 lineBreak = LineBreak.Simple,
                 hyphens = Hyphens.Auto,
@@ -118,7 +118,7 @@ fun BasesScreen(
                 .padding(vertical = 4.dp),
             enabled = uiState.convertFrom.binary,
             value = uiState.binary,
-            onValueChange = { if (it.matches(binaryNumbersRegex)) viewModel.onBinaryChange(it) },
+            onValueChange = { if (it.matches(binaryFieldRegex)) viewModel.onBinaryChange(it) },
             textStyle = TextStyle(
                 lineBreak = LineBreak.Simple,
                 hyphens = Hyphens.Auto,
@@ -139,7 +139,7 @@ fun BasesScreen(
                 .padding(vertical = 4.dp),
             enabled = uiState.convertFrom.octal,
             value = uiState.octal,
-            onValueChange = { if (it.matches(octalNumbersRegex)) viewModel.onOctalChange(it) },
+            onValueChange = { if (it.matches(octalFieldRegex)) viewModel.onOctalChange(it) },
             textStyle = TextStyle(
                 lineBreak = LineBreak.Simple,
                 hyphens = Hyphens.Auto,
@@ -160,7 +160,7 @@ fun BasesScreen(
                 .padding(vertical = 4.dp),
             enabled = uiState.convertFrom.hexadecimal,
             value = uiState.hexadecimal,
-            onValueChange = { if (it.matches(hexNumbersRegex)) viewModel.onHexadecimalChange(it) },
+            onValueChange = { if (it.matches(hexadecimalFieldRegex)) viewModel.onHexadecimalChange(it) },
             textStyle = TextStyle(
                 lineBreak = LineBreak.Simple,
                 hyphens = Hyphens.Auto,

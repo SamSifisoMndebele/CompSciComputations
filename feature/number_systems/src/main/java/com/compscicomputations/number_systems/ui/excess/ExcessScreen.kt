@@ -21,15 +21,24 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.Hyphens
 import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.compscicomputations.number_systems.data.model.ConvertFrom
+import com.compscicomputations.number_systems.utils.BinaryArithmetic.dividedBits
+import com.compscicomputations.number_systems.utils.BinaryArithmetic.removedSpaces
+import com.compscicomputations.number_systems.utils.binaryFieldRegex
+import com.compscicomputations.number_systems.utils.bitLength
+import com.compscicomputations.number_systems.utils.errorTextIf
+import com.compscicomputations.number_systems.utils.numberFieldRegex
 import com.compscicomputations.theme.comicNeueFamily
+import com.compscicomputations.utils.notMatches
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -86,65 +95,97 @@ fun ExcessScreen(
         HorizontalDivider()
 
 
+        var bitsExpanded by remember { mutableStateOf(false) }
+        ExposedDropdownMenuBox(
+            expanded = bitsExpanded,
+            onExpandedChange = { bitsExpanded = !bitsExpanded }
+        ) {
+            OutlinedTextField(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .menuAnchor()
+                    .clickable { bitsExpanded = !bitsExpanded }
+                    .focusable(false)
+                    .padding(vertical = 4.dp),
+                value = uiState.bits.toString(),
+                onValueChange = {},
+                textStyle = TextStyle(
+                    lineBreak = LineBreak.Simple,
+                    hyphens = Hyphens.Auto,
+                    fontSize = 20.sp,
+                    fontFamily = comicNeueFamily,
+                    color = MaterialTheme.colorScheme.onBackground
+                ),
+                label = { Text(text = "Bits length_") },
+                readOnly = true,
+                singleLine = true,
+                shape = RoundedCornerShape(18.dp),
+                trailingIcon = { TrailingIcon(expanded = bitsExpanded) },
+            )
+            ExposedDropdownMenu(
+                expanded = bitsExpanded,
+                onDismissRequest = { bitsExpanded = false }
+            ) {
+                bitLength.forEach {
+                    DropdownMenuItem(
+                        text = { Text(text = "$it bits") },
+                        onClick = {
+                            viewModel.setExcessBits(it)
+                            bitsExpanded = false
+                        }
+                    )
+                }
+            }
+        }
+
         OutlinedTextField(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 4.dp),
-            value = uiState.excessBits.toString(),
-            onValueChange = {
-                if (it.isBlank()) viewModel.setExcessBits(it)
-                else if (!it.contains('.') && it.toInt() <= 32) {
-                    viewModel.setExcessBits(it)
-                    if (uiState.decimal.isNotBlank())
-                        viewModel.setExcessBits(uiState.decimal)
-                }
-            },
-            label = {
-                Text(text = "Bits Length < 32 bits")
-            },
-            singleLine = true,
+            enabled = uiState.convertFrom.decimal,
+            value = uiState.decimal,
+            onValueChange = { if (it.matches(numberFieldRegex)) viewModel.onDecimalChange(it) },
+            textStyle = TextStyle(
+                lineBreak = LineBreak.Simple,
+                hyphens = Hyphens.Auto,
+                fontSize = 20.sp,
+                fontFamily = comicNeueFamily,
+                color = MaterialTheme.colorScheme.onBackground
+            ),
+            label = { Text(text = "Signed Decimal") },
             shape = RoundedCornerShape(18.dp),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Done),
-//                isError = AIState.errors contain FieldType.NAMES,
-//                supportingText = AIState.errors getMessage FieldType.NAMES
+            isError = uiState.convertFrom.decimal && uiState.error != null,
+            supportingText = uiState.error errorTextIf uiState.convertFrom.decimal
         )
+
+        var excessSelection by remember { mutableStateOf(TextRange.Zero) }
         OutlinedTextField(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 4.dp),
-            value = uiState.decimal,
-            onValueChange = {
-                if (it.contains('.')) return@OutlinedTextField
-                viewModel.onDecimalChange(it)
+            enabled = uiState.convertFrom.excess,
+            value = TextFieldValue(uiState.excess.dividedBits(8), excessSelection),
+            onValueChange = { value ->
+                if (value.text.length > 71 || value.text.notMatches(binaryFieldRegex)) return@OutlinedTextField
+                excessSelection = when (value.text.length) {
+                    9, 18, 27, 36, 45, 54, 63 -> TextRange(value.selection.end + 1)
+                    else -> value.selection
+                }
+                viewModel.onExcessChange(value.text.removedSpaces)
             },
-            label = {
-                Text(text = "Signed Decimal")
-            },
-            singleLine = true,
+            textStyle = TextStyle(
+                lineBreak = LineBreak.Simple,
+                hyphens = Hyphens.Auto,
+                fontSize = 20.sp,
+                fontFamily = comicNeueFamily,
+                color = MaterialTheme.colorScheme.onBackground
+            ),
+            label = { Text(text = "Excess Notation") },
             shape = RoundedCornerShape(18.dp),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
-//                isError = AIState.errors contain FieldType.NAMES,
-//                supportingText = AIState.errors getMessage FieldType.NAMES
-        )
-        OutlinedTextField(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 4.dp),
-            value = uiState.excess,
-            onValueChange = {
-                if (it.contains('.')) return@OutlinedTextField
-                if (it.matches(Regex("[0*1*]*[1*0*]*"))) {
-                    viewModel.onExcessChange(it)
-                }
-            },
-            label = {
-                Text(text = "Excess Notation")
-            },
-            singleLine = true,
-            shape = RoundedCornerShape(18.dp),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Done),
-//                isError = AIState.errors contain FieldType.NAMES,
-//                supportingText = AIState.errors getMessage FieldType.NAMES
+            isError = uiState.convertFrom.excess && uiState.error != null,
+            supportingText = uiState.error errorTextIf uiState.convertFrom.excess
         )
     }
 }

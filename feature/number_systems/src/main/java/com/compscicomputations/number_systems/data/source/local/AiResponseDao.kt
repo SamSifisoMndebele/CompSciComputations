@@ -7,6 +7,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.compscicomputations.number_systems.data.model.ConvertFrom
+import com.compscicomputations.number_systems.data.model.CurrentTab
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -20,15 +21,13 @@ interface AiResponseDao {
     @Query("delete from airesponse where id in (:ids)")
     suspend fun delete(vararg ids: Int)
 
-    @Query("SELECT * FROM airesponse WHERE id = :id")
-    fun select(id: Int): Flow<AiResponse>
+    @Query("SELECT * FROM airesponse " +
+            "WHERE tab = :tab " +
+            "AND convert_from = :convertFrom " +
+            "AND value like :value " +
+            "ORDER BY id DESC")
+    suspend fun select(tab: CurrentTab, convertFrom: ConvertFrom, value: String): AiResponse?
 
-    @Query("SELECT * FROM airesponse WHERE convert_from = :convertFrom AND value like :value")
-    suspend fun select(convertFrom: ConvertFrom, value: String): AiResponse?
-
-    @Query("SELECT id FROM airesponse")
-    fun selectIds(): IntArray
-
-    @Query("SELECT * FROM airesponse")
-    fun selectAll(): Flow<List<AiResponse>>
+    @Query("SELECT * FROM airesponse WHERE tab = :tab ORDER BY id DESC")
+    fun selectAll(tab: CurrentTab): Flow<List<AiResponse>>
 }

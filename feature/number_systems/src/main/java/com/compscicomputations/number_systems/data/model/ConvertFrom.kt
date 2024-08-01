@@ -25,7 +25,7 @@ enum class ConvertFrom(val text: String) {
         val baseN = arrayOf(Decimal, Binary, Octal, Hexadecimal, Unicode)
         val complementNotation = arrayOf(Decimal, Complement1, Complement2)
         val excessNotation = arrayOf(Decimal, Excess)
-        val floatingPointNotation = arrayOf(Decimal, /*MiniFloat, Binary16,*/ Binary32, Binary64)
+        val floatingPointNotation = arrayOf(Decimal, /*MiniFloat,*/ Binary16, Binary32, Binary64)
     }
 
     val decimal: Boolean

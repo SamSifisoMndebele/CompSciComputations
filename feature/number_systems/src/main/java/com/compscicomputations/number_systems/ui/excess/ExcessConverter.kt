@@ -1,66 +1,72 @@
 package com.compscicomputations.number_systems.ui.excess
 
-import com.compscicomputations.number_systems.utils.BinaryArithmetic.padBits
+import com.compscicomputations.number_systems.utils.BinaryArithmetic.fixBits
+import com.compscicomputations.number_systems.utils.binaryRegex
+import com.compscicomputations.number_systems.utils.numberRegex
+import com.compscicomputations.utils.notMatches
 
 object ExcessConverter {
+    private const val SIZE_ERROR = "Size error."
+    private const val INVALID_DECIMAL = "Invalid decimal number."
+    private const val INVALID_EXCESS = "Invalid excess binary."
 
-//    SIZE_ERROR("Size error"),
-//    INVALID_DECIMAL("Invalid decimal number"),
-//    INVALID_EXCESS_BITS("Invalid number of bits"),
-//    INVALID_EXCESS("Invalid excess binary"),
-//    INVALID_NUM("Invalid number");
+    fun ExcessUiState.fromDecimal(decimalStr: String): ExcessUiState {
+        if (decimalStr.isBlank()) return ExcessUiState(bits = bits)
+        if (decimalStr.endsWith('-') ||
+            decimalStr.endsWith('+')) return copy(decimal = decimalStr)
+        if (decimalStr.notMatches(numberRegex)) return copy(
+            decimal = decimalStr,
+            excess = "",
+            error = INVALID_DECIMAL
+        )
 
+        try {
+            val long = decimalStr.toLong()
+            if (long < min || long > max) throw NumberFormatException()
 
-    private fun String.decimalToExcess(excessIdentifier: Long, excessBits : Int): String {
-        val excessLong = this.toLong() + excessIdentifier
-        val binary = java.lang.Long.toBinaryString(excessLong).padBits(64)
+            val excessLong = long + bias
+            val excess = java.lang.Long.toBinaryString(excessLong).fixBits(bits)
 
-        val long = java.lang.Long.parseUnsignedLong(binary, 2)
-        if (excessLong < 0 || excessIdentifier*2-1 < long)
-            throw Exception()
-
-        val excessBinary = binary.takeLast(excessBits-1)
-        return if (this.toLong() < 0.toLong())
-            "0$excessBinary"
-        else
-            "1$excessBinary"
-    }
-    private fun Int.bitsToIdentifier(): String {
-        return try {
-            val excessBits = this
-            val excessIdentifier = "1".padEnd(excessBits, '0')
-            java.lang.Long.parseUnsignedLong(excessIdentifier, 2).toString()
-        } catch (e: Exception) {
-            ""
+            return copy(
+                decimal = decimalStr,
+                excess = excess,
+                error = null
+            )
+        } catch (e: NumberFormatException) {
+            return copy(
+                decimal = decimalStr,
+                excess = "",
+                error = SIZE_ERROR
+            )
         }
     }
-//    fun fromDecimal(decimalStr: String, excessBits : Int): ExcessConversion {
-//        val excessIdentifier: Long = excessBits.bitsToIdentifier().toLong()
-//        return try {
-//            val excess = decimalStr.decimalToExcess(excessIdentifier, excessBits)
-//            ExcessConversion(decimalStr, excess, excessIdentifier.toString(), excessBits)
-//        } catch (e: Exception) {
-//            e.printStackTrace()
-//            ExcessConversion("", "", excessIdentifier.toString(), excessBits).also {
-////                if (decimalString.isNotEmpty() && decimalString != "-") it.error = ExcessError.SIZE_ERROR
-//            }
-//        }
-//    }
-//    fun fromExcess(excessStr: String, excessBits : Int): ExcessConversion {
-//        val excessIdentifier: Long = excessBits.bitsToIdentifier().toLong()
-//        return try {
-//            if (excessStr.isNotEmpty()) {
-//                val decimal = excessStr.toDecimal(2) - excessIdentifier
-//                fromDecimal(decimal.toString(), excessBits)
-//            } else {
-//                ExcessConversion("", "", excessIdentifier.toString(), excessBits)
-//            }
-//
-//        } catch (_: Exception) {
-//            ExcessConversion("", "", excessIdentifier.toString(), excessBits).also {
-////                it.error = excessStr.isNotEmpty()
-//            }
-//        }
-//    }
+    fun ExcessUiState.fromExcess(excessStr: String): ExcessUiState {
+        if (excessStr.isBlank()) return ExcessUiState(bits = bits)
+        if (excessStr.notMatches(binaryRegex)) return copy(
+            decimal = "",
+            excess = excessStr,
+            error = INVALID_EXCESS
+        )
+
+        try {
+            val long = java.lang.Long.parseUnsignedLong(excessStr.let {
+                if (it.startsWith('0')) it.fixBits(bits)
+                else "1"+it.replace("1", "").fixBits(bits - 1)
+            }, 2)
+            val decimal = long - bias
+
+            return copy(
+                decimal = decimal.toString(),
+                excess = excessStr,
+                error = null
+            )
+        } catch (_: Exception) {
+            return copy(
+                decimal = "",
+                excess = excessStr,
+                error = SIZE_ERROR
+            )
+        }
+    }
 
 }

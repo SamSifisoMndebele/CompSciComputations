@@ -11,9 +11,7 @@ data class BasesUiState(
     val unicode: String = "",
 
     val error: String? = null,
-
     val convertFrom: ConvertFrom = ConvertFrom.Decimal,
-
     val aiState: AIState = AIState.Idle
 ) {
     val isValid: Boolean

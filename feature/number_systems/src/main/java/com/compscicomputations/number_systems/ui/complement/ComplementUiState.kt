@@ -9,9 +9,7 @@ data class ComplementUiState(
     val complement2: String = "",
 
     val error: String? = null,
-
     val convertFrom: ConvertFrom = ConvertFrom.Decimal,
-
     val aiState: AIState = AIState.Idle,
 ) {
     val isValid: Boolean

@@ -12,10 +12,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.List
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Info
@@ -30,6 +32,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ModalBottomSheetProperties
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.PrimaryScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRowDefaults
@@ -72,6 +75,7 @@ import com.compscicomputations.ui.utils.ui.AnnotatedText
 import com.compscicomputations.ui.utils.ui.CompSciScaffold
 import com.compscicomputations.utils.network.ConnectionState.*
 import com.compscicomputations.utils.rememberConnectivityState
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -84,10 +88,6 @@ import org.koin.androidx.compose.koinViewModel
 fun NumberSystems(
     navigateUp: () -> Unit,
 ) {
-
-//    val sheetState = rememberModalBottomSheetState()
-//    val scope = rememberCoroutineScope()
-
     var currentTab by rememberSaveable { mutableStateOf(BaseN) }
 
     val basesViewModel: BasesViewModel = koinViewModel()
@@ -113,7 +113,6 @@ fun NumberSystems(
         title = "Number Systems",
         navigateUp = navigateUp,
         tabsBar = {
-
             if (connectivityState is Unavailable) {
                 Text(
                     text = "Enable your internet connection to show steps.",
@@ -138,20 +137,16 @@ fun NumberSystems(
                             FloatingPoint -> floatingPointViewModel.clear()
                         }
                     }) {
-                        Icon(Icons.Outlined.Delete, contentDescription = "Localized description")
+                        Icon(Icons.Outlined.Delete, contentDescription = "Clear fields")
                     }
-//                    IconButton(onClick = { /* do something */ }) {
-//                        Icon(
-//                            Icons.Outlined.Favorite,
-//                            contentDescription = "Localized description",
-//                        )
-//                    }
-//                    IconButton(onClick = { /* do something */ }) {
-//                        Icon(
-//                            Icons.AutoMirrored.Outlined.List,
-//                            contentDescription = "Localized description",
-//                        )
-//                    }
+                    IconButton(onClick = {
+
+                    }) {
+                        Icon(
+                            Icons.AutoMirrored.Outlined.List,
+                            contentDescription = "Response List",
+                        )
+                    }
                 },
                 floatingActionButton = if (isOnlineAndValidState) {
                     {
@@ -266,144 +261,6 @@ fun NumberSystems(
                 onCancel = { floatingPointViewModel.cancelJob() },
                 onRegenerate = { floatingPointViewModel.regenerateSteps() },
             )
-        }
-    }
-}
-
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun StepsBox(
-    scope: CoroutineScope = rememberCoroutineScope(),
-    errorDelay: Long = 6000,
-    aiState: AIState = Idle,
-    onDismissRequest: () -> Unit,
-    onCancel: () -> Unit,
-    onRegenerate: () -> Unit,
-) {
-    val sheetState = rememberModalBottomSheetState()
-    if (aiState !is Idle) {
-        ModalBottomSheet(
-            onDismissRequest = onDismissRequest,
-            sheetState = sheetState,
-            properties = ModalBottomSheetProperties(
-                securePolicy = SecureFlagPolicy.Inherit,
-                isFocusable = true,
-                shouldDismissOnBackPress = false,
-            )
-        ) {
-            when (aiState) {
-                is Loading -> {
-                    Box(
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .heightIn(200.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            CircularProgressIndicator(
-                                strokeWidth = 6.dp,
-                                modifier = Modifier
-                                    .size(52.dp)
-                                    .padding(bottom = 8.dp),
-                                color = MaterialTheme.colorScheme.secondary,
-                                trackColor = MaterialTheme.colorScheme.surfaceVariant,
-                            )
-                            Text(
-                                modifier = Modifier.padding(horizontal = 16.dp),
-                                text = aiState.message,
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.secondary
-                            )
-                        }
-                        TextButton(
-                            onClick = {
-                                scope.launch { sheetState.hide() }
-                                    .invokeOnCompletion {
-                                        if (!sheetState.isVisible) { onCancel() }
-                                    }
-                            },
-                            modifier = Modifier
-                                .align(Alignment.TopEnd)
-                                .padding(end = 8.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Close,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onSecondaryContainer
-                            )
-                            Text(text = "Cancel", fontSize = 18.sp)
-                        }
-                    }
-                }
-                is Error -> {
-                    LaunchedEffect(Unit) {
-                        launch(Dispatchers.IO) {
-                            delay(errorDelay)
-                            sheetState.hide()
-                        }.invokeOnCompletion {
-                            if (!sheetState.isVisible) { onDismissRequest() }
-                        }
-                    }
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .heightIn(200.dp),
-                    ) {
-                        Column(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            Text(
-                                modifier = Modifier.padding(horizontal = 16.dp),
-                                text = aiState.message ?: "An unexpected error occurred.",
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.error
-                            )
-                        }
-                        TextButton(
-                            onClick = {
-                                scope.launch { sheetState.hide() }
-                                    .invokeOnCompletion {
-                                        if (!sheetState.isVisible) { onDismissRequest() }
-                                    }
-                            },
-                            modifier = Modifier
-                                .align(Alignment.TopEnd)
-                                .padding(end = 8.dp)
-                        ) {
-                            Text(text = "Close", fontSize = 18.sp)
-                        }
-                    }
-                }
-                is Success -> {
-                    val scrollState = rememberScrollState()
-                    Box {
-                        AnnotatedText(
-                            modifier = Modifier
-                                .padding(16.dp)
-                                .verticalScroll(scrollState),
-                            text = aiState.response.text
-                        )
-                        TextButton(
-                            onClick = onRegenerate,
-                            modifier = Modifier.align(Alignment.BottomEnd)
-                        ) {
-                            Text(
-                                text = "Regenerate Steps",
-                                fontFamily = comicNeueFamily,
-                            )
-                        }
-                    }
-                }
-                else -> {}
-            }
         }
     }
 }

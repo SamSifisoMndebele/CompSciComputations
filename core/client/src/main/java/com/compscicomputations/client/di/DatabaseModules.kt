@@ -37,7 +37,8 @@ object DatabaseModules {
         context,
         RoomPublicDatabase::class.java,
         "public.room.db"
-    ).build()
+    ).fallbackToDestructiveMigration()
+        .build()
 
     @Provides
     @Singleton

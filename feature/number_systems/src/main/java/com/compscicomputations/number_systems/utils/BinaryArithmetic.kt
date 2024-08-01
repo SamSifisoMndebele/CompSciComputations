@@ -11,9 +11,42 @@ object BinaryArithmetic {
      * Fill binary strings to nearest 4 bits
      */
     fun String.padBits(): String {
-        val bits = 2.0.pow(ceil(log(trim().length.toDouble(),2.0))).toInt()
+        val bits = 2.0.pow(ceil(log(trim().length.toDouble(),2.0))).toInt().takeIf { it >= 8 } ?: 8
         return padStart(bits, '0')
     }
+
+    /**
+     * Convert integer string to valid number of bits, or zero if string is not a number.
+     */
+    val String.validBits: Int
+        get() = try {
+            2.0.pow(ceil(log(trim().toInt().toDouble(),2.0))).toInt().takeIf { it >= 8 } ?: 8
+        } catch (e: Exception) {
+            0
+        }
+
+    private fun String.reversedStr(reversed: Boolean = true): String =
+        if (reversed) reversed() else this
+    private fun IntArray.reversedArr(reversed: Boolean = true): IntArray =
+        if (reversed) reversed().toIntArray() else this
+
+    fun String.dividedBits(vararg n: Int, reversed: Boolean = true): String = buildList {
+        var i = 0
+        try {
+            for (j in n.reversedArr(reversed)) {
+                add(this@dividedBits.reversedStr(reversed).substring(i, i + j))
+                i += j
+            }
+        } catch (_: Exception) {}
+        add(this@dividedBits.reversedStr(reversed).substring(i))
+    }.joinToString(" ").reversedStr(reversed).trim()
+
+    fun String.dividedBits(size: Int, reversed: Boolean = true): String = dividedBits(
+        *IntArray(length / size) { size }, reversed = reversed
+    )
+
+    val String.removedSpaces
+        get() = replace(" ", "")
 
     val Long.bitsLength: Int
         get() = 2.0.pow(
@@ -24,17 +57,13 @@ object BinaryArithmetic {
                 )) + 1,
                 base = 2.0
             )) + 1
-        ).toInt()
+        ).toInt().takeIf { it >= 8 } ?: 8
 
     fun String.fixBits(length: Int, padOnes: Boolean = false): String {
         return if (this.length > length) takeLast(length)
         else padStart(length, if (padOnes) '1' else '0')
     }
 
-    /**
-     * Binary string with [bits] bits. Filled `0` bit on start.
-     */
-    fun String.padBits(bits: Int): String = padStart(bits, '0')
 
 
 
@@ -46,7 +75,14 @@ object BinaryArithmetic {
 
 
 
-
+//    private val hexLetters = mapOf(
+//        'A' to 10,
+//        'B' to 11,
+//        'C' to 12,
+//        'D' to 13,
+//        'E' to 14,
+//        'F' to 15
+//    )
 
 //    class SizeException : Exception("Size Error")
 //

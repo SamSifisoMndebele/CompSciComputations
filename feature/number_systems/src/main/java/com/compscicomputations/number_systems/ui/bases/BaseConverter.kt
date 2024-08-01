@@ -1,21 +1,13 @@
 package com.compscicomputations.number_systems.ui.bases
 
-import com.compscicomputations.number_systems.utils.binaryNumbersRegex
-import com.compscicomputations.number_systems.utils.decimalNumberRegex
-import com.compscicomputations.number_systems.utils.hexNumbersRegex
-import com.compscicomputations.number_systems.utils.octalNumbersRegex
+import com.compscicomputations.number_systems.utils.binaryFieldRegex
+import com.compscicomputations.number_systems.utils.binaryRegex
+import com.compscicomputations.number_systems.utils.hexadecimalRegex
+import com.compscicomputations.number_systems.utils.numberRegex
+import com.compscicomputations.number_systems.utils.octalRegex
 import com.compscicomputations.utils.notMatches
 
 object BaseConverter {
-
-    private val hexLetters = mapOf(
-        'A' to 10,
-        'B' to 11,
-        'C' to 12,
-        'D' to 13,
-        'E' to 14,
-        'F' to 15
-    )
     private const val SIZE_ERROR = "Size error"
     private const val INVALID_DECIMAL = "Invalid decimal number"
     private const val INVALID_BINARY = "Invalid binary number"
@@ -62,12 +54,12 @@ object BaseConverter {
         return fromDecimal(decimal)
     }
 
-
     fun BasesUiState.fromDecimal(decimalStr: String): BasesUiState {
         if (decimalStr.isBlank()) return BasesUiState()
-        if (decimalStr.endsWith('-')) return copy(decimal = decimalStr)
+        if (decimalStr.endsWith('-') ||
+            decimalStr.endsWith('+')) return copy(decimal = decimalStr)
         val decimals = decimalStr.split(" ")
-        if (decimals.any{ it.notMatches(decimalNumberRegex)})
+        if (decimals.any{ it.notMatches(numberRegex)})
             return copy(
                 decimal = decimalStr,
                 binary = "",
@@ -92,7 +84,7 @@ object BaseConverter {
     }
     fun BasesUiState.fromBinary(binaryStr: String): BasesUiState {
         if (binaryStr.isBlank()) return BasesUiState()
-        if (binaryStr.notMatches(binaryNumbersRegex)) {
+        if (binaryStr.notMatches(binaryRegex)) {
             return copy(
                 decimal = "",
                 binary = binaryStr,
@@ -117,7 +109,7 @@ object BaseConverter {
     }
     fun BasesUiState.fromOctal(octalStr: String): BasesUiState {
         if (octalStr.isBlank()) return BasesUiState()
-        if (octalStr.notMatches(octalNumbersRegex)) {
+        if (octalStr.notMatches(octalRegex)) {
             return copy(
                 decimal = "",
                 binary = "",
@@ -142,7 +134,7 @@ object BaseConverter {
     }
     fun BasesUiState.fromHex(hexadecimalStr: String): BasesUiState {
         if (hexadecimalStr.isBlank()) return BasesUiState()
-        if (hexadecimalStr.notMatches(hexNumbersRegex)) {
+        if (hexadecimalStr.notMatches(hexadecimalRegex)) {
             return copy(
                 decimal = "",
                 binary = "",

@@ -8,9 +8,13 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.room.Room
 import com.compscicomputations.BuildConfig
+import com.compscicomputations.number_systems.data.model.CurrentTab
 import com.compscicomputations.number_systems.data.source.local.AiDatabase
-import com.compscicomputations.number_systems.data.source.local.AiResponse
-import com.compscicomputations.number_systems.data.source.local.AiResponseDao
+import com.compscicomputations.number_systems.data.source.local.datastore.BaseNDataStore
+import com.compscicomputations.number_systems.data.source.local.datastore.ComplementDataStore
+import com.compscicomputations.number_systems.data.source.local.datastore.ExcessDataStore
+import com.compscicomputations.number_systems.data.source.local.datastore.FloatingPointDataStore
+import com.compscicomputations.number_systems.data.source.local.datastore.NumberSystemsDataStore
 import com.compscicomputations.number_systems.ui.NumberSystems
 import com.compscicomputations.number_systems.ui.bases.BasesViewModel
 import com.compscicomputations.number_systems.ui.complement.ComplementViewModel
@@ -19,8 +23,8 @@ import com.compscicomputations.number_systems.ui.floating_point.FloatingPointVie
 import com.compscicomputations.theme.CompSciComputationsTheme
 import com.google.ai.client.generativeai.GenerativeModel
 import com.google.ai.client.generativeai.type.GenerationConfig
+import com.google.ai.client.generativeai.type.generationConfig
 import com.google.mlkit.vision.text.TextRecognition
-import com.google.mlkit.vision.text.TextRecognizer
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
@@ -32,26 +36,37 @@ import org.koin.dsl.module
 private val appModule = module {
     single {
         GenerativeModel(
-            modelName = "gemini-1.5-pro", //"gemini-1.5-flash",
+            modelName = "gemini-1.5-pro", //flash
             apiKey = BuildConfig.GENERATIVE_AI_KEY,
-            generationConfig = GenerationConfig.Builder().apply {
+            generationConfig = generationConfig {
                 stopSequences = listOf(
                     "Let me know",
-                    "However, it seems you've already provided the correct results.",
-                    "there's a mistake in the provided results"
                 )
+                temperature = 2f
+                topK = 64
+                topP = 0.95f
+                maxOutputTokens = 8192
+                responseMimeType = "text/plain"
             }
-            .build()
         )
     }
     single { TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS) }
-    single { Room.databaseBuilder(get(), AiDatabase::class.java, "number-systems.room.db").build() }
+    single {
+        Room.databaseBuilder(get(), AiDatabase::class.java, "number-systems.room.db")
+            .fallbackToDestructiveMigration()
+            .build()
+    }
     single { get<AiDatabase>().aiResponseDao() }
 
-    viewModel { BasesViewModel(get(), get()) }
-    viewModel { ComplementViewModel(get(), get()) }
-    viewModel { ExcessViewModel(get()) }
-    viewModel { FloatingPointViewModel(get()) }
+    single { BaseNDataStore(get()) }
+    single { ComplementDataStore(get()) }
+    single { ExcessDataStore(get()) }
+    single { FloatingPointDataStore(get()) }
+
+    viewModel { BasesViewModel(get(), get(), get()) }
+    viewModel { ComplementViewModel(get(), get(), get()) }
+    viewModel { ExcessViewModel(get(), get(), get()) }
+    viewModel { FloatingPointViewModel(get(), get(), get()) }
 }
 
 class MainActivity : ComponentActivity() {
@@ -64,7 +79,7 @@ class MainActivity : ComponentActivity() {
                 modules(appModule)
             }
         } catch (e: ApplicationAlreadyStartedException) {
-            Log.w("Koin", "Error starting Koin", e)
+//            Log.w("Koin", "Error starting Koin", e)
         }
         setContent {
             CompSciComputationsTheme {
