@@ -30,12 +30,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import com.compscicomputations.R
 import com.compscicomputations.client.publik.data.model.DynamicFeature
 import com.compscicomputations.theme.comicNeueFamily
 import com.compscicomputations.ui.utils.isLoading
@@ -47,7 +51,6 @@ import com.compscicomputations.ui.utils.ui.shimmerBackground
 fun DashboardScreen(
     viewModel: DashboardViewModel = hiltViewModel(),
     navigateProfile: () -> Unit,
-    navigateHelp: () -> Unit,
     navigateFeedback: () -> Unit,
     navigateSettings: () -> Unit,
     navigateDynamicFeature: (feature: DynamicFeature) -> Unit
@@ -64,7 +67,7 @@ fun DashboardScreen(
 //            }
         },
         isRefreshing = uiState.progressState.isLoading,
-        onRefresh = { viewModel.onRefresh() },
+//        onRefresh = { viewModel.onRefresh() },
     ) { contentPadding ->
         LazyColumn(
             modifier = Modifier
@@ -84,64 +87,70 @@ fun DashboardScreen(
                             containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.25f)
                         )
                     ) {
-                        Box(Modifier.fillMaxWidth()){
-                            Row (
-                                modifier = Modifier.padding(end = 8.dp),
-                                verticalAlignment = Alignment.CenterVertically
+                        Row (
+                            modifier = Modifier.fillMaxWidth().padding(end = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            AsyncImage(
+                                model = ImageRequest.Builder(LocalContext.current)
+                                    .data(uiState.imageBitmap)
+                                    .crossfade(true)
+                                    .build(),
+                                placeholder = painterResource(R.drawable.img_profile),
+                                error = painterResource(R.drawable.img_profile),
+                                contentDescription = "Profile",
+                                contentScale = ContentScale.FillBounds,
+                                modifier = Modifier
+                                    .shimmerBackground(showShimmer = uiState.progressState.isLoading)
+                                    .size(128.dp)
+                                    .padding(8.dp)
+                                    .clip(CircleShape),
+                                onSuccess = {},
+                                onError = {},
+                                onLoading = {}
+                            )
+                            Column(
+                                Modifier.weight(1f)
                             ) {
-                                AsyncImage(
+                                Text(
                                     modifier = Modifier
                                         .shimmerBackground(showShimmer = uiState.progressState.isLoading)
-                                        .size(128.dp)
-                                        .padding(8.dp)
-                                        .clip(CircleShape),
-                                    model = uiState.imageBitmap,
-                                    contentScale = ContentScale.FillBounds,
-                                    contentDescription = "Profile",
+                                        .widthIn(min = 80.dp),
+                                    text = when {
+                                        uiState.isAdmin && uiState.isStudent -> "ADMIN | STUDENT"
+                                        uiState.isAdmin -> "ADMIN"
+                                        uiState.isStudent -> "STUDENT"
+                                        else -> ""
+                                    },
+                                    fontSize = 18.sp,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = comicNeueFamily
                                 )
-                                Column(
-                                    Modifier.weight(1f)
-                                ) {
-                                    Text(
-                                        modifier = Modifier
-                                            .shimmerBackground(showShimmer = uiState.progressState.isLoading)
-                                            .widthIn(min = 80.dp),
-                                        text = when {
-                                            !uiState.isCompleteProfile -> "Complete Profile"
-                                            uiState.isAdmin -> "ADMIN"
-                                            uiState.isStudent -> "STUDENT"
-                                            else -> ""
-                                        },
-                                        fontSize = 18.sp,
-                                        color = MaterialTheme.colorScheme.primary,
-                                        fontWeight = FontWeight.Bold,
-                                        fontFamily = comicNeueFamily
-                                    )
-                                    Spacer(modifier = Modifier.height(4.dp))
-                                    Text(
-                                        modifier = Modifier
-                                            .widthIn(min = 128.dp)
-                                            .shimmerBackground(
-                                                uiState.progressState.isLoading,
-                                                CircleShape
-                                            ),
-                                        text = uiState.displayName,
-                                        fontSize = 20.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        fontFamily = comicNeueFamily
-                                    )
-                                    Spacer(modifier = Modifier.height(4.dp))
-                                    Text(
-                                        modifier = Modifier
-                                            .widthIn(min = 180.dp)
-                                            .shimmerBackground(
-                                                uiState.progressState.isLoading,
-                                                CircleShape
-                                            ),
-                                        text = uiState.email,
-                                        fontSize = 14.sp,
-                                    )
-                                }
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    modifier = Modifier
+                                        .widthIn(min = 128.dp)
+                                        .shimmerBackground(
+                                            uiState.progressState.isLoading,
+                                            CircleShape
+                                        ),
+                                    text = uiState.displayName,
+                                    fontSize = 20.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = comicNeueFamily
+                                )
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    modifier = Modifier
+                                        .widthIn(min = 180.dp)
+                                        .shimmerBackground(
+                                            uiState.progressState.isLoading,
+                                            CircleShape
+                                        ),
+                                    text = uiState.email,
+                                    fontSize = 14.sp,
+                                )
                             }
                         }
                     }
@@ -152,13 +161,13 @@ fun DashboardScreen(
                             onClick = { /*TODO*/ },
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text(text = "Go to Install")
+                            Text(text = "Goto install")
                         }
                     } else {
                         for (feature in uiState.installedFeatures!!) {
                             OptionButton(
                                 padding = PaddingValues(start = 8.dp, end = 8.dp, bottom = 8.dp),
-                                iconUrl = feature.iconUrl?.ifBlank { null },
+                                iconName = feature.icon,
                                 text = feature.title,
                                 tint = MaterialTheme.colorScheme.primary,
                             ) {
@@ -171,13 +180,6 @@ fun DashboardScreen(
             item {
                 OptionButton(
                     padding = PaddingValues(vertical = 8.dp),
-                    iconVector = Icons.AutoMirrored.Outlined.Help,
-                    text = "Help",
-                    onClick = navigateHelp
-                )
-            }
-            item {
-                OptionButton(
                     iconVector = Icons.Outlined.Feedback,
                     text = "Feedback",
                     onClick = navigateFeedback

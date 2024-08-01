@@ -5,15 +5,26 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.compscicomputations.number_systems.data.model.AIState
 import com.compscicomputations.number_systems.data.model.ConvertFrom
+import com.compscicomputations.number_systems.data.model.ConvertFrom.Binary
 import com.compscicomputations.number_systems.data.model.ConvertFrom.Binary16
 import com.compscicomputations.number_systems.data.model.ConvertFrom.Binary32
 import com.compscicomputations.number_systems.data.model.ConvertFrom.Binary64
 import com.compscicomputations.number_systems.data.model.ConvertFrom.Decimal
+import com.compscicomputations.number_systems.data.model.ConvertFrom.Hexadecimal
 import com.compscicomputations.number_systems.data.model.ConvertFrom.MiniFloat
+import com.compscicomputations.number_systems.data.model.ConvertFrom.Octal
+import com.compscicomputations.number_systems.data.model.ConvertFrom.Unicode
+import com.compscicomputations.number_systems.data.model.CurrentTab.BaseN
+import com.compscicomputations.number_systems.data.model.CurrentTab.Complement
 import com.compscicomputations.number_systems.data.model.CurrentTab.FloatingPoint
 import com.compscicomputations.number_systems.data.source.local.AiResponse
 import com.compscicomputations.number_systems.data.source.local.AiResponseDao
 import com.compscicomputations.number_systems.data.source.local.datastore.FloatingPointDataStore
+import com.compscicomputations.number_systems.ui.bases.BaseConverter.fromBinary
+import com.compscicomputations.number_systems.ui.bases.BaseConverter.fromDecimal
+import com.compscicomputations.number_systems.ui.bases.BaseConverter.fromHex
+import com.compscicomputations.number_systems.ui.bases.BaseConverter.fromOctal
+import com.compscicomputations.number_systems.ui.bases.BaseConverter.fromUnicode
 import com.compscicomputations.number_systems.ui.floating_point.FloatingPointConverter.fromBinary16
 import com.compscicomputations.number_systems.ui.floating_point.FloatingPointConverter.fromDecimal
 import com.compscicomputations.number_systems.ui.floating_point.FloatingPointConverter.fromBinary64
@@ -27,9 +38,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlin.coroutines.cancellation.CancellationException
 
@@ -120,6 +133,34 @@ class FloatingPointViewModel(
         }
     }
 
+    val responsesFlow: Flow<List<AiResponse>?>
+        get() = aiResponseDao.selectAll(FloatingPoint).map {
+            if (it.isNullOrEmpty()) null
+            else it
+        }
+
+    fun deleteResponse(response: AiResponse) {
+        viewModelScope.launch {
+            aiResponseDao.delete(response)
+        }
+    }
+
+    fun setFields(response: AiResponse) {
+        when(response.convertFrom) {
+            Decimal -> _uiState.value = _uiState.value.fromDecimal(response.value)
+                .copy(convertFrom = Decimal)
+            MiniFloat -> _uiState.value = _uiState.value.fromMiniFloat(response.value)
+                .copy(convertFrom = MiniFloat)
+            Binary16 -> _uiState.value = _uiState.value.fromBinary16(response.value)
+                .copy(convertFrom = Binary16)
+            Binary32 -> _uiState.value = _uiState.value.fromBinary32(response.value)
+                .copy(convertFrom = Binary32)
+            Binary64 -> _uiState.value = _uiState.value.fromBinary64(response.value)
+                .copy(convertFrom = Binary64)
+            else -> {}
+        }
+    }
+
     private var job: Job? = null
     @OptIn(InternalCoroutinesApi::class)
     fun cancelJob(handler: () -> Unit = {}) {
@@ -194,7 +235,7 @@ class FloatingPointViewModel(
     }
 
     companion object {
-        private val FloatingPointUiState.fromValue: String
+        val FloatingPointUiState.fromValue: String
             get() = when(convertFrom) {
                 Decimal -> decimal
                 MiniFloat -> miniFloat

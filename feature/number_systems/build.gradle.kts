@@ -42,6 +42,7 @@ android {
 }
 
 dependencies {
+    implementation("com.github.jeziellago:compose-markdown:0.5.2")
 
     /**Machine Learning*/
     implementation(libs.play.services.mlkit.text.recognition)
@@ -50,8 +51,6 @@ dependencies {
     /**DI*/
     implementation(libs.koin.android)
     implementation(libs.koin.androidx.compose)
-
-    /**Local database*/
 
     /**Local database*/
     implementation(libs.androidx.room.runtime)

@@ -18,6 +18,5 @@ import kotlinx.serialization.Serializable
 /// Routes inside Main nested graph
 @Serializable object Dashboard
 @Serializable object Profile
-@Serializable object Help
 @Serializable object Feedback
 @Serializable object Settings

@@ -41,32 +41,28 @@ class DashboardViewModel @Inject constructor(
                         isStudent = user.isStudent,
                         imageBitmap = user.imageBitmap,
                         displayName = user.displayName,
-                        showProfile = true,
                         progressState = ProgressState.Idle
                     )
                 }
                 ?: let {
-                    _uiState.value = _uiState.value.copy(
-                        showProfile = false,
-                        progressState = ProgressState.Idle
-                    )
+                    _uiState.value = _uiState.value.copy(progressState = ProgressState.Error("No user signed."))
                 }
         }
         val features = setOf(
             DynamicFeature(
                 title = "Karnaugh Maps",
                 module = "karnaugh_maps",
-                iconUrl = "https://firebasestorage.googleapis.com/v0/b/compsci-computations.appspot.com/o/icons%2Fic_grid.png?alt=media&token=b21781bd-14fd-4c93-9eab-514a79f57d61",
+                icon = "ic_grid.png",
             ),
             DynamicFeature(
                 title = "Number Systems",
                 module = "number_systems",
-                iconUrl = "https://firebasestorage.googleapis.com/v0/b/compsci-computations.appspot.com/o/icons%2Fic_number_64.png?alt=media&token=979b04f0-b701-42a5-a7e6-ba24b9547691",
+                icon = "ic_number.png",
             ),
             DynamicFeature(
                 title = "Polish Expressions",
                 module = "polish_expressions",
-                iconUrl = "https://firebasestorage.googleapis.com/v0/b/compsci-computations.appspot.com/o/icons%2Fic_abc.png?alt=media&token=83d5caa2-83d0-4c8a-805c-f0b74d0dc3d0"
+                icon = "ic_abc.png"
             ),
         )
         val installedFeatures = features.toMutableSet()
@@ -77,7 +73,7 @@ class DashboardViewModel @Inject constructor(
 
     fun onRefresh() {
         _uiState.value = _uiState.value.copy(progressState = ProgressState.Loading())
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             authRepository.refreshUserFlow
                 .flowOn(Dispatchers.IO)
                 .catch { e ->
@@ -92,13 +88,11 @@ class DashboardViewModel @Inject constructor(
                         isStudent = user.isStudent,
                         imageBitmap = user.imageBitmap,
                         displayName = user.displayName,
-                        showProfile = true,
                         progressState = ProgressState.Idle
                     )
                 }
                 ?: let {
                     _uiState.value = _uiState.value.copy(
-                        showProfile = false,
                         progressState = ProgressState.Idle
                     )
                 }

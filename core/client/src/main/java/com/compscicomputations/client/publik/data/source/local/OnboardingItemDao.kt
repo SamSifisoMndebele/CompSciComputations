@@ -22,9 +22,6 @@ interface OnboardingItemDao {
     @Query("SELECT * FROM onboardingitem WHERE id = :id")
     fun select(id: Int): Flow<OnboardingItem>
 
-//    @Query("select count(1) where not exists (select * from onboardingitem)")
-//    fun isEmpty(): Boolean
-
     @Query("SELECT id FROM onboardingitem")
     fun selectIds(): IntArray
 

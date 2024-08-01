@@ -12,14 +12,14 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface AiResponseDao {
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(vararg aiResponse: AiResponse)
 
     @Update
     suspend fun update(vararg aiResponse: AiResponse)
 
-    @Query("delete from airesponse where id in (:ids)")
-    suspend fun delete(vararg ids: Int)
+    @Delete
+    suspend fun delete(vararg aiResponse: AiResponse)
 
     @Query("SELECT * FROM airesponse " +
             "WHERE tab = :tab " +
@@ -29,5 +29,13 @@ interface AiResponseDao {
     suspend fun select(tab: CurrentTab, convertFrom: ConvertFrom, value: String): AiResponse?
 
     @Query("SELECT * FROM airesponse WHERE tab = :tab ORDER BY id DESC")
-    fun selectAll(tab: CurrentTab): Flow<List<AiResponse>>
+    fun selectAll(tab: CurrentTab): Flow<List<AiResponse>?>
+
+    @Query("select count(1) where exists (select * from airesponse " +
+            "WHERE tab = :tab " +
+            "AND convert_from = :convertFrom " +
+            "AND value like :value " +
+            "ORDER BY id DESC)")
+    fun exists(tab: CurrentTab, convertFrom: ConvertFrom, value: String): Flow<Boolean>
+
 }

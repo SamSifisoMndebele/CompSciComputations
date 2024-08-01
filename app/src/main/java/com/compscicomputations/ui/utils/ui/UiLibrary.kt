@@ -83,6 +83,7 @@ private val subRegex = Regex("<sub>.*?</sub>")
 fun AnnotatedText(
     text: String,
     modifier: Modifier = Modifier,
+    maxLines: Int = Int.MAX_VALUE,
 ) {
     val annotatedString = buildAnnotatedString {
         append("\n\n")
@@ -120,7 +121,8 @@ fun AnnotatedText(
         text = annotatedString,
         modifier = modifier.fillMaxWidth(),
         fontSize = 18.sp,
-        fontFamily = comicNeueFamily
+        fontFamily = comicNeueFamily,
+        maxLines = maxLines,
     )
 }
 

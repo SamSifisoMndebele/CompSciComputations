@@ -26,17 +26,18 @@ val offlineAuthentication = buildAnnotatedString {
     append(" Authentication may not be successful")
 }
 
-const val hintUsertype = "Register as _"
-const val hintAdminCode = "Admin Code *"
 const val hintProfileImage = "Profile image"
 const val hintNames = "Names *"
-const val hintLastname = "Lastname *"
 const val hintEmail = "Email *"
 const val hintPhone = "Phone"
+const val hintUniversity = "University *"
+const val hintSchool = "School *"
+const val hintCourse = "Course *"
 const val hintOtp = "OTP *"
 const val hintPassword = "Password *"
 const val hintNewPassword = "New password *"
 const val hintPasswordConfirm = "Confirm password *"
+const val hintAdminPin = "Admin PIN *"
 
 const val placeholderEmail = "Enter your email. (example@mail.com)"
 

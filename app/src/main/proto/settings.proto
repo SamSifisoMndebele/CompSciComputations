@@ -10,5 +10,5 @@ message SettingsPreferences {
     LIGHT = 2;
   }
   Themes theme = 1;
-  bool dynamicColor = 2;
+  bool notDynamicColor = 2;
 }

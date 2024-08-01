@@ -5,13 +5,23 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.compscicomputations.number_systems.data.model.AIState
 import com.compscicomputations.number_systems.data.model.ConvertFrom
+import com.compscicomputations.number_systems.data.model.ConvertFrom.Binary
 import com.compscicomputations.number_systems.data.model.ConvertFrom.Complement1
 import com.compscicomputations.number_systems.data.model.ConvertFrom.Complement2
 import com.compscicomputations.number_systems.data.model.ConvertFrom.Decimal
+import com.compscicomputations.number_systems.data.model.ConvertFrom.Hexadecimal
+import com.compscicomputations.number_systems.data.model.ConvertFrom.Octal
+import com.compscicomputations.number_systems.data.model.ConvertFrom.Unicode
+import com.compscicomputations.number_systems.data.model.CurrentTab.BaseN
 import com.compscicomputations.number_systems.data.model.CurrentTab.Complement
 import com.compscicomputations.number_systems.data.source.local.AiResponse
 import com.compscicomputations.number_systems.data.source.local.AiResponseDao
 import com.compscicomputations.number_systems.data.source.local.datastore.ComplementDataStore
+import com.compscicomputations.number_systems.ui.bases.BaseConverter.fromBinary
+import com.compscicomputations.number_systems.ui.bases.BaseConverter.fromDecimal
+import com.compscicomputations.number_systems.ui.bases.BaseConverter.fromHex
+import com.compscicomputations.number_systems.ui.bases.BaseConverter.fromOctal
+import com.compscicomputations.number_systems.ui.bases.BaseConverter.fromUnicode
 import com.compscicomputations.number_systems.ui.complement.ComplementConverter.fromComplement1
 import com.compscicomputations.number_systems.ui.complement.ComplementConverter.fromComplement2
 import com.compscicomputations.number_systems.ui.complement.ComplementConverter.fromDecimal
@@ -24,9 +34,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlin.coroutines.cancellation.CancellationException
 
@@ -94,6 +108,30 @@ class ComplementViewModel(
             .copy(convertFrom = Complement2)
         viewModelScope.launch(Dispatchers.IO) {
             dataStore.setLastState(Complement2, complement2Str)
+        }
+    }
+
+    val responsesFlow: Flow<List<AiResponse>?>
+        get() = aiResponseDao.selectAll(Complement).map {
+            if (it.isNullOrEmpty()) null
+            else it
+        }
+
+    fun deleteResponse(response: AiResponse) {
+        viewModelScope.launch {
+            aiResponseDao.delete(response)
+        }
+    }
+
+    fun setFields(response: AiResponse) {
+        when(response.convertFrom) {
+            Decimal -> _uiState.value = _uiState.value.fromDecimal(response.value)
+                .copy(convertFrom = Decimal)
+            Complement1 -> _uiState.value = _uiState.value.fromComplement1(response.value)
+                .copy(convertFrom = Complement1)
+            Complement2 -> _uiState.value = _uiState.value.fromComplement2(response.value)
+                .copy(convertFrom = Complement2)
+            else -> {}
         }
     }
 
@@ -173,7 +211,7 @@ class ComplementViewModel(
     }
 
     companion object {
-        private val ComplementUiState.fromValue: String
+        val ComplementUiState.fromValue: String
             get() = when(convertFrom) {
                 Decimal -> decimal.trim()
                 Complement1 -> complement1.trim()

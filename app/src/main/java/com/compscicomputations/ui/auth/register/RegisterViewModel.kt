@@ -14,6 +14,7 @@ import com.compscicomputations.theme.strongPasswordRegex
 import com.compscicomputations.ui.utils.ProgressState
 import com.compscicomputations.utils.notMatches
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -87,10 +88,15 @@ class RegisterViewModel @Inject constructor(
         }
     }
 
-    fun cancelRegister() {
+    @OptIn(InternalCoroutinesApi::class)
+    fun cancelRegister(handler: () -> Unit = {}) {
         registerJob?.cancel()
+        registerJob?.invokeOnCompletion(true) {
+            registerJob = null
+            handler()
+            onProgressStateChange(ProgressState.Idle)
+        }
     }
-
 
     private fun fieldsAreValid(): Boolean {
         var valid = true

@@ -13,6 +13,7 @@ import com.compscicomputations.number_systems.data.model.ConvertFrom
 import com.compscicomputations.number_systems.data.model.ConvertFrom.*
 import com.compscicomputations.number_systems.data.model.AIState
 import com.compscicomputations.number_systems.data.model.CurrentTab.BaseN
+import com.compscicomputations.number_systems.data.model.CurrentTab.Complement
 import com.compscicomputations.number_systems.data.source.local.AiResponseDao
 import com.compscicomputations.number_systems.data.source.local.datastore.BaseNDataStore
 import com.compscicomputations.number_systems.data.source.local.datastore.NumberSystemsDataStore
@@ -25,22 +26,23 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlin.coroutines.cancellation.CancellationException
 
 class BasesViewModel(
     private val generativeModel: GenerativeModel,
-    private val aiResponseDao: AiResponseDao,
+    val aiResponseDao: AiResponseDao,
     private val dataStore: BaseNDataStore,
 ) : ViewModel() {
     init {
         viewModelScope.launch {
             dataStore.lastState.first()
                 ?.let {
-                    Log.d("BasesViewModel", "init: $it")
                     when(it.convertFrom) {
                         Decimal -> _uiState.value = _uiState.value.fromDecimal(it.fromValue)
                             .copy(convertFrom = Decimal)
@@ -56,6 +58,7 @@ class BasesViewModel(
                     }
                 }
         }
+
     }
 
     private val _uiState = MutableStateFlow(BasesUiState())
@@ -130,6 +133,35 @@ class BasesViewModel(
         }
     }
 
+    val responsesFlow: Flow<List<AiResponse>?>
+        get() = aiResponseDao.selectAll(BaseN).map {
+            if (it.isNullOrEmpty()) null
+            else it
+        }
+
+    fun deleteResponse(response: AiResponse) {
+        viewModelScope.launch {
+            aiResponseDao.delete(response)
+        }
+    }
+
+    fun setFields(response: AiResponse) {
+        when(response.convertFrom) {
+            Decimal -> _uiState.value = _uiState.value.fromDecimal(response.value)
+                .copy(convertFrom = Decimal)
+            Binary -> _uiState.value = _uiState.value.fromBinary(response.value)
+                .copy(convertFrom = Binary)
+            Octal -> _uiState.value = _uiState.value.fromOctal(response.value)
+                .copy(convertFrom = Octal)
+            Hexadecimal -> _uiState.value = _uiState.value.fromHex(response.value)
+                .copy(convertFrom = Hexadecimal)
+            Unicode -> _uiState.value = _uiState.value.fromUnicode(response.value)
+                .copy(convertFrom = Unicode)
+            else -> {}
+        }
+    }
+
+
     private suspend fun generateContent(): AiResponse {
         val response = generativeModel.generateContent(
             content {
@@ -195,7 +227,7 @@ class BasesViewModel(
     }
 
     companion object {
-        private val BasesUiState.fromValue: String
+        val BasesUiState.fromValue: String
             get() = when(convertFrom) {
                 Decimal -> decimal.trim()
                 Binary -> binary.trim()

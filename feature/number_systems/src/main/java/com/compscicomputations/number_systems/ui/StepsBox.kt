@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
@@ -34,6 +35,7 @@ import com.compscicomputations.number_systems.data.model.AIState.Loading
 import com.compscicomputations.number_systems.data.model.AIState.Success
 import com.compscicomputations.theme.comicNeueFamily
 import com.compscicomputations.ui.utils.ui.AnnotatedText
+import dev.jeziellago.compose.markdowntext.MarkdownText
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -148,17 +150,11 @@ fun StepsBox(
                 }
                 is Success -> {
                     val scrollState = rememberScrollState()
-                    Box {
-                        AnnotatedText(
-                            modifier = Modifier
-                                .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
-                                .verticalScroll(scrollState),
-                            text = aiState.response.text
-                        )
+                    Column(Modifier.wrapContentHeight()) {
                         OutlinedButton(
                             onClick = onRegenerate,
                             modifier = Modifier
-                                .align(Alignment.TopEnd)
+                                .align(Alignment.End)
                                 .padding(end = 16.dp)
                         ) {
                             Text(
@@ -168,6 +164,13 @@ fun StepsBox(
                                 fontSize = 12.sp
                             )
                         }
+                        MarkdownText(
+                            modifier = Modifier
+                                .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
+                                .verticalScroll(scrollState),
+                            isTextSelectable = true,
+                            markdown = aiState.response.text
+                        )
                     }
                 }
                 else -> {}

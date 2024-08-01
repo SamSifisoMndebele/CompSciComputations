@@ -68,7 +68,7 @@ fun SettingsScreen(
 
             SettingsSwitch(
                 text = "Dynamic Colors",
-                checked = uiState.dynamicColor,
+                checked = !uiState.notDynamicColor,
                 onCheckedChange = viewModel.onDynamicColorChange
             )
         }

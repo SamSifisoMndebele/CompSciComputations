@@ -39,7 +39,7 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             context.settingsDataStore.updateData {
                 it.toBuilder()
-                    .setDynamicColor(dynamicColor)
+                    .setNotDynamicColor(!dynamicColor)
                     .build()
             }
         }

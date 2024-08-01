@@ -16,29 +16,33 @@ data class User(
     val isStudent: Boolean,
     val isEmailVerified: Boolean,
 ) {
-    internal fun asLocalUser(): LocalUser {
-         val builder = LocalUser.newBuilder()
-            .setId(id)
-            .setEmail(email)
-            .setDisplayName(displayName)
-            .setIsAdmin(isAdmin)
-            .setIsStudent(isStudent)
-            .setIsEmailVerified(isEmailVerified)
-        imageBitmap?.let { builder.setImageBytes(it.asByteString) }
-        phone?.let { builder.setPhone(it) }
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
 
-        return builder.build()
+        other as User
+
+        if (id != other.id) return false
+        if (email != other.email) return false
+        if (displayName != other.displayName) return false
+        if (imageBitmap != other.imageBitmap) return false
+        if (phone != other.phone) return false
+        if (isAdmin != other.isAdmin) return false
+        if (isStudent != other.isStudent) return false
+        if (isEmailVerified != other.isEmailVerified) return false
+
+        return true
     }
 
-    internal val asRemoteUser
-        get() = RemoteUser(
-            id = id,
-            email = email,
-            displayName= displayName,
-            phone = phone,
-            imageBytes = imageBitmap?.asByteArray,
-            isAdmin = isAdmin,
-            isStudent = isStudent,
-            isEmailVerified = isEmailVerified
-        )
+    override fun hashCode(): Int {
+        var result = id
+        result = 31 * result + email.hashCode()
+        result = 31 * result + displayName.hashCode()
+        result = 31 * result + (imageBitmap?.hashCode() ?: 0)
+        result = 31 * result + (phone?.hashCode() ?: 0)
+        result = 31 * result + isAdmin.hashCode()
+        result = 31 * result + isStudent.hashCode()
+        result = 31 * result + isEmailVerified.hashCode()
+        return result
+    }
 }

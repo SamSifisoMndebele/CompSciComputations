@@ -13,7 +13,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.compscicomputations.ui.main.dashboard.DashboardScreen
 import com.compscicomputations.ui.main.feedback.FeedbackScreen
-import com.compscicomputations.ui.main.help.HelpScreen
 import com.compscicomputations.ui.main.profile.ProfileScreen
 import com.compscicomputations.ui.main.profile.ProfileViewModel
 import com.compscicomputations.ui.main.settings.SettingsScreen
@@ -24,7 +23,6 @@ fun NavGraphBuilder.navigationMain(navController: NavHostController) {
             val context = LocalContext.current
             DashboardScreen(
                 navigateProfile = { navController.navigate(route = Profile) },
-                navigateHelp = { navController.navigate(route = Help) },
                 navigateFeedback = { navController.navigate(route = Feedback) },
                 navigateSettings = { navController.navigate(route = Settings) },
                 navigateDynamicFeature = { feature ->
@@ -40,21 +38,14 @@ fun NavGraphBuilder.navigationMain(navController: NavHostController) {
         }
         composable<Profile> {
             val viewModel: ProfileViewModel = hiltViewModel()
-            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
             ProfileScreen(
                 viewModel = viewModel,
-                uiState = uiState,
                 navigateUp = { navController.navigateUp() },
                 navigateAuth = {
                     navController.navigate(route = Auth) {
                         popUpTo<Main> { inclusive = true }
                     }
                 }
-            )
-        }
-        composable<Help> {
-            HelpScreen(
-                navigateUp = { navController.navigateUp() }
             )
         }
         composable<Feedback> {

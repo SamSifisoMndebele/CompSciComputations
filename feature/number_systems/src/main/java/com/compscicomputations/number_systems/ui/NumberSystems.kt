@@ -1,86 +1,73 @@
 package com.compscicomputations.number_systems.ui
 
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.List
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.BottomAppBarDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.ModalBottomSheetProperties
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.PrimaryScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.SecureFlagPolicy
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.compscicomputations.number_systems.R
+import com.compscicomputations.number_systems.data.model.AIState.Idle
+import com.compscicomputations.number_systems.data.model.CurrentTab
+import com.compscicomputations.number_systems.data.model.CurrentTab.BaseN
+import com.compscicomputations.number_systems.data.model.CurrentTab.Complement
+import com.compscicomputations.number_systems.data.model.CurrentTab.Excess
+import com.compscicomputations.number_systems.data.model.CurrentTab.FloatingPoint
 import com.compscicomputations.number_systems.ui.bases.BasesScreen
 import com.compscicomputations.number_systems.ui.bases.BasesViewModel
+import com.compscicomputations.number_systems.ui.bases.BasesViewModel.Companion.fromValue
 import com.compscicomputations.number_systems.ui.complement.ComplementScreen
 import com.compscicomputations.number_systems.ui.complement.ComplementViewModel
+import com.compscicomputations.number_systems.ui.complement.ComplementViewModel.Companion.fromValue
 import com.compscicomputations.number_systems.ui.excess.ExcessScreen
 import com.compscicomputations.number_systems.ui.excess.ExcessViewModel
 import com.compscicomputations.number_systems.ui.floating_point.FloatingPointScreen
 import com.compscicomputations.number_systems.ui.floating_point.FloatingPointViewModel
-import com.compscicomputations.number_systems.data.model.CurrentTab
-import com.compscicomputations.number_systems.data.model.AIState
-import com.compscicomputations.number_systems.data.model.AIState.*
-import com.compscicomputations.number_systems.data.model.CurrentTab.*
+import com.compscicomputations.number_systems.ui.floating_point.FloatingPointViewModel.Companion.fromValue
 import com.compscicomputations.theme.comicNeueFamily
-import com.compscicomputations.ui.utils.ui.AnnotatedText
 import com.compscicomputations.ui.utils.ui.CompSciScaffold
-import com.compscicomputations.utils.network.ConnectionState.*
+import com.compscicomputations.utils.network.ConnectionState.Unavailable
 import com.compscicomputations.utils.rememberConnectivityState
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.flowOn
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalCoroutinesApi::class)
@@ -107,6 +94,8 @@ fun NumberSystems(
         Excess -> excessUiState.isValid
         FloatingPoint -> floatingPointUiState.isValid
     }
+
+    var showList by rememberSaveable { mutableStateOf(false) }
 
     CompSciScaffold(
         modifier = Modifier.fillMaxSize(),
@@ -140,7 +129,13 @@ fun NumberSystems(
                         Icon(Icons.Outlined.Delete, contentDescription = "Clear fields")
                     }
                     IconButton(onClick = {
-
+//                        when(currentTab) {
+//                            BaseN -> TODO()
+//                            Complement -> TODO()
+//                            Excess -> TODO()
+//                            FloatingPoint -> TODO()
+//                        }
+                        showList = true
                     }) {
                         Icon(
                             Icons.AutoMirrored.Outlined.List,
@@ -150,9 +145,23 @@ fun NumberSystems(
                 },
                 floatingActionButton = if (isOnlineAndValidState) {
                     {
+                        val exists by when(currentTab) {
+                            BaseN -> basesViewModel.aiResponseDao.exists(BaseN, basesUiState.convertFrom, basesUiState.fromValue)
+                            Complement -> basesViewModel.aiResponseDao.exists(Complement, complementUiState.convertFrom, complementUiState.fromValue)
+                            Excess -> basesViewModel.aiResponseDao.exists(Excess, excessUiState.convertFrom, basesUiState.fromValue)
+                            FloatingPoint -> basesViewModel.aiResponseDao.exists(FloatingPoint, floatingPointUiState.convertFrom, floatingPointUiState.fromValue)
+                        }.flowOn(Dispatchers.IO)
+                            .collectAsStateWithLifecycle(initialValue = false)
+
                         ExtendedFloatingActionButton(
-                            text = { Text("Show Steps") },
-                            icon = { Icon(Icons.Outlined.Info, contentDescription = null) },
+                            text = { Text(if (exists) "Show Steps" else "Generate Steps") },
+                            icon = {
+                                Image(
+                                    modifier = Modifier.size(24.dp),
+                                    painter = painterResource(id = R.drawable.ic_google_gemini),
+                                    contentDescription = null
+                                )
+                            },
                             containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
                             elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
                             onClick = {
@@ -260,6 +269,53 @@ fun NumberSystems(
                 onDismissRequest = { floatingPointViewModel.setAiState(Idle) },
                 onCancel = { floatingPointViewModel.cancelJob() },
                 onRegenerate = { floatingPointViewModel.regenerateSteps() },
+            )
+        }
+
+        when(currentTab) {
+            BaseN -> StepsList(
+                show = showList,
+                onDismissRequest = { showList = false },
+                listFlow = basesViewModel.responsesFlow,
+                onDelete = { basesViewModel.deleteResponse(it) },
+                onSelect = {
+                    showList = false
+                    basesViewModel.setFields(it)
+                    basesViewModel.generateSteps()
+                }
+            )
+            Complement -> StepsList(
+                show = showList,
+                onDismissRequest = { showList = false },
+                listFlow = complementViewModel.responsesFlow,
+                onDelete = { complementViewModel.deleteResponse(it) },
+                onSelect = {
+                    showList = false
+                    complementViewModel.setFields(it)
+                    complementViewModel.generateSteps()
+                }
+            )
+            Excess -> StepsList(
+                show = showList,
+                onDismissRequest = { showList = false },
+                listFlow = excessViewModel.responsesFlow,
+                onDelete = { excessViewModel.deleteResponse(it) },
+                onSelect = {
+                    showList = false
+                    excessViewModel.setFields(it)
+                    excessViewModel.generateSteps()
+                }
+            )
+            FloatingPoint -> StepsList(
+                show = showList,
+                onDismissRequest = { showList = false },
+                listFlow = floatingPointViewModel.responsesFlow,
+                onDelete = { floatingPointViewModel.deleteResponse(it) },
+                onSelect = {
+                    showList = false
+                    floatingPointViewModel.setFields(it)
+                    floatingPointViewModel.generateSteps()
+                }
             )
         }
     }

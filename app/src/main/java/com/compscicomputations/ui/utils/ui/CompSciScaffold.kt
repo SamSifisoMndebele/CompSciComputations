@@ -84,7 +84,7 @@ fun CompSciScaffold(
     containerColor: Color = MaterialTheme.colorScheme.background,
     contentColor: Color = contentColorFor(containerColor),
     isRefreshing: Boolean? = null,
-    onRefresh: () -> Unit = {},
+    onRefresh: (() -> Unit)? = null,
     topBarCornerRadius: Dp = 24.dp,
     bottomBarCornerRadius: Dp = 24.dp,
     content: @Composable ColumnScope.(PaddingValues) -> Unit
@@ -152,7 +152,7 @@ fun CompSciScaffold(
                 bottom = if (bottomPadding <= 0.dp) 0.dp else bottomPadding
             )
         ) {
-            if (isRefreshing != null) {
+            if (isRefreshing != null && onRefresh != null) {
                 val pullRefreshState = rememberPullRefreshState(refreshing = isRefreshing, onRefresh = onRefresh)
                 Box(modifier = Modifier.pullRefresh(pullRefreshState)) {
                     Column(
@@ -177,7 +177,8 @@ fun CompSciScaffold(
                         scale = true
                     )
                 }
-            } else {
+            }
+            else {
                 content(
                     PaddingValues(
                         start = 8.dp,

@@ -34,8 +34,13 @@ inline val ByteArray.asBitmap: Bitmap
 /**
  * Converts byte string to bitmap
  */
-inline val ByteString.asBitmap: Bitmap
-    get() = toByteArray().asBitmap
+inline val ByteString.asBitmap: Bitmap?
+    get() {
+        val bytes = toByteArray()
+
+        return if (bytes == null || bytes.isEmpty()) null
+        else bytes.asBitmap
+    }
 
 /**
  * Converts Uri to byte string

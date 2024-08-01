@@ -5,12 +5,22 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.compscicomputations.number_systems.data.model.AIState
 import com.compscicomputations.number_systems.data.model.ConvertFrom
+import com.compscicomputations.number_systems.data.model.ConvertFrom.Binary
 import com.compscicomputations.number_systems.data.model.ConvertFrom.Decimal
 import com.compscicomputations.number_systems.data.model.ConvertFrom.Excess
+import com.compscicomputations.number_systems.data.model.ConvertFrom.Hexadecimal
+import com.compscicomputations.number_systems.data.model.ConvertFrom.Octal
+import com.compscicomputations.number_systems.data.model.ConvertFrom.Unicode
 import com.compscicomputations.number_systems.data.model.CurrentTab
+import com.compscicomputations.number_systems.data.model.CurrentTab.*
 import com.compscicomputations.number_systems.data.source.local.AiResponse
 import com.compscicomputations.number_systems.data.source.local.AiResponseDao
 import com.compscicomputations.number_systems.data.source.local.datastore.ExcessDataStore
+import com.compscicomputations.number_systems.ui.bases.BaseConverter.fromBinary
+import com.compscicomputations.number_systems.ui.bases.BaseConverter.fromDecimal
+import com.compscicomputations.number_systems.ui.bases.BaseConverter.fromHex
+import com.compscicomputations.number_systems.ui.bases.BaseConverter.fromOctal
+import com.compscicomputations.number_systems.ui.bases.BaseConverter.fromUnicode
 import com.compscicomputations.number_systems.ui.excess.ExcessConverter.fromDecimal
 import com.compscicomputations.number_systems.ui.excess.ExcessConverter.fromExcess
 import com.google.ai.client.generativeai.GenerativeModel
@@ -20,9 +30,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlin.coroutines.cancellation.CancellationException
 
@@ -99,6 +111,28 @@ class ExcessViewModel(
         }
     }
 
+
+    val responsesFlow: Flow<List<AiResponse>?>
+        get() = aiResponseDao.selectAll(CurrentTab.Excess).map {
+            if (it.isNullOrEmpty()) null
+            else it
+        }
+
+    fun deleteResponse(response: AiResponse) {
+        viewModelScope.launch {
+            aiResponseDao.delete(response)
+        }
+    }
+
+    fun setFields(response: AiResponse) {
+        when(response.convertFrom) {
+            Decimal -> _uiState.value = _uiState.value.fromDecimal(response.value)
+                .copy(convertFrom = Decimal)
+            Excess -> _uiState.value = _uiState.value.fromExcess(response.value)
+                .copy(convertFrom = Excess)
+            else -> {}
+        }
+    }
 
     private var job: Job? = null
     @OptIn(InternalCoroutinesApi::class)
@@ -177,7 +211,7 @@ class ExcessViewModel(
 
     companion object {
 
-        private val ExcessUiState.fromValue: String
+        val ExcessUiState.fromValue: String
             get() = when(convertFrom) {
                 Decimal -> decimal
                 Excess -> excess
