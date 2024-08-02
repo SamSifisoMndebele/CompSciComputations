@@ -3,18 +3,15 @@
 package com.compscicomputations.number_systems
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.room.Room
 import com.compscicomputations.BuildConfig
-import com.compscicomputations.number_systems.data.model.CurrentTab
 import com.compscicomputations.number_systems.data.source.local.AiDatabase
 import com.compscicomputations.number_systems.data.source.local.datastore.BaseNDataStore
 import com.compscicomputations.number_systems.data.source.local.datastore.ComplementDataStore
 import com.compscicomputations.number_systems.data.source.local.datastore.ExcessDataStore
 import com.compscicomputations.number_systems.data.source.local.datastore.FloatingPointDataStore
-import com.compscicomputations.number_systems.data.source.local.datastore.NumberSystemsDataStore
 import com.compscicomputations.number_systems.ui.NumberSystems
 import com.compscicomputations.number_systems.ui.bases.BasesViewModel
 import com.compscicomputations.number_systems.ui.complement.ComplementViewModel
@@ -22,10 +19,7 @@ import com.compscicomputations.number_systems.ui.excess.ExcessViewModel
 import com.compscicomputations.number_systems.ui.floating_point.FloatingPointViewModel
 import com.compscicomputations.theme.CompSciComputationsTheme
 import com.google.ai.client.generativeai.GenerativeModel
-import com.google.ai.client.generativeai.type.GenerationConfig
 import com.google.ai.client.generativeai.type.generationConfig
-import com.google.mlkit.vision.text.TextRecognition
-import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -50,7 +44,6 @@ private val appModule = module {
             }
         )
     }
-    single { TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS) }
     single {
         Room.databaseBuilder(get(), AiDatabase::class.java, "number-systems.room.db")
             .fallbackToDestructiveMigration()

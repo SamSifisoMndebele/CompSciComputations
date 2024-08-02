@@ -18,10 +18,13 @@ import com.compscicomputations.ui.auth.onboarding.SplashScreen
 import com.compscicomputations.ui.navigation.Splash
 import com.compscicomputations.ui.navigation.navigationAuth
 import com.compscicomputations.ui.navigation.navigationMain
+import com.google.android.play.core.splitinstall.SplitInstallManager
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 

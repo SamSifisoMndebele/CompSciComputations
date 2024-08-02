@@ -42,10 +42,9 @@ android {
 }
 
 dependencies {
-    implementation("com.github.jeziellago:compose-markdown:0.5.2")
+    implementation(libs.compose.markdown)
 
     /**Machine Learning*/
-    implementation(libs.play.services.mlkit.text.recognition)
     implementation(libs.generativeai)
 
     /**DI*/

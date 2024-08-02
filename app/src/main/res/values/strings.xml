@@ -15,4 +15,5 @@
     <string name="title_activity_split_install">SplitInstallActivity</string>
     <string name="title_activity_number_systems">NumberSystemsActivity</string>
     <string name="title_activity_main">MainActivity</string>
+    <string name="title_activity_dynamic_features">DynamicFeaturesActivity</string>
 </resources>

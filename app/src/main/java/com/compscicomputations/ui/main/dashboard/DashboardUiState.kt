@@ -13,6 +13,7 @@ data class DashboardUiState(
     val isStudent: Boolean = false,
 
     val installedFeatures: Set<DynamicFeature>? = null,
+//    val notInstalledFeatures: Set<String>? = null,
 
     val progressState: ProgressState = ProgressState.Loading(),
     val snackBarHostState: SnackbarHostState = SnackbarHostState(),

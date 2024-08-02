@@ -35,7 +35,7 @@ class ProfileViewModel @Inject constructor(
     val uiState = _uiState.asStateFlow()
 
     init {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             authRepository.currentUserFlow
                 .flowOn(Dispatchers.IO)
                 .catch { e ->
@@ -72,7 +72,7 @@ class ProfileViewModel @Inject constructor(
 
     fun onRefresh() {
         _uiState.value = _uiState.value.copy(progressState = ProgressState.Loading())
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             authRepository.refreshUserFlow
                 .flowOn(Dispatchers.IO)
                 .catch { e ->

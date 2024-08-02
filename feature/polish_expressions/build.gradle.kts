@@ -45,9 +45,10 @@ android {
 
 dependencies {
 
-//    /**Machine Learning*/
-//    implementation(libs.play.services.mlkit.text.recognition)
+    /**Machine Learning*/
 //    implementation(libs.generativeai)
+//    implementation(libs.text.recognition)
+//    implementation(libs.play.services.mlkit.text.recognition)
 
 //    /**DI*/
 //    implementation(libs.koin.android)

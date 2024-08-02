@@ -13,6 +13,14 @@ plugins {
 }
 
 android {
+    signingConfigs {
+        getByName("debug") {
+            storeFile = file("D:\\_CompSciComputations\\android-app\\config\\keystore\\keystore.jks")
+            storePassword = "Mn_9903155459080"
+            keyAlias = "compscicomputationskey"
+            keyPassword = "CompSciComputations"
+        }
+    }
     namespace = "com.compscicomputations"
     compileSdk = 34
 
@@ -26,8 +34,8 @@ android {
         applicationId = "com.compscicomputations"
         minSdk = 24
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0.0"
+        versionCode = 3
+        versionName = "1.0.3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables { useSupportLibrary = true }
@@ -35,8 +43,8 @@ android {
 
     buildTypes {
         release {
-            isShrinkResources = true
-            isMinifyEnabled = true
+            isShrinkResources = false
+            isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -64,6 +72,9 @@ android {
         ":feature:number_systems",
         ":feature:polish_expressions"
     )
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.1"
+    }
 }
 
 protobuf {
@@ -87,10 +98,11 @@ dependencies {
     implementation(libs.googleid)
 
 //    /**Machine Learning*/
-//    implementation(libs.play.services.mlkit.text.recognition)
 //    implementation(libs.generativeai)
-//    implementation (libs.tensorflow.lite.task.vision.play.services)
-//    implementation (libs.play.services.tflite.gpu)
+//    implementation(libs.play.text.recognition)
+//    implementation(libs.play.services.mlkit.text.recognition)
+//    implementation(libs.play.services.tflite.gpu)
+//    implementation(libs.tensorflow.lite.task.vision.play.services)
 
     /**Hilt DI*/
     implementation(libs.hilt.android)

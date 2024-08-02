@@ -13,12 +13,16 @@
         <dist:fusing dist:include="true" />
     </dist:module>
 
-    <application tools:ignore="MissingApplicationIcon">
+    <application tools:ignore="MissingApplicationIcon"
+        android:hardwareAccelerated="true">
         <activity
             android:name="com.compscicomputations.polish_expressions.MainActivity"
             android:exported="true"
             android:label="@string/title_polish_expressions"
             android:theme="@style/Theme.CompSciComputations" />
+<!--        <meta-data-->
+<!--            android:name="com.google.mlkit.vision.DEPENDENCIES"-->
+<!--            android:value="ocr" />-->
     </application>
 
 </manifest>

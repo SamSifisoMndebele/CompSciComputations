@@ -13,7 +13,8 @@
         <dist:fusing dist:include="true" />
     </dist:module>
 
-    <application tools:ignore="MissingApplicationIcon">
+    <application tools:ignore="MissingApplicationIcon"
+        android:hardwareAccelerated="true">
         <activity
             android:name=".MainActivity"
             android:exported="true"
