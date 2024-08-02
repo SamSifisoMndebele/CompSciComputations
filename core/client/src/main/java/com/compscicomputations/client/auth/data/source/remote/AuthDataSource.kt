@@ -100,7 +100,7 @@ class AuthDataSource @Inject constructor(
                 )
             )
             onUpload { bytesSentTotal, contentLength ->
-                Log.d(TAG, "onUpload: Sent $bytesSentTotal bytes from $contentLength")
+                Log.d(TAG, "on upload image: Sent $bytesSentTotal bytes from $contentLength")
                 onProgress(bytesSentTotal, contentLength)
             }
         }
@@ -128,7 +128,7 @@ class AuthDataSource @Inject constructor(
                 append(HttpHeaders.Authorization, authCredentials())
             }
             onDownload { bytesSentTotal, contentLength ->
-                println("onDownload: Received $bytesSentTotal bytes from $contentLength")
+                println("on download image: Received $bytesSentTotal bytes from $contentLength")
                 onProgress(bytesSentTotal, contentLength)
             }
         }
