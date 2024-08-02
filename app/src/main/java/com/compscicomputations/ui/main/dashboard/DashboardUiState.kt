@@ -1,7 +1,6 @@
 package com.compscicomputations.ui.main.dashboard
 
 import android.graphics.Bitmap
-import androidx.compose.material3.SnackbarHostState
 import com.compscicomputations.client.publik.data.model.DynamicFeature
 import com.compscicomputations.ui.utils.ProgressState
 
@@ -13,9 +12,11 @@ data class DashboardUiState(
     val isStudent: Boolean = false,
 
     val installedFeatures: Set<DynamicFeature>? = null,
-//    val notInstalledFeatures: Set<String>? = null,
+    val notInstalledFeatures: Set<DynamicFeature>? = null,
 
-    val progressState: ProgressState = ProgressState.Loading(),
-    val snackBarHostState: SnackbarHostState = SnackbarHostState(),
+    val downloadingModule: String? = null,
+    val installingModule: String? = null,
+    val downloadProgress: Float = 0f,
 
+    val progressState: ProgressState = ProgressState.Loading()
 )

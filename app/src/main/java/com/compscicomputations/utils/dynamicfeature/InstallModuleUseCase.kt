@@ -8,15 +8,21 @@ import com.google.android.play.core.splitinstall.SplitInstallSessionState
 import com.google.android.play.core.splitinstall.SplitInstallStateUpdatedListener
 import com.google.android.play.core.splitinstall.model.SplitInstallSessionStatus
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 class InstallModuleUseCase @Inject constructor(
     @ApplicationContext private val context: Context,
     private val manager: SplitInstallManager
 ) {
-    private var mySessionId = 0
     /** Request install of feature module. */
-    operator fun invoke(vararg module: String, onStateUpdated: (SplitInstallSessionState) -> Unit) {
+    suspend operator fun invoke(
+        vararg module: String,
+        onDownload: (bytesDownloaded: Long, totalBytes: Long) -> Unit,
+        onFailure: (errorCode: Int) -> Unit,
+        onInstalling: () -> Unit,
+        onInstalled: () -> Unit,
+    ) {
         val requestBuilder = SplitInstallRequest.newBuilder()
         module.forEach { name ->
             if (!manager.installedModules.contains(name)) {
@@ -24,25 +30,12 @@ class InstallModuleUseCase @Inject constructor(
             }
         }
         val request = requestBuilder.build()
-        manager.startInstall(request)
-            .addOnCompleteListener {
-                Log.d("InstallModuleUseCase", "Complete ${request.moduleNames}")
-            }
-            .addOnSuccessListener {
-                Log.d("InstallModuleUseCase", "Success ${request.moduleNames}")
-            }
-            .addOnFailureListener {
-                Log.d("InstallModuleUseCase", "Failure ${request.moduleNames}")
-            }
         val listener = SplitInstallStateUpdatedListener { state ->
-            if (state.sessionId() == mySessionId) {
-                onStateUpdated(state)
-            }
             val names = state.moduleNames().joinToString(" - ")
             when (state.status()) {
                 SplitInstallSessionStatus.DOWNLOADING -> {
-                    //  In order to see this, the application has to be uploaded to the Play Store.
-                    Log.d("InstallModuleUseCase", "Downloading $names")
+                    onDownload(state.bytesDownloaded(), state.totalBytesToDownload())
+                    Log.d("InstallModuleUseCase", "Downloading $names: ${state.bytesDownloaded()}/${state.totalBytesToDownload()}")
                 }
                 SplitInstallSessionStatus.REQUIRES_USER_CONFIRMATION -> {
                     /*
@@ -54,13 +47,15 @@ class InstallModuleUseCase @Inject constructor(
                     context.startIntentSender(state.resolutionIntent()?.intentSender, null, 0, 0, 0)
                 }
                 SplitInstallSessionStatus.INSTALLED -> {
+                    onInstalled()
                     Log.d("InstallModuleUseCase", "SuccessfulLoad $names")
                 }
-
                 SplitInstallSessionStatus.INSTALLING -> {
+                    onInstalling()
                     Log.d("InstallModuleUseCase", "Installing $names")
                 }
                 SplitInstallSessionStatus.FAILED -> {
+                    onFailure(state.errorCode())
                     Log.d("InstallModuleUseCase", "Error: ${state.errorCode()} for module ${state.moduleNames()}")
                 }
                 else -> {
@@ -68,12 +63,8 @@ class InstallModuleUseCase @Inject constructor(
                 }
             }
         }
-
         manager.registerListener(listener)
-
-        manager.startInstall(request)
-            .addOnFailureListener { e -> Log.w("InstallModuleUseCase", "Exception::installModule", e) }
-            .addOnSuccessListener { sessionId -> mySessionId = sessionId }
+        manager.startInstall(request).await()
     }
 
 //    /** Install all features deferred. */

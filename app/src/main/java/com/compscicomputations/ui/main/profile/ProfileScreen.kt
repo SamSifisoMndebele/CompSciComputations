@@ -7,13 +7,11 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -27,7 +25,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Person2
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
@@ -38,10 +35,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.Text
@@ -71,11 +66,9 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.content.PermissionChecker.PERMISSION_GRANTED
-import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.compscicomputations.BuildConfig
 import com.compscicomputations.R
 import com.compscicomputations.theme.comicNeueFamily
 import com.compscicomputations.theme.hintAdminPin
@@ -83,7 +76,6 @@ import com.compscicomputations.theme.hintCourse
 import com.compscicomputations.theme.hintEmail
 import com.compscicomputations.theme.hintNames
 import com.compscicomputations.theme.hintPhone
-import com.compscicomputations.theme.hintProfileImage
 import com.compscicomputations.theme.hintSchool
 import com.compscicomputations.theme.hintUniversity
 import com.compscicomputations.ui.auth.isError
@@ -124,7 +116,7 @@ fun ProfileScreen(
     }
     CompSciScaffold(
         title = "Profile",
-        snackBarHost = { SnackbarHost(hostState = uiState.snackBarHostState) },
+        snackBarHost = { SnackbarHost(hostState = viewModel.snackBarHostState) },
         isRefreshing = uiState.progressState.isLoading,
 //        onRefresh = { viewModel.onRefresh() },
         navigateUp = navigateUp,
@@ -308,9 +300,9 @@ fun ProfileScreen(
 
             if (uiState.changed) {
                 OptionButton(
-                    padding = PaddingValues(start = 8.dp, end = 8.dp, bottom = 8.dp),
+                    modifier = Modifier.padding(start = 8.dp, end = 8.dp, bottom = 8.dp),
                     iconVector = Icons.Default.Person2,
-                    text = "Save",
+                    text = "Save changes",
                     onClick = {
                         // TODO: Save changes
                     }
@@ -549,10 +541,10 @@ fun ProfileScreen(
         }
 
         OptionButton(
+            modifier = Modifier.padding(start = 8.dp, end = 8.dp, bottom = 8.dp),
             text = "Logout",
             iconVector = Icons.AutoMirrored.Filled.Logout,
-            padding = PaddingValues(start = 8.dp, end = 8.dp, bottom = 8.dp),
-            backgroundColor = Color.Red
+            containerColor = Color.Red
         ) {
             logoutAlertDialog = true
         }

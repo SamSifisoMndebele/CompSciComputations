@@ -1,10 +1,7 @@
 package com.compscicomputations.ui.utils.ui
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -15,24 +12,19 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Downloading
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
@@ -44,158 +36,185 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.compscicomputations.R
-import com.compscicomputations.client.publik.data.model.DynamicFeature
 import com.compscicomputations.theme.comicNeueFamily
-
 
 @Composable
 fun DownloadFeatureButton(
-    padding: PaddingValues = PaddingValues(bottom = 8.dp),
-    module: String,
-    backgroundColor: Color = MaterialTheme.colorScheme.primary,
-    contentColor: Color = MaterialTheme.colorScheme.primary,
-    currentProgress: Float = 0.5f,
+    modifier: Modifier = Modifier,
+    featureName: String,
+    enabled: Boolean,
     downloading: Boolean,
-    onClickDownload: () -> Unit,
+    installing: Boolean,
+    downloadProgress: Float,
+    onDownload: () -> Unit,
 ) {
-    Card(
-        modifier = Modifier
-            .padding(padding)
+    OutlinedButton(
+        modifier = modifier
             .fillMaxWidth()
             .wrapContentHeight(),
+        enabled = enabled,
+        colors = if (downloading) ButtonDefaults.buttonColors() else ButtonDefaults.outlinedButtonColors(),
+        onClick = onDownload,
         shape = RoundedCornerShape(32.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = backgroundColor.copy(alpha = 0.12f)
-        )
+
     ) {
-        Row(
-            Modifier
-                .padding(vertical = 6.dp, horizontal = 18.dp)
-                .fillMaxWidth()
-                .height(50.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = module,
-                modifier = Modifier.padding(start = 16.dp, end = 8.dp).weight(1f),
-                color = contentColor,
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Bold,
-                fontFamily = comicNeueFamily,
-                maxLines = 1
-            )
-            IconButton(
-                modifier = Modifier.padding(horizontal = 8.dp),
-                onClick = onClickDownload,
-                enabled = !downloading
+        Column {
+            Row(
+                Modifier
+                    .padding(vertical = 4.dp, horizontal = 8.dp)
+                    .fillMaxWidth()
+                    .height(36.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
+                Text(
+                    text = featureName + if (installing) ": Installing..." else "",
+                    modifier = Modifier
+                        .padding(start = 8.dp, end = 8.dp)
+                        .weight(1f),
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = comicNeueFamily,
+                    maxLines = 1
+                )
                 Icon(
                     imageVector = if (downloading) Icons.Default.Downloading else Icons.Default.Download,
-                    contentDescription = "$module download",
-                    tint = contentColor
+                    contentDescription = "$featureName download",
                 )
             }
-        }
-        if (downloading) {
-            LinearProgressIndicator(
-                progress = { currentProgress },
-                modifier = Modifier.fillMaxWidth().height(8.dp).padding(bottom = 3.dp),
-                strokeCap = StrokeCap.Round
-            )
+            if (installing) {
+                LinearProgressIndicator(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(8.dp)
+                        .padding(bottom = 3.dp, start = 4.dp, end = 4.dp),
+                    strokeCap = StrokeCap.Round
+                )
+            }
+            if (downloading) {
+                LinearProgressIndicator(
+                    progress = { downloadProgress },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(8.dp)
+                        .padding(bottom = 3.dp, start = 4.dp, end = 4.dp),
+                    strokeCap = StrokeCap.Round
+                )
+            }
         }
     }
 }
 
-
 @Composable
 fun OptionButton(
-    padding: PaddingValues = PaddingValues(bottom = 8.dp),
+    modifier: Modifier = Modifier,
     iconVector: ImageVector? = null,
     text: String,
-    backgroundColor: Color = MaterialTheme.colorScheme.primary,
+    containerColor: Color = MaterialTheme.colorScheme.primary,
     contentColor: Color = MaterialTheme.colorScheme.primary,
     onClick: () -> Unit
 ) {
-    Card(
+    Button(
+        modifier = modifier.fillMaxWidth(),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = containerColor.copy(alpha = 0.15f),
+            contentColor = contentColor,
+        ),
         onClick = onClick,
-        modifier = Modifier
-            .padding(padding)
-            .fillMaxWidth()
-            .height(64.dp),
-        shape = RoundedCornerShape(32.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = backgroundColor.copy(alpha = 0.12f)
-        )
+        shape = RoundedCornerShape(32.dp)
     ) {
-        Row(
-            Modifier
-                .padding(vertical = 6.dp, horizontal = 18.dp)
-                .fillMaxWidth()
-                .fillMaxHeight(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            if (iconVector != null) {
-                Icon(
-                    imageVector = iconVector,
-                    contentDescription = "$text Icon",
-                    tint = contentColor
-                )
-            }
-            Text(
-                text = text, Modifier.padding(start = 24.dp, end = 8.dp), color = contentColor,
-                fontSize = 22.sp, fontWeight = FontWeight.Bold, fontFamily = comicNeueFamily,
-                maxLines = 1
+        if (iconVector != null) {
+            Icon(
+                imageVector = iconVector,
+                contentDescription = "$text Icon",
+                tint = contentColor
             )
         }
+        Text(
+            text = text,
+            modifier = Modifier
+                .padding(start = 32.dp, end = 8.dp, top = 12.dp, bottom = 12.dp)
+                .weight(1f),
+            color = contentColor,
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
+            fontFamily = comicNeueFamily,
+            maxLines = 1
+        )
     }
 }
 
 @Composable
 fun OptionButton(
-    padding: PaddingValues = PaddingValues(bottom = 8.dp),
-    iconName: String,
+    modifier: Modifier = Modifier,
+    assetName: String,
     text: String,
+    shape: Shape = RoundedCornerShape(32.dp),
+    containerColor: Color = MaterialTheme.colorScheme.primary,
+    contentColor: Color = MaterialTheme.colorScheme.primary,
     tint: Color? = null,
     onClick: () -> Unit
 ) {
-    Card(
-        onClick = onClick,
-        modifier = Modifier
-            .padding(padding)
-            .fillMaxWidth()
-            .height(64.dp),
-        shape = RoundedCornerShape(32.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
-        )
+    OptionButton(
+        modifier = modifier,
+        url = "file:///android_asset/icons/$assetName",
+        text = text,
+        shape = shape,
+        containerColor = containerColor,
+        contentColor = contentColor,
+        tint = tint,
+        onClick = onClick
+    )
+}
+
+@Composable
+fun OptionButton(
+    modifier: Modifier = Modifier,
+    url: String? = null,
+    text: String,
+    enabled: Boolean = true,
+    shape: Shape = RoundedCornerShape(32.dp),
+    containerColor: Color = MaterialTheme.colorScheme.primary,
+    contentColor: Color = MaterialTheme.colorScheme.primary,
+    tint: Color? = null,
+    onClick: () -> Unit
+) {
+    Button(
+        modifier = modifier.fillMaxWidth(),
+        enabled = enabled,
+        shape = shape,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = containerColor.copy(alpha = 0.15f),
+            contentColor = contentColor,
+        ),
+        onClick = onClick
     ) {
-        Row(
-            Modifier
-                .padding(vertical = 6.dp, horizontal = 18.dp)
-                .fillMaxWidth()
-                .fillMaxHeight(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+        if (url != null) {
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
-                    .data("file:///android_asset/icons/$iconName")
+                    .data(url)
                     .crossfade(true)
                     .build(),
                 placeholder = painterResource(R.drawable.ic_launcher_foreground),
                 error = painterResource(R.drawable.ic_launcher_foreground),
                 contentDescription = "$text Icon",
                 contentScale = ContentScale.FillHeight,
-                colorFilter = tint?.let { ColorFilter.tint(color = it) },
+                colorFilter = tint?.let { ColorFilter.tint(it) },
                 modifier = Modifier
                     .size(46.dp)
                     .padding(vertical = 8.dp)
                     .clip(RoundedCornerShape(16.dp))
             )
-            Text(
-                text = text, Modifier.padding(start = 24.dp, end = 8.dp), color = MaterialTheme.colorScheme.primary,
-                fontSize = 22.sp, fontWeight = FontWeight.Bold, fontFamily = comicNeueFamily,
-                maxLines = 1
-            )
         }
+        Text(
+            text = text,
+            modifier = Modifier
+                .padding(start = 32.dp, end = 8.dp, top = 12.dp, bottom = 12.dp)
+                .weight(1f),
+            color = contentColor,
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
+            fontFamily = comicNeueFamily,
+            maxLines = 1
+        )
     }
 }

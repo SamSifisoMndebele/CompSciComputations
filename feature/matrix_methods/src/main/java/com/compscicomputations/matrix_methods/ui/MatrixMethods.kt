@@ -30,30 +30,35 @@ fun MatrixMethods(
             item {
                 OptionButton(
                     text = "Cramer's Rule",
+                    iconVector = null,
                     onClick = { /*navigateCramer*/ }
                 )
             }
             item {
                 OptionButton(
                     text = "Gauss Elimination method",
+                    iconVector = null,
                     onClick = { /*navigateGauss*/ }
                 )
             }
             item {
                 OptionButton(
                     text = "Method 3",
+                    iconVector = null,
                     onClick = {  }
                 )
             }
             item {
                 OptionButton(
                     text = "Method 4",
+                    iconVector = null,
                     onClick = {  }
                 )
             }
             item {
                 OptionButton(
                     text = "Method 5",
+                    iconVector = null,
                     onClick = {  }
                 )
             }

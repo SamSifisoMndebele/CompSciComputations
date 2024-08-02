@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class DynamicFeature(
-    val title: String,
+    val name: String,
     val module: String,
     val icon: String,
 ) {

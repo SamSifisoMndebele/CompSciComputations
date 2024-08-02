@@ -33,6 +33,7 @@ class ProfileViewModel @Inject constructor(
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(ProfileUiState())
     val uiState = _uiState.asStateFlow()
+    val snackBarHostState: SnackbarHostState = SnackbarHostState()
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
@@ -70,27 +71,27 @@ class ProfileViewModel @Inject constructor(
         )
     }
 
-    fun onRefresh() {
-        _uiState.value = _uiState.value.copy(progressState = ProgressState.Loading())
-        viewModelScope.launch(Dispatchers.IO) {
-            authRepository.refreshUserFlow
-                .flowOn(Dispatchers.IO)
-                .catch { e ->
-                    Log.w("DashboardViewModel", e)
-                    _uiState.value = _uiState.value.copy(progressState = ProgressState.Error(e.localizedMessage))
-                }
-                .firstOrNull()
-                ?.let { user ->
-                    updateProfile(user)
-                }
-                ?: let {
-                    _uiState.value = _uiState.value.copy(
-                        isSignedIn = false,
-                        progressState = ProgressState.Idle
-                    )
-                }
-        }
-    }
+//    fun onRefresh() {
+//        _uiState.value = _uiState.value.copy(progressState = ProgressState.Loading())
+//        viewModelScope.launch(Dispatchers.IO) {
+//            authRepository.refreshUserFlow
+//                .flowOn(Dispatchers.IO)
+//                .catch { e ->
+//                    Log.w("DashboardViewModel", e)
+//                    _uiState.value = _uiState.value.copy(progressState = ProgressState.Error(e.localizedMessage))
+//                }
+//                .firstOrNull()
+//                ?.let { user ->
+//                    updateProfile(user)
+//                }
+//                ?: let {
+//                    _uiState.value = _uiState.value.copy(
+//                        isSignedIn = false,
+//                        progressState = ProgressState.Idle
+//                    )
+//                }
+//        }
+//    }
 
     fun logout() {
         viewModelScope.launch {
@@ -102,8 +103,6 @@ class ProfileViewModel @Inject constructor(
             }
         }
     }
-
-
 
     fun setPhotoUri(photoUri: Uri?) {
         _uiState.value = _uiState.value.copy(imageUri = photoUri)

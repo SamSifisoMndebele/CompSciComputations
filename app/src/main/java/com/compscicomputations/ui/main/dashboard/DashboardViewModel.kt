@@ -1,15 +1,14 @@
 package com.compscicomputations.ui.main.dashboard
 
 import android.util.Log
+import androidx.compose.material3.SnackbarHostState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.compscicomputations.client.publik.data.model.DynamicFeature
 import com.compscicomputations.client.auth.data.source.AuthRepository
+import com.compscicomputations.client.publik.data.model.DynamicFeature
 import com.compscicomputations.ui.utils.ProgressState
 import com.compscicomputations.utils.dynamicfeature.InstallModuleUseCase
 import com.google.android.play.core.splitinstall.SplitInstallManager
-import com.google.android.play.core.splitinstall.SplitInstallSessionState
-import com.google.android.play.core.splitinstall.model.SplitInstallSessionStatus
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,23 +28,22 @@ class DashboardViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(DashboardUiState())
     val uiState = _uiState.asStateFlow()
 
-    val _dynamicFeatureInstall = mutableSetOf<DynamicFeatureInstall>()
-    val dynamicFeatureInstall = _dynamicFeatureInstall.sortedBy { it.moduleName }
+    val snackBarHostState: SnackbarHostState = SnackbarHostState()
 
     companion object {
         private val features = setOf(
             DynamicFeature(
-                title = "Karnaugh Maps",
+                name = "Karnaugh Maps",
                 module = "karnaugh_maps",
                 icon = "ic_grid.png",
             ),
             DynamicFeature(
-                title = "Number Systems",
+                name = "Number Systems",
                 module = "number_systems",
                 icon = "ic_number.png",
             ),
             DynamicFeature(
-                title = "Polish Expressions",
+                name = "Polish Expressions",
                 module = "polish_expressions",
                 icon = "ic_abc.png"
             ),
@@ -77,132 +75,129 @@ class DashboardViewModel @Inject constructor(
         }
         val installedFeatures = features.toMutableSet()
         installedFeatures.retainAll { splitInstallManager.installedModules.contains(it.module) }
-        _uiState.value = _uiState.value.copy(installedFeatures = installedFeatures)
 
-        val notInstalledFeatures = features.map { DynamicFeatureInstall(module = it.module, moduleName = it.title) }.toMutableSet()
-        notInstalledFeatures.removeAll { splitInstallManager.installedModules.contains(it.module) }
-        _dynamicFeatureInstall.addAll(notInstalledFeatures)
+        val notInstalledFeatures = features.toMutableSet()
+        notInstalledFeatures.removeAll(installedFeatures)
 
+        _uiState.value = _uiState.value.copy(
+            installedFeatures = installedFeatures,
+            notInstalledFeatures = notInstalledFeatures
+        )
     }
 
-    data class DynamicFeatureInstall(
-        val module: String = "",
-        val moduleName: String = "",
-        var currentProgress: Float = 0f,
-        var downloading: Boolean = false,
-        var failed: Boolean = false,
-        var installing: Boolean = false,
-        var installed: Boolean = false,
-    )
+    fun onInstallFeature(feature: DynamicFeature) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                installModule(
+                    feature.module,
+                    onDownload = { bytesDownloaded, totalBytes ->
+                        _uiState.value = _uiState.value.copy(
+                            downloadProgress = bytesDownloaded.toFloat() / totalBytes,
+                            downloadingModule = feature.module,
+                            installingModule = null,
+                        )
+                    },
+                    onFailure = {
+                        _uiState.value = _uiState.value.copy(
+                            downloadProgress = 0f,
+                            downloadingModule = null,
+                            installingModule = null,
+                        )
+                        viewModelScope.launch(Dispatchers.IO) {
+                            snackBarHostState.showSnackbar(
+                                "Failed to install ${feature.name}",
+                                withDismissAction = true
+                            )
+                        }
+                    },
+                    onInstalling = {
+                        _uiState.value = _uiState.value.copy(
+                            downloadProgress = 0f,
+                            downloadingModule = null,
+                            installingModule = feature.module
+                        )
+                    }
+                ) {
+                    _uiState.value = _uiState.value.copy(
+                        downloadProgress = 0f,
+                        downloadingModule = null,
+                        installingModule = null,
+                        installedFeatures = _uiState.value.installedFeatures?.toMutableSet()?.apply {
+                            add(feature)
+                        },
+                        notInstalledFeatures = _uiState.value.notInstalledFeatures?.toMutableSet()?.apply {
+                            remove(feature)
+                        }
+                    )
+                }
+            } catch (e: Exception) {
+                Log.e("DashboardViewModel","onInstallFeature::error", e)
+                _uiState.value = _uiState.value.copy(
+                    downloadProgress = 0f,
+                    downloadingModule = null,
+                    installingModule = null,
+                )
+                viewModelScope.launch(Dispatchers.IO) {
+                    snackBarHostState.showSnackbar(
+                        "Failed to install ${feature.name}, please try again.",
+                        withDismissAction = true
+                    )
+                }
 
-    fun onInstallFeature(module: String) {
-        installModule(module) { state ->
-            when (state.status()) {
-                SplitInstallSessionStatus.DOWNLOADING -> {
-                    val item = _dynamicFeatureInstall.find { it.module == module }?.apply {
-                        currentProgress = state.totalBytesToDownload().toFloat() / state.bytesDownloaded()
-                        downloading = true
-                        failed = false
-                        installing = false
-                        installed = false
-                    }
-                    if (item != null) {
-                        _dynamicFeatureInstall.apply {
-                            removeIf { it.module == module }
-                            add(item)
-                        }
-                    }
-                }
-                SplitInstallSessionStatus.INSTALLED -> {
-                    val item = _dynamicFeatureInstall.find { it.module == module }?.apply {
-                        downloading = false
-                        failed = false
-                        installing = false
-                        installed = true
-                    }
-                    if (item != null) {
-                        _dynamicFeatureInstall.apply {
-                            removeIf { it.module == module }
-                            add(item)
-                        }
-                    }
-                }
-                SplitInstallSessionStatus.INSTALLING -> {
-                    val item = _dynamicFeatureInstall.find { it.module == module }?.apply {
-                        downloading = false
-                        failed = false
-                        installing = true
-                        installed = false
-                    }
-                    if (item != null) {
-                        _dynamicFeatureInstall.apply {
-                            removeIf { it.module == module }
-                            add(item)
-                        }
-                    }
-                }
-                SplitInstallSessionStatus.FAILED -> {
-                    val item = _dynamicFeatureInstall.find { it.module == module }?.apply {
-                        downloading = false
-                        failed = true
-                        installing = false
-                        installed = false
-                        currentProgress = .5f
-                    }
-                    if (item != null) {
-                        _dynamicFeatureInstall.apply {
-                            removeIf { it.module == module }
-                            add(item)
-                        }
-                    }
-                }
-                SplitInstallSessionStatus.CANCELED -> {
-//                    TODO()
-                }
-                SplitInstallSessionStatus.CANCELING -> {
-//                    TODO()
-                }
-                SplitInstallSessionStatus.DOWNLOADED -> {
-//                    TODO()
-                }
-                SplitInstallSessionStatus.PENDING -> {
-//                    TODO()
-                }
-                SplitInstallSessionStatus.REQUIRES_USER_CONFIRMATION -> {
-//                    TODO()
-                }
-                SplitInstallSessionStatus.UNKNOWN -> {
-//                    TODO()
-                }
+//                repeat(1000) {
+//                    delay(5)
+//                    _uiState.value = _uiState.value.copy(
+//                        downloadingModule = feature.module,
+//                        installingModule = null,
+//                        downloadProgress = it.toFloat() / 1000
+//                    )
+//                }
+//                _uiState.value = _uiState.value.copy(
+//                    downloadProgress = 0f,
+//                    downloadingModule = null,
+//                    installingModule = feature.module
+//                )
+//                delay(4000)
+//                _uiState.value = _uiState.value.copy(
+//                    downloadProgress = 0f,
+//                    downloadingModule = null,
+//                    installingModule = null,
+//                    installedFeatures = _uiState.value.installedFeatures?.toMutableSet()?.apply {
+//                        add(feature)
+//                    },
+//                    notInstalledFeatures = _uiState.value.notInstalledFeatures?.toMutableSet()?.apply {
+//                        remove(feature)
+//                    }
+//                )
             }
         }
     }
 
-    fun onRefresh() {
-        _uiState.value = _uiState.value.copy(progressState = ProgressState.Loading())
-        viewModelScope.launch {
-            authRepository.refreshUserFlow
-                .flowOn(Dispatchers.IO)
-                .catch { e ->
-                    Log.w("DashboardViewModel", e)
-                    _uiState.value = _uiState.value.copy(progressState = ProgressState.Idle)
-                }
-                .firstOrNull()
-                ?.let { user ->
-                    _uiState.value = _uiState.value.copy(
-                        email = user.email,
-                        isAdmin = user.isAdmin,
-                        isStudent = user.isStudent,
-                        imageBitmap = user.imageBitmap,
-                        displayName = user.displayName,
-                        progressState = ProgressState.Idle
-                    )
-                }
-                ?: let {
-                    _uiState.value = _uiState.value.copy(
-                        progressState = ProgressState.Idle
-                    )
-                }
-        }
-    }
+//    fun onRefresh() {
+//        _uiState.value = _uiState.value.copy(progressState = ProgressState.Loading())
+//        viewModelScope.launch {
+//            authRepository.refreshUserFlow
+//                .flowOn(Dispatchers.IO)
+//                .catch { e ->
+//                    Log.w("DashboardViewModel", e)
+//                    _uiState.value = _uiState.value.copy(progressState = ProgressState.Idle)
+//                }
+//                .firstOrNull()
+//                ?.let { user ->
+//                    _uiState.value = _uiState.value.copy(
+//                        email = user.email,
+//                        isAdmin = user.isAdmin,
+//                        isStudent = user.isStudent,
+//                        imageBitmap = user.imageBitmap,
+//                        displayName = user.displayName,
+//                        progressState = ProgressState.Idle
+//                    )
+//                }
+//                ?: let {
+//                    _uiState.value = _uiState.value.copy(
+//                        progressState = ProgressState.Idle
+//                    )
+//                }
+//        }
+//    }
 }

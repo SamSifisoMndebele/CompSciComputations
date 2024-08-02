@@ -37,7 +37,6 @@ data class ProfileUiState(
     val adminPinError: String? = null,
 
     val progressState: ProgressState = ProgressState.Idle,
-    val snackBarHostState: SnackbarHostState = SnackbarHostState(),
     val isSignedIn: Boolean = true,
 ) {
     val isValid: Boolean

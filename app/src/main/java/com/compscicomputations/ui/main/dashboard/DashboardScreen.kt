@@ -1,7 +1,6 @@
 package com.compscicomputations.ui.main.dashboard
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -14,19 +13,19 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.Feedback
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -51,7 +50,6 @@ import com.compscicomputations.ui.utils.ui.CompSciScaffold
 import com.compscicomputations.ui.utils.ui.DownloadFeatureButton
 import com.compscicomputations.ui.utils.ui.OptionButton
 import com.compscicomputations.ui.utils.ui.shimmerBackground
-import kotlinx.coroutines.flow.asFlow
 
 @Composable
 fun DashboardScreen(
@@ -65,7 +63,7 @@ fun DashboardScreen(
     CompSciScaffold(
         title = "Dashboard",
         snackBarHost = {
-            SnackbarHost(hostState = uiState.snackBarHostState)
+            SnackbarHost(hostState = viewModel.snackBarHostState)
         },
         menuActions = {
 //            TextButton(onClick = navigateProfile) {
@@ -165,28 +163,43 @@ fun DashboardScreen(
 
                     uiState.installedFeatures?.forEach { feature ->
                         OptionButton(
-                            padding = PaddingValues(start = 8.dp, end = 8.dp, bottom = 8.dp),
-                            iconName = feature.icon,
-                            text = feature.title,
+                            modifier = Modifier.padding(start = 8.dp, end = 8.dp, bottom = 8.dp),
+                            assetName = feature.icon,
+                            text = feature.name,
                             tint = MaterialTheme.colorScheme.primary,
                         ) {
                             navigateDynamicFeature(feature)
                         }
                     }
 
-                    if (viewModel._dynamicFeatureInstall.isNotEmpty()) {
-                        Text(
-                            modifier = Modifier.padding(start = 32.dp, end = 32.dp, top = 8.dp),
-                            text = "Install features"
-                        )
-                        viewModel._dynamicFeatureInstall.sortedBy { it.moduleName }.forEach { feature ->
-                            DownloadFeatureButton(
-                                padding = PaddingValues(start = 8.dp, end = 8.dp, bottom = 8.dp),
-                                module = feature.moduleName,
-                                currentProgress = feature.currentProgress,
-                                downloading = feature.downloading,
+                    var addModules by remember { mutableStateOf(false) }
+                    if (uiState.installedFeatures.isNullOrEmpty()) addModules = true
+                    if (!uiState.notInstalledFeatures.isNullOrEmpty()) {
+                        if (addModules || uiState.downloadingModule != null) {
+                            Spacer(modifier = Modifier.height(8.dp))
+                            HorizontalDivider()
+                            Spacer(modifier = Modifier.height(4.dp))
+                            uiState.notInstalledFeatures?.forEach { feature ->
+                                DownloadFeatureButton(
+                                    modifier = Modifier.padding(start = 8.dp, end = 8.dp, bottom = 8.dp),
+                                    featureName = feature.name,
+                                    enabled = uiState.downloadingModule.isNullOrBlank(),
+                                    downloading = uiState.downloadingModule == feature.module,
+                                    installing = uiState.installingModule == feature.module,
+                                    downloadProgress = uiState.downloadProgress,
+                                ) {
+                                    viewModel.onInstallFeature(feature)
+                                }
+                            }
+                        } else {
+                            TextButton(
+                                onClick = { addModules = !addModules},
+                                modifier = Modifier
+                                    .padding(8.dp)
+                                    .align(Alignment.End)
                             ) {
-                                viewModel.onInstallFeature(feature.module)
+                                Icon(imageVector = Icons.Default.Add, contentDescription = "Add feature")
+                                Text(text = "Add Features")
                             }
                         }
                     }
@@ -194,7 +207,7 @@ fun DashboardScreen(
             }
             item {
                 OptionButton(
-                    padding = PaddingValues(vertical = 8.dp),
+                    modifier = Modifier.padding(vertical = 8.dp),
                     iconVector = Icons.Outlined.Feedback,
                     text = "Feedback",
                     onClick = navigateFeedback
