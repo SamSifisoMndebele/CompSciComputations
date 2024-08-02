@@ -15,8 +15,7 @@ data class DashboardUiState(
     val notInstalledFeatures: Set<DynamicFeature>? = null,
 
     val downloadingModule: String? = null,
-    val installingModule: String? = null,
-    val downloadProgress: Float = 0f,
+    val downloadProgress: Float = -1f,
 
     val progressState: ProgressState = ProgressState.Loading()
 )

@@ -43,7 +43,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.compscicomputations.number_systems.R
+import com.compscicomputations.R
 import com.compscicomputations.number_systems.data.model.AIState.Idle
 import com.compscicomputations.number_systems.data.model.CurrentTab
 import com.compscicomputations.number_systems.data.model.CurrentTab.BaseN

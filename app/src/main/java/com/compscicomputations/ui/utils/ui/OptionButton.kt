@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.DownloadDone
 import androidx.compose.material.icons.filled.Downloading
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -37,6 +38,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.compscicomputations.R
 import com.compscicomputations.theme.comicNeueFamily
+import com.compscicomputations.utils.dynamicfeature.ModuleInstall
 
 @Composable
 fun DownloadFeatureButton(
@@ -44,8 +46,7 @@ fun DownloadFeatureButton(
     featureName: String,
     enabled: Boolean,
     downloading: Boolean,
-    installing: Boolean,
-    downloadProgress: Float,
+    progress: Float,
     onDownload: () -> Unit,
 ) {
     OutlinedButton(
@@ -67,7 +68,7 @@ fun DownloadFeatureButton(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = featureName + if (installing) ": Installing..." else "",
+                    text = featureName,
                     modifier = Modifier
                         .padding(start = 8.dp, end = 8.dp)
                         .weight(1f),
@@ -76,30 +77,47 @@ fun DownloadFeatureButton(
                     fontFamily = comicNeueFamily,
                     maxLines = 1
                 )
+                if (downloading && (progress in 0f .. 1f || progress == ModuleInstall.INSTALLING)) {
+                    Text(
+                        text = if (progress == ModuleInstall.INSTALLING) "Installing" else "Downloading",
+                        modifier = Modifier
+                            .padding(horizontal = 4.dp),
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = comicNeueFamily,
+                        maxLines = 1
+                    )
+                }
+
                 Icon(
-                    imageVector = if (downloading) Icons.Default.Downloading else Icons.Default.Download,
+                    imageVector = when {
+                        downloading && progress == ModuleInstall.INSTALLING -> Icons.Default.DownloadDone
+                        downloading -> Icons.Default.Downloading
+                        else -> Icons.Default.Download
+                    },
                     contentDescription = "$featureName download",
                 )
             }
-            if (installing) {
-                LinearProgressIndicator(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(8.dp)
-                        .padding(bottom = 3.dp, start = 4.dp, end = 4.dp),
-                    strokeCap = StrokeCap.Round
-                )
-            }
             if (downloading) {
-                LinearProgressIndicator(
-                    progress = { downloadProgress },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(8.dp)
-                        .padding(bottom = 3.dp, start = 4.dp, end = 4.dp),
-                    strokeCap = StrokeCap.Round
-                )
+                if (progress == 0f || progress == 1f || progress == ModuleInstall.INSTALLING) {
+                    LinearProgressIndicator(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(8.dp)
+                            .padding(bottom = 3.dp, start = 4.dp, end = 4.dp),
+                        strokeCap = StrokeCap.Round
+                    )
+                } else if (progress in 0f .. 1f) {
+                    LinearProgressIndicator(
+                        progress = { progress },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(8.dp)
+                            .padding(bottom = 3.dp, start = 4.dp, end = 4.dp),
+                        strokeCap = StrokeCap.Round
+                    )
+                }
             }
+
         }
     }
 }

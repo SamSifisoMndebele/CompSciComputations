@@ -185,8 +185,7 @@ fun DashboardScreen(
                                     featureName = feature.name,
                                     enabled = uiState.downloadingModule.isNullOrBlank(),
                                     downloading = uiState.downloadingModule == feature.module,
-                                    installing = uiState.installingModule == feature.module,
-                                    downloadProgress = uiState.downloadProgress,
+                                    progress = uiState.downloadProgress,
                                 ) {
                                     viewModel.onInstallFeature(feature)
                                 }

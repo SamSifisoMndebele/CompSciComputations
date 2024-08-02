@@ -7,10 +7,11 @@ import androidx.lifecycle.viewModelScope
 import com.compscicomputations.client.auth.data.source.AuthRepository
 import com.compscicomputations.client.publik.data.model.DynamicFeature
 import com.compscicomputations.ui.utils.ProgressState
-import com.compscicomputations.utils.dynamicfeature.InstallModuleUseCase
+import com.compscicomputations.utils.dynamicfeature.ModuleInstall
 import com.google.android.play.core.splitinstall.SplitInstallManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
@@ -23,7 +24,7 @@ import javax.inject.Inject
 class DashboardViewModel @Inject constructor(
     private val authRepository: AuthRepository,
     private val splitInstallManager: SplitInstallManager,
-    private val installModule: InstallModuleUseCase
+    private val installModule: ModuleInstall
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(DashboardUiState())
     val uiState = _uiState.asStateFlow()
@@ -46,6 +47,11 @@ class DashboardViewModel @Inject constructor(
                 name = "Polish Expressions",
                 module = "polish_expressions",
                 icon = "ic_abc.png"
+            ),
+            DynamicFeature(
+                name = "Matrix Methods",
+                module = "matrix_methods",
+                icon = "ic_matrix.png"
             ),
         )
     }
@@ -90,18 +96,16 @@ class DashboardViewModel @Inject constructor(
             try {
                 installModule(
                     feature.module,
-                    onDownload = { bytesDownloaded, totalBytes ->
+                    onProgress = { progress ->
                         _uiState.value = _uiState.value.copy(
-                            downloadProgress = bytesDownloaded.toFloat() / totalBytes,
+                            downloadProgress = progress,
                             downloadingModule = feature.module,
-                            installingModule = null,
                         )
                     },
                     onFailure = {
                         _uiState.value = _uiState.value.copy(
                             downloadProgress = 0f,
                             downloadingModule = null,
-                            installingModule = null,
                         )
                         viewModelScope.launch(Dispatchers.IO) {
                             snackBarHostState.showSnackbar(
@@ -109,19 +113,11 @@ class DashboardViewModel @Inject constructor(
                                 withDismissAction = true
                             )
                         }
-                    },
-                    onInstalling = {
-                        _uiState.value = _uiState.value.copy(
-                            downloadProgress = 0f,
-                            downloadingModule = null,
-                            installingModule = feature.module
-                        )
                     }
                 ) {
                     _uiState.value = _uiState.value.copy(
                         downloadProgress = 0f,
                         downloadingModule = null,
-                        installingModule = null,
                         installedFeatures = _uiState.value.installedFeatures?.toMutableSet()?.apply {
                             add(feature)
                         },
@@ -135,7 +131,6 @@ class DashboardViewModel @Inject constructor(
                 _uiState.value = _uiState.value.copy(
                     downloadProgress = 0f,
                     downloadingModule = null,
-                    installingModule = null,
                 )
                 viewModelScope.launch(Dispatchers.IO) {
                     snackBarHostState.showSnackbar(
@@ -145,23 +140,20 @@ class DashboardViewModel @Inject constructor(
                 }
 
 //                repeat(1000) {
-//                    delay(5)
+//                    delay(4)
 //                    _uiState.value = _uiState.value.copy(
+//                        downloadProgress = it.toFloat() / 1000,
 //                        downloadingModule = feature.module,
-//                        installingModule = null,
-//                        downloadProgress = it.toFloat() / 1000
 //                    )
 //                }
 //                _uiState.value = _uiState.value.copy(
-//                    downloadProgress = 0f,
-//                    downloadingModule = null,
-//                    installingModule = feature.module
+//                    downloadProgress = ModuleInstall.INSTALLING,
+//                    downloadingModule = feature.module,
 //                )
 //                delay(4000)
 //                _uiState.value = _uiState.value.copy(
 //                    downloadProgress = 0f,
 //                    downloadingModule = null,
-//                    installingModule = null,
 //                    installedFeatures = _uiState.value.installedFeatures?.toMutableSet()?.apply {
 //                        add(feature)
 //                    },

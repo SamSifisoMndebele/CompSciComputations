@@ -48,7 +48,6 @@ dependencies {
 
     implementation(project(":app"))
     implementation(libs.androidx.core.ktx)
-    implementation(libs.android.material)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.navigation.fragment.ktx)
@@ -59,6 +58,7 @@ dependencies {
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
+//    implementation(libs.android.material)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.ui.viewbinding)
     testImplementation(libs.junit)
