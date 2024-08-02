@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
@@ -14,11 +16,13 @@ plugins {
 
 android {
     signingConfigs {
+        val properties = Properties()
+        properties.load(project.rootProject.file("local.properties").inputStream())
         getByName("debug") {
             storeFile = file("D:\\_CompSciComputations\\android-app\\config\\keystore\\keystore.jks")
-            storePassword = "Mn_9903155459080"
-            keyAlias = "compscicomputationskey"
-            keyPassword = "CompSciComputations"
+            storePassword = properties.getProperty("STORE_PASS")
+            keyAlias = properties.getProperty("KEY_ALIAS")
+            keyPassword = properties.getProperty("KEY_PASS")
         }
     }
     namespace = "com.compscicomputations"
@@ -34,8 +38,8 @@ android {
         applicationId = "com.compscicomputations"
         minSdk = 24
         targetSdk = 34
-        versionCode = 3
-        versionName = "1.0.3"
+        versionCode = 4
+        versionName = "0.4.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables { useSupportLibrary = true }
