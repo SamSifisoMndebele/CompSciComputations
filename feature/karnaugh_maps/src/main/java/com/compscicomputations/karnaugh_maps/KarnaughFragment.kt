@@ -4,6 +4,7 @@ import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Spinner
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import com.compscicomputations.karnaugh_maps.kMapView.KMapVariablesImageView
 import com.compscicomputations.karnaugh_maps.kMapView.KMapVariablesImageView.OnKmapAnimationListener
@@ -11,7 +12,7 @@ import com.compscicomputations.karnaugh_maps.utils.ListOfMinterms
 
 open class KarnaughFragment : Fragment() {
     var answers: ArrayList<ListOfMinterms>? = null
-    lateinit var rootView: View
+    lateinit var rootView: ConstraintLayout
     private var selectedAnswer: ListOfMinterms? = null
     fun setAnswerTextView(i: Int) {
         val minTermTextView = rootView.findViewById<MinTermTextView>(R.id.answerTextView)

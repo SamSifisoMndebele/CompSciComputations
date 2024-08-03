@@ -8,27 +8,81 @@
     android:layout_height="match_parent">
 
     <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
         android:layout_width="match_parent"
+        android:id="@+id/toolbar"
         android:layout_height="72dp"
         android:background="@null"
         app:title=""/>
 
-    <ImageButton
-        android:id="@+id/up_button"
-        android:layout_width="48dp"
-        android:layout_height="72dp"
-        android:src="@drawable/ic_left"
-        android:clickable="true"
-        android:focusable="true"
-        android:background="@null"
-        tools:ignore="ContentDescription"
-        app:tint="#808080" />
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_marginBottom="80dp"
+        android:orientation="vertical"
+        android:clipToPadding="false">
+        <com.google.android.material.appbar.AppBarLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="24dp"
+                android:layout_marginHorizontal="8dp"
+                android:layout_marginBottom="8dp"
+                app:cardBackgroundColor="#FFEE2737"
+                style="?attr/materialCardViewFilledStyle">
+                <ImageButton
+                    android:id="@+id/up_button"
+                    android:layout_width="42dp"
+                    android:layout_height="60dp"
+                    android:src="@drawable/ic_arrow_back"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="@null"
+                    app:tint="#ffeeeeee"
+                    tools:ignore="ContentDescription"/>
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="match_parent"
+                    android:layout_height="72dp"
+                    android:text="@string/karnaugh_maps"
+                    android:fontFamily="@font/comic_neue_bold"
+                    android:textAlignment="center"
+                    android:gravity="center"
+                    android:textColor="#ffeeeeee"
+                    android:textSize="26sp"/>
+
+            </com.google.android.material.card.MaterialCardView>
+
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tabLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:tabStripEnabled="false"
+            app:tabGravity="fill"
+            app:tabMode="scrollable"
+            app:tabContentStart="56dp">
+            <com.google.android.material.tabs.TabItem
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/_4_variables"
+                />
+
+            <com.google.android.material.tabs.TabItem
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/_3_variables"
+                />
+
+            <com.google.android.material.tabs.TabItem
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/_2_variables"
+                />
+        </com.google.android.material.tabs.TabLayout>
+
         <fragment
             android:id="@+id/nav_host_fragment_activity_karnaugh"
             android:name="androidx.navigation.fragment.NavHostFragment"
@@ -41,20 +95,24 @@
 
     </LinearLayout>
 
-
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/nav_view"
+    <com.google.android.material.bottomappbar.BottomAppBar
+        android:id="@+id/bottomAppBar"
         android:layout_width="match_parent"
+        android:layout_height="80dp"
         android:layout_gravity="bottom"
-        android:layout_height="72dp"
-        android:layout_marginStart="0dp"
-        android:layout_marginEnd="0dp"
-        android:elevation="0dp"
-        app:itemIconTint="#b48888"
-        android:background="#e2b6b6"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:menu="@menu/bottom_nav_menu_karnaugh" />
+        style="@style/Widget.Material3.BottomAppBar"
+        app:menu="@menu/bottom_menu" />
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/ai_action_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/generate"
+        app:icon="@drawable/ic_google_gemini"
+        app:layout_anchor="@id/bottomAppBar"
+        android:backgroundTint="#FFEE2737"
+        android:textColor="#ffeeeeee"
+        app:iconTint="#ffeeeeee"
+        android:contentDescription="@string/ai_button"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
