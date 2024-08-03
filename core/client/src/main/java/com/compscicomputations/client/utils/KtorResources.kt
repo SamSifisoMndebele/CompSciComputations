@@ -32,3 +32,10 @@ class Onboarding {
         class Except(val parent: Items = Items())
     }
 }
+
+
+@Resource("feedback")
+class Feedback {
+    @Resource("id/{id}")
+    class Id(val parent: Feedback = Feedback(), val id: Int)
+}

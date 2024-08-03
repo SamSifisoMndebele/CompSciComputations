@@ -47,6 +47,7 @@ fun LoadingDialog(
     message: String,
     visible: Boolean,
     backgroundBitmap: Bitmap? = null,
+    onCancel: () -> Unit = {},
     onDismiss: () -> Unit,
 ) {
     if (visible) {
@@ -93,7 +94,7 @@ fun LoadingDialog(
                     )
                 }
                 TextButton(
-                    onClick = onDismiss,
+                    onClick = onCancel,
                     modifier = Modifier.align(Alignment.TopEnd)
                         .padding(end = 16.dp, top = 8.dp)
                 ) {
@@ -168,7 +169,7 @@ fun ExceptionDialog(
                     modifier = Modifier.align(Alignment.TopEnd)
                         .padding(end = 16.dp, top = 8.dp)
                 ) {
-                    Text(text = "Cancel", fontSize = 18.sp)
+                    Text(text = "Dismiss", fontSize = 18.sp)
                 }
             }
         }

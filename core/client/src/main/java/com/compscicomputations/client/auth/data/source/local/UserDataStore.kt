@@ -5,8 +5,10 @@ import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.dataStore
 import com.compscicomputations.client.auth.data.model.AuthCredentials
-import com.compscicomputations.client.auth.data.source.local.UserSerializer.asUser
+import com.compscicomputations.client.auth.data.model.local.UserSerializer.asUser
 import com.compscicomputations.client.auth.data.model.User
+import com.compscicomputations.client.auth.data.model.local.LocalUser
+import com.compscicomputations.client.auth.data.model.local.UserSerializer
 import com.compscicomputations.client.utils.asByteString
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow

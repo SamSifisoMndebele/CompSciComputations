@@ -25,9 +25,6 @@ data class ProfileUiState(
     val isAdmin: Boolean = false,
     val adminPin: String? = null,
 
-    val user: User = User(id, email, displayName, imageBitmap, phone, isAdmin, isStudent, isEmailVerified),
-    val student: Student = Student(id, university, school, course),
-
     val displayNameError: String? = null,
     val emailError: String? = null,
     val phoneError: String? = null,
@@ -42,8 +39,4 @@ data class ProfileUiState(
     val isValid: Boolean
         get() = displayName.isNotBlank() && email.isNotBlank() && (!isAdmin || adminPin?.isNotBlank() == true)
 
-    val changed: Boolean
-        get() = user != User(
-            id, email, displayName, imageBitmap, phone, isAdmin, isStudent, isEmailVerified
-        ) || imageUri != null || student != Student(id, university, school, course)
 }

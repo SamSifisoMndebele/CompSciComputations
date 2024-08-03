@@ -1,5 +1,7 @@
 package com.compscicomputations.ui.main.dashboard
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -51,6 +53,7 @@ import com.compscicomputations.ui.utils.ui.DownloadFeatureButton
 import com.compscicomputations.ui.utils.ui.OptionButton
 import com.compscicomputations.ui.utils.ui.shimmerBackground
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun DashboardScreen(
     viewModel: DashboardViewModel = hiltViewModel(),

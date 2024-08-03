@@ -1,6 +1,7 @@
 package com.compscicomputations.ui.main.dashboard
 
 import android.util.Log
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -9,6 +10,8 @@ import com.compscicomputations.client.publik.data.model.DynamicFeature
 import com.compscicomputations.ui.utils.ProgressState
 import com.compscicomputations.utils.dynamicfeature.ModuleInstall
 import com.google.android.play.core.splitinstall.SplitInstallManager
+import com.google.android.play.core.splitinstall.model.SplitInstallErrorCode
+import com.google.android.play.core.splitinstall.model.SplitInstallErrorCode.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -95,22 +98,23 @@ class DashboardViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 installModule(
-                    feature.module,
+                    feature,
                     onProgress = { progress ->
                         _uiState.value = _uiState.value.copy(
                             downloadProgress = progress,
                             downloadingModule = feature.module,
                         )
                     },
-                    onFailure = {
+                    onFailure = { message ->
                         _uiState.value = _uiState.value.copy(
                             downloadProgress = 0f,
                             downloadingModule = null,
                         )
                         viewModelScope.launch(Dispatchers.IO) {
                             snackBarHostState.showSnackbar(
-                                "Failed to install ${feature.name}",
-                                withDismissAction = true
+                                message = message,
+                                withDismissAction = true,
+                                duration = SnackbarDuration.Long
                             )
                         }
                     }

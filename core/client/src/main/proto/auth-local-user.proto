@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option java_package = "com.compscicomputations.client.auth.data.source.local";
+option java_package = "com.compscicomputations.client.auth.data.model.local";
 option java_multiple_files = true;
 
 message LocalUser {

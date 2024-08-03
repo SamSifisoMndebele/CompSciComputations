@@ -2,15 +2,14 @@ package com.compscicomputations.client.publik.data.source
 
 import android.content.Context
 import android.util.Log
-import com.compscicomputations.client.publik.data.source.local.OnboardingItem
+import com.compscicomputations.client.publik.data.model.local.OnboardingItem
 import com.compscicomputations.client.publik.data.source.local.OnboardingItemDao
-import com.compscicomputations.client.publik.data.source.remote.NewOnboardingItem
+import com.compscicomputations.client.publik.data.model.remote.NewOnboardingItem
 import com.compscicomputations.client.publik.data.source.remote.OnboardingDataSource
-import com.compscicomputations.client.publik.data.source.remote.RemoteOnboardingItem
-import com.compscicomputations.client.publik.data.source.remote.RemoteOnboardingItem.Companion.asOnboardingItems
+import com.compscicomputations.client.publik.data.model.remote.RemoteOnboardingItem
+import com.compscicomputations.client.publik.data.model.remote.RemoteOnboardingItem.Companion.asOnboardingItems
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.retry

@@ -1,10 +1,11 @@
 package com.compscicomputations.client.publik.data.source.remote
 
+import com.compscicomputations.client.publik.data.model.remote.NewOnboardingItem
+import com.compscicomputations.client.publik.data.model.remote.RemoteOnboardingItem
 import com.compscicomputations.client.utils.Onboarding
 import com.compscicomputations.client.utils.ktorRequest
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
-import io.ktor.client.plugins.resources.delete
 import io.ktor.client.plugins.resources.get
 import io.ktor.client.plugins.resources.post
 import io.ktor.client.request.setBody

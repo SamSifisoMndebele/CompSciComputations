@@ -1,10 +1,6 @@
 package com.compscicomputations.client.auth.data.model
 
 import android.graphics.Bitmap
-import com.compscicomputations.client.auth.data.source.local.LocalUser
-import com.compscicomputations.client.auth.data.source.remote.RemoteUser
-import com.compscicomputations.client.utils.asByteArray
-import com.compscicomputations.client.utils.asByteString
 
 data class User(
     val id: Int,

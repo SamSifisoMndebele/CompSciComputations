@@ -16,6 +16,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
@@ -57,7 +58,6 @@ class ProfileViewModel @Inject constructor(
 
     private fun updateProfile(user: User) {
         _uiState.value = _uiState.value.copy(
-            user = user,
             id = user.id,
             email = user.email,
             displayName = user.displayName,
@@ -140,6 +140,15 @@ class ProfileViewModel @Inject constructor(
     }
     fun setIsStudentOrAdmin(isStudent: Boolean, isAdmin: Boolean) {
         _uiState.value = _uiState.value.copy(isStudent = isStudent, isAdmin = isAdmin)
+    }
+
+    fun save() {
+        _uiState.value = _uiState.value.copy(progressState = ProgressState.Loading("Saving changes..."))
+        viewModelScope.launch(Dispatchers.IO) {
+            delay(4000)
+            // TODO: Save changes
+            _uiState.value = _uiState.value.copy(progressState = ProgressState.Idle)
+        }
     }
 
     private var job: Job? = null

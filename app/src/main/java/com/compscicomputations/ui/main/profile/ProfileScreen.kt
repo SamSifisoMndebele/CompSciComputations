@@ -5,6 +5,7 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
@@ -23,18 +24,34 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.automirrored.outlined.List
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Person2
+import androidx.compose.material.icons.filled.Save
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.EditOff
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.BottomAppBarDefaults
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -53,13 +70,17 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -85,6 +106,8 @@ import com.compscicomputations.ui.utils.ui.OptionButton
 import com.compscicomputations.ui.utils.isLoading
 import com.compscicomputations.ui.utils.ui.shimmerBackground
 import com.compscicomputations.utils.createImageFile
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.flowOn
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -118,13 +141,53 @@ fun ProfileScreen(
         title = "Profile",
         snackBarHost = { SnackbarHost(hostState = viewModel.snackBarHostState) },
         isRefreshing = uiState.progressState.isLoading,
-//        onRefresh = { viewModel.onRefresh() },
         navigateUp = navigateUp,
-        menuActions = {
-            //TODO Menu
-//            IconButton(onClick = { /*TODO*/ }) {
-//                Icon(imageVector = Icons.Default.MoreVert, contentDescription = "Menu", tint = Color.White)
-//            }
+        bottomBar = {
+            BottomAppBar(
+                actions = {
+//                    IconButton(onClick = {
+//                        // TODO: Delete profile
+//                    }) {
+//                        Icon(
+//                            Icons.Outlined.Delete,
+//                            contentDescription = "Delete profile",
+//                            tint = Color.Red
+//                        )
+//                    }
+                    Button(
+                        modifier = Modifier.padding(horizontal = 8.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Red.copy(alpha = 0.10f),
+                        ),
+                        onClick = { logoutAlertDialog = true },
+                        shape = RoundedCornerShape(32.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.Logout,
+                            contentDescription = "Logout Icon",
+                            tint = Color.Red
+                        )
+                        Text(
+                            text = "Logout",
+                            modifier = Modifier.padding(7.dp),
+                            fontSize = 20.sp,
+                            color = Color.Red,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = comicNeueFamily,
+                            maxLines = 1
+                        )
+                    }
+                },
+                floatingActionButton = {
+                    ExtendedFloatingActionButton(
+                        text = { Text(text = "Save") },
+                        icon = { Icon(imageVector = Icons.Default.Save, contentDescription = "Save") },
+                        containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
+                        elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
+                        onClick = { viewModel.save() }
+                    )
+                }
+            )
         },
     ) { contentPadding ->
 
@@ -150,172 +213,209 @@ fun ProfileScreen(
         var imageExpanded by remember { mutableStateOf(false) }
 
         Card(
-            modifier = Modifier.padding(contentPadding),
-            shape = RoundedCornerShape(24.dp)
-        ) {
-            Card(
-                shape = RoundedCornerShape(20.dp),
-                modifier = Modifier
-                    .padding(8.dp)
-                    .fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.25f)
+            shape = RoundedCornerShape(24.dp),
+            modifier = Modifier
+                .padding(
+                    top = contentPadding.calculateTopPadding(),
+                    start = 8.dp,
+                    end = 8.dp
                 )
+                .fillMaxWidth(),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.25f)
+            )
+        ) {
+            Row (
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(end = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Row (
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(end = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                DropdownMenu(
+                    expanded = imageExpanded,
+                    onDismissRequest = { imageExpanded = false },
+                    offset = DpOffset(0.dp, (-120).dp),
                 ) {
-                    DropdownMenu(
-                        expanded = imageExpanded,
-                        onDismissRequest = { imageExpanded = false },
-                        offset = DpOffset(0.dp, (-120).dp),
-                    ) {
-                        DropdownMenuItem(
-                            text = { Text("Select your image.") },
-                            onClick = {
-                                photoPickerLauncher.launch(
-                                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                                )
-                                imageExpanded = false
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { Text("Take a new image.") },
-                            onClick = {
-                                val permissionCheckResult = ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
-                                if (permissionCheckResult == PERMISSION_GRANTED) cameraLauncher.launch(uri)
-                                else permissionLauncher.launch(Manifest.permission.CAMERA)
-                                imageExpanded = false
-                            }
-                        )
-                        if (uiState.imageBitmap != null && uiState.imageUri != null) {
-                            DropdownMenuItem(
-                                text = { Text("Restore image.") },
-                                onClick = {
-                                    viewModel.setPhotoUri(null)
-                                    imageExpanded = false
-                                }
+                    DropdownMenuItem(
+                        text = { Text("Select your image.") },
+                        onClick = {
+                            photoPickerLauncher.launch(
+                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
                             )
+                            imageExpanded = false
                         }
-                    }
-
-                    Box {
-                        AsyncImage(
-                            model = ImageRequest.Builder(LocalContext.current)
-                                .data(if (uiState.imageUri != null) uiState.imageUri else uiState.imageBitmap)
-                                .crossfade(true)
-                                .build(),
-                            placeholder = painterResource(R.drawable.img_profile),
-                            error = painterResource(R.drawable.img_profile),
-                            contentDescription = "Profile",
-                            contentScale = ContentScale.FillBounds,
-                            modifier = Modifier
-                                .shimmerBackground(showShimmer = uiState.progressState.isLoading)
-                                .size(200.dp)
-                                .padding(8.dp)
-                                .clip(RoundedCornerShape(18.dp))
-                                .clickable { imageExpanded = !imageExpanded },
-                            onSuccess = {},
-                            onError = {},
-                            onLoading = {}
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Take a new image.") },
+                        onClick = {
+                            val permissionCheckResult = ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
+                            if (permissionCheckResult == PERMISSION_GRANTED) cameraLauncher.launch(uri)
+                            else permissionLauncher.launch(Manifest.permission.CAMERA)
+                            imageExpanded = false
+                        }
+                    )
+                    if (uiState.imageBitmap != null && uiState.imageUri != null) {
+                        DropdownMenuItem(
+                            text = { Text("Restore image.") },
+                            onClick = {
+                                viewModel.setPhotoUri(null)
+                                imageExpanded = false
+                            }
                         )
-                        OutlinedButton(
-                            onClick = { imageExpanded = !imageExpanded  },
-                            modifier = Modifier
-                                .padding(16.dp)
-                                .align(Alignment.BottomEnd)
-                        ) {
-                           Text(text = "Change Image")
-                        }
                     }
+                }
 
-                    Column(
-                        Modifier.weight(1f)
+                Box {
+                    AsyncImage(
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(if (uiState.imageUri != null) uiState.imageUri else uiState.imageBitmap)
+                            .crossfade(true)
+                            .build(),
+                        placeholder = painterResource(R.drawable.img_profile),
+                        error = painterResource(R.drawable.img_profile),
+                        contentDescription = "Profile",
+                        contentScale = ContentScale.FillBounds,
+                        modifier = Modifier
+                            .shimmerBackground(showShimmer = uiState.progressState.isLoading)
+                            .size(180.dp)
+                            .padding(8.dp)
+                            .clip(RoundedCornerShape(20.dp))
+                            .clickable { imageExpanded = !imageExpanded },
+                        onSuccess = {},
+                        onError = {},
+                        onLoading = {}
+                    )
+                    OutlinedButton(
+                        onClick = { imageExpanded = !imageExpanded  },
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .align(Alignment.BottomEnd)
                     ) {
-                        Text(
-                            modifier = Modifier
-                                .shimmerBackground(showShimmer = uiState.progressState.isLoading)
-                                .widthIn(min = 80.dp),
-                            text = when {
-                                uiState.isAdmin && uiState.isStudent -> "ADMIN | STUDENT"
-                                uiState.isAdmin -> "ADMIN"
-                                uiState.isStudent -> "STUDENT"
-                                else -> ""
-                            },
-                            fontSize = 22.sp,
-                            color = MaterialTheme.colorScheme.primary,
-                            fontWeight = FontWeight.Bold,
-                            fontFamily = comicNeueFamily
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            modifier = Modifier
-                                .widthIn(min = 128.dp)
-                                .shimmerBackground(
-                                    uiState.progressState.isLoading,
-                                    CircleShape
-                                ),
-                            text = uiState.displayName,
-                            fontSize = 24.sp,
-                            fontWeight = FontWeight.Bold,
-                            fontFamily = comicNeueFamily
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(text = "Change Image")
+                    }
+                }
+
+                Column(
+                    Modifier.weight(1f)
+                ) {
+                    Text(
+                        modifier = Modifier
+                            .shimmerBackground(
+                                showShimmer = uiState.progressState.isLoading,
+                                RoundedCornerShape(4.dp)
+                            )
+                            .widthIn(min = 80.dp),
+                        text = when {
+                            uiState.isAdmin && uiState.isStudent -> "ADMIN | STUDENT"
+                            uiState.isAdmin -> "ADMIN"
+                            uiState.isStudent -> "STUDENT"
+                            else -> ""
+                        },
+                        fontSize = 22.sp,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = comicNeueFamily
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        modifier = Modifier
+                            .widthIn(min = 128.dp)
+                            .shimmerBackground(
+                                uiState.progressState.isLoading,
+                                RoundedCornerShape(4.dp)
+                            ),
+                        text = uiState.displayName,
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = comicNeueFamily
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        modifier = Modifier
+                            .widthIn(min = 180.dp)
+                            .shimmerBackground(
+                                uiState.progressState.isLoading,
+                                RoundedCornerShape(4.dp)
+                            ),
+                        text = uiState.email,
+                        fontSize = 18.sp,
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    uiState.phone?.let {
                         Text(
                             modifier = Modifier
                                 .widthIn(min = 180.dp)
                                 .shimmerBackground(
                                     uiState.progressState.isLoading,
-                                    CircleShape
+                                    RoundedCornerShape(4.dp)
                                 ),
-                            text = uiState.email,
+                            text = it,
                             fontSize = 18.sp,
                         )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        uiState.phone?.let {
-                            Text(
-                                modifier = Modifier
-                                    .widthIn(min = 180.dp)
-                                    .shimmerBackground(
-                                        uiState.progressState.isLoading,
-                                        CircleShape
-                                    ),
-                                text = it,
-                                fontSize = 18.sp,
-                            )
-                        }
                     }
                 }
-                if (uiState.isStudent) {
-                    HorizontalDivider()
+            }
+            if (uiState.isStudent) {
+                HorizontalDivider()
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp, horizontal = 16.dp),
+                ) {
                     Text(
-                        text = "Student Info",
+                        text = "STUDENT INFO",
+                        fontSize = 22.sp,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = comicNeueFamily
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row {
+                        Text(
+                            modifier = Modifier.weight(.4f),
+                            text = "University:",
+                            fontSize = 18.sp,
+                            fontFamily = comicNeueFamily,
+                        )
+                        Text(
+                            modifier = Modifier
+                                .weight(.6f)
+                                .shimmerBackground(
+                                    uiState.progressState.isLoading,
+                                    RoundedCornerShape(4.dp)
+                                ),
+                            text = uiState.university,
+                            fontSize = 18.sp,
+                            fontFamily = comicNeueFamily,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "School:     ${uiState.school}",
                         fontSize = 18.sp,
+                        fontFamily = comicNeueFamily
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "Course:     ${uiState.course}",
+                        fontSize = 18.sp,
+                        fontFamily = comicNeueFamily
                     )
                 }
             }
-
-            if (uiState.changed) {
-                OptionButton(
-                    modifier = Modifier.padding(start = 8.dp, end = 8.dp, bottom = 8.dp),
-                    iconVector = Icons.Default.Person2,
-                    text = "Save changes",
-                    onClick = {
-                        // TODO: Save changes
-                    }
-                )
-            }
         }
-
 
         val (field1, field2, field3, field4, field5, field6, field7) = remember { FocusRequester.createRefs() }
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 8.dp)
+                .padding(
+                    start = 8.dp,
+                    end = 8.dp,
+                    bottom = contentPadding.calculateBottomPadding() - 8.dp
+                )
                 .weight(1f),
         ) {
             item {
@@ -340,7 +440,11 @@ fun ProfileScreen(
                         label = { Text(text = hintNames) },
                         singleLine = true,
                         shape = RoundedCornerShape(22.dp),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next),
+                        keyboardOptions = KeyboardOptions(
+                            capitalization = KeyboardCapitalization.Words,
+                            keyboardType = KeyboardType.Text,
+                            imeAction = ImeAction.Next
+                        ),
                         isError = uiState.displayNameError.isError,
                         supportingText = uiState.displayNameError.showMessage()
                     )
@@ -355,7 +459,7 @@ fun ProfileScreen(
                         label = { Text(text = hintEmail) },
                         singleLine = true,
                         shape = RoundedCornerShape(22.dp),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Done),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
                         isError = uiState.emailError.isError,
                         supportingText = uiState.emailError.showMessage()
                     )
@@ -369,7 +473,7 @@ fun ProfileScreen(
                         label = { Text(text = hintPhone) },
                         singleLine = true,
                         shape = RoundedCornerShape(22.dp),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone, imeAction = ImeAction.Next),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone, imeAction = ImeAction.Done),
                         isError = uiState.phoneError.isError,
                         supportingText = uiState.phoneError.showMessage()
                     )
@@ -472,7 +576,11 @@ fun ProfileScreen(
                             label = { Text(text = hintUniversity) },
                             singleLine = true,
                             shape = RoundedCornerShape(22.dp),
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next),
+                            keyboardOptions = KeyboardOptions(
+                                capitalization = KeyboardCapitalization.Words,
+                                keyboardType = KeyboardType.Text,
+                                imeAction = ImeAction.Next
+                            ),
                             isError = uiState.universityError.isError,
                             supportingText = uiState.universityError.showMessage()
                         )
@@ -488,7 +596,11 @@ fun ProfileScreen(
                         label = { Text(text = hintSchool) },
                         singleLine = true,
                         shape = RoundedCornerShape(22.dp),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next),
+                        keyboardOptions = KeyboardOptions(
+                            capitalization = KeyboardCapitalization.Words,
+                            keyboardType = KeyboardType.Text,
+                            imeAction = ImeAction.Next
+                        ),
                         isError = uiState.schoolError.isError,
                         supportingText = uiState.schoolError.showMessage()
                     )
@@ -502,7 +614,11 @@ fun ProfileScreen(
                         label = { Text(text = hintCourse) },
                         singleLine = true,
                         shape = RoundedCornerShape(22.dp),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Done),
+                        keyboardOptions = KeyboardOptions(
+                            capitalization = KeyboardCapitalization.Words,
+                            keyboardType = KeyboardType.Text,
+                            imeAction = ImeAction.Done
+                        ),
                         isError = uiState.courseError.isError,
                         supportingText = uiState.courseError.showMessage()
                     )
@@ -521,32 +637,31 @@ fun ProfileScreen(
                             maxLines = 1
                         )
 
+                        var showPin by remember { mutableStateOf(false) }
                         OutlinedTextField(
                             modifier = Modifier
                                 .focusRequester(field7)
+                                .onFocusChanged { if (!it.isFocused) showPin = false }
                                 .fillMaxWidth()
                                 .padding(vertical = 4.dp),
                             value = uiState.adminPin ?: "",
                             onValueChange = { viewModel.onAdminPinChange(it) },
                             label = { Text(text = hintAdminPin) },
                             singleLine = true,
+                            visualTransformation =  if (showPin) VisualTransformation.None else PasswordVisualTransformation(),
+                            trailingIcon = {
+                                IconButton(onClick = { showPin = !showPin }) {
+                                    Icon(if (showPin) Icons.Filled.Visibility else Icons.Filled.VisibilityOff, "hide_password")
+                                }
+                            },
                             shape = RoundedCornerShape(22.dp),
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Done),
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword, imeAction = ImeAction.Done),
                             isError = uiState.adminPinError.isError,
                             supportingText = uiState.adminPinError.showMessage()
                         )
                     }
                 }
             }
-        }
-
-        OptionButton(
-            modifier = Modifier.padding(start = 8.dp, end = 8.dp, bottom = 8.dp),
-            text = "Logout",
-            iconVector = Icons.AutoMirrored.Filled.Logout,
-            containerColor = Color.Red
-        ) {
-            logoutAlertDialog = true
         }
     }
 }

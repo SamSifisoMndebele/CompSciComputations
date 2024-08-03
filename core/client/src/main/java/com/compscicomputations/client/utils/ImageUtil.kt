@@ -43,7 +43,7 @@ inline val ByteString.asBitmap: Bitmap?
     }
 
 /**
- * Converts Uri to byte string
+ * Converts Uri to  scaled byte string
  * @throws IOException
  */
 class ScaledByteArrayUseCase @Inject constructor(
@@ -62,4 +62,15 @@ class ScaledByteArrayUseCase @Inject constructor(
             it.toByteArray()
         }
     }
+}
+/**
+ * Converts Uri to byte string
+ * @throws IOException
+ */
+class ByteArrayUseCase @Inject constructor(
+    @ApplicationContext private val context: Context
+) {
+    @Throws(IOException::class)
+    operator fun invoke(uri: Uri): ByteArray? =
+        context.contentResolver.openInputStream(uri)?.use { io -> io.buffered().readBytes() }
 }

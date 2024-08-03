@@ -2,14 +2,13 @@ package com.compscicomputations.client.auth.data.source
 
 import android.content.Context
 import android.util.Log
-import com.compscicomputations.client.auth.data.model.AuthCredentials
 import com.compscicomputations.client.auth.data.source.local.UserDataStore
 import com.compscicomputations.client.auth.data.source.remote.AuthDataSource
 import com.compscicomputations.client.auth.data.source.remote.AuthDataSource.Companion.ExpectationFailedException
 import com.compscicomputations.client.auth.data.source.remote.AuthDataSource.Companion.UnauthorizedException
-import com.compscicomputations.client.auth.data.source.remote.RegisterUser
+import com.compscicomputations.client.auth.data.model.remote.RegisterUser
 import com.compscicomputations.client.auth.data.model.User
-import com.compscicomputations.client.auth.data.source.remote.NewPassword
+import com.compscicomputations.client.auth.data.model.remote.NewPassword
 import com.compscicomputations.client.utils.asBitmap
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
@@ -67,11 +66,13 @@ class AuthRepository @Inject constructor(
         imageBytes: ByteArray?,
         onProgress: (bytesSent: Long, totalBytes: Long) -> Unit
     ) {
-        remoteDataSource.createUser(RegisterUser(
+        remoteDataSource.createUser(
+            RegisterUser(
             email = email,
             password = password,
             displayName = displayName,
-        )).let {
+        )
+        ).let {
             imageBytes?.let { bytes -> remoteDataSource.uploadProfileImage(it.id, bytes, onProgress) }
             localDataStore.saveUser(it.asUser.copy(imageBitmap = imageBytes?.asBitmap))
             localDataStore.savePasswordCredentials(email, password)
@@ -83,11 +84,13 @@ class AuthRepository @Inject constructor(
         email: String,
         otp: String,
         password: String,
-    ) = remoteDataSource.passwordReset(NewPassword(
+    ) = remoteDataSource.passwordReset(
+        NewPassword(
         email = email,
         otp = otp,
         password = password,
-    ))
+    )
+    )
 
     /**
      * Logout the current user.

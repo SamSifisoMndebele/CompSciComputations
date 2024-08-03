@@ -2,9 +2,12 @@ package com.compscicomputations.utils.dynamicfeature
 
 import android.content.Context
 import android.util.Log
+import com.compscicomputations.client.publik.data.model.DynamicFeature
 import com.google.android.play.core.splitinstall.SplitInstallManager
 import com.google.android.play.core.splitinstall.SplitInstallRequest
 import com.google.android.play.core.splitinstall.SplitInstallStateUpdatedListener
+import com.google.android.play.core.splitinstall.model.SplitInstallErrorCode
+import com.google.android.play.core.splitinstall.model.SplitInstallErrorCode.*
 import com.google.android.play.core.splitinstall.model.SplitInstallSessionStatus
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.tasks.await
@@ -20,19 +23,20 @@ class ModuleInstall @Inject constructor(
     private var listener: SplitInstallStateUpdatedListener? = null
     /** Request install of feature module. */
     suspend operator fun invoke(
-        vararg module: String,
+        vararg feature: DynamicFeature,
         onProgress: (progress: Float) -> Unit,
-        onFailure: (errorCode: Int) -> Unit,
+        onFailure: (message: String) -> Unit,
         onInstalled: () -> Unit,
     ) {
         onProgress(0f)
         val requestBuilder = SplitInstallRequest.newBuilder()
-        module.forEach { name ->
-            if (!manager.installedModules.contains(name)) {
-                requestBuilder.addModule(name)
+        feature.forEach {
+            if (!manager.installedModules.contains(it.module)) {
+                requestBuilder.addModule(it.module)
             }
         }
         val request = requestBuilder.build()
+        val features = feature.joinToString()
         listener = SplitInstallStateUpdatedListener { state ->
             val names = state.moduleNames().joinToString(" - ")
             when (state.status()) {
@@ -61,8 +65,16 @@ class ModuleInstall @Inject constructor(
                     Log.d("ModuleInstall", "Installing $names")
                 }
                 SplitInstallSessionStatus.FAILED -> {
-                    onFailure(state.errorCode())
-                    Log.d("ModuleInstall", "Error: ${state.errorCode()} for module ${state.moduleNames()}")
+                    val errorMessage = when(state.errorCode()) {
+                        INSUFFICIENT_STORAGE -> "$features install failed due to insufficient storage."
+                        NETWORK_ERROR -> "$features install failed due to network connection."
+                        MODULE_UNAVAILABLE -> "$features is not available to this device, or app version."
+                        PLAY_STORE_NOT_FOUND -> "The Play Store app is either not installed or not the official version."
+                        INTERNAL_ERROR -> "Unknown error processing split install."
+                        else -> "Failed to install $features"
+                    }
+                    onFailure(errorMessage)
+                    Log.w("ModuleInstall", "Error: ${state.errorCode()} for module ${state.moduleNames()}, $errorMessage")
                     listener?.let { manager.unregisterListener(it) }
                 }
                 else -> {

@@ -1,11 +1,11 @@
 package com.compscicomputations.client.publik.data.source.local
 
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
+import com.compscicomputations.client.publik.data.model.local.OnboardingItem
 import kotlinx.coroutines.flow.Flow
 
 @Dao

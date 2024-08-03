@@ -1,7 +1,9 @@
 package com.compscicomputations.client.auth.data.source.remote
 
 import android.util.Log
-import com.compscicomputations.client.auth.data.model.AuthCredentials
+import com.compscicomputations.client.auth.data.model.remote.NewPassword
+import com.compscicomputations.client.auth.data.model.remote.RegisterUser
+import com.compscicomputations.client.auth.data.model.remote.RemoteUser
 import com.compscicomputations.client.auth.data.source.local.UserDataStore.Companion.AuthCredentialsUseCase
 import com.compscicomputations.client.utils.Users
 import com.compscicomputations.client.utils.ktorRequest
