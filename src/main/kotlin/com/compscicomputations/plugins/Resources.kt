@@ -31,6 +31,13 @@ class Onboarding {
 }
 
 
+@Resource("feedback")
+class Feedback {
+    @Resource("id/{id}")
+    class Id(val parent: Feedback = Feedback(), val id: Int)
+}
+
+
 //@Resource("admin")
 //class Admin {
 //    @Resource("pins")

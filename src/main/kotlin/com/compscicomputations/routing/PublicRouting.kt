@@ -1,8 +1,10 @@
 package com.compscicomputations.routing
 
+import com.compscicomputations.plugins.Feedback
 import com.compscicomputations.plugins.Onboarding
 import com.compscicomputations.plugins.authenticateAdmin
 import com.compscicomputations.services.publik.PublicService
+import com.compscicomputations.services.publik.models.requests.NewFeedback
 import com.compscicomputations.services.publik.models.requests.NewOnboardingItem
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -44,6 +46,36 @@ fun Routing.publicRouting() {
         try {
             publicService.deleteOnboardingItem(it.id)
             call.respond(HttpStatusCode.OK)
+        } catch (e: Exception) {
+            call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
+        }
+    }
+
+
+
+    post<Feedback> {
+        try {
+            val request = call.receive<NewFeedback>()
+            publicService.createFeedback(request)
+            call.respond(HttpStatusCode.OK)
+        } catch (e: Exception) {
+            call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
+        }
+    }
+
+    get<Feedback> {
+        try {
+            val feedbacks = publicService.getFeedbacks()
+            call.respond(HttpStatusCode.OK, feedbacks)
+        } catch (e: Exception) {
+            call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
+        }
+    }
+    get<Feedback.Id> {
+        try {
+            val feedback = publicService.getFeedback(it.id)
+            if (feedback == null) call.respond(HttpStatusCode.NotFound)
+            else call.respond(HttpStatusCode.OK, feedback)
         } catch (e: Exception) {
             call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
         }

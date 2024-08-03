@@ -2,11 +2,14 @@ package com.compscicomputations.services.publik
 
 import com.compscicomputations.plugins.connectToPostgres
 import com.compscicomputations.services._contrast.PublicServiceContrast
+import com.compscicomputations.services.publik.models.requests.NewFeedback
 import com.compscicomputations.services.publik.models.requests.NewOnboardingItem
+import com.compscicomputations.services.publik.models.response.Feedback
 import com.compscicomputations.services.publik.models.response.OnboardingItem
 import com.compscicomputations.utils.*
 import java.sql.Connection
 import java.sql.ResultSet
+import java.sql.Types
 
 class PublicService : PublicServiceContrast {
     private var connection: Connection? = null
@@ -25,6 +28,16 @@ class PublicService : PublicServiceContrast {
                 title = getString("title"),
                 description = getString("description"),
                 imageBytes = getBytes("image_bytes"),
+            )
+        }
+        private fun ResultSet.getFeedback(): Feedback {
+            return Feedback(
+                id = getInt("id"),
+                subject = getString("subject"),
+                message = getString("message"),
+                suggestion = getString("suggestion"),
+                imageBytes = getBytes("image_bytes"),
+                userId = getInt("user_id"),
             )
         }
     }
@@ -49,6 +62,26 @@ class PublicService : PublicServiceContrast {
 
     override suspend fun deleteOnboardingItem(id: Int): Unit = dbQuery(conn) {
         update("delete from public.onboarding_items where id = ?") {
+            setInt(1, id)
+        }
+    }
+
+
+    suspend fun createFeedback(feedback: NewFeedback): Unit = dbQuery(conn) {
+        update("call public.insert_feedback(?, ?, ?, ?, ?)") {
+            setString(1, feedback.subject)
+            setString(2, feedback.message)
+            setString(3, feedback.suggestion)
+            setBytes(4, feedback.imageBytes)
+            setObject(5, feedback.userId, Types.INTEGER)
+        }
+    }
+
+    suspend fun getFeedbacks(): List<Feedback> = dbQuery(conn) {
+        query("select * from public.feedbacks", { getFeedback() })
+    }
+    suspend fun getFeedback(id: Int): Feedback? = dbQuery(conn) {
+        querySingleOrNull("select * from public.feedbacks where id = ?", { getFeedback() }) {
             setInt(1, id)
         }
     }
