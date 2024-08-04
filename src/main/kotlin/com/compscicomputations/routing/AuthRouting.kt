@@ -66,7 +66,6 @@ fun Routing.authRouting() {
         }
     }
 
-
     get<Users.PasswordReset.Email> {
         try {
             val passwordOTP = authService.passwordResetOTP(it.email)
@@ -103,6 +102,10 @@ fun Routing.authRouting() {
         } catch (e: Exception) {
             call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
         }
+    }
+
+    get<Users.Delete> {
+        call.respondText("Delete your account on app.")
     }
 
 

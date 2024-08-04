@@ -14,6 +14,8 @@ fun Application.configureRouting() {
 
     routing {
         staticResources("/.well-known", "well-known")
+        staticResources("/privacy", "docs", "privacy-policy.pdf")
+
 
         getA {
             call.respondText("Hello CompSci Computations API!")

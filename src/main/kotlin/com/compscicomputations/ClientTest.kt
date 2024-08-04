@@ -1,18 +1,5 @@
 package com.compscicomputations
 
-import com.compscicomputations.services.auth.models.response.User
-import io.ktor.client.*
-import io.ktor.client.call.*
-import io.ktor.client.engine.cio.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
-import io.ktor.http.*
-import io.ktor.serialization.kotlinx.json.*
-import io.ktor.util.*
-import java.util.ArrayList
-import kotlin.math.*
-
 //suspend fun main() {
 //    val client = HttpClient(CIO) {
 //        install(ContentNegotiation) { json() }

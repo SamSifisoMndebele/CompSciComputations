@@ -13,6 +13,9 @@ class Users {
         class Image(val parent: Id)
     }
 
+    @Resource("delete")
+    class Delete(val parent: Users = Users())
+
     @Resource("password-reset")
     class PasswordReset(val parent: Users = Users()) {
         @Resource("{email}")
