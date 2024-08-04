@@ -19,6 +19,7 @@ import com.compscicomputations.ui.navigation.Splash
 import com.compscicomputations.ui.navigation.navigationAuth
 import com.compscicomputations.ui.navigation.navigationMain
 import com.google.android.play.core.splitinstall.SplitInstallManager
+import com.google.firebase.perf.metrics.AddTrace
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 

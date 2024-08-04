@@ -29,11 +29,11 @@ class OnboardingDataSource @Inject constructor(
     companion object {
         const val TAG = "AuthDataSource"
 
-        val url = URL("https://www.google.com")
-        val metric = Firebase.performance.newHttpMetric(
-            "https://www.google.com",
-            FirebasePerformance.HttpMethod.GET,
-        )
+//        val url = URL("https://www.google.com")
+//        val metric = Firebase.performance.newHttpMetric(
+//            "https://www.google.com",
+//            FirebasePerformance.HttpMethod.GET,
+//        )
 
         class NotFoundException(message: String? = null): Exception(message)
         class ExpectationFailedException(message: String? = null): Exception(message)
