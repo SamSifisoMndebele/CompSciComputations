@@ -78,6 +78,10 @@ dependencies {
     implementation(libs.androidx.credentials.play.services.auth)
     implementation(libs.googleid)
 
+    /**Firebase*/
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.perf)
+
     /**Ktor client*/
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.okhttp)

@@ -12,6 +12,7 @@ import com.compscicomputations.utils.dynamicfeature.ModuleInstall
 import com.google.android.play.core.splitinstall.SplitInstallManager
 import com.google.android.play.core.splitinstall.model.SplitInstallErrorCode
 import com.google.android.play.core.splitinstall.model.SplitInstallErrorCode.*
+import com.google.firebase.Firebase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -22,6 +23,9 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import com.google.firebase.perf.FirebasePerformance;
+import com.google.firebase.perf.metrics.Trace;
+import com.google.firebase.perf.performance
 
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
@@ -35,6 +39,7 @@ class DashboardViewModel @Inject constructor(
     val snackBarHostState: SnackbarHostState = SnackbarHostState()
 
     companion object {
+        val myTrace = Firebase.performance.newTrace("Dashboard ViewModel Init")
         private val features = setOf(
             DynamicFeature(
                 name = "Karnaugh Maps",
@@ -60,6 +65,7 @@ class DashboardViewModel @Inject constructor(
     }
 
     init {
+        myTrace.start()
         viewModelScope.launch(Dispatchers.IO) {
             authRepository.currentUserFlow
                 .flowOn(Dispatchers.IO)
@@ -92,6 +98,7 @@ class DashboardViewModel @Inject constructor(
             installedFeatures = installedFeatures,
             notInstalledFeatures = notInstalledFeatures
         )
+        myTrace.stop()
     }
 
     fun onInstallFeature(feature: DynamicFeature) {

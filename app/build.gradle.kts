@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.plugin.serialization)
     alias(libs.plugins.google.gms.google.services)
     alias(libs.plugins.google.firebase.crashlytics)
+    alias(libs.plugins.google.firebase.perf)
     alias(libs.plugins.google.dagger.hilt.android)
     alias(libs.plugins.jetbrains.kotlin.compose.compiler)
     alias(libs.plugins.google.protobuf)
@@ -120,11 +121,13 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.datastore)
     implementation(libs.protobuf.java)
+    implementation("androidx.preference:preference-ktx:1.2.0")
 
     /**Firebase*/
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.crashlytics)
+    implementation(libs.firebase.perf)
 //    implementation(libs.firebase.auth)
 //    implementation(libs.firebase.config)
 //    implementation(libs.firebase.storage)

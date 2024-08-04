@@ -9,29 +9,14 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.asLiveData
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.compscicomputations.ui.main.settings.SettingsPreferences
-import com.compscicomputations.ui.main.settings.SettingsViewModel.Companion.settingsDataStore
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.conflate
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import com.compscicomputations.ui.main.settings.AppPreferences
+import com.compscicomputations.ui.main.settings.Themes2
 
 private val AppRed = Color(0xFFEE2737)
 
@@ -68,28 +53,31 @@ fun CompSciComputationsTheme(
     content: @Composable () -> Unit
 ) {
     val context = LocalContext.current
-    val settings = if (main) {
-        val preferences by context.settingsDataStore.data
-            .collectAsStateWithLifecycle(initialValue = SettingsPreferences.getDefaultInstance())
-        preferences
-    } else {
-        runBlocking(Dispatchers.IO) {
-            context.settingsDataStore.data.first()
-        }
-    }
+    val preferences = AppPreferences(context)
+//    val settings = if (main) {
+//        val preferences by context.settingsDataStore.data
+//            .collectAsStateWithLifecycle(initialValue = SettingsPreferences.getDefaultInstance())
+//        preferences
+//    } else {
+//        runBlocking(Dispatchers.IO) {
+//            context.settingsDataStore.data.first()
+//        }
+//    }
 
 //    val settings by context.settingsDataStore.data
 //        .collectAsStateWithLifecycle(initialValue = SettingsPreferences.getDefaultInstance())
 
 
-    val darkTheme = when(settings.theme) {
-        SettingsPreferences.Themes.DARK -> true
-        SettingsPreferences.Themes.LIGHT -> false
+    val darkTheme = when(preferences.getTheme()) {
+        Themes2.DARK -> true
+        Themes2.LIGHT -> false
+//        SettingsPreferences.Themes.DARK -> true
+//        SettingsPreferences.Themes.LIGHT -> false
         else -> isSystemInDarkTheme()
     }
 
     val colorScheme = when {
-        !settings.notDynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+        preferences.getDynamicColor() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
         darkTheme -> DarkColorScheme
