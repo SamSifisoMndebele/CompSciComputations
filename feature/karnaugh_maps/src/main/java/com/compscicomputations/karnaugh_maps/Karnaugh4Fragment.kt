@@ -134,6 +134,7 @@ class Karnaugh4Fragment : KarnaughFragment() {
             else if (!z && binding.keyboardLayout.visibility == View.VISIBLE)
                 binding.keyboardLayout.visibility = View.GONE
         }
+
         binding.expressionEditText.doOnTextChanged { text, _, _, _ ->
             val expression = text.toString()
             if (text != null &&
@@ -172,28 +173,28 @@ class Karnaugh4Fragment : KarnaughFragment() {
         }
     }
 
-    @Deprecated("Deprecated in Java")
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.history_menu, menu)
-    }
-
-    @Deprecated("Deprecated in Java")
-    override fun onOptionsItemSelected(menuItem: MenuItem): Boolean {
-        val itemId = menuItem.itemId
-        if (itemId == R.id.item_clear) {
-            /*binding.kMap.setMinTerms(
-                 binding.kMap.allMinTerms,
-                 binding.kMap.noMinterms
-             )
-             executeKarnaugh(binding.kMap.minterms, binding.kMap.dontCares)*/
-            binding.kMap.setMinTerms(
-                binding.kMap.noMinterms,
-                binding.kMap.noMinterms
-            )
-            prefs.edit().putString("min_terms_4var", null).apply()
-            executeKarnaugh(binding.kMap.minterms, binding.kMap.dontCares)
-        }
-        return super.onOptionsItemSelected(menuItem)
-    }
+//    @Deprecated("Deprecated in Java")
+//    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+//        super.onCreateOptionsMenu(menu, inflater)
+//        inflater.inflate(R.menu.history_menu, menu)
+//    }
+//
+//    @Deprecated("Deprecated in Java")
+//    override fun onOptionsItemSelected(menuItem: MenuItem): Boolean {
+//        val itemId = menuItem.itemId
+//        if (itemId == R.id.item_clear) {
+//            /*binding.kMap.setMinTerms(
+//                 binding.kMap.allMinTerms,
+//                 binding.kMap.noMinterms
+//             )
+//             executeKarnaugh(binding.kMap.minterms, binding.kMap.dontCares)*/
+//            binding.kMap.setMinTerms(
+//                binding.kMap.noMinterms,
+//                binding.kMap.noMinterms
+//            )
+//            prefs.edit().putString("min_terms_4var", null).apply()
+//            executeKarnaugh(binding.kMap.minterms, binding.kMap.dontCares)
+//        }
+//        return super.onOptionsItemSelected(menuItem)
+//    }
 }

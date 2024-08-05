@@ -10,4 +10,5 @@ data class DynamicFeature(
 ) {
     val className: String
         get() = "com.compscicomputations.$module.MainActivity"
+//        get() = "com.compscicomputations.$module.KarnaughActivity"
 }

@@ -13,8 +13,14 @@
         <dist:fusing dist:include="true" />
     </dist:module>
 
-    <application tools:ignore="MissingApplicationIcon"
-        android:hardwareAccelerated="true">
+    <application
+        android:hardwareAccelerated="true"
+        tools:ignore="MissingApplicationIcon">
+        <activity
+            android:name=".KarnaughActivity"
+            android:exported="false"
+            android:label="@string/title_activity_karnaugh"
+            android:theme="@style/Theme.CompSciComputations" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
