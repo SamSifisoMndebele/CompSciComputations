@@ -28,8 +28,10 @@ object AuthDataStore {
         get() = preferencesDataStore.data.map { preferences ->
             preferences[termsAcceptedKey] ?: false
         }
-    suspend fun Context.setTermsAccepted(isAccepted: Boolean) = preferencesDataStore.edit { preferences ->
-        preferences[termsAcceptedKey] = isAccepted
+    suspend fun Context.setTermsAccepted(isAccepted: Boolean) {
+        preferencesDataStore.edit { preferences ->
+            preferences[termsAcceptedKey] = isAccepted
+        }
     }
 
 //    private fun profileCompleteKey(uid: String?) = booleanPreferencesKey(uid ?: "profile_complete")

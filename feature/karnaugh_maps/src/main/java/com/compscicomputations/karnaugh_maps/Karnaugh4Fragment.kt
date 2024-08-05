@@ -88,7 +88,7 @@ class Karnaugh4Fragment : KarnaughFragment() {
         for (int in decimal){
             try {
                 listOfMinTerms.add(int.toInt())
-            }catch (e: Exception){}
+            }catch (_: Exception){}
         }
 
         val minTerms = listOfMinTerms.toIntArray()

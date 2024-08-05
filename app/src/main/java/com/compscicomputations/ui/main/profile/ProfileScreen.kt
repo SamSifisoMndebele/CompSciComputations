@@ -392,17 +392,47 @@ fun ProfileScreen(
                         )
                     }
                     Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = "School:     ${uiState.school}",
-                        fontSize = 18.sp,
-                        fontFamily = comicNeueFamily
-                    )
+                    Row {
+                        Text(
+                            modifier = Modifier.weight(.4f),
+                            text = "School:",
+                            fontSize = 18.sp,
+                            fontFamily = comicNeueFamily,
+                        )
+                        Text(
+                            modifier = Modifier
+                                .weight(.6f)
+                                .shimmerBackground(
+                                    uiState.progressState.isLoading,
+                                    RoundedCornerShape(4.dp)
+                                ),
+                            text = uiState.school,
+                            fontSize = 18.sp,
+                            fontFamily = comicNeueFamily,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                     Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = "Course:     ${uiState.course}",
-                        fontSize = 18.sp,
-                        fontFamily = comicNeueFamily
-                    )
+                    Row {
+                        Text(
+                            modifier = Modifier.weight(.4f),
+                            text = "Course:",
+                            fontSize = 18.sp,
+                            fontFamily = comicNeueFamily,
+                        )
+                        Text(
+                            modifier = Modifier
+                                .weight(.6f)
+                                .shimmerBackground(
+                                    uiState.progressState.isLoading,
+                                    RoundedCornerShape(4.dp)
+                                ),
+                            text = uiState.course,
+                            fontSize = 18.sp,
+                            fontFamily = comicNeueFamily,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
             }
         }

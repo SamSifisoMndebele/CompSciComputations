@@ -1,62 +1,59 @@
 package com.compscicomputations.ui.main.settings
 
 import android.content.Context
-import android.content.SharedPreferences
-import androidx.datastore.core.DataStore
-import androidx.datastore.dataStore
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.compscicomputations.di.IoDispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val preferences: AppPreferences,
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
 ) : ViewModel() {
     companion object {
-        val Context.settingsDataStore: DataStore<SettingsPreferences> by dataStore(
-            fileName = "settings.pb",
-            serializer = SettingsSerializer
+        const val PREFS_NAME = "app_preferences"
+        const val PHONE_THEME_KEY = "phone_theme"
+        const val DYNAMIC_COLOR_KEY = "dynamic_color"
+    }
+
+    private val sharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+
+    private val _uiState = MutableStateFlow(SettingsUiState())
+    val uiState = _uiState.asStateFlow()
+
+    init {
+        _uiState.value = SettingsUiState(
+            when(PhoneThemes.entries[sharedPreferences.getInt(PHONE_THEME_KEY, PhoneThemes.System.ordinal)]) {
+                PhoneThemes.Dark -> true
+                PhoneThemes.Light -> false
+                else -> null
+            },
+            sharedPreferences.getBoolean(DYNAMIC_COLOR_KEY, true)
         )
     }
 
-    private val _uiState = MutableStateFlow(AppPreferences.Companion.UiSettings(
-        preferences.getTheme(),
-        preferences.getDynamicColor()
-    ))
-    val uiState = context.settingsDataStore.data
-
-
-
-    val onThemeChange: (SettingsPreferences.Themes) -> Unit = { theme ->
-        viewModelScope.launch(Dispatchers.IO) {
-            preferences.setTheme(when(theme) {
-                SettingsPreferences.Themes.DARK -> Themes2.DARK
-                SettingsPreferences.Themes.LIGHT -> Themes2.LIGHT
-                SettingsPreferences.Themes.SYSTEM -> Themes2.SYSTEM
-                else -> Themes2.SYSTEM
+    val onThemeChange: (PhoneThemes) -> Unit = { theme ->
+        viewModelScope.launch(ioDispatcher) {
+            sharedPreferences.edit().putInt(PHONE_THEME_KEY, theme.ordinal).apply()
+            _uiState.value = _uiState.value.copy(darkTheme = when(theme) {
+                PhoneThemes.Dark -> true
+                PhoneThemes.Light -> false
+                else -> null
             })
-            context.settingsDataStore.updateData {
-                it.toBuilder()
-                    .setTheme(theme)
-                    .build()
-            }
         }
     }
 
     val onDynamicColorChange: (Boolean) -> Unit = { dynamicColor ->
-        viewModelScope.launch(Dispatchers.IO) {
-            preferences.setDynamicColor(dynamicColor)
-            context.settingsDataStore.updateData {
-                it.toBuilder()
-                    .setNotDynamicColor(!dynamicColor)
-                    .build()
-            }
+        viewModelScope.launch(ioDispatcher) {
+            sharedPreferences.edit().putBoolean(DYNAMIC_COLOR_KEY, dynamicColor).apply()
+            _uiState.value = _uiState.value.copy(dynamicColor = dynamicColor)
         }
     }
 }

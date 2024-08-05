@@ -7,7 +7,6 @@ plugins {
     alias(libs.plugins.google.devtools.ksp) apply false
     alias(libs.plugins.google.gms.google.services) apply false
     alias(libs.plugins.google.firebase.crashlytics) apply false
-    alias(libs.plugins.google.firebase.perf) apply false
     alias(libs.plugins.google.dagger.hilt.android) apply false
     alias(libs.plugins.google.protobuf) apply false
     alias(libs.plugins.android.library) apply false

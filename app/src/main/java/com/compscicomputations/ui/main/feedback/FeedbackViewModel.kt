@@ -7,8 +7,10 @@ import androidx.lifecycle.viewModelScope
 import com.compscicomputations.client.auth.data.source.AuthRepository
 import com.compscicomputations.client.publik.data.source.PublicRepository
 import com.compscicomputations.client.utils.ByteArrayUseCase
+import com.compscicomputations.di.IoDispatcher
 import com.compscicomputations.ui.utils.ProgressState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.Job
@@ -26,7 +28,8 @@ import kotlin.math.roundToInt
 class FeedbackViewModel @Inject constructor(
     private val publicRepository: PublicRepository,
     private val authRepository: AuthRepository,
-    private val byteArrayUseCase: ByteArrayUseCase
+    private val byteArrayUseCase: ByteArrayUseCase,
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(FeedbackUiState())
     val uiState: StateFlow<FeedbackUiState> = _uiState.asStateFlow()
@@ -34,7 +37,7 @@ class FeedbackViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             authRepository.currentUserFlow
-                .flowOn(Dispatchers.IO)
+                .flowOn(ioDispatcher)
                 .catch { e ->
                     Log.w("FeedbackViewModel", e)
                     _uiState.value = _uiState.value.copy(progressState = ProgressState.Error(e.localizedMessage))

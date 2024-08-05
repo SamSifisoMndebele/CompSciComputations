@@ -48,7 +48,7 @@ android {
 
 protobuf {
     protoc {
-        artifact = "com.google.protobuf:protoc:4.26.1"
+        artifact = "com.google.protobuf:protoc:"+libs.versions.protobufJava.get()
     }
     generateProtoTasks {
         all().forEach { task ->
@@ -77,10 +77,6 @@ dependencies {
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services.auth)
     implementation(libs.googleid)
-
-    /**Firebase*/
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.perf)
 
     /**Ktor client*/
     implementation(libs.ktor.client.core)

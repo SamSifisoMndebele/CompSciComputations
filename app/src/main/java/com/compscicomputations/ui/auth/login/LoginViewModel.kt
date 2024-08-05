@@ -15,9 +15,11 @@ import androidx.lifecycle.viewModelScope
 import com.compscicomputations.client.auth.data.source.AuthRepository
 import com.compscicomputations.client.auth.data.source.remote.AuthDataSource.Companion.ExpectationFailedException
 import com.compscicomputations.client.auth.data.source.remote.AuthDataSource.Companion.UnauthorizedException
+import com.compscicomputations.di.IoDispatcher
 import com.compscicomputations.ui.utils.ProgressState
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,6 +34,7 @@ import kotlin.coroutines.cancellation.CancellationException
 class LoginViewModel @Inject constructor(
     private val request: GetCredentialRequest,
     private val authRepository: AuthRepository,
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
@@ -85,7 +88,7 @@ class LoginViewModel @Inject constructor(
     ) {
         _uiState.value = _uiState.value.copy(progressState = ProgressState.Loading("Login with Google..."))
 
-        loginJob = viewModelScope.launch(Dispatchers.IO) {
+        loginJob = viewModelScope.launch(ioDispatcher) {
             try {
                 val credential = getCredential(request).credential
                 when {

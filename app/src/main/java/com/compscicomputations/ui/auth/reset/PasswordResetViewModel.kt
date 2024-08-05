@@ -4,11 +4,13 @@ import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.compscicomputations.client.auth.data.source.AuthRepository
+import com.compscicomputations.di.IoDispatcher
 import com.compscicomputations.theme.emailRegex
 import com.compscicomputations.theme.strongPasswordRegex
 import com.compscicomputations.ui.utils.ProgressState
 import com.compscicomputations.utils.notMatches
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,7 +21,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PasswordResetViewModel @Inject constructor(
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(PasswordResetUiState())
     val uiState: StateFlow<PasswordResetUiState> = _uiState.asStateFlow()
@@ -52,7 +55,7 @@ class PasswordResetViewModel @Inject constructor(
         }
 
         _uiState.value = _uiState.value.copy(progressState = ProgressState.Loading("Sending OTP..."))
-        job = viewModelScope.launch(Dispatchers.IO) {
+        job = viewModelScope.launch(ioDispatcher) {
             authRepository.requestOtp(_uiState.value.email)
             _uiState.value = _uiState.value.copy(progressState = ProgressState.Idle, otpSent = true)
         }

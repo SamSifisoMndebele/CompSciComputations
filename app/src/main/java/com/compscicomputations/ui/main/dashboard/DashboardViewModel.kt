@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.compscicomputations.client.auth.data.source.AuthRepository
 import com.compscicomputations.client.publik.data.model.DynamicFeature
+import com.compscicomputations.di.IoDispatcher
 import com.compscicomputations.ui.utils.ProgressState
 import com.compscicomputations.utils.dynamicfeature.ModuleInstall
 import com.google.android.play.core.splitinstall.SplitInstallManager
@@ -14,6 +15,7 @@ import com.google.android.play.core.splitinstall.model.SplitInstallErrorCode
 import com.google.android.play.core.splitinstall.model.SplitInstallErrorCode.*
 import com.google.firebase.Firebase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,15 +25,13 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import com.google.firebase.perf.FirebasePerformance;
-import com.google.firebase.perf.metrics.Trace;
-import com.google.firebase.perf.performance
 
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
     private val authRepository: AuthRepository,
     private val splitInstallManager: SplitInstallManager,
-    private val installModule: ModuleInstall
+    private val installModule: ModuleInstall,
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(DashboardUiState())
     val uiState = _uiState.asStateFlow()
@@ -39,7 +39,6 @@ class DashboardViewModel @Inject constructor(
     val snackBarHostState: SnackbarHostState = SnackbarHostState()
 
     companion object {
-        val myTrace = Firebase.performance.newTrace("Dashboard ViewModel Init")
         private val features = setOf(
             DynamicFeature(
                 name = "Karnaugh Maps",
@@ -65,10 +64,9 @@ class DashboardViewModel @Inject constructor(
     }
 
     init {
-        myTrace.start()
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             authRepository.currentUserFlow
-                .flowOn(Dispatchers.IO)
+                .flowOn(ioDispatcher)
                 .catch { e ->
                     Log.w("DashboardViewModel", e)
                     _uiState.value = _uiState.value.copy(progressState = ProgressState.Idle)
@@ -98,11 +96,10 @@ class DashboardViewModel @Inject constructor(
             installedFeatures = installedFeatures,
             notInstalledFeatures = notInstalledFeatures
         )
-        myTrace.stop()
     }
 
     fun onInstallFeature(feature: DynamicFeature) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             try {
                 installModule(
                     feature,
@@ -117,7 +114,7 @@ class DashboardViewModel @Inject constructor(
                             downloadProgress = 0f,
                             downloadingModule = null,
                         )
-                        viewModelScope.launch(Dispatchers.IO) {
+                        viewModelScope.launch(ioDispatcher) {
                             snackBarHostState.showSnackbar(
                                 message = message,
                                 withDismissAction = true,
@@ -143,7 +140,7 @@ class DashboardViewModel @Inject constructor(
                     downloadProgress = 0f,
                     downloadingModule = null,
                 )
-                viewModelScope.launch(Dispatchers.IO) {
+                viewModelScope.launch(ioDispatcher) {
                     snackBarHostState.showSnackbar(
                         "Failed to install ${feature.name}, please try again.",
                         withDismissAction = true
@@ -180,7 +177,7 @@ class DashboardViewModel @Inject constructor(
 //        _uiState.value = _uiState.value.copy(progressState = ProgressState.Loading())
 //        viewModelScope.launch {
 //            authRepository.refreshUserFlow
-//                .flowOn(Dispatchers.IO)
+//                .flowOn(ioDispatcher)
 //                .catch { e ->
 //                    Log.w("DashboardViewModel", e)
 //                    _uiState.value = _uiState.value.copy(progressState = ProgressState.Idle)

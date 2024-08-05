@@ -5,7 +5,7 @@ import com.compscicomputations.karnaugh_maps.utils.ListOfMinterms
 
 class Karnaugh4Variables(iArr: IntArray, iArr2: IntArray?) {
     private val allEssentialMinTerms: ArrayList<Int>
-    private val allMinTerms: ListOfMinterms
+    private val allMinTerms: ListOfMinterms = ListOfMinterms(iArr, iArr2, 4)
     private var minTerms0ones: ListOfMinterms
     private var minTerms1ones: ListOfMinterms
     private var minTerms2ones: ListOfMinterms
@@ -217,7 +217,6 @@ class Karnaugh4Variables(iArr: IntArray, iArr2: IntArray?) {
     }
 
     init {
-        allMinTerms = ListOfMinterms(iArr, iArr2, 4)
         allEssentialMinTerms = intArrayToArrayList(iArr)
         minTerms0ones = ListOfMinterms(4)
         minTerms1ones = ListOfMinterms(4)

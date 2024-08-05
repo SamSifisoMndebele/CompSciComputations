@@ -31,9 +31,6 @@ import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.compscicomputations.theme.comicNeueFamily
-import com.compscicomputations.ui.main.settings.SettingsPreferences.Themes
-import com.compscicomputations.ui.main.settings.SettingsPreferences.getDefaultInstance
-import com.compscicomputations.ui.main.settings.SettingsSerializer.text
 import com.compscicomputations.ui.utils.ui.CompSciScaffold
 
 @Composable
@@ -41,7 +38,7 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel(),
     navigateUp: () -> Unit,
 ) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle(getDefaultInstance())
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     CompSciScaffold(
         title = "Settings",
@@ -62,13 +59,17 @@ fun SettingsScreen(
             HorizontalDivider()
 
             SettingsTheme(
-                theme = uiState.theme,
+                theme = when(uiState.darkTheme) {
+                    true -> PhoneThemes.Dark
+                    false -> PhoneThemes.Light
+                    else -> PhoneThemes.System
+                },
                 onThemeChange = viewModel.onThemeChange
             )
 
             SettingsSwitch(
-                text = "Dynamic Colors",
-                checked = !uiState.notDynamicColor,
+                text = "Dynamic Color",
+                checked = uiState.dynamicColor,
                 onCheckedChange = viewModel.onDynamicColorChange
             )
         }
@@ -112,8 +113,8 @@ private fun SettingsSwitch(
 
 @Composable
 private fun SettingsTheme(
-    theme: Themes,
-    onThemeChange: (Themes) -> Unit
+    theme: PhoneThemes,
+    onThemeChange: (PhoneThemes) -> Unit
 ) {
     var openDialog by rememberSaveable { mutableStateOf(false) }
     Column {
@@ -137,7 +138,7 @@ private fun SettingsTheme(
                 fontSize = 20.sp,
             )
             Text(
-                text = theme.text,
+                text = theme.name,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary
             )
@@ -154,8 +155,7 @@ private fun SettingsTheme(
                 shape = RoundedCornerShape(16.dp),
             ) {
                 Column(Modifier.selectableGroup()) {
-                    Themes.entries.forEach { option ->
-                        if (option == Themes.UNRECOGNIZED) return@forEach
+                    PhoneThemes.entries.forEach { option ->
                         Row(
                             Modifier
                                 .fillMaxWidth()
@@ -173,7 +173,7 @@ private fun SettingsTheme(
                                 onClick = null
                             )
                             Text(
-                                text = option.text,
+                                text = option.name,
                                 style = MaterialTheme.typography.bodyLarge,
                                 modifier = Modifier.padding(start = 16.dp)
                             )

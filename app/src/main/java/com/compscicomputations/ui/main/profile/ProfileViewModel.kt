@@ -7,12 +7,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.compscicomputations.client.auth.data.model.User
 import com.compscicomputations.client.auth.data.source.AuthRepository
+import com.compscicomputations.di.IoDispatcher
 import com.compscicomputations.theme.emailRegex
 import com.compscicomputations.theme.namesRegex
 import com.compscicomputations.theme.strongPasswordRegex
 import com.compscicomputations.ui.utils.ProgressState
 import com.compscicomputations.utils.notMatches
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.Job
@@ -31,15 +33,16 @@ import javax.inject.Inject
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     private val authRepository: AuthRepository,
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(ProfileUiState())
     val uiState = _uiState.asStateFlow()
     val snackBarHostState: SnackbarHostState = SnackbarHostState()
 
     init {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             authRepository.currentUserFlow
-                .flowOn(Dispatchers.IO)
+                .flowOn(ioDispatcher)
                 .catch { e ->
                     Log.w("DashboardViewModel", e)
                     _uiState.value = _uiState.value.copy(progressState = ProgressState.Error(e.localizedMessage))
@@ -73,9 +76,9 @@ class ProfileViewModel @Inject constructor(
 
 //    fun onRefresh() {
 //        _uiState.value = _uiState.value.copy(progressState = ProgressState.Loading())
-//        viewModelScope.launch(Dispatchers.IO) {
+//        viewModelScope.launch(ioDispatcher) {
 //            authRepository.refreshUserFlow
-//                .flowOn(Dispatchers.IO)
+//                .flowOn(ioDispatcher)
 //                .catch { e ->
 //                    Log.w("DashboardViewModel", e)
 //                    _uiState.value = _uiState.value.copy(progressState = ProgressState.Error(e.localizedMessage))
@@ -144,7 +147,7 @@ class ProfileViewModel @Inject constructor(
 
     fun save() {
         _uiState.value = _uiState.value.copy(progressState = ProgressState.Loading("Saving changes..."))
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             delay(4000)
             // TODO: Save changes
             _uiState.value = _uiState.value.copy(progressState = ProgressState.Idle)

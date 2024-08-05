@@ -15,12 +15,11 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
-import com.compscicomputations.ui.main.settings.AppPreferences
-import com.compscicomputations.ui.main.settings.Themes2
+import com.compscicomputations.ui.main.settings.SettingsUiState
 
 private val AppRed = Color(0xFFEE2737)
 
-private val DarkColorScheme = darkColorScheme(
+val DarkColorScheme = darkColorScheme(
     primary = AppRed,
     secondary = AppRed,
     tertiary = AppRed,
@@ -29,7 +28,7 @@ private val DarkColorScheme = darkColorScheme(
     onPrimary = Color.White
 )
 
-private val LightColorScheme = lightColorScheme(
+val LightColorScheme = lightColorScheme(
     primary = AppRed,
     secondary = AppRed,
     tertiary = AppRed,
@@ -49,35 +48,13 @@ private val LightColorScheme = lightColorScheme(
 
 @Composable
 fun CompSciComputationsTheme(
-    main: Boolean = false,
+    theme:  SettingsUiState = SettingsUiState(),
     content: @Composable () -> Unit
 ) {
+    val darkTheme = theme.darkTheme ?: isSystemInDarkTheme()
     val context = LocalContext.current
-    val preferences = AppPreferences(context)
-//    val settings = if (main) {
-//        val preferences by context.settingsDataStore.data
-//            .collectAsStateWithLifecycle(initialValue = SettingsPreferences.getDefaultInstance())
-//        preferences
-//    } else {
-//        runBlocking(Dispatchers.IO) {
-//            context.settingsDataStore.data.first()
-//        }
-//    }
-
-//    val settings by context.settingsDataStore.data
-//        .collectAsStateWithLifecycle(initialValue = SettingsPreferences.getDefaultInstance())
-
-
-    val darkTheme = when(preferences.getTheme()) {
-        Themes2.DARK -> true
-        Themes2.LIGHT -> false
-//        SettingsPreferences.Themes.DARK -> true
-//        SettingsPreferences.Themes.LIGHT -> false
-        else -> isSystemInDarkTheme()
-    }
-
     val colorScheme = when {
-        preferences.getDynamicColor() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+        theme.dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
         darkTheme -> DarkColorScheme

@@ -8,6 +8,7 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.util.AttributeSet;
@@ -590,7 +591,8 @@ public class KMapVariablesImageView extends AppCompatImageView {
     public void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         this.paint.reset();
-        this.paint.setColor(View.MEASURED_STATE_MASK);
+//        this.paint.setColor(View.MEASURED_STATE_MASK);
+        this.paint.setColor(Color.GRAY);
         this.paint.setTextSize((this.alignment.rectWidth / 2.0f) * ((float) getWidth()));
         drawAllOnesAndZeros(canvas, this.paint);
         int i = 0;
@@ -616,7 +618,7 @@ public class KMapVariablesImageView extends AppCompatImageView {
                     this.minTermIntegersMapRight.add(intValue);
                 }
             }
-            if (this.minTermIntegersMapLeft.size() > 0) {
+            if (!this.minTermIntegersMapLeft.isEmpty()) {
                 int[] findCorners = findCorners(this.minTermIntegersMapLeft);
                 drawCircleArc(canvas, this.paint, findCorners[0], 1);
                 drawCircleArc(canvas, this.paint, findCorners[1], 2);
@@ -624,7 +626,7 @@ public class KMapVariablesImageView extends AppCompatImageView {
                 drawCircleArc(canvas, this.paint, findCorners[3], 4);
                 drawLines(canvas, this.paint, findCorners);
             }
-            if (this.minTermIntegersMapRight.size() > 0) {
+            if (!this.minTermIntegersMapRight.isEmpty()) {
                 int[] findCorners2 = findCorners(this.minTermIntegersMapRight);
                 drawCircleArc(canvas, this.paint, findCorners2[0], 1);
                 drawCircleArc(canvas, this.paint, findCorners2[1], 2);
