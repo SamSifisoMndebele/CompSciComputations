@@ -6,6 +6,7 @@ import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
+import android.widget.Toast
 import android.window.OnBackInvokedDispatcher
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
@@ -22,6 +23,7 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.compscicomputations.karnaugh_maps.databinding.ActivityKarnaughBinding
+import com.compscicomputations.karnaugh_maps.ui.AIStepsSheetDialog
 import com.compscicomputations.theme.DarkColorScheme
 import com.compscicomputations.theme.LightColorScheme
 import com.compscicomputations.ui.main.settings.PhoneThemes
@@ -38,8 +40,6 @@ import kotlinx.coroutines.flow.asStateFlow
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityKarnaughBinding
-
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -125,8 +125,25 @@ class MainActivity : AppCompatActivity() {
 //            }
 //        }
 
+        val prefs = getSharedPreferences("KarnaughMaps", Context.MODE_PRIVATE)
         binding.aiActionButton.setOnClickListener {
-            ///Todo: Generate content
+            val expressionString = when(binding.tabLayout.selectedTabPosition) {
+                0 -> prefs.getString("field_4var", null)
+                1 -> prefs.getString("field_3var", null)
+                else -> prefs.getString("field_2var", null)
+            }
+            if (expressionString.isNullOrBlank()) {
+                Toast.makeText(this, "Expression is empty", Toast.LENGTH_SHORT).show()
+            } else {
+                val modal = AIStepsSheetDialog()
+                ///Todo: Generate content
+                val bundle = Bundle()
+                bundle.putString("expression", "Expression: $expressionString\n\n" +
+                        "Steps to solve the boolean expression using algebraic algorithms.")
+                modal.arguments = bundle
+                supportFragmentManager.let { modal.show(it, AIStepsSheetDialog.TAG) }
+            }
+
         }
 
     }
