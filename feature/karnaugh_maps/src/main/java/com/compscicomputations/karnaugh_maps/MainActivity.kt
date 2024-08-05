@@ -135,11 +135,11 @@ class MainActivity : AppCompatActivity() {
             if (expressionString.isNullOrBlank()) {
                 Toast.makeText(this, "Expression is empty", Toast.LENGTH_SHORT).show()
             } else {
-                val modal = AIStepsSheetDialog()
-                ///Todo: Generate content
                 val bundle = Bundle()
                 bundle.putString("expression", "Expression: $expressionString\n\n" +
                         "Steps to solve the boolean expression using algebraic algorithms.")
+                ///Todo: Generate content
+                val modal = AIStepsSheetDialog()
                 modal.arguments = bundle
                 supportFragmentManager.let { modal.show(it, AIStepsSheetDialog.TAG) }
             }

@@ -110,6 +110,8 @@ class Karnaugh3Fragment : KarnaughFragment() {
         prefs = requireContext().getSharedPreferences("KarnaughMaps", Context.MODE_PRIVATE)
 
         val initArrayString = prefs.getString("min_terms_3var", null)
+        val expressionString = prefs.getString("field_3var", null)
+        binding.expressionEditText.setText(expressionString)
         if (initArrayString != null){
             val initArray = initArrayString.split(" ")
             val list = mutableListOf<Int>()
@@ -147,6 +149,7 @@ class Karnaugh3Fragment : KarnaughFragment() {
                 !expression.endsWith("+")){
                 try {
                     simplifyExpression(expression)
+                    prefs.edit().putString("field_3var", expression).apply()
                 } catch (e: Exception) {
                 }
             }
@@ -176,28 +179,28 @@ class Karnaugh3Fragment : KarnaughFragment() {
         }
     }
 
-    @Deprecated("Deprecated in Java")
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.history_menu, menu)
-    }
-
-    @Deprecated("Deprecated in Java")
-    override fun onOptionsItemSelected(menuItem: MenuItem): Boolean {
-        val itemId = menuItem.itemId
-        if (itemId == R.id.item_clear) {
-            /*binding.kMap.setMinTerms(
-                 binding.kMap.allMinTerms,
-                 binding.kMap.noMinterms
-             )
-             executeKarnaugh(binding.kMap.minterms, binding.kMap.dontCares)*/
-            binding.kMap.setMinTerms(
-                binding.kMap.noMinterms,
-                binding.kMap.noMinterms
-            )
-            prefs.edit().putString("min_terms_3var", null).apply()
-            executeKarnaugh(binding.kMap.minterms, binding.kMap.dontCares)
-        }
-        return super.onOptionsItemSelected(menuItem)
-    }
+//    @Deprecated("Deprecated in Java")
+//    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+//        super.onCreateOptionsMenu(menu, inflater)
+//        inflater.inflate(R.menu.history_menu, menu)
+//    }
+//
+//    @Deprecated("Deprecated in Java")
+//    override fun onOptionsItemSelected(menuItem: MenuItem): Boolean {
+//        val itemId = menuItem.itemId
+//        if (itemId == R.id.item_clear) {
+//            /*binding.kMap.setMinTerms(
+//                 binding.kMap.allMinTerms,
+//                 binding.kMap.noMinterms
+//             )
+//             executeKarnaugh(binding.kMap.minterms, binding.kMap.dontCares)*/
+//            binding.kMap.setMinTerms(
+//                binding.kMap.noMinterms,
+//                binding.kMap.noMinterms
+//            )
+//            prefs.edit().putString("min_terms_3var", null).apply()
+//            executeKarnaugh(binding.kMap.minterms, binding.kMap.dontCares)
+//        }
+//        return super.onOptionsItemSelected(menuItem)
+//    }
 }

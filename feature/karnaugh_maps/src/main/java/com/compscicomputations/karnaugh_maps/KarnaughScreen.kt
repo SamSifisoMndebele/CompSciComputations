@@ -155,7 +155,6 @@ private fun String.simplifyExpression(): IntArray {
     return listOfMinTerms.toIntArray()
 }
 
-
 @SuppressLint("ClickableViewAccessibility")
 @Composable
 fun Karnaugh4FragmentInCompose() {

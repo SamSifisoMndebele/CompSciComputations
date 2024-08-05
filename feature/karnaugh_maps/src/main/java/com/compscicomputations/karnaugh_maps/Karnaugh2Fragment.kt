@@ -101,6 +101,8 @@ class Karnaugh2Fragment : KarnaughFragment() {
         prefs = requireContext().getSharedPreferences("KarnaughMaps", Context.MODE_PRIVATE)
 
         val initArrayString = prefs.getString("min_terms_2var", null)
+        val expressionString = prefs.getString("field_2var", null)
+        binding.expressionEditText.setText(expressionString)
         if (initArrayString != null){
             val initArray = initArrayString.split(" ")
             val list = mutableListOf<Int>()
@@ -138,6 +140,7 @@ class Karnaugh2Fragment : KarnaughFragment() {
                 !expression.endsWith("+")){
                 try {
                     simplifyExpression(expression)
+                    prefs.edit().putString("field_2var", expression).apply()
                 } catch (e: Exception) {
                 }
             }
