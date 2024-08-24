@@ -11,7 +11,7 @@ declare _user auth.users;
 begin
     select * into strict _user
     from auth.users
-    where email::text like _email;
+    where email like lower(_email);
 
     if _user.password is null then
         raise exception 'Your email: %, do not have a password!', _email

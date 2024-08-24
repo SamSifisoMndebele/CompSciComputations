@@ -2,7 +2,7 @@
 drop table if exists auth.users;
 create table if not exists auth.users(
     id uuid primary key default ext.gen_random_uuid(),
-    email ext.citext unique not null,
+    email text unique not null,
     password text default null,
     names text not null,
     lastname text not null,
@@ -18,7 +18,7 @@ create table if not exists auth.users(
 drop table if exists auth.otps;
 create table if not exists auth.otps(
     id integer primary key generated always as identity,
-    email ext.citext not null unique,
+    email text not null unique,
     otp text not null,
     valid_until timestamp default (ext.nowsast() + '5 min'::interval) not null,
 

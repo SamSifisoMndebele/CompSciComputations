@@ -9,8 +9,7 @@ data class Feedback(
     val subject: String,
     val message: String,
     val suggestion: String? = null,
-    @SerialName("image_bytes")
-    val imageBytes: ByteArray? = null,
+    val image: ByteArray? = null,
     @SerialName("user_id")
     val userId: Int? = null,
 ) {
@@ -24,10 +23,10 @@ data class Feedback(
         if (subject != other.subject) return false
         if (message != other.message) return false
         if (suggestion != other.suggestion) return false
-        if (imageBytes != null) {
-            if (other.imageBytes == null) return false
-            if (!imageBytes.contentEquals(other.imageBytes)) return false
-        } else if (other.imageBytes != null) return false
+        if (image != null) {
+            if (other.image == null) return false
+            if (!image.contentEquals(other.image)) return false
+        } else if (other.image != null) return false
         if (userId != other.userId) return false
 
         return true
@@ -38,7 +37,7 @@ data class Feedback(
         result = 31 * result + subject.hashCode()
         result = 31 * result + message.hashCode()
         result = 31 * result + (suggestion?.hashCode() ?: 0)
-        result = 31 * result + (imageBytes?.contentHashCode() ?: 0)
+        result = 31 * result + (image?.contentHashCode() ?: 0)
         result = 31 * result + (userId ?: 0)
         return result
     }

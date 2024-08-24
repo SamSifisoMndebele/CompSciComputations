@@ -8,10 +8,9 @@ import kotlinx.serialization.Serializable
 data class User(
     val id: Int,
     val email: String,
-    @SerialName("display_name")
-    val displayName: String,
-    @SerialName("image_bytes")
-    val imageBytes: ByteArray?,
+    val names: String,
+    val lastname: String,
+    val image: ByteArray?,
     val phone: String?,
     @SerialName("is_admin")
     val isAdmin: Boolean,
@@ -29,11 +28,12 @@ data class User(
 
         if (id != other.id) return false
         if (email != other.email) return false
-        if (displayName != other.displayName) return false
-        if (imageBytes != null) {
-            if (other.imageBytes == null) return false
-            if (!imageBytes.contentEquals(other.imageBytes)) return false
-        } else if (other.imageBytes != null) return false
+        if (names != other.names) return false
+        if (lastname != other.lastname) return false
+        if (image != null) {
+            if (other.image == null) return false
+            if (!image.contentEquals(other.image)) return false
+        } else if (other.image != null) return false
         if (phone != other.phone) return false
         if (isAdmin != other.isAdmin) return false
         if (isStudent != other.isStudent) return false
@@ -45,8 +45,9 @@ data class User(
     override fun hashCode(): Int {
         var result = id.hashCode()
         result = 31 * result + email.hashCode()
-        result = 31 * result + displayName.hashCode()
-        result = 31 * result + (imageBytes?.contentHashCode() ?: 0)
+        result = 31 * result + names.hashCode()
+        result = 31 * result + lastname.hashCode()
+        result = 31 * result + (image?.contentHashCode() ?: 0)
         result = 31 * result + (phone?.hashCode() ?: 0)
         result = 31 * result + isAdmin.hashCode()
         result = 31 * result + isStudent.hashCode()
@@ -57,7 +58,7 @@ data class User(
 
 //    id uuid primary key default ext.gen_random_uuid(),
 //    email text unique not null,
-//    password_hash text default null,
+//    password text default null,
 //    display_name text not null,
 //    image_bytes bytea default null,
 //    phone text default null,

@@ -13,6 +13,13 @@ class Users {
         class Image(val parent: Id)
     }
 
+    @Resource("email/{email}")
+    class Email(val parent: Users = Users(), val email: String) {
+        @Resource("otp")
+        class Otp(val parent: Email)
+
+    }
+
     @Resource("delete")
     class Delete(val parent: Users = Users())
 

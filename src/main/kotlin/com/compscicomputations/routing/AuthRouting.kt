@@ -6,6 +6,7 @@ import com.compscicomputations.plugins.authenticateUser
 import com.compscicomputations.services.auth.models.requests.NewPassword
 import com.compscicomputations.services.auth.models.requests.RegisterUser
 import com.compscicomputations.services.auth.models.response.User
+import com.compscicomputations.utils.EMAIL_VERIFICATION_EMAIL
 import com.compscicomputations.utils.RESET_PASSWORD_EMAIL
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -68,25 +69,53 @@ fun Routing.authRouting() {
 
     get<Users.PasswordReset.Email> {
         try {
-            val passwordOTP = authService.passwordResetOTP(it.email)
+            val passwordOTP = authService.getOTP(it.email)
 
-            val email = org.apache.commons.mail.HtmlEmail()
-            email.hostName = "smtp.gmail.com"
-            email.setSmtpPort(465)
             val emailAddress = System.getenv("EMAIL_ADDR")
             val emailPassword = System.getenv("EMAIL_PASS")
-            email.setAuthenticator(DefaultAuthenticator(emailAddress, emailPassword))
-            email.isSSLOnConnect = true
-            email.setFrom(emailAddress)
-            email.subject = "Reset your password for CompSci Computations."
-            email.setHtmlMsg(
-                RESET_PASSWORD_EMAIL
-                    .replaceFirst("{{email_to}}", passwordOTP.email)
-                    .replaceFirst("{{otp}}", passwordOTP.otp)
-                    .replaceFirst("{{expiration_time}}", passwordOTP.validUntil)
-            )
-            email.addTo(passwordOTP.email)
-            email.send()
+            org.apache.commons.mail.HtmlEmail().apply {
+                hostName = "smtp.gmail.com"
+                setSmtpPort(465)
+                setAuthenticator(DefaultAuthenticator(emailAddress, emailPassword))
+                isSSLOnConnect = true
+                setFrom(emailAddress)
+                subject = "Reset your password for CompSci Computations."
+                setHtmlMsg(
+                    RESET_PASSWORD_EMAIL
+                        .replaceFirst("{{email_to}}", passwordOTP.email)
+                        .replaceFirst("{{otp}}", passwordOTP.otp)
+                        .replaceFirst("{{expiration_time}}", passwordOTP.validUntil)
+                )
+                addTo(passwordOTP.email)
+            }.send()
+
+            call.respond(HttpStatusCode.OK, "OTP sent to ${passwordOTP.email}.")
+        } catch (e: Exception) {
+            call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
+        }
+    }
+
+    get<Users.Email.Otp> {
+        try {
+            val passwordOTP = authService.getOTP(it.parent.email)
+
+            val emailAddress = System.getenv("EMAIL_ADDR")
+            val emailPassword = System.getenv("EMAIL_PASS")
+            org.apache.commons.mail.HtmlEmail().apply {
+                hostName = "smtp.gmail.com"
+                setSmtpPort(465)
+                setAuthenticator(DefaultAuthenticator(emailAddress, emailPassword))
+                isSSLOnConnect = true
+                setFrom(emailAddress)
+                subject = "Reset your password for CompSci Computations."
+                setHtmlMsg(
+                    EMAIL_VERIFICATION_EMAIL
+                        .replaceFirst("{{email_to}}", passwordOTP.email)
+                        .replaceFirst("{{otp}}", passwordOTP.otp)
+                        .replaceFirst("{{expiration_time}}", passwordOTP.validUntil)
+                )
+                addTo(passwordOTP.email)
+            }.send()
 
             call.respond(HttpStatusCode.OK, "OTP sent to ${passwordOTP.email}.")
         } catch (e: Exception) {

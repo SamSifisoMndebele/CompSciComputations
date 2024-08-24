@@ -1,6 +1,5 @@
 package com.compscicomputations.plugins
 
-import com.compscicomputations.services.auth.models.requests.NewAdminPin
 import com.compscicomputations.services.auth.models.requests.NewPassword
 import com.compscicomputations.services.auth.models.requests.RegisterUser
 import com.compscicomputations.services.auth.models.requests.UpdateUser
@@ -18,8 +17,10 @@ internal fun Application.configureRequestValidation() {
             when {
                 !userInfo.email.isEmailValid() ->
                     ValidationResult.Invalid("Email is not valid.")
-                userInfo.displayName.isNullOrBlank() ->
+                userInfo.names.isNullOrBlank() ->
                     ValidationResult.Invalid("Names should not be empty.")
+                userInfo.lastname.isNullOrBlank() ->
+                    ValidationResult.Invalid("Lastname should not be empty.")
                 userInfo.password != null && userInfo.password.length < 6 ->
                     ValidationResult.Invalid("Password is too short.")
                 else -> ValidationResult.Valid
@@ -29,8 +30,10 @@ internal fun Application.configureRequestValidation() {
             when {
                 !userInfo.email.isEmailValid() ->
                     ValidationResult.Invalid("Email is not valid.")
-                userInfo.displayName.isNullOrBlank() ->
+                userInfo.names.isNullOrBlank() ->
                     ValidationResult.Invalid("Names should not be empty.")
+                userInfo.lastname.isNullOrBlank() ->
+                    ValidationResult.Invalid("Lastname should not be empty.")
                 userInfo.password != null && userInfo.password.length < 6 ->
                     ValidationResult.Invalid("Password is too short.")
                 userInfo.phone != null && !userInfo.phone.isPhoneValid() ->
@@ -41,12 +44,6 @@ internal fun Application.configureRequestValidation() {
                     ValidationResult.Invalid("Course name is required for students.")
                 userInfo.isStudent == true && userInfo.school.isNullOrBlank() ->
                     ValidationResult.Invalid("School name is required for students.")
-                else -> ValidationResult.Valid
-            }
-        }
-        validate<NewAdminPin> { request ->
-            when {
-                !request.email.isEmailValid() -> ValidationResult.Invalid("The email is not valid.")
                 else -> ValidationResult.Valid
             }
         }

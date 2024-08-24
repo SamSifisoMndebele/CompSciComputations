@@ -7,6 +7,6 @@ import kotlinx.serialization.Serializable
 data class RegisterUser(
     val email: String,
     val password: String?,
-    @SerialName("display_name")
-    val displayName: String?,
+    val names: String?,
+    val lastname: String?,
 )

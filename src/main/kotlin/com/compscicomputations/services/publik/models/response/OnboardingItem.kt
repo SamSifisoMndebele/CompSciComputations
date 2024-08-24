@@ -8,8 +8,7 @@ data class OnboardingItem(
     val id: Int,
     val title: String,
     val description: String?,
-    @SerialName("image_bytes")
-    val imageBytes: ByteArray?,
+    val image: ByteArray?,
 )
 {
     override fun equals(other: Any?): Boolean {
@@ -21,10 +20,10 @@ data class OnboardingItem(
         if (id != other.id) return false
         if (title != other.title) return false
         if (description != other.description) return false
-        if (imageBytes != null) {
-            if (other.imageBytes == null) return false
-            if (!imageBytes.contentEquals(other.imageBytes)) return false
-        } else if (other.imageBytes != null) return false
+        if (image != null) {
+            if (other.image == null) return false
+            if (!image.contentEquals(other.image)) return false
+        } else if (other.image != null) return false
 
         return true
     }
@@ -33,7 +32,7 @@ data class OnboardingItem(
         var result = id
         result = 31 * result + title.hashCode()
         result = 31 * result + (description?.hashCode() ?: 0)
-        result = 31 * result + (imageBytes?.contentHashCode() ?: 0)
+        result = 31 * result + (image?.contentHashCode() ?: 0)
         return result
     }
 }

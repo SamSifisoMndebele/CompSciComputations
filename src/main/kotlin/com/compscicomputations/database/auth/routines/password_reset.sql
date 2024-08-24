@@ -20,7 +20,7 @@ begin
 
 --     Add new OTP
     insert into auth.otps (email, otp, valid_until)
-    values (_email, ext.crypt(_otp, ext.gen_salt('md5')), (ext.nowsast() + '5 min'::interval))
+    values (lower(_email), ext.crypt(_otp, ext.gen_salt('md5')), (ext.nowsast() + '5 min'::interval))
     on conflict (email)
     do update
     set otp = excluded.otp,
@@ -52,7 +52,7 @@ begin
 --     Get latest OTP
     select * into strict _rec
     from auth.otps
-    where email like _email;
+    where email like lower(_email);
 
 --     Validate OTP
     if _rec.otp <> ext.crypt(_otp, _rec.otp) then
@@ -84,10 +84,10 @@ begin
 
     update auth.users
     set password = ext.crypt(_password, ext.gen_salt('md5'))
-    where email like _email;
+    where email like lower(_email);
 
     delete from auth.otps
-    where email like _email;
+    where email like lower(_email);
 end
 $code$;
 
@@ -109,7 +109,7 @@ declare _password text;
 begin
     select password into strict _password
     from auth.users
-    where email like _email;
+    where email like lower(_email);
 
     if _password is null then
         raise exception 'Your email: %, do not have a password!', _email
@@ -120,7 +120,7 @@ begin
 
     update auth.users
     set password = ext.crypt(_password, ext.gen_salt('md5'))
-    where email like _email;
+    where email like lower(_email);
 
 exception
     when no_data_found then

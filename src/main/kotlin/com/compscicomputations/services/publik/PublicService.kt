@@ -27,7 +27,7 @@ class PublicService : PublicServiceContrast {
                 id = getInt("id"),
                 title = getString("title"),
                 description = getString("description"),
-                imageBytes = getBytes("image_bytes"),
+                image = getBytes("image"),
             )
         }
         private fun ResultSet.getFeedback(): Feedback {
@@ -36,7 +36,7 @@ class PublicService : PublicServiceContrast {
                 subject = getString("subject"),
                 message = getString("message"),
                 suggestion = getString("suggestion"),
-                imageBytes = getBytes("image_bytes"),
+                image = getBytes("image"),
                 userId = getInt("user_id"),
             )
         }
@@ -44,12 +44,12 @@ class PublicService : PublicServiceContrast {
 
     override suspend fun createOnboardingItem(item: NewOnboardingItem): Unit = dbQuery(conn) {
         update("""
-            insert into public.onboarding_items(title, description, image_bytes) 
+            insert into public.onboarding_items(title, description, image) 
             values (?, ?, ?)
         """.trimIndent()) {
             setString(1, item.title)
             setString(2, item.description)
-            setBytes(3, item.imageBytes)
+            setBytes(3, item.image)
         }
     }
 
@@ -72,7 +72,7 @@ class PublicService : PublicServiceContrast {
             setString(1, feedback.subject)
             setString(2, feedback.message)
             setString(3, feedback.suggestion)
-            setBytes(4, feedback.imageBytes)
+            setBytes(4, feedback.image)
             setObject(5, feedback.userId, Types.INTEGER)
         }
     }

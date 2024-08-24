@@ -2,7 +2,7 @@ package com.compscicomputations.services.auth
 
 import com.compscicomputations.plugins.connectToPostgres
 import com.compscicomputations.services._contrast.AuthServiceContrast
-import com.compscicomputations.services.auth.models.PasswordOTP
+import com.compscicomputations.services.auth.models.OTP
 import com.compscicomputations.services.auth.models.requests.NewPassword
 import com.compscicomputations.services.auth.models.requests.RegisterUser
 import com.compscicomputations.services.auth.models.response.User
@@ -47,8 +47,9 @@ internal class AuthService : AuthServiceContrast {
         private fun ResultSet.getUser(): User = User(
             id = getInt("id"),
             email = getString("email"),
-            displayName = getString("display_name"),
-            imageBytes = getBytes("image_bytes"),
+            names = getString("names"),
+            lastname = getString("lastname"),
+            image = getBytes("image"),
             phone = getString("phone"),
             isAdmin = getBoolean("is_admin"),
             isStudent = getBoolean("is_student"),
@@ -57,10 +58,11 @@ internal class AuthService : AuthServiceContrast {
     }
 
     override suspend fun registerUser(registerUser: RegisterUser): User = dbQuery(conn) {
-        querySingle("select * from auth.insert_user(?,?,?)", { getUser() }) {
+        querySingle("select * from auth.insert_user(?,?,?,?)", { getUser() }) {
             setString(1, registerUser.email)
-            setString(2, registerUser.displayName)
-            setString(3, registerUser.password)
+            setString(2, registerUser.names)
+            setString(3, registerUser.lastname)
+            setString(4, registerUser.password)
         }
     }
 
@@ -73,7 +75,7 @@ internal class AuthService : AuthServiceContrast {
                 is PartData.FileItem -> {
 //                    fileName = part.originalFileName as String
                     val imageBytes = part.streamProvider().readBytes()
-                    update("update auth.users set image_bytes = ? where id = ?") {
+                    update("update auth.users set image = ? where id = ?") {
                         setBytes(1, imageBytes)
                         setInt(2, id)
                     }
@@ -129,12 +131,13 @@ internal class AuthService : AuthServiceContrast {
         query("select * from auth.users order by users.display_name limit $limit", { getUser() })
     }
 
-    override suspend fun passwordResetOTP(email: String): PasswordOTP = dbQuery(conn) {
+    override suspend fun getOTP(email: String): OTP = dbQuery(conn) {
         querySingle("select * from auth.create_otp(?)",
             {
-                PasswordOTP(
+                OTP(
+                    getInt("id"),
                     getString("email"),
-                    getString("otp_hash"),
+                    getString("otp"),
                     getTimestamp("valid_until").toString().substring(11, 19),
                 )
             }

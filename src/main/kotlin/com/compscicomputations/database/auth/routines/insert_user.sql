@@ -4,7 +4,7 @@ create or replace function auth.insert_user(
     _names text,
     _lastname text,
     _password text default null,
-    _image_bytes bytea default null,
+    _image bytea default null,
     _is_email_verified boolean default false
 ) returns auth.users
     language plpgsql
@@ -13,9 +13,13 @@ $code$
 declare
     _user auth.users;
 begin
-    insert into auth.users (email, password, names, lastname, image_bytes, is_email_verified)
-    values (_email, ext.crypt(_password, ext.gen_salt('md5')), _names, _lastname, _image_bytes, _is_email_verified)
+    insert into auth.users (email, password, names, lastname, image, is_email_verified)
+    values (lower(_email), ext.crypt(_password, ext.gen_salt('md5')), _names, _lastname, _image, _is_email_verified)
     returning * into strict _user;
+
+    if not _is_email_verified then
+        perform auth.create_otp(_email);
+    end if;
 
     return _user;
 
