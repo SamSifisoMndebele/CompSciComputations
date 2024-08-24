@@ -9,7 +9,7 @@ CREATE POLICY user_mod_policy ON auth.users
 
 
 create policy "Enable insert for authenticated users only"
-    on "public"."users"
+    on auth.users
     for insert to authenticated
     with check (true);
 

@@ -19,11 +19,11 @@ begin
     where valid_until < (ext.nowsast() - '10 min'::interval);
 
 --     Add new OTP
-    insert into auth.otps (email, otp_hash, valid_until)
+    insert into auth.otps (email, otp, valid_until)
     values (_email, ext.crypt(_otp, ext.gen_salt('md5')), (ext.nowsast() + '5 min'::interval))
     on conflict (email)
     do update
-    set otp_hash = excluded.otp_hash,
+    set otp = excluded.otp,
         valid_until = excluded.valid_until
     returning id, email, _otp, valid_until into strict _rec;
 
@@ -55,7 +55,7 @@ begin
     where email like _email;
 
 --     Validate OTP
-    if _rec.otp_hash <> ext.crypt(_otp, _rec.otp_hash) then
+    if _rec.otp <> ext.crypt(_otp, _rec.otp) then
         raise exception 'The OTP: % is not valid!', _otp
             using hint = 'Request a new OTP.';
     elseif _rec.valid_until < ext.nowsast() then
@@ -67,7 +67,6 @@ exception
     when no_data_found then
         raise exception 'OTP for email: % does not exists or it has expired.', _email
             using hint = 'Request a new OTP.';
-
 end
 $code$;
 
@@ -84,7 +83,7 @@ begin
     call auth.validate_otp(_email, _otp);
 
     update auth.users
-    set password_hash = ext.crypt(_password, ext.gen_salt('md5'))
+    set password = ext.crypt(_password, ext.gen_salt('md5'))
     where email like _email;
 
     delete from auth.otps
@@ -106,21 +105,21 @@ create or replace procedure auth.reset_password(
 ) language plpgsql
 as
 $code$
-declare _password_hash text;
+declare _password text;
 begin
-    select password_hash into strict _password_hash
+    select password into strict _password
     from auth.users
     where email like _email;
 
-    if _password_hash is null then
+    if _password is null then
         raise exception 'Your email: %, do not have a password!', _email
             using hint = 'Request a new OTP to set your password.';
-    elsif _password_hash <> ext.crypt(_old_password, _password_hash) then
+    elsif _password <> ext.crypt(_old_password, _password) then
         raise exception 'Your password: % is not valid!', _old_password;
     end if;
 
     update auth.users
-    set password_hash = ext.crypt(_password, ext.gen_salt('md5'))
+    set password = ext.crypt(_password, ext.gen_salt('md5'))
     where email like _email;
 
 exception

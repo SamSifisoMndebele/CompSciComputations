@@ -5,21 +5,24 @@ import com.compscicomputations.routing.publicRouting
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.http.content.*
+import io.ktor.server.resources.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.server.routing.get
 import org.apache.commons.mail.DefaultAuthenticator
 import io.ktor.server.routing.get as getA
 
 fun Application.configureRouting() {
+    install(Resources)
 
     routing {
         staticResources("/.well-known", "well-known")
         staticResources("/privacy", "docs", "privacy-policy.pdf")
 
-
         getA {
             call.respondText("Hello CompSci Computations API!")
         }
+        staticResources("/static", "static")
 
 //        getA("/test/email") {
 //            call.respondRedirect("/test/email/sams.mndebele@gmail.com")

@@ -11,12 +11,12 @@ declare _user auth.users;
 begin
     select * into strict _user
     from auth.users
-    where email like _email;
+    where email::text like _email;
 
-    if _user.password_hash is null then
+    if _user.password is null then
         raise exception 'Your email: %, do not have a password!', _email
         using hint = 'Reset your password.';
-    elsif _user.password_hash <> ext.crypt(_password, _user.password_hash) then
+    elsif _user.password <> ext.crypt(_password, _user.password) then
         raise exception 'Your password: % is not valid!', _password;
     else
         return _user;
