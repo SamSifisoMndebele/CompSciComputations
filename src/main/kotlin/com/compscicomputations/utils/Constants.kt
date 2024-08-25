@@ -140,9 +140,12 @@ val FEEDBACK_EMAIL = """
 <body>
     <div class="container">
         <div class="content">
-            <h3>{{message}}</h3>
+            <h3>From: {{email_from}}</h3>
+            <h3>Subject: {{subject}}</h3>
             <hr>
-            <p>{{suggestion}}</p>
+            <h3>Message:</h3>
+            <p>{{message}}</p>
+            {{suggestion_html}}
         </div>
     </div>
 </body>

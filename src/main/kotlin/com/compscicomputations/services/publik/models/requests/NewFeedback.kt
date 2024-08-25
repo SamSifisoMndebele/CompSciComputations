@@ -10,7 +10,7 @@ data class NewFeedback(
     val suggestion: String? = null,
     val image: ByteArray? = null,
     @SerialName("user_id")
-    val userId: Int? = null,
+    val userId: String? = null,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -35,7 +35,7 @@ data class NewFeedback(
         result = 31 * result + message.hashCode()
         result = 31 * result + (suggestion?.hashCode() ?: 0)
         result = 31 * result + (image?.contentHashCode() ?: 0)
-        result = 31 * result + (userId ?: 0)
+        result = 31 * result + (userId?.hashCode() ?: 0)
         return result
     }
 }

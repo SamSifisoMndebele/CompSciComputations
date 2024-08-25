@@ -45,7 +45,7 @@ internal class AuthService : AuthServiceContrast {
         private val logger = LoggerFactory.getLogger("AuthService")
 
         private fun ResultSet.getUser(): User = User(
-            id = getInt("id"),
+            id = getObject("id").toString(),
             email = getString("email"),
             names = getString("names"),
             lastname = getString("lastname"),

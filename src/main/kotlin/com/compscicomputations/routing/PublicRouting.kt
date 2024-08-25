@@ -18,6 +18,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import org.apache.commons.mail.DefaultAuthenticator
 import org.koin.ktor.ext.inject
+import javax.mail.internet.InternetAddress
 
 
 fun Routing.publicRouting() {
@@ -62,21 +63,23 @@ fun Routing.publicRouting() {
             publicService.createFeedback(request)
             val emailAddress = System.getenv("EMAIL_ADDR")
             val emailPassword = System.getenv("EMAIL_PASS")
+            val emailFrom = "sams.mndebele@gmail.com" //Todo: set the user email
             org.apache.commons.mail.HtmlEmail().apply {
                 hostName = "smtp.gmail.com"
                 setSmtpPort(465)
                 setAuthenticator(DefaultAuthenticator(emailAddress, emailPassword))
                 isSSLOnConnect = true
-                setFrom("sams.mndebele@gmail.com") //Todo: set the user email
-                subject = request.subject
+                setFrom(emailAddress, "CompSci Computations")
+                setCc(setOf(InternetAddress(emailFrom)))
+                subject = "Feedback"
                 setHtmlMsg(
                     FEEDBACK_EMAIL
+                        .replaceFirst("{{email_from}}", emailFrom)
+                        .replaceFirst("{{subject}}", request.subject)
                         .replaceFirst("{{message}}", request.message)
-                        .let {
-                            if (request.suggestion != null)
-                                it.replaceFirst("{{suggestion}}", request.suggestion)
-                            else it
-                        }
+                        .replaceFirst("{{suggestion_html}}",
+                            if (request.suggestion != null) "<hr><h3>Suggestion:</h3><p>${request.suggestion}</p>" else ""
+                        )
 
                 )
                 addTo(emailAddress)

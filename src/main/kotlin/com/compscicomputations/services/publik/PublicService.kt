@@ -68,12 +68,12 @@ class PublicService : PublicServiceContrast {
 
 
     suspend fun createFeedback(feedback: NewFeedback): Unit = dbQuery(conn) {
-        update("call public.insert_feedback(?, ?, ?, ?, ?)") {
+        update("call public.insert_feedback(?, ?, ?, ?, ?::uuid)") {
             setString(1, feedback.subject)
             setString(2, feedback.message)
             setString(3, feedback.suggestion)
             setBytes(4, feedback.image)
-            setObject(5, feedback.userId, Types.INTEGER)
+            setString(5, feedback.userId)
         }
     }
 
