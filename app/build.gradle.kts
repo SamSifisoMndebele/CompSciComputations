@@ -18,7 +18,7 @@ android {
         val properties = Properties()
         properties.load(project.rootProject.file("local.properties").inputStream())
         getByName("debug") {
-            storeFile = file("D:\\_CompSciComputations\\android-app\\config\\keystore\\keystore.jks")
+            storeFile = project.rootProject.file("config\\keystore\\keystore.jks")
             storePassword = properties.getProperty("STORE_PASS")
             keyAlias = properties.getProperty("KEY_ALIAS")
             keyPassword = properties.getProperty("KEY_PASS")
