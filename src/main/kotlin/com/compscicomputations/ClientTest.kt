@@ -1,33 +1,50 @@
 package com.compscicomputations
 
-//suspend fun main() {
-//    val client = HttpClient(CIO) {
-//        install(ContentNegotiation) { json() }
-//    }
-//    val response = client.post("http://localhost:8080/onboarding/items") {
-//        contentType(ContentType.Application.Json)
-//        setBody(NewOnboardingItem(
-//            "CompSci Computations.",
-//            "Your Digital Laboratory For Exploring The Depths Of Mathematics and Computer Science!",
-//            File("autumn-welcome.jpg").readBytes()
-//        ))
-//    }
-//
-//    when(response.status) {
-//        HttpStatusCode.OK -> println(response.body<List<OnboardingItem>>())
-//        HttpStatusCode.ExpectationFailed -> println("Error: "+response.bodyAsText())
-//        else -> println("Unexpected error")
-//    }
-//}
+import com.compscicomputations.services.publik.models.requests.NewFeedback
+import io.ktor.client.*
+import io.ktor.client.engine.cio.*
+import io.ktor.client.plugins.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
+import io.ktor.http.*
+import io.ktor.serialization.kotlinx.json.*
+import io.ktor.util.*
+import kotlin.time.Duration.Companion.minutes
+
+suspend fun main() {
+    val client = HttpClient(CIO) {
+        install(ContentNegotiation) { json() }
+        install(HttpTimeout) {
+            requestTimeoutMillis = 2.minutes.inWholeMilliseconds
+        }
+    }
+    val response = client.post("http://localhost:8080/feedback") {
+        contentType(ContentType.Application.Json)
+        setBody(NewFeedback(
+            subject = "Subject",
+            message = "String",
+            suggestion = null,
+            image = null,
+            userId = "4d0594e3-db55-4737-9935-78a09ef9b81b",
+        ))
+    }
+
+    when(response.status) {
+        HttpStatusCode.OK -> println("Success: "+response.bodyAsText())
+        HttpStatusCode.ExpectationFailed -> println("Error: "+response.bodyAsText())
+        else -> println("Unexpected response: "+response.bodyAsText() + ", Code: "+response.status)
+    }
+}
 
 //suspend fun main() {
 //    val client = HttpClient(CIO) {
 //        install(ContentNegotiation) { json() }
 //    }
-//    val encoded = "sams.mndebele@gmail.com:Mndebele@9".encodeBase64()
+//    val encodedBasicAuth = "sams.mndebele@gmail.com:Mndebele@9".encodeBase64()
 //    val response = client.get("http://localhost:8080/users/me") {
 //        headers {
-//            append(HttpHeaders.Authorization, "Basic $encoded")
+//            append(HttpHeaders.Authorization, "Basic $encodedBasicAuth")
 //        }
 //    }
 //    when (response.status) {

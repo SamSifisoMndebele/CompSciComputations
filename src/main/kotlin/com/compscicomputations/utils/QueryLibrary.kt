@@ -2,16 +2,41 @@ package com.compscicomputations.utils
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.apache.commons.mail.DefaultAuthenticator
 import org.intellij.lang.annotations.Language
 import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.ResultSet
+import javax.mail.internet.InternetAddress
 
 suspend inline fun <T: Any?> dbQuery(
     connection: Connection,
     crossinline block: suspend Connection.() -> T
 ): T = withContext(Dispatchers.IO) {
     connection.block()
+}
+
+suspend inline fun sendEmail(
+    subject: String,
+    htmlMsg: String,
+    emailTo: String?,
+    emailFrom: String? = null,
+) = withContext(Dispatchers.IO) {
+    val emailAddress = System.getenv("EMAIL_ADDR")
+    val emailPassword = System.getenv("EMAIL_PASS")
+    org.apache.commons.mail.HtmlEmail().apply {
+        hostName = "smtp.gmail.com"
+        setSmtpPort(465)
+        setAuthenticator(DefaultAuthenticator(emailAddress, emailPassword))
+        isSSLOnConnect = true
+        setFrom(emailFrom ?: emailAddress)
+        emailFrom?.let {
+            setCc(setOf(InternetAddress(it)))
+        }
+        this.subject = subject
+        setHtmlMsg(htmlMsg)
+        addTo(emailTo ?: emailAddress)
+    }.send()
 }
 
 

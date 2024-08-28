@@ -131,6 +131,12 @@ internal class AuthService : AuthServiceContrast {
         query("select * from auth.users order by users.display_name limit $limit", { getUser() })
     }
 
+    internal suspend fun getEmail(id: String): String? = dbQuery(conn) {
+        querySingleOrNull("select email from auth.users where id = ?::uuid", { getString("email") }) {
+            setString(1, id)
+        }
+    }
+
     override suspend fun getOTP(email: String): OTP = dbQuery(conn) {
         querySingle("select * from auth.create_otp(?)",
             {
