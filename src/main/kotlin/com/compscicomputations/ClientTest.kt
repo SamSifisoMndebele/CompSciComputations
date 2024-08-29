@@ -29,7 +29,6 @@ suspend fun main() {
             userId = "4d0594e3-db55-4737-9935-78a09ef9b81b",
         ))
     }
-
     when(response.status) {
         HttpStatusCode.OK -> println("Success: "+response.bodyAsText())
         HttpStatusCode.ExpectationFailed -> println("Error: "+response.bodyAsText())
