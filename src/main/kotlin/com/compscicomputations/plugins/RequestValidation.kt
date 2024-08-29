@@ -1,7 +1,7 @@
 package com.compscicomputations.plugins
 
 import com.compscicomputations.services.auth.models.requests.NewPassword
-import com.compscicomputations.services.auth.models.requests.RegisterUser
+import com.compscicomputations.services.auth.models.requests.NewUser
 import com.compscicomputations.services.auth.models.requests.UpdateUser
 import com.compscicomputations.services.publik.models.requests.NewFeedback
 import com.compscicomputations.utils.isEmailValid
@@ -13,7 +13,7 @@ import io.ktor.server.plugins.requestvalidation.*
 internal fun Application.configureRequestValidation() {
 
     install(RequestValidation) {
-        validate<RegisterUser> { userInfo ->
+        validate<NewUser> { userInfo ->
             when {
                 !userInfo.email.isEmailValid() ->
                     ValidationResult.Invalid("Email is not valid.")
@@ -38,8 +38,8 @@ internal fun Application.configureRequestValidation() {
                     ValidationResult.Invalid("Password is too short.")
                 userInfo.phone != null && !userInfo.phone.isPhoneValid() ->
                     ValidationResult.Invalid("Phone number is not valid.")
-                userInfo.isAdmin == true && userInfo.adminPin.isNullOrBlank() ->
-                    ValidationResult.Invalid("Admin Pin is required to verify the admin account.")
+                userInfo.isStudent == true && userInfo.university.isNullOrBlank() ->
+                    ValidationResult.Invalid("University name is required for students.")
                 userInfo.isStudent == true && userInfo.course.isNullOrBlank() ->
                     ValidationResult.Invalid("Course name is required for students.")
                 userInfo.isStudent == true && userInfo.school.isNullOrBlank() ->

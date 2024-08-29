@@ -2,7 +2,7 @@ package com.compscicomputations.services._contrast
 
 import com.compscicomputations.services.auth.models.OTP
 import com.compscicomputations.services.auth.models.requests.NewPassword
-import com.compscicomputations.services.auth.models.requests.RegisterUser
+import com.compscicomputations.services.auth.models.requests.NewUser
 import com.compscicomputations.services.auth.models.requests.UpdateUser
 import com.compscicomputations.services.auth.models.response.User
 import io.ktor.http.content.*
@@ -25,17 +25,17 @@ interface AuthServiceContrast {
 
     /**
      * Create a user to the database.
-     * @param registerUser [RegisterUser] the information about the user.
+     * @param newUser [NewUser] the information about the user.
      * @return [User] the created user record.
      */
-    suspend fun registerUser(registerUser: RegisterUser): User
+    suspend fun registerUser(newUser: NewUser): User
 
     /**
      * Update user image on database from multipartDara.
      * @param id the user unique identifier.
      * @param multipartData MultiPartData containing the image bytes.
      */
-    suspend fun updateUserImage(id: Int, multipartData: MultiPartData)
+    suspend fun updateUserImage(id: String, multipartData: MultiPartData)
 
     /**
      * Validate the Google id token string and, reads the user information from the database.
@@ -97,7 +97,7 @@ interface AuthServiceContrast {
      * if a field value is null it remains unchanged.
      * @return [User] the database user information.
      *//*
-    suspend fun updateUser(id: Int, user: UpdateUser): User
+    suspend fun updateUser(id: String, user: UpdateUser): User
 
     *//**
      * Create a admin user verification code.

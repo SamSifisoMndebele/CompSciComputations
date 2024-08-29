@@ -68,18 +68,17 @@ fun Routing.publicRouting() {
         try {
             val request = call.receive<NewFeedback>()
             publicService.createFeedback(request)
-            val userEmail = request.userId?.let { id -> authService.getEmail(id) }
             sendEmail(
                 subject = "Feedback",
                 htmlMsg = FEEDBACK_EMAIL
-                    .replaceFirst("{{email_from}}", userEmail ?: "Anonymous")
+                    .replaceFirst("{{email_from}}", request.userEmail ?: "Anonymous")
                     .replaceFirst("{{subject}}", request.subject)
                     .replaceFirst("{{message}}", request.message)
                     .replaceFirst("{{suggestion_html}}",
-                        if (request.suggestion != null) "<hr><h3>Suggestion:</h3><p>${request.suggestion}</p>" else ""
+                        if (request.suggestion.isNotBlank()) "<hr><p><b>Suggestion:</b></p><p>${request.suggestion}</p>" else ""
                     ),
                 emailTo = null,
-                emailFrom = userEmail
+                emailFrom = request.userEmail
             )
             call.respond(HttpStatusCode.OK)
         } catch (e: Exception) {

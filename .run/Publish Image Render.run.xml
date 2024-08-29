@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Publish Image Render" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" path="$PROJECT_DIR$/src/main/resources/Publish Image Render.http">
+  <configuration default="false" name="Publish Image Render" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" path="$PROJECT_DIR$/src/main/resources/Publish Image Render.http" requestIdentifier="#1" runType="Run single request">
     <method v="2">
       <option name="RunConfigurationTask" enabled="true" run_configuration_name="publishImage" run_configuration_type="GradleRunConfiguration" />
     </method>

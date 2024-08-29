@@ -1,25 +1,19 @@
 package com.compscicomputations.services.publik
 
-import com.compscicomputations.plugins.connectToPostgres
+import com.compscicomputations.plugins.databaseConnection
 import com.compscicomputations.services._contrast.PublicServiceContrast
 import com.compscicomputations.services.publik.models.requests.NewFeedback
 import com.compscicomputations.services.publik.models.requests.NewOnboardingItem
 import com.compscicomputations.services.publik.models.response.Feedback
 import com.compscicomputations.services.publik.models.response.OnboardingItem
 import com.compscicomputations.utils.*
+import com.compscicomputations.utils.Image.Companion.asImage
 import java.sql.Connection
 import java.sql.ResultSet
 import java.sql.Types
 
 class PublicService : PublicServiceContrast {
-    private var connection: Connection? = null
-    private val conn : Connection
-        get() {
-            if (connection == null || connection!!.isClosed) {
-                connection = connectToPostgres()
-            }
-            return connection!!
-        }
+    private var conn = databaseConnection()
 
     companion object {
         private fun ResultSet.getOnboardingItem(): OnboardingItem {
@@ -27,7 +21,7 @@ class PublicService : PublicServiceContrast {
                 id = getInt("id"),
                 title = getString("title"),
                 description = getString("description"),
-                image = getBytes("image"),
+                image = getBytes("image").asImage,
             )
         }
         private fun ResultSet.getFeedback(): Feedback {
@@ -36,8 +30,8 @@ class PublicService : PublicServiceContrast {
                 subject = getString("subject"),
                 message = getString("message"),
                 suggestion = getString("suggestion"),
-                image = getBytes("image"),
-                userId = getInt("user_id"),
+                image = getBytes("image").asImage,
+                userEmail = getString("user_email"),
             )
         }
     }
@@ -49,7 +43,7 @@ class PublicService : PublicServiceContrast {
         """.trimIndent()) {
             setString(1, item.title)
             setString(2, item.description)
-            setBytes(3, item.image)
+            setBytes(3, item.image?.bytes)
         }
     }
 
@@ -72,8 +66,8 @@ class PublicService : PublicServiceContrast {
             setString(1, feedback.subject)
             setString(2, feedback.message)
             setString(3, feedback.suggestion)
-            setBytes(4, feedback.image)
-            setString(5, feedback.userId)
+            setBytes(4, feedback.image?.bytes)
+            setString(5, feedback.userEmail)
         }
     }
 

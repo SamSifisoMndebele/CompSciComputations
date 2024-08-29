@@ -20,11 +20,12 @@ create table if not exists public.feedbacks (
     id int primary key generated always as identity,
     subject text not null,
     message text not null,
-    suggestion text,
-    image bytea,
-    user_id uuid default null,
+    suggestion text not null default '',
+    image bytea default null,
+    user_email text default null,
     created_at timestamp default ext.nowsast() not null,
 
-    foreign key (user_id) references auth.users(id) on delete set null on update cascade
+    foreign key (user_email) references auth.users(email) on delete set null on update cascade,
+    unique (subject, message, suggestion)
 );
 

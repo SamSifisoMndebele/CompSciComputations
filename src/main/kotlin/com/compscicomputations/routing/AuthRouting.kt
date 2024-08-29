@@ -4,7 +4,7 @@ import com.compscicomputations.services.auth.AuthService
 import com.compscicomputations.plugins.Users
 import com.compscicomputations.plugins.authenticateUser
 import com.compscicomputations.services.auth.models.requests.NewPassword
-import com.compscicomputations.services.auth.models.requests.RegisterUser
+import com.compscicomputations.services.auth.models.requests.NewUser
 import com.compscicomputations.services.auth.models.response.User
 import com.compscicomputations.utils.EMAIL_VERIFICATION_EMAIL
 import com.compscicomputations.utils.RESET_PASSWORD_EMAIL
@@ -17,11 +17,7 @@ import io.ktor.server.resources.*
 import io.ktor.server.resources.post
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import org.apache.commons.mail.DefaultAuthenticator
 import org.koin.ktor.ext.inject
-import javax.mail.internet.InternetAddress
 
 fun Routing.authRouting() {
     val authService by inject<AuthService>()
@@ -29,20 +25,9 @@ fun Routing.authRouting() {
     // Create a user
     post<Users> {
         try {
-            val userRequest = call.receive<RegisterUser>()
-            val user = authService.registerUser(userRequest)
+            val userInfo = call.receive<NewUser>()
+            val user = authService.registerUser(userInfo)
             call.respond(HttpStatusCode.Created, user)
-        } catch (e: Exception) {
-            call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
-        }
-    }
-
-    // Upload user image by id
-    post<Users.Id.Image> {
-        try {
-            val multipartData = call.receiveMultipart()
-            authService.updateUserImage(it.parent.id, multipartData)
-            call.respond(HttpStatusCode.OK)
         } catch (e: Exception) {
             call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
         }
@@ -52,7 +37,9 @@ fun Routing.authRouting() {
         // Read a user
         get<Users.Me> {
             try {
-                val user = call.principal<User>()!!
+                val user = call.principal<User>() ?:
+                return@get call.respond(HttpStatusCode.Unauthorized, "User credentials are incorrect.")
+
                 call.respond(HttpStatusCode.OK, user)
             } catch (e: Exception) {
                 call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
@@ -62,7 +49,9 @@ fun Routing.authRouting() {
         // Delete a user
         delete<Users.Me> {
             try {
-                val user = call.principal<User>()!!
+                val user = call.principal<User>() ?:
+                return@delete call.respond(HttpStatusCode.Unauthorized, "User credentials are incorrect.")
+
                 authService.deleteUser(user.email)
                 call.respond(HttpStatusCode.OK, user)
             } catch (e: Exception) {

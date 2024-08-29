@@ -1,10 +1,11 @@
 package com.compscicomputations.services.auth.models.response
 
+import com.compscicomputations.utils.Image
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class AuthFile(
+data class StorageFile(
     val name: String,
     val description: String?,
     val data: ByteArray,
@@ -16,7 +17,7 @@ data class AuthFile(
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as AuthFile
+        other as StorageFile
 
         if (name != other.name) return false
         if (description != other.description) return false

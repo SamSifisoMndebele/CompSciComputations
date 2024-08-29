@@ -1,7 +1,10 @@
 package com.compscicomputations
 
+import com.compscicomputations.services.auth.models.response.User
 import com.compscicomputations.services.publik.models.requests.NewFeedback
+import com.compscicomputations.utils.Image
 import io.ktor.client.*
+import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -10,49 +13,64 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.util.*
+import java.io.File
 import kotlin.time.Duration.Companion.minutes
 
-suspend fun main() {
+/*suspend fun main() {
     val client = HttpClient(CIO) {
         install(ContentNegotiation) { json() }
         install(HttpTimeout) {
             requestTimeoutMillis = 2.minutes.inWholeMilliseconds
         }
     }
-    val response = client.post("http://localhost:8080/feedback") {
-        contentType(ContentType.Application.Json)
-        setBody(NewFeedback(
-            subject = "Subject",
-            message = "String",
-            suggestion = null,
-            image = null,
-            userId = "4d0594e3-db55-4737-9935-78a09ef9b81b",
-        ))
+//    val imageBytes = File("ic_logo.png").readBytes()
+//    val response = client.post("http://localhost:8080/feedback") {
+//        contentType(ContentType.Application.Json)
+//        setBody(NewFeedback(
+//            subject = "Subject 1",
+//            message = "String 1",
+//            suggestion = "",
+//            image = Image(imageBytes),
+//            userEmail = null,
+//        ))
+//    }
+//    when(response.status) {
+//        HttpStatusCode.OK -> println("Success: "+response.bodyAsText())
+//        HttpStatusCode.ExpectationFailed -> println("Error: "+response.bodyAsText())
+//        else -> println("Unexpected response: "+response.bodyAsText() + ", Code: "+response.status)
+//    }
+//
+    val encodedBasicAuth = "sams.mndebele@gmail.com:123456789".encodeBase64()
+    val response = client.get("http://localhost:8080/users/me") {
+        headers {
+            append(HttpHeaders.Authorization, "Basic $encodedBasicAuth")
+        }
     }
-    when(response.status) {
-        HttpStatusCode.OK -> println("Success: "+response.bodyAsText())
-        HttpStatusCode.ExpectationFailed -> println("Error: "+response.bodyAsText())
-        else -> println("Unexpected response: "+response.bodyAsText() + ", Code: "+response.status)
+    when (response.status) {
+        HttpStatusCode.Unauthorized -> println("UnauthorizedException: " + response.bodyAsText())
+        HttpStatusCode.ExpectationFailed -> println("ExpectationFailedException: " + response.bodyAsText())
+        HttpStatusCode.OK -> println(response.body<User>())
+        else -> throw Exception(response.bodyAsText())
     }
-}
+}*/
 
-//suspend fun main() {
-//    val client = HttpClient(CIO) {
-//        install(ContentNegotiation) { json() }
-//    }
-//    val encodedBasicAuth = "sams.mndebele@gmail.com:Mndebele@9".encodeBase64()
-//    val response = client.get("http://localhost:8080/users/me") {
-//        headers {
-//            append(HttpHeaders.Authorization, "Basic $encodedBasicAuth")
-//        }
-//    }
-//    when (response.status) {
-//        HttpStatusCode.Unauthorized -> println("UnauthorizedException: " + response.bodyAsText())
-//        HttpStatusCode.ExpectationFailed -> println("ExpectationFailedException: " + response.bodyAsText())
-//        HttpStatusCode.OK -> println(response.body<User>())
-//        else -> throw Exception(response.bodyAsText())
-//    }
-//}
+/*suspend fun main() {
+    val client = HttpClient(CIO) {
+        install(ContentNegotiation) { json() }
+    }
+    val encodedBasicAuth = "sams.mndebele@gmail.com:Mndebele@9".encodeBase64()
+    val response = client.get("http://localhost:8080/users/me") {
+        headers {
+            append(HttpHeaders.Authorization, "Basic $encodedBasicAuth")
+        }
+    }
+    when (response.status) {
+        HttpStatusCode.Unauthorized -> println("UnauthorizedException: " + response.bodyAsText())
+        HttpStatusCode.ExpectationFailed -> println("ExpectationFailedException: " + response.bodyAsText())
+        HttpStatusCode.OK -> println(response.body<User>())
+        else -> throw Exception(response.bodyAsText())
+    }
+}*/
 
 
 /*

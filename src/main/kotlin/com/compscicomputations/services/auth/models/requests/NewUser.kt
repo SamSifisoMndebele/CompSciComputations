@@ -1,12 +1,13 @@
 package com.compscicomputations.services.auth.models.requests
 
-import kotlinx.serialization.SerialName
+import com.compscicomputations.utils.Image
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class RegisterUser(
+data class NewUser(
     val email: String,
     val password: String?,
     val names: String?,
     val lastname: String?,
+    val image: Image?,
 )

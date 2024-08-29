@@ -1,12 +1,13 @@
 package com.compscicomputations.services.auth
 
-import com.compscicomputations.plugins.connectToPostgres
+import com.compscicomputations.plugins.databaseConnection
 import com.compscicomputations.services._contrast.AuthServiceContrast
 import com.compscicomputations.services.auth.models.OTP
 import com.compscicomputations.services.auth.models.requests.NewPassword
-import com.compscicomputations.services.auth.models.requests.RegisterUser
+import com.compscicomputations.services.auth.models.requests.NewUser
 import com.compscicomputations.services.auth.models.response.User
 import com.compscicomputations.utils.*
+import com.compscicomputations.utils.Image.Companion.asImage
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
@@ -17,19 +18,11 @@ import io.ktor.http.*
 import io.ktor.http.content.*
 import org.apache.http.auth.InvalidCredentialsException
 import org.slf4j.LoggerFactory
-import java.sql.Connection
 import java.sql.ResultSet
 
 
 internal class AuthService : AuthServiceContrast {
-    private var connection: Connection? = null
-    private val conn : Connection
-        get() {
-            if (connection == null || connection!!.isClosed) {
-                connection = connectToPostgres()
-            }
-            return connection!!
-        }
+    private var conn = databaseConnection()
 
     private val client by lazy {
         HttpClient(CIO) {
@@ -49,7 +42,7 @@ internal class AuthService : AuthServiceContrast {
             email = getString("email"),
             names = getString("names"),
             lastname = getString("lastname"),
-            image = getBytes("image"),
+            image = getBytes("image").asImage,
             phone = getString("phone"),
             isAdmin = getBoolean("is_admin"),
             isStudent = getBoolean("is_student"),
@@ -57,31 +50,33 @@ internal class AuthService : AuthServiceContrast {
         )
     }
 
-    override suspend fun registerUser(registerUser: RegisterUser): User = dbQuery(conn) {
-        querySingle("select * from auth.insert_user(?,?,?,?)", { getUser() }) {
-            setString(1, registerUser.email)
-            setString(2, registerUser.names)
-            setString(3, registerUser.lastname)
-            setString(4, registerUser.password)
+    override suspend fun registerUser(newUser: NewUser): User = dbQuery(conn) {
+        querySingle("select * from auth.insert_user(?,?,?,?, ?)", { getUser() }) {
+            setString(1, newUser.email)
+            setString(2, newUser.names)
+            setString(3, newUser.lastname)
+            setString(4, newUser.password)
+            setBytes(5, newUser.image?.bytes)
         }
     }
 
-    override suspend fun updateUserImage(id: Int, multipartData: MultiPartData): Unit = dbQuery(conn) {
+    override suspend fun updateUserImage(id: String, multipartData: MultiPartData): Unit = dbQuery(conn) {
         multipartData.forEachPart { part ->
             when (part) {
-                is PartData.FormItem -> {
-//                    fileDescription = part.value
-                }
                 is PartData.FileItem -> {
 //                    fileName = part.originalFileName as String
                     val imageBytes = part.streamProvider().readBytes()
-                    update("update auth.users set image = ? where id = ?") {
+                    update("update auth.users set image = ? where id = ?::uuid") {
                         setBytes(1, imageBytes)
-                        setInt(2, id)
+                        setString(2, id)
                     }
                 }
-                is PartData.BinaryChannelItem -> {}
-                is PartData.BinaryItem -> {}
+//                is PartData.FormItem -> {
+//                    fileDescription = part.value
+//                }
+//                is PartData.BinaryChannelItem -> {}
+//                is PartData.BinaryItem -> {}
+                else -> {}
             }
             part.dispose()
         }
@@ -103,19 +98,15 @@ internal class AuthService : AuthServiceContrast {
                         logger.warn(response.bodyAsText())
                         null
                     }
-                }?.let { bytes ->
-                    querySingle("select * from auth.insert_user(?, ?, ?, ?, ?)", { getUser() }) {
+                }.let { bytes ->
+                    querySingle("select * from auth.insert_user(?, ?, ?, ?, ?, ?)", { getUser() }) {
                         setString(1, googleToken.email)
-                        setString(2, googleToken.displayName)
-                        setString(3, null)
-                        setBytes(4, bytes)
-                        setBoolean(5, googleToken.emailVerified)
+                        setString(2, googleToken.names)
+                        setString(3, googleToken.lastname)
+                        setString(4, null)
+                        setBytes(5, bytes)
+                        setBoolean(6, googleToken.emailVerified)
                     }
-                }
-                ?: querySingle("select * from auth.insert_user(?, ?, _is_email_verified := ?)", { getUser() }) {
-                    setString(1, googleToken.email)
-                    setString(2, googleToken.displayName)
-                    setBoolean(3, googleToken.emailVerified)
                 }
         }
     }
@@ -129,12 +120,6 @@ internal class AuthService : AuthServiceContrast {
 
     override suspend fun readUsers(limit: Int): List<User> = dbQuery(conn) {
         query("select * from auth.users order by users.display_name limit $limit", { getUser() })
-    }
-
-    internal suspend fun getEmail(id: String): String? = dbQuery(conn) {
-        querySingleOrNull("select email from auth.users where id = ?::uuid", { getString("email") }) {
-            setString(1, id)
-        }
     }
 
     override suspend fun getOTP(email: String): OTP = dbQuery(conn) {
@@ -194,7 +179,7 @@ internal class AuthService : AuthServiceContrast {
 //            part.dispose()
 //        }
 //
-//        saveAuthFile(AuthFile(
+//        saveAuthFile(StorageFile(
 //            name = fileName,
 //            description = fileDescription,
 //            data = fileBytes,
@@ -229,7 +214,7 @@ internal class AuthService : AuthServiceContrast {
                     setString(10, user.school)
                 }
             } else {
-                querySingle("select * from auth.insert_user(?, ?, ?, ?, ?, ?, ?, ?, ?);", { getUser() }) {
+                querySingle("select * from auth.(?, ?, ?, ?, ?, ?, ?, ?, ?);", { getUser() }) {
                     setString(1, user.email)
                     setString(2, user.password)
                     setString(3, user.displayName)

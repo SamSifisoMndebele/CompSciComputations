@@ -7,14 +7,14 @@ import java.sql.Timestamp
 import java.text.SimpleDateFormat
 import java.util.*
 
-fun String?.isEmailValid(): Boolean = !this.isNullOrBlank() && Regex(EMAIL_REGEX).matches(this)
+fun CharSequence?.isEmailValid(): Boolean = !this.isNullOrBlank() && Regex(EMAIL_REGEX).matches(this)
 
-fun String?.validEmailOrNull() = if (isEmailValid()) this else null
+fun CharSequence?.validEmailOrNull() = if (isEmailValid()) this else null
 
-fun String.isAlphaNumeric() = matches("[a-zA-Z0-9]+".toRegex())
-fun String.isText() = matches("[a-zA-Z ]+".toRegex())
+fun CharSequence.isAlphaNumeric(): Boolean = matches("[_a-zA-Z0-9]+".toRegex())
+fun CharSequence.isText(): Boolean = matches("[_a-zA-Z ]+".toRegex())
 
-fun String.isPhoneValid() = matches("[0-9]{9,16}".toRegex()) //Todo set phone number regex
+fun CharSequence.isPhoneValid(): Boolean = matches(phoneNumberRegex)
 
 suspend inline fun ApplicationCall.parameter(parameter: String): String? {
     val value = parameters[parameter]?.ifBlank { null }

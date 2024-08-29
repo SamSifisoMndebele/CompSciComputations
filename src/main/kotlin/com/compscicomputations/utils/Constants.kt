@@ -9,6 +9,8 @@ const val EMAIL_REGEX = ("^(([\\w-]+\\.)+[\\w-]+|([a-zA-Z]|[\\w-]{2,}))@"
         + "[0-9]{1,2}|25[0-5]|2[0-4][0-9]))|"
         + "([a-zA-Z]+[\\w-]+\\.)+[a-zA-Z]{2,4})$")
 
+val phoneNumberRegex = Regex("^(0|\\+?27[ -]?)[5-9]\\d[ -]?\\d{3}[ -]?\\d{4}$")
+
 @Language("html")
 val RESET_PASSWORD_EMAIL = """
 <!DOCTYPE html>
@@ -140,10 +142,10 @@ val FEEDBACK_EMAIL = """
 <body>
     <div class="container">
         <div class="content">
-            <h3>From: {{email_from}}</h3>
-            <h3>Subject: {{subject}}</h3>
+            <p><b>From:</b> {{email_from}}</p>
+            <p><b>Subject:</b> {{subject}}</p>
             <hr>
-            <h3>Message:</h3>
+            <p><b>Message:</b></p>
             <p>{{message}}</p>
             {{suggestion_html}}
         </div>

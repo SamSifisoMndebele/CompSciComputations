@@ -8,9 +8,12 @@ class Users {
     class Me(val parent: Users = Users())
 
     @Resource("{id}")
-    class Id(val parent: Users = Users(), val id: Int) {
-        @Resource("image")
-        class Image(val parent: Id)
+    class Id(val parent: Users = Users(), val id: String)
+
+    @Resource("password-reset")
+    class PasswordReset(val parent: Users = Users()) {
+        @Resource("{email}")
+        class Email(val parent: PasswordReset = PasswordReset(), val email: String)
     }
 
     @Resource("email/{email}")
@@ -22,12 +25,6 @@ class Users {
 
     @Resource("delete")
     class Delete(val parent: Users = Users())
-
-    @Resource("password-reset")
-    class PasswordReset(val parent: Users = Users()) {
-        @Resource("{email}")
-        class Email(val parent: PasswordReset = PasswordReset(), val email: String)
-    }
 }
 
 
@@ -37,6 +34,8 @@ class Onboarding {
     class Items(val parent: Onboarding = Onboarding()) {
         @Resource("{id}")
         class Id(val parent: Items = Items(), val id: Int)
+        @Resource("except")
+        class Except(val parent: Items = Items())
     }
 }
 
