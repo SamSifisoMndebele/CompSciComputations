@@ -1,0 +1,15 @@
+[
+  {
+    "relation" : [
+      "delegate_permission/common.handle_all_urls",
+      "delegate_permission/common.get_login_creds"
+    ],
+    "target" : {
+      "namespace" : "android_app",
+      "package_name" : "com.compscicomputations",
+      "sha256_cert_fingerprints" : [
+        "B9:B8:EE:A0:12:22:36:B9:3A:7E:0C:DB:7F:00:2B:D9:E7:60:CF:35:94:D4:71:B5:53:C5:25:DA:01:14:E0:B3"
+      ]
+    }
+  }
+]

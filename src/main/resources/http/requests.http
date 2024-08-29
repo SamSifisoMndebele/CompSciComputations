@@ -1,0 +1,33 @@
+POST https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=AIzaSyD06VvOEIttnTUoe3JdnYKAfg_AriAtF0s
+Content-Type: application/json
+
+{
+  "contents": [
+    {
+      "parts": [
+        {
+          "text": "Show me steps how to convert Decimal: 23 to Binary, Octal, Hexadecimal, ASCII Characters."
+        }
+      ]
+    }
+  ]
+}
+
+###
+POST https://compsci-computations.onrender.com/onboarding/items
+Content-Type: application/json
+
+{
+  "source_url": "https://firebasestorage.googleapis.com/v0/b/compsci-computations.appspot.com/o/Onboarding%2Fwelcome_enim.json?alt=media&token=8811cd8b-ff1a-44bd-9a4a-0a495c445685",
+  "title": "Get Started",
+  "description": null,
+  "type": "LOTTIE"
+}
+
+###
+
+GET https://compsci-computations.onrender.com/users/google
+Authorization: Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6ImYyZTExOTg2MjgyZGU5M2YyN2IyNjRmZDJhNGRlMTkyOTkzZGNiOGMiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiI2NjQ3NDI4NzQ4MDItMW9oYjdoMHFuZ2FiM2RmMHNzdGVlZThiZDFsbDQ0OGkuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJhdWQiOiI2NjQ3NDI4NzQ4MDItbjQza3FxZDNmYmFwNzEwb2k3NjI3cjM1cXZvbTZ1aG8uYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJzdWIiOiIxMDIzNDM4MDY3OTI4NjY4OTU5OTMiLCJlbWFpbCI6InNhbXNpZmlzb21uZGViZWxlOTlAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsIm5hbWUiOiJTYW0gU2lmaXNvIiwicGljdHVyZSI6Imh0dHBzOi8vbGgzLmdvb2dsZXVzZXJjb250ZW50LmNvbS9hL0FDZzhvY0lPdHBKWEppU2JrQU1uQ0hqMndNcC1Bc19GZnViMzdfaHlqTEc5WEZJTXVuYVlYMTNQPXM5Ni1jIiwiZ2l2ZW5fbmFtZSI6IlNhbSIsImZhbWlseV9uYW1lIjoiU2lmaXNvIiwiaWF0IjoxNzIxODQyMTY2LCJleHAiOjE3MjE4NDU3NjZ9.AyGCr_ylrbvakDK0qqKgpNIlOs8mxVprisHOACImIjZwKEsG7KqExCCnVswOBhfnKguQcl-W_ibW54Or-_bZwGbFJTMoPOLnG0qR9_BLbP_bblF_7wgj3ohXL1HuBDiky72J1pK6gAICmW-jmdJBlCFCJqMlWollPfWOA0hybdog57lWnUq5WGqT-gLM57-EziqAsGpAj49YMQL96BWvemrcBdnvHJmpaHjbStZVn0f3keO_lFculavw4o2rbC61NZ3HZyOCGcEjxK3NiS0lrmqvkzhRZTgrXfaMb00sd5o60_BzMgbW9dYtejaEifv9VKOabBmiUkov8Fz4h99jBA
+
+###
+GET http://localhost:8080/privacy
