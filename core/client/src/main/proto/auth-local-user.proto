@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+option java_package = "com.compscicomputations.client.auth.data.model.local";
+option java_multiple_files = true;
+
+message LocalUser {
+  string id = 1;
+  string email = 2;
+  string password = 3;
+  string idToken = 4;
+  string names = 5;
+  string lastname = 6;
+  bytes imageBytes = 7;
+  string phone = 8;
+  bool isAdmin = 9;
+  bool isStudent = 10;
+  bool isEmailVerified = 11;
+}
+
+message LocalStudent {
+  string id = 1;
+  string university = 2;
+  string school = 3;
+  string course = 4;
+}

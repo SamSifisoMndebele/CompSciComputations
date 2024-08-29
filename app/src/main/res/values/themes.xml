@@ -1,0 +1,6 @@
+<resources>
+
+<!--    <style name="Theme.CompSciComputations" parent="android:Theme.Material.Light.NoActionBar" />-->
+    <style name="Theme.CompSciComputations" parent="Theme.AppCompat.DayNight.NoActionBar" />
+
+</resources>

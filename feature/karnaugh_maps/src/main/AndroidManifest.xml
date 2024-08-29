@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:dist="http://schemas.android.com/apk/distribution"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <dist:module
+        dist:instant="false"
+        dist:title="@string/title_karnaugh_maps">
+        <dist:delivery>
+            <dist:on-demand />
+        </dist:delivery>
+
+        <dist:fusing dist:include="true" />
+    </dist:module>
+
+    <application
+        android:hardwareAccelerated="true"
+        tools:ignore="MissingApplicationIcon">
+        <activity
+            android:name=".KarnaughActivity"
+            android:exported="false"
+            android:label="@string/title_activity_karnaugh"
+            android:theme="@style/Theme.CompSciComputations" />
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:theme="@style/Theme.CompSciComputations">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>

@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.appcompat.widget.Toolbar
+        android:layout_width="match_parent"
+        android:id="@+id/toolbar"
+        android:layout_height="0dp"
+        android:background="@null"
+        android:visibility="gone"
+        app:title=""/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="80dp"
+        android:orientation="vertical"
+        android:clipToPadding="false">
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/title_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/title_card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="24dp"
+                android:layout_marginHorizontal="8dp"
+                android:layout_marginBottom="8dp"
+                style="?attr/materialCardViewFilledStyle">
+                <ImageButton
+                    android:id="@+id/up_button"
+                    android:layout_width="42dp"
+                    android:layout_height="64dp"
+                    android:src="@drawable/ic_arrow_back"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="@null"
+                    tools:ignore="ContentDescription"/>
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/title"
+                    android:layout_width="match_parent"
+                    android:layout_height="64dp"
+                    android:text="@string/karnaugh_maps"
+                    android:fontFamily="@font/comic_neue_bold"
+                    android:textAlignment="center"
+                    android:gravity="center"
+                    android:textSize="26sp"/>
+
+            </com.google.android.material.card.MaterialCardView>
+
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tabLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:tabStripEnabled="false"
+            app:tabGravity="fill"
+            app:tabMode="scrollable"
+            app:tabContentStart="56dp">
+            <com.google.android.material.tabs.TabItem
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/_4_variables"
+                />
+
+            <com.google.android.material.tabs.TabItem
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/_3_variables"
+                />
+
+            <com.google.android.material.tabs.TabItem
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/_2_variables"
+                />
+        </com.google.android.material.tabs.TabLayout>
+
+        <fragment
+            android:id="@+id/nav_host_fragment_activity_karnaugh"
+            android:name="androidx.navigation.fragment.NavHostFragment"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="100"
+            app:defaultNavHost="true"
+            app:navGraph="@navigation/karnaugh_navigation"
+            tools:ignore="FragmentTagUsage" />
+
+    </LinearLayout>
+
+    <com.google.android.material.bottomappbar.BottomAppBar
+        android:id="@+id/bottomAppBar"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_gravity="bottom"
+        style="@style/Widget.Material3.BottomAppBar"
+        app:menu="@menu/bottom_menu" />
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/ai_action_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/generate"
+        app:icon="@drawable/ic_google_gemini"
+        app:layout_anchor="@id/bottomAppBar"
+        android:backgroundTint="#FFEE2737"
+        android:textColor="#ffeeeeee"
+        app:iconTint="#ffeeeeee"
+        android:contentDescription="@string/ai_button"/>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

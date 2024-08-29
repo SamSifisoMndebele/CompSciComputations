@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    style="@style/Widget.Material3.BottomSheet"
+    app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+    <!-- Drag handle for accessibility -->
+    <com.google.android.material.bottomsheet.BottomSheetDragHandleView
+        android:id="@+id/drag_handle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <LinearLayout
+        android:id="@+id/progress_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:minHeight="200dp">
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="8dp"
+            android:layout_height="wrap_content"/>
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:text="@string/loading"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:textSize="16sp"/>
+    </LinearLayout>
+
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/regenerate_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Regenerate"
+        android:visibility="gone"
+        android:layout_gravity="end"
+        android:layout_marginHorizontal="8dp"
+        style="@style/Widget.Material3.Button.OutlinedButton" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/generated_text"
+        android:layout_width="match_parent"
+        android:visibility="gone"
+        android:layout_height="0dp"
+        android:layout_margin="8dp"
+        android:layout_weight="1"
+        android:textSize="16sp"/>
+
+</LinearLayout>
