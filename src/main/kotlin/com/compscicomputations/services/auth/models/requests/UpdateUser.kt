@@ -6,16 +6,17 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class UpdateUser(
-    val email: String? = null,
-    val password: String? = null,
-    val names: String? = null,
-    val lastname: String? = null,
-    val image: Image? = null,
-    val phone: String? = null,
+    val id: String,
+    val names: String,
+    val lastname: String,
+    val image: Image?,
+    val phone: String?,
+    @SerialName("is_email_verified")
+    val isEmailVerified: Boolean,
 
     @SerialName("is_student")
-    val isStudent: Boolean? = null,
-    val university: String? = null,
-    val school: String? = null,
-    val course: String? = null,
+    val isStudent: Boolean,
+    val university: String?,
+    val school: String?,
+    val course: String?,
 )

@@ -5,8 +5,8 @@ create or replace function auth.insert_user(
     _lastname text,
     _password text default null,
     _image bytea default null,
-    _is_email_verified boolean default false,
     _phone text default null,
+    _is_email_verified boolean default false,
     _university text default null,
     _school text default null,
     _course text default null

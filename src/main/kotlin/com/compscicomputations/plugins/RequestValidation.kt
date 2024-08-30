@@ -28,21 +28,21 @@ internal fun Application.configureRequestValidation() {
         }
         validate<UpdateUser> { userInfo ->
             when {
-                !userInfo.email.isEmailValid() ->
-                    ValidationResult.Invalid("Email is not valid.")
-                userInfo.names.isNullOrBlank() ->
+                userInfo.id.isBlank() ->
+                    ValidationResult.Invalid("User id should not be empty.")
+                userInfo.names.isBlank() ->
                     ValidationResult.Invalid("Names should not be empty.")
-                userInfo.lastname.isNullOrBlank() ->
+                userInfo.lastname.isBlank() ->
                     ValidationResult.Invalid("Lastname should not be empty.")
-                userInfo.password != null && userInfo.password.length < 6 ->
-                    ValidationResult.Invalid("Password is too short.")
+//                userInfo.password != null && userInfo.password.length < 6 ->
+//                    ValidationResult.Invalid("Password is too short.")
                 userInfo.phone != null && !userInfo.phone.isPhoneValid() ->
                     ValidationResult.Invalid("Phone number is not valid.")
-                userInfo.isStudent == true && userInfo.university.isNullOrBlank() ->
+                userInfo.isStudent && userInfo.university.isNullOrBlank() ->
                     ValidationResult.Invalid("University name is required for students.")
-                userInfo.isStudent == true && userInfo.course.isNullOrBlank() ->
+                userInfo.isStudent && userInfo.course.isNullOrBlank() ->
                     ValidationResult.Invalid("Course name is required for students.")
-                userInfo.isStudent == true && userInfo.school.isNullOrBlank() ->
+                userInfo.isStudent && userInfo.school.isNullOrBlank() ->
                     ValidationResult.Invalid("School name is required for students.")
                 else -> ValidationResult.Valid
             }

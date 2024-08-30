@@ -5,6 +5,7 @@ import com.compscicomputations.services._contrast.AuthServiceContrast
 import com.compscicomputations.services.auth.models.OTP
 import com.compscicomputations.services.auth.models.requests.NewPassword
 import com.compscicomputations.services.auth.models.requests.NewUser
+import com.compscicomputations.services.auth.models.requests.UpdateUser
 import com.compscicomputations.services.auth.models.response.User
 import com.compscicomputations.utils.*
 import com.compscicomputations.utils.Image.Companion.asImage
@@ -139,6 +140,21 @@ internal class AuthService : AuthServiceContrast {
     override suspend fun deleteUser(email: String): Unit = dbQuery(conn) {
         update("delete from auth.users where email like ?") {
             setString(1, email)
+        }
+    }
+
+    override suspend fun updateUser(user: UpdateUser): User = dbQuery(conn) {
+        querySingle("select * from auth.update_user(?::uuid, ?, ?, ?, ?, ?, ?, ?, ?, ?)", { getUser() }) {
+            setString(1, user.id)
+            setString(2, user.names)
+            setString(3, user.lastname)
+            setBytes(4, user.image?.bytes)
+            setString(5, user.phone)
+            setBoolean(6, user.isEmailVerified)
+            setBoolean(7, user.isStudent)
+            setString(8, user.university)
+            setString(9, user.school)
+            setString(10, user.course)
         }
     }
 

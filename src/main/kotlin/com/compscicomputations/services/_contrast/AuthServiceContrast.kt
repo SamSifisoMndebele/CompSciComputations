@@ -83,16 +83,15 @@ interface AuthServiceContrast {
 //     */
 //    suspend fun readAdminUser(email: String, password: String, adminPin: String): User
 /*
-    *//**
+    */
+    /**
      * Updates the user information on the database.
-     * @param id the user unique identifier.
-     * @param updateUser [UpdateUser] the user information to be updated,
-     * if a field value is null it remains unchanged.
-     * @return [User] the database user information.
-     *//*
-    suspend fun updateUser(id: String, user: UpdateUser): User
+     * @param user [UpdateUser] the updated user information.
+     * @return [User] the database new user information.
+     */
+    suspend fun updateUser(user: UpdateUser): User
 
-    *//**
+    /**
      * Create a admin user verification code.
      * @param adminPin [NewAdminPin]
      *//*

@@ -5,6 +5,7 @@ import com.compscicomputations.plugins.Users
 import com.compscicomputations.plugins.authenticateUser
 import com.compscicomputations.services.auth.models.requests.NewPassword
 import com.compscicomputations.services.auth.models.requests.NewUser
+import com.compscicomputations.services.auth.models.requests.UpdateUser
 import com.compscicomputations.services.auth.models.response.User
 import com.compscicomputations.utils.EMAIL_VERIFICATION_EMAIL
 import com.compscicomputations.utils.RESET_PASSWORD_EMAIL
@@ -15,6 +16,9 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.resources.*
 import io.ktor.server.resources.post
+import io.ktor.server.resources.put
+import io.ktor.server.resources.get
+import io.ktor.server.resources.delete
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import org.koin.ktor.ext.inject
@@ -28,6 +32,17 @@ fun Routing.authRouting() {
             val userInfo = call.receive<NewUser>()
             val user = authService.registerUser(userInfo)
             call.respond(HttpStatusCode.Created, user)
+        } catch (e: Exception) {
+            call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
+        }
+    }
+
+    // Update a user
+    put<Users.Me> {
+        try {
+            val userInfo = call.receive<UpdateUser>()
+            val user = authService.updateUser(userInfo)
+            call.respond(HttpStatusCode.OK, user)
         } catch (e: Exception) {
             call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
         }
