@@ -9,9 +9,12 @@ data class User(
     val lastname: String,
     val imageBitmap: Bitmap?,
     val phone: String?,
+    val isEmailVerified: Boolean,
     val isAdmin: Boolean,
     val isStudent: Boolean,
-    val isEmailVerified: Boolean,
+    val university: String?,
+    val school: String?,
+    val course: String?,
 ) {
     val displayName: String
         get() = "$names $lastname".trim()

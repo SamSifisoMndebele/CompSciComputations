@@ -5,10 +5,12 @@ import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.dataStore
 import com.compscicomputations.client.auth.data.model.AuthCredentials
+import com.compscicomputations.client.auth.data.model.Student
 import com.compscicomputations.client.auth.data.model.local.UserSerializer.asUser
 import com.compscicomputations.client.auth.data.model.User
 import com.compscicomputations.client.auth.data.model.local.LocalUser
 import com.compscicomputations.client.auth.data.model.local.UserSerializer
+import com.compscicomputations.client.auth.data.model.remote.UpdateUser
 import com.compscicomputations.client.utils.asByteString
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
@@ -51,12 +53,29 @@ class UserDataStore @Inject constructor(
                 .setEmail(user.email)
                 .setNames(user.names)
                 .setLastname(user.lastname)
+                .setLastname(user.phone ?: "")
+                .setIsEmailVerified(user.isEmailVerified)
                 .setIsAdmin(user.isAdmin)
                 .setIsStudent(user.isStudent)
-                .setIsEmailVerified(user.isEmailVerified)
+                .setUniversity(user.university ?: "")
+                .setSchool(user.school ?: "")
+                .setCourse(user.course ?: "")
             user.imageBitmap?.let { builder.setImageBytes(it.asByteString) }
-            user.phone?.let { builder.setPhone(it) }
+            builder.build()
+        }
+    }
 
+    internal suspend fun updateUser(user: UpdateUser) {
+        context.userDataStore.updateData { currentUser ->
+            val builder = currentUser.toBuilder()
+                .setNames(user.names)
+                .setLastname(user.lastname)
+                .setLastname(user.phone ?: "")
+                .setIsStudent(user.isStudent)
+                .setUniversity(user.university ?: "")
+                .setSchool(user.school ?: "")
+                .setCourse(user.course ?: "")
+            user.image?.bytes?.let { builder.setImageBytes(it.asByteString) }
             builder.build()
         }
     }

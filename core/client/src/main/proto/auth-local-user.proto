@@ -12,14 +12,10 @@ message LocalUser {
   string lastname = 6;
   bytes imageBytes = 7;
   string phone = 8;
-  bool isAdmin = 9;
-  bool isStudent = 10;
-  bool isEmailVerified = 11;
-}
-
-message LocalStudent {
-  string id = 1;
-  string university = 2;
-  string school = 3;
-  string course = 4;
+  bool isEmailVerified = 9;
+  bool isAdmin = 10;
+  bool isStudent = 11;
+  string university = 12;
+  string school = 13;
+  string course = 14;
 }

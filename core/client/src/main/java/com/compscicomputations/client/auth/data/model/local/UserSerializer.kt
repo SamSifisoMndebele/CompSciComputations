@@ -32,5 +32,8 @@ internal object UserSerializer : Serializer<LocalUser> {
             isAdmin = isAdmin,
             isStudent = isStudent,
             isEmailVerified = isEmailVerified,
+            university = university,
+            school = school,
+            course = course
         )
 }

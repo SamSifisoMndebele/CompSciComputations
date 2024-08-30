@@ -71,20 +71,21 @@ class DashboardViewModel @Inject constructor(
                     Log.w("DashboardViewModel", e)
                     _uiState.value = _uiState.value.copy(progressState = ProgressState.Idle)
                 }
-                .firstOrNull()
-                ?.let { user ->
-                    _uiState.value = _uiState.value.copy(
-                        email = user.email,
-                        isAdmin = user.isAdmin,
-                        isStudent = user.isStudent,
-                        imageBitmap = user.imageBitmap,
-                        displayName = user.displayName,
-                        progressState = ProgressState.Idle
-                    )
+                .collect {
+                    it?.let { user ->
+                        _uiState.value = _uiState.value.copy(
+                            email = user.email,
+                            isAdmin = user.isAdmin,
+                            isStudent = user.isStudent,
+                            imageBitmap = user.imageBitmap,
+                            displayName = user.displayName,
+                            progressState = ProgressState.Idle
+                        )
+                    } ?: let {
+                        _uiState.value = _uiState.value.copy(progressState = ProgressState.Error("No user signed."))
+                    }
                 }
-                ?: let {
-                    _uiState.value = _uiState.value.copy(progressState = ProgressState.Error("No user signed."))
-                }
+
         }
         val installedFeatures = features.toMutableSet()
         installedFeatures.retainAll { splitInstallManager.installedModules.contains(it.module) }

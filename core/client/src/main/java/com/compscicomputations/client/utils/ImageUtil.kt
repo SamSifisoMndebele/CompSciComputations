@@ -21,10 +21,16 @@ inline val Bitmap.asByteArray: ByteArray
     }
 
 /**
+ * Converts byte array to byte string
+ */
+inline val ByteArray.asByteString: ByteString
+    get() = ByteString.copyFrom(this)
+
+/**
  * Converts bitmap to byte string
  */
 inline val Bitmap.asByteString: ByteString
-    get() = ByteString.copyFrom(asByteArray)
+    get() = asByteArray.asByteString
 
 /**
  * Converts byte array to bitmap

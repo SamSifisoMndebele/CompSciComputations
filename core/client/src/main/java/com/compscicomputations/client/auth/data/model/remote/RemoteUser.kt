@@ -32,5 +32,8 @@ internal data class RemoteUser(
             isAdmin = isAdmin,
             isStudent = isStudent,
             isEmailVerified = isEmailVerified,
+            university = null,
+            school = null,
+            course = null,
         )
 }

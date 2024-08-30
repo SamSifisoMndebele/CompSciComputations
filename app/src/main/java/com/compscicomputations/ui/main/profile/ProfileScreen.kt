@@ -130,7 +130,7 @@ fun ProfileScreen(
         AlertDialog(
             icon = { Icon(Icons.Outlined.Warning, contentDescription = "Alert Icon") },
             title = { Text(text = "Save changes!", fontFamily = comicNeueFamily) },
-            text = { Text(text = "Your changes are not saved. You will lose all your changes.\nSave before exit?", fontFamily = comicNeueFamily) },
+            text = { Text(text = "Save your changed information before exit?", fontFamily = comicNeueFamily) },
             onDismissRequest = { navigateUpAlertDialog = false },
             confirmButton = {
                 TextButton(onClick = { navigateUpAlertDialog = false; viewModel.save { navigateUp() } }) {

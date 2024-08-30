@@ -27,6 +27,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
@@ -39,7 +40,6 @@ class ProfileViewModel @Inject constructor(
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(ProfileUiState())
     private val _userState = MutableStateFlow<User?>(null)
-    private val _studentState = MutableStateFlow<Student?>(null)
     private val _progressState = MutableStateFlow<ProgressState>(ProgressState.Idle)
     val uiState = _uiState.asStateFlow()
     val userState = _userState.asStateFlow()
@@ -52,10 +52,10 @@ class ProfileViewModel @Inject constructor(
                 _uiState.value.lastname == _userState.value?.lastname &&
                 _uiState.value.phone == _userState.value?.phone &&
 
-                _uiState.value.isStudent == (_studentState.value != null) &&
-                _uiState.value.university == _studentState.value?.university &&
-                _uiState.value.school == _studentState.value?.school &&
-                _uiState.value.course == _studentState.value?.course
+                _uiState.value.isStudent == _userState.value?.isStudent &&
+                _uiState.value.university == _userState.value?.university &&
+                _uiState.value.school == _userState.value?.school &&
+                _uiState.value.course == _userState.value?.course
 
     init {
         viewModelScope.launch(ioDispatcher) {
@@ -65,45 +65,32 @@ class ProfileViewModel @Inject constructor(
                     Log.w("DashboardViewModel", e)
                     _progressState.value = ProgressState.Error(e.localizedMessage)
                 }
-                .firstOrNull()
-                ?.let { user ->
-                    _userState.value = user
-                    updateProfile(user)
+                .collect {
+                    it?.let { user ->
+                        _userState.value = user
+                        updateProfile(user)
 
-                    if (user.isStudent) {
-                        val student = Student(
-                            id = user.id,
-                            university = "university",
-                            course = "course",
-                            school = "school",
-                        )
-                        _studentState.value = student
-                        _uiState.value = _uiState.value.copy(
-                            university = student.university,
-                            course = student.course,
-                            school = student.school,
-                        )
+                        isNotChanged = true
+                    } ?: let {
+                        _uiState.value = _uiState.value.copy(isSignedIn = false)
+                        _progressState.value = ProgressState.Idle
                     }
-                    isNotChanged = true
                 }
-                ?: let {
-                    _uiState.value = _uiState.value.copy(isSignedIn = false)
-                    _progressState.value = ProgressState.Idle
-                }
+
         }
     }
 
-    private fun updateProfile(user: User, student: Student? = null) {
+    private fun updateProfile(user: User) {
         _uiState.value = _uiState.value.copy(
             id = user.id,
             names = user.names,
             lastname = user.lastname,
             phone = user.phone,
-            isStudent = user.isStudent,
 
-            university = student?.university ?: "",
-            course = student?.course ?: "",
-            school = student?.school ?: "",
+            isStudent = user.isStudent,
+            university = user.university ?: "",
+            course = user.course ?: "",
+            school = user.school ?: "",
 
             isSignedIn = true,
         )
@@ -133,7 +120,7 @@ class ProfileViewModel @Inject constructor(
 //    }
 
     fun logout() {
-        viewModelScope.launch {
+        job = viewModelScope.launch {
             try {
                 authRepository.logout()
                 _uiState.value = _uiState.value.copy(isSignedIn = false)
@@ -172,13 +159,25 @@ class ProfileViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(isStudent = isStudent)
     }
 
+    private var job: Job? = null
+    @OptIn(InternalCoroutinesApi::class)
+    fun cancelJob(handler: () -> Unit = {}) {
+        job?.cancel()
+        job?.invokeOnCompletion(true) {
+            job = null
+            handler()
+            setProgressState(ProgressState.Idle)
+        }
+    }
+
+    @OptIn(InternalCoroutinesApi::class)
     fun save(
         actionContext: CoroutineContext = Dispatchers.Main,
-        action: (suspend () -> Unit)? = null
+        action: (() -> Unit)? = null
     ) {
         if (!fieldsAreValid()) return
         _progressState.value = ProgressState.Loading("Saving...")
-        viewModelScope.launch(ioDispatcher) {
+        job = viewModelScope.launch(ioDispatcher) {
             authRepository.updateUser(
                 id = _uiState.value.id,
                 UpdateUser(
@@ -198,19 +197,14 @@ class ProfileViewModel @Inject constructor(
                             "${(bytesSent/1024.0).roundToInt()}kB/${(totalBytes/1024.0).roundToInt()}kB")
                 }
             }
+            _uiState.value = _uiState.value.copy(
+                imageUri = null
+            )
             _progressState.value = ProgressState.Idle
             if (action != null) { withContext(actionContext) { action() } }
         }
-    }
-
-    private var job: Job? = null
-    @OptIn(InternalCoroutinesApi::class)
-    fun cancelJob(handler: () -> Unit = {}) {
-        job?.cancel()
-        job?.invokeOnCompletion(true) {
-            job = null
-            handler()
-            setProgressState(ProgressState.Idle)
+        if (action != null) viewModelScope.launch(actionContext) {
+            job?.invokeOnCompletion(onCancelling = true) { action() }
         }
     }
 

@@ -12,7 +12,7 @@ data class UpdateUser(
     val phone: String? = null,
 
     @SerialName("is_student")
-    val isStudent: Boolean? = null,
+    val isStudent: Boolean = false,
     val university: String? = null,
     val school: String? = null,
     val course: String? = null,
