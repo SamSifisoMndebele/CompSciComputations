@@ -26,6 +26,8 @@ data class User(
     val course: String?,
     @SerialName("is_admin")
     val isAdmin: Boolean,
+    @SerialName("is_super_admin")
+    val isSuperAdmin: Boolean,
 //    @SerialName("admin_since")
 //    val admin_since: String?,
 //    @SerialName("admin_assigned_by")

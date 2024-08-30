@@ -31,8 +31,9 @@ begin
 
 exception
     when foreign_key_violation then
-        raise exception 'User with email: % does not exist.', _email
-            using hint = 'Register a new account.';
+        raise exception foreign_key_violation
+        using message = 'User with email: ' || _email || ' does not exists',
+            hint = 'Register a new account.';
 end
 $code$;
 

@@ -51,6 +51,7 @@ internal class AuthService : AuthServiceContrast {
             school = getString("school"),
             course = getString("course"),
             isAdmin = getBoolean("is_admin"),
+            isSuperAdmin = getBoolean("is_super_admin")
 
         )
     }
@@ -69,7 +70,7 @@ internal class AuthService : AuthServiceContrast {
         val googleToken = googleVerifier.authenticate(idTokenString)
             ?: throw InvalidCredentialsException("Invalid google token.")
 
-        querySingleOrNull("select * from auth.get_user_by_email(?)", { getUser() }) {
+        querySingleOrNull("select * from auth.select_user(_email := ?)", { getUser() }) {
             setString(1, googleToken.email)
         } ?: let {
             logger.warn("Goggle user does not exists, creating user...")

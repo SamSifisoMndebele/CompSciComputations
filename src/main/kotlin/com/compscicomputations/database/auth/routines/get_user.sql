@@ -10,7 +10,7 @@ $code$
 declare _user auth.user_row;
 begin
     select * into strict _user
-    from auth.get_user_by_email(_email);
+    from auth.select_user(_email := _email);
 
     if _user.password is null then
         raise exception 'Your email: %, do not have a password!', _email
@@ -23,10 +23,9 @@ begin
 
 exception
     when no_data_found then
-        raise exception 'Your email: % does not exists as a user!', _email
-        using hint = 'Register a new account.',
-            errcode = 'no_data_found';
-
+        raise exception no_data_found
+        using message = 'User with email: ' || _email || ' does not exists',
+            hint = 'Register a new account.';
 end
 $code$;
 
@@ -56,13 +55,14 @@ begin
            created_at,
            updated_at,
            is_email_verified,
-           s.id notnull as is_student,
+           s.id notnull,
            university,
            school,
            course,
-           a.id notnull as is_admin,
+           a.id notnull,
+           is_super,
            admin_since,
-           assigned_by as admin_assigned_by
+           assigned_by
     into strict _user
     from auth.users
     natural left join auth.students s

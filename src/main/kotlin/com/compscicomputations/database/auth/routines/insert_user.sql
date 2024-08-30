@@ -33,13 +33,14 @@ begin
     end if;
 
     select * into strict _user
-    from auth.get_user_by_email(_email);
+    from auth.select_user(_email := _email);
     return _user;
 
 exception
     when unique_violation then
-        raise exception 'User with email: % already exists', _email
-        using hint = 'Login to your account or reset your forgotten password.';
+        raise exception unique_violation
+        using message = 'User with email: ' || _email || ' already exists',
+            hint = 'Login to your account or reset your forgotten password.';
 
 end
 $code$;
