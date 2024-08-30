@@ -17,7 +17,7 @@ internal class GoogleVerifier {
     private val transport = ApacheHttpTransport()
     private val jsonFactory = GsonFactory.getDefaultInstance()
     private val verifier = GoogleIdTokenVerifier.Builder(transport, jsonFactory)
-        .setAudience(listOf(System.getenv("GOOGLE_CLIENT_ID")))
+        .setAudience(System.getenv("GOOGLE_CLIENT_IDS").split(","))
         .build()
 
     internal fun authenticate(idTokenString: String): GoogleToken? {

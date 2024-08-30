@@ -36,6 +36,7 @@ data class Image(
     }
 
     companion object {
-        inline val ByteArray.asImage: Image get() = Image(this)
+        inline val ByteArray?.asImage: Image?
+            get() = if(this == null || this.isEmpty()) null else Image(this)
     }
 }
