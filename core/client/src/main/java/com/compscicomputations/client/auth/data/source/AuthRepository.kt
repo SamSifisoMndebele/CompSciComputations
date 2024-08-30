@@ -2,6 +2,7 @@ package com.compscicomputations.client.auth.data.source
 
 import android.content.Context
 import android.util.Log
+import com.compscicomputations.client.auth.data.model.AuthCredentials
 import com.compscicomputations.client.auth.data.source.local.UserDataStore
 import com.compscicomputations.client.auth.data.source.remote.AuthDataSource
 import com.compscicomputations.client.auth.data.source.remote.AuthDataSource.Companion.ExpectationFailedException
@@ -9,9 +10,11 @@ import com.compscicomputations.client.auth.data.source.remote.AuthDataSource.Com
 import com.compscicomputations.client.auth.data.model.remote.NewUser
 import com.compscicomputations.client.auth.data.model.User
 import com.compscicomputations.client.auth.data.model.remote.NewPassword
+import com.compscicomputations.client.auth.data.model.remote.UpdateUser
 import com.compscicomputations.client.utils.Image
 import com.compscicomputations.client.utils.asBitmap
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.retry
@@ -32,8 +35,8 @@ class AuthRepository @Inject constructor(
      * @throws ExpectationFailedException if the was server side error.
      */
     suspend fun login(email: String, password: String) {
-        localDataStore.savePasswordCredentials(email, password)
-        remoteDataSource.getRemoteUser {_,_->} .let { user ->
+        remoteDataSource.getRemoteUser(AuthCredentials(email, password, null)) { _, _->} .let { user ->
+            localDataStore.savePasswordCredentials(email, password)
             localDataStore.saveUser(user.asUser)
         }
     }
@@ -45,8 +48,8 @@ class AuthRepository @Inject constructor(
      * @throws ExpectationFailedException if the was server side error.
      */
     suspend fun continueWithGoogle(googleIdTokenString: String) {
-        localDataStore.saveGoogleIdToken(googleIdTokenString)
-        remoteDataSource.getRemoteUser {_,_->}.let { user ->
+        remoteDataSource.getRemoteUser(AuthCredentials(null, null, googleIdTokenString)) {_,_->}.let { user ->
+            localDataStore.saveGoogleIdToken(googleIdTokenString)
             localDataStore.saveUser(user.asUser)
         }
     }
@@ -58,7 +61,7 @@ class AuthRepository @Inject constructor(
      * @param names user full names
      * @param lastname user last names
      * @param imageBytes user profile image bytearray
-     * @param onProgress the image upload progress callback.
+     * @param onProgress the upload progress callback.
      * @throws ExpectationFailedException if the was server side error.
      */
     suspend fun createUser(
@@ -81,6 +84,20 @@ class AuthRepository @Inject constructor(
             localDataStore.saveUser(it.asUser)
             localDataStore.savePasswordCredentials(email, password)
         }
+    }
+
+    /**
+     * Update user information
+     * @param id user unique identifier
+     * @param updateUser updated user information
+     * @param onProgress the upload progress callback.
+     */
+    suspend fun updateUser(
+        id: String,
+        updateUser: UpdateUser,
+        onProgress: (bytesSent: Long, totalBytes: Long) -> Unit
+    ) {
+        delay(4000)
     }
 
     suspend fun requestOtp(email: String) = remoteDataSource.requestOtp(email)
@@ -107,19 +124,19 @@ class AuthRepository @Inject constructor(
     val currentUserFlow: Flow<User?>
         get() = localDataStore.userFlow
 
-    val refreshUserFlow: Flow<User?>
-        get() = flow {
-            remoteDataSource.getRemoteUser { bytesReceived, totalBytes ->
-                Log.d(TAG, "onDownload User Image: Received $bytesReceived bytes from $totalBytes")
-            }.asUser
-                .let { user ->
-                    localDataStore.saveUser(user)
-                    emit(user)
-                }
-        }.retry(2) {
-            Log.w(TAG, "Error fetching user, Retrying.", it)
-            it is ExpectationFailedException
-        }
+//    val refreshUserFlow: Flow<User?>
+//        get() = flow {
+//            remoteDataSource.getRemoteUser { bytesReceived, totalBytes ->
+//                Log.d(TAG, "onDownload User Image: Received $bytesReceived bytes from $totalBytes")
+//            }.asUser
+//                .let { user ->
+//                    localDataStore.saveUser(user)
+//                    emit(user)
+//                }
+//        }.retry(2) {
+//            Log.w(TAG, "Error fetching user, Retrying.", it)
+//            it is ExpectationFailedException
+//        }
 
 
 }

@@ -38,6 +38,8 @@ class LoginViewModel @Inject constructor(
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
+    private val _progressState = MutableStateFlow<ProgressState>(ProgressState.Idle)
+    val progressState: StateFlow<ProgressState> = _progressState.asStateFlow()
     companion object {
         private const val TAG = "LoginViewModel"
     }
@@ -57,26 +59,26 @@ class LoginViewModel @Inject constructor(
     }
 
     fun onProgressStateChange(progressState: ProgressState) {
-        _uiState.value = _uiState.value.copy(progressState = progressState)
+        _progressState.value = progressState
     }
 
     private var loginJob: Job? = null
 
     fun onLogin(savePassword: suspend (email: String, password: String) -> Unit) {
-        _uiState.value = _uiState.value.copy(progressState = ProgressState.Loading("Login..."))
+        _progressState.value = ProgressState.Loading("Login...")
         loginJob = viewModelScope.launch {
             try {
                 authRepository.login(_uiState.value.email, _uiState.value.password)
                 savePassword(_uiState.value.email, _uiState.value.password)
-                _uiState.value = _uiState.value.copy(progressState = ProgressState.Success)
+                _progressState.value = ProgressState.Success
             } catch (e: CreateCredentialException) {
-                _uiState.value = _uiState.value.copy(progressState = ProgressState.Success)
+                _progressState.value = ProgressState.Success
                 Log.w(TAG, "onLogin::CreateCredentialException", e)
             } catch (e: CancellationException) {
-                _uiState.value = _uiState.value.copy(progressState = ProgressState.Idle)
+                _progressState.value = ProgressState.Idle
                 Log.w(TAG, "onLogin::CancellationException", e)
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(progressState = ProgressState.Error(e.localizedMessage))
+                _progressState.value = ProgressState.Error(e.localizedMessage)
                 Log.e(TAG, "onLogin::Exception", e)
             }
         }
@@ -85,7 +87,7 @@ class LoginViewModel @Inject constructor(
     fun onContinueWithGoogle(
         getCredential: suspend (GetCredentialRequest) -> GetCredentialResponse
     ) {
-        _uiState.value = _uiState.value.copy(progressState = ProgressState.Loading("Login with Google..."))
+        _progressState.value = ProgressState.Loading("Login with Google...")
 
         loginJob = viewModelScope.launch(ioDispatcher) {
             try {
@@ -95,12 +97,12 @@ class LoginViewModel @Inject constructor(
                         Log.d(TAG, "PasswordCredential: ${credential.data}")
                         try {
                             authRepository.login(credential.id, credential.password)
-                            _uiState.value = _uiState.value.copy(progressState = ProgressState.Success)
+                            _progressState.value = ProgressState.Success
                         } catch (e: UnauthorizedException) {
-                            _uiState.value = _uiState.value.copy(progressState = ProgressState.Error(e.localizedMessage))
+                            _progressState.value = ProgressState.Error(e.localizedMessage)
                             Log.e(TAG, "PasswordCredential::UnauthorizedException", e)
                         } catch (e: ExpectationFailedException) {
-                            _uiState.value = _uiState.value.copy(progressState = ProgressState.Error(e.localizedMessage))
+                            _progressState.value = ProgressState.Error(e.localizedMessage)
                             Log.e(TAG, "PasswordCredential::ExpectationFailedException", e)
                         }
                     }
@@ -112,14 +114,14 @@ class LoginViewModel @Inject constructor(
 
                         try {
                             authRepository.continueWithGoogle(googleIdTokenCredential.idToken)
-                            _uiState.value = _uiState.value.copy(progressState = ProgressState.Success)
+                            _progressState.value = ProgressState.Success
 
                         } catch (e: UnauthorizedException) {
                             Log.e(TAG, "GoogleIdTokenCredential::UnauthorizedException", e)
-                            _uiState.value = _uiState.value.copy(progressState = ProgressState.Error(e.localizedMessage))
+                            _progressState.value = ProgressState.Error(e.localizedMessage)
                         } catch (e: ExpectationFailedException) {
                             Log.e(TAG, "GoogleIdTokenCredential::ExpectationFailedException", e)
-                            _uiState.value = _uiState.value.copy(progressState = ProgressState.Error(e.localizedMessage))
+                            _progressState.value = ProgressState.Error(e.localizedMessage)
                         }
                     }
                     else -> {
@@ -136,29 +138,29 @@ class LoginViewModel @Inject constructor(
 
     fun cancelLogin() {
         loginJob?.cancel()
-        _uiState.value = _uiState.value.copy(progressState = ProgressState.Idle)
+        _progressState.value = ProgressState.Idle
     }
     private fun handleFailure(e: Exception) {
         when (e) {
             is CancellationException -> {
-                _uiState.value = _uiState.value.copy(progressState = ProgressState.Idle)
+                _progressState.value = ProgressState.Idle
                 Log.w(TAG, e)
             }
             is GetCredentialCancellationException -> {
-                _uiState.value = _uiState.value.copy(progressState = ProgressState.Idle)
+                _progressState.value = ProgressState.Idle
                 Log.w(TAG, e)
             }
             is GetCredentialInterruptedException -> {
                 // Retry-able error. Consider retrying the call.
-                _uiState.value = _uiState.value.copy(progressState = ProgressState.Idle)
+                _progressState.value = ProgressState.Idle
                 Log.w(TAG, e)
             }
             is GetCredentialException -> {
-                _uiState.value = _uiState.value.copy(progressState = ProgressState.Idle)
+                _progressState.value = ProgressState.Idle
                 Log.w(TAG, e)
             }
             else -> {
-                _uiState.value = _uiState.value.copy(progressState = ProgressState.Error(e.localizedMessage))
+                _progressState.value = ProgressState.Error(e.localizedMessage)
                 Log.e(TAG, "UnexpectedException:", e)
             }
         }

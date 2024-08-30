@@ -7,33 +7,30 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.compscicomputations.client.auth.data.model.Student
 import com.compscicomputations.client.auth.data.model.User
+import com.compscicomputations.client.auth.data.model.remote.UpdateUser
 import com.compscicomputations.client.auth.data.source.AuthRepository
 import com.compscicomputations.di.IoDispatcher
-import com.compscicomputations.theme.emailRegex
 import com.compscicomputations.theme.namesRegex
-import com.compscicomputations.theme.strongPasswordRegex
 import com.compscicomputations.ui.utils.ProgressState
-import com.compscicomputations.ui.utils.isSuccess
-import com.compscicomputations.utils.isNotBlankText
+import com.compscicomputations.utils.isBlankText
 import com.compscicomputations.utils.isPhoneValid
-import com.compscicomputations.utils.isText
 import com.compscicomputations.utils.notMatches
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import kotlin.coroutines.CoroutineContext
+import kotlin.math.roundToInt
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
@@ -43,11 +40,13 @@ class ProfileViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(ProfileUiState())
     private val _userState = MutableStateFlow<User?>(null)
     private val _studentState = MutableStateFlow<Student?>(null)
+    private val _progressState = MutableStateFlow<ProgressState>(ProgressState.Idle)
     val uiState = _uiState.asStateFlow()
     val userState = _userState.asStateFlow()
+    val progressState: StateFlow<ProgressState> = _progressState.asStateFlow()
     val snackBarHostState: SnackbarHostState = SnackbarHostState()
 
-    val isNotChanged
+    var isNotChanged = false
         get() = _uiState.value.imageUri == null &&
                 _uiState.value.names == _userState.value?.names &&
                 _uiState.value.lastname == _userState.value?.lastname &&
@@ -64,27 +63,32 @@ class ProfileViewModel @Inject constructor(
                 .flowOn(ioDispatcher)
                 .catch { e ->
                     Log.w("DashboardViewModel", e)
-                    _uiState.value = _uiState.value.copy(progressState = ProgressState.Error(e.localizedMessage))
+                    _progressState.value = ProgressState.Error(e.localizedMessage)
                 }
                 .firstOrNull()
                 ?.let { user ->
-                    updateProfile(user)
                     _userState.value = user
+                    updateProfile(user)
 
                     if (user.isStudent) {
-                        _studentState.value = Student(
+                        val student = Student(
                             id = user.id,
                             university = "university",
                             course = "course",
                             school = "school",
                         )
+                        _studentState.value = student
+                        _uiState.value = _uiState.value.copy(
+                            university = student.university,
+                            course = student.course,
+                            school = student.school,
+                        )
                     }
+                    isNotChanged = true
                 }
                 ?: let {
-                    _uiState.value = _uiState.value.copy(
-                        isSignedIn = false,
-                        progressState = ProgressState.Idle
-                    )
+                    _uiState.value = _uiState.value.copy(isSignedIn = false)
+                    _progressState.value = ProgressState.Idle
                 }
         }
     }
@@ -101,9 +105,9 @@ class ProfileViewModel @Inject constructor(
             course = student?.course ?: "",
             school = student?.school ?: "",
 
-            progressState = ProgressState.Idle,
             isSignedIn = true,
         )
+        _progressState.value = ProgressState.Idle
     }
 
 //    fun onRefresh() {
@@ -134,7 +138,7 @@ class ProfileViewModel @Inject constructor(
                 authRepository.logout()
                 _uiState.value = _uiState.value.copy(isSignedIn = false)
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(progressState = ProgressState.Error(e.localizedMessage))
+                _progressState.value = ProgressState.Error(e.localizedMessage)
             }
         }
     }
@@ -162,19 +166,40 @@ class ProfileViewModel @Inject constructor(
     }
 
     fun setProgressState(progressState: ProgressState) {
-        _uiState.value = _uiState.value.copy(progressState = progressState)
+        _progressState.value = progressState
     }
     fun setIsStudent(isStudent: Boolean) {
         _uiState.value = _uiState.value.copy(isStudent = isStudent)
     }
 
-    fun save() {
+    fun save(
+        actionContext: CoroutineContext = Dispatchers.Main,
+        action: (suspend () -> Unit)? = null
+    ) {
         if (!fieldsAreValid()) return
-        _uiState.value = _uiState.value.copy(progressState = ProgressState.Loading("Saving changes..."))
+        _progressState.value = ProgressState.Loading("Saving...")
         viewModelScope.launch(ioDispatcher) {
-            delay(4000)
-            // TODO: Save changes
-            _uiState.value = _uiState.value.copy(progressState = ProgressState.Idle)
+            authRepository.updateUser(
+                id = _uiState.value.id,
+                UpdateUser(
+                    names = _uiState.value.names,
+                    lastname = _uiState.value.lastname,
+                    phone = _uiState.value.phone,
+                    isStudent = _uiState.value.isStudent,
+                    university = _uiState.value.university,
+                    school = _uiState.value.school,
+                    course = _uiState.value.course,
+                )
+            ) { bytesSent, totalBytes ->
+                if (bytesSent == totalBytes) {
+                    _progressState.value = ProgressState.Loading("Saving...")
+                } else {
+                    _progressState.value = ProgressState.Loading("Uploading image...\n" +
+                            "${(bytesSent/1024.0).roundToInt()}kB/${(totalBytes/1024.0).roundToInt()}kB")
+                }
+            }
+            _progressState.value = ProgressState.Idle
+            if (action != null) { withContext(actionContext) { action() } }
         }
     }
 
@@ -210,15 +235,15 @@ class ProfileViewModel @Inject constructor(
             valid = false
         }
         if (_uiState.value.isStudent) {
-            if (_uiState.value.university.isNotBlankText()) {
+            if (_uiState.value.university.isBlankText()) {
                 _uiState.value = _uiState.value.copy(universityError = "Enter valid university name.")
                 valid = false
             }
-            if (_uiState.value.school.isNotBlankText()) {
+            if (_uiState.value.school.isBlankText()) {
                 _uiState.value = _uiState.value.copy(schoolError = "Enter valid school name.")
                 valid = false
             }
-            if (_uiState.value.course.isNotBlankText()) {
+            if (_uiState.value.course.isBlankText()) {
                 _uiState.value = _uiState.value.copy(courseError = "Enter valid course name.")
                 valid = false
             }

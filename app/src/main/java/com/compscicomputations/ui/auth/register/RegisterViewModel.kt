@@ -73,8 +73,12 @@ class RegisterViewModel @Inject constructor(
                     lastname = _uiState.value.lastname,
                     imageBytes = _uiState.value.imageUri?.let { scaledByteArray(it) }
                 ) { bytesSent, totalBytes ->
-                    _uiState.value = _uiState.value.copy(progressState = ProgressState.Loading("Uploading image..." +
-                            "${(bytesSent/1024.0).roundToInt()}kB/${(totalBytes/1024.0).roundToInt()}kB"))
+                    if (bytesSent == totalBytes) {
+                        _uiState.value = _uiState.value.copy(progressState = ProgressState.Loading("Creating account..."))
+                    } else {
+                        _uiState.value = _uiState.value.copy(progressState = ProgressState.Loading("Uploading image...\n" +
+                                "${(bytesSent/1024.0).roundToInt()}kB/${(totalBytes/1024.0).roundToInt()}kB"))
+                    }
                 }
                 _uiState.value = _uiState.value.copy(progressState = ProgressState.Loading("Done!"))
                 savePassword(_uiState.value.email, _uiState.value.password)

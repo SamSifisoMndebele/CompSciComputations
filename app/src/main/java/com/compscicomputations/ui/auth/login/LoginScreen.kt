@@ -74,8 +74,9 @@ fun LoginScreen(
 ) {
     val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    LaunchedEffect(uiState.progressState) {
-        if (uiState.progressState.isSuccess) {
+    val progressState by viewModel.progressState.collectAsStateWithLifecycle()
+    LaunchedEffect(progressState) {
+        if (progressState.isSuccess) {
             navigateMain()
             Toast.makeText(context, "Logged in successfully!", Toast.LENGTH_SHORT).show()
         }
@@ -88,7 +89,7 @@ fun LoginScreen(
         description = "Login into your account using password or google.",
         navigateUp = null,
         navigateOnboarding = navigateOnboarding,
-        progressState = uiState.progressState,
+        progressState = progressState,
         onLoadingDismiss = { viewModel.cancelLogin() },
         onExceptionDismiss = { viewModel.onProgressStateChange(ProgressState.Idle) }
     ) {

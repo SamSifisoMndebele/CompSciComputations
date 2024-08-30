@@ -1,10 +1,6 @@
 package com.compscicomputations.ui.main.profile
 
-import android.graphics.Bitmap
 import android.net.Uri
-import androidx.compose.material3.SnackbarHostState
-import com.compscicomputations.client.auth.data.model.Student
-import com.compscicomputations.client.auth.data.model.User
 import com.compscicomputations.ui.utils.ProgressState
 import com.compscicomputations.utils.isNotBlankText
 import com.compscicomputations.utils.isPhoneValid
@@ -29,7 +25,6 @@ data class ProfileUiState(
     val schoolError: String? = null,
     val courseError: String? = null,
 
-    val progressState: ProgressState = ProgressState.Idle,
     val isSignedIn: Boolean = true,
 ) {
     val isValid: Boolean

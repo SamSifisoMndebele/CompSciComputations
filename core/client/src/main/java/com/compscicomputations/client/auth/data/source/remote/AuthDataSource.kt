@@ -1,6 +1,7 @@
 package com.compscicomputations.client.auth.data.source.remote
 
 import android.util.Log
+import com.compscicomputations.client.auth.data.model.AuthCredentials
 import com.compscicomputations.client.auth.data.model.remote.NewPassword
 import com.compscicomputations.client.auth.data.model.remote.NewUser
 import com.compscicomputations.client.auth.data.model.remote.RemoteUser
@@ -92,9 +93,9 @@ class AuthDataSource @Inject constructor(
      * @throws ExpectationFailedException if the was server side error.
      */
     internal suspend fun getRemoteUser(
+        authCredentials: AuthCredentials,
         onProgress: (bytesReceived: Long, totalBytes: Long) -> Unit
     ): RemoteUser = ktorRequest {
-        val authCredentials = authCredentialsUseCase()
         val response = client.get(Users.Me()) {
             headers {
                 append(HttpHeaders.Authorization, authCredentials())
@@ -108,7 +109,7 @@ class AuthDataSource @Inject constructor(
             HttpStatusCode.Unauthorized -> throw UnauthorizedException()
             HttpStatusCode.ExpectationFailed -> throw ExpectationFailedException(response.bodyAsText())
             HttpStatusCode.OK -> response.body<RemoteUser>()
-            else -> throw Exception("response.bodyAsText()")
+            else -> throw Exception(response.bodyAsText())
         }
     }
 

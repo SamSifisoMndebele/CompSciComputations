@@ -2,41 +2,27 @@ package com.compscicomputations.ui.main.profile
 
 import android.Manifest
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
-import androidx.compose.material.icons.automirrored.outlined.List
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material.icons.filled.Person2
 import androidx.compose.material.icons.filled.Save
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material.icons.outlined.Edit
-import androidx.compose.material.icons.outlined.EditOff
+import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.BottomAppBarDefaults
@@ -47,12 +33,10 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -72,7 +56,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -81,8 +64,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -94,9 +75,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.compscicomputations.R
 import com.compscicomputations.theme.comicNeueFamily
-import com.compscicomputations.theme.hintAdminPin
 import com.compscicomputations.theme.hintCourse
-import com.compscicomputations.theme.hintEmail
 import com.compscicomputations.theme.hintLastname
 import com.compscicomputations.theme.hintNames
 import com.compscicomputations.theme.hintPhone
@@ -104,15 +83,15 @@ import com.compscicomputations.theme.hintSchool
 import com.compscicomputations.theme.hintUniversity
 import com.compscicomputations.ui.auth.isError
 import com.compscicomputations.ui.auth.showMessage
+import com.compscicomputations.ui.utils.ProgressState
+import com.compscicomputations.ui.utils.isError
 import com.compscicomputations.ui.utils.ui.CompSciScaffold
-import com.compscicomputations.ui.utils.ui.OptionButton
 import com.compscicomputations.ui.utils.isLoading
+import com.compscicomputations.ui.utils.ui.ExceptionDialog
+import com.compscicomputations.ui.utils.ui.LoadingDialog
 import com.compscicomputations.ui.utils.ui.shimmerBackground
 import com.compscicomputations.utils.createImageFile
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.flowOn
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
     viewModel: ProfileViewModel,
@@ -121,8 +100,50 @@ fun ProfileScreen(
 ) {
     val userState by viewModel.userState.collectAsStateWithLifecycle()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val progressState by viewModel.progressState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     var logoutAlertDialog by remember { mutableStateOf(false) }
+    if (logoutAlertDialog) {
+        AlertDialog(
+            icon = { Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = "Alert Icon") },
+            title = { Text(text = "LOGOUT", fontFamily = comicNeueFamily) },
+            text = { Text(text = "Do you want to logout?", fontFamily = comicNeueFamily) },
+            onDismissRequest = { logoutAlertDialog = false },
+            confirmButton = {
+                TextButton(onClick = { viewModel.logout() }) {
+                    Text("Logout", fontFamily = comicNeueFamily)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { logoutAlertDialog = false }) {
+                    Text("Dismiss", fontFamily = comicNeueFamily)
+                }
+            }
+        )
+    }
+    var navigateUpAlertDialog by remember { mutableStateOf(false) }
+    BackHandler {
+        if (viewModel.isNotChanged) navigateUp()
+        else navigateUpAlertDialog = true
+    }
+    if (navigateUpAlertDialog) {
+        AlertDialog(
+            icon = { Icon(Icons.Outlined.Warning, contentDescription = "Alert Icon") },
+            title = { Text(text = "Save changes!", fontFamily = comicNeueFamily) },
+            text = { Text(text = "Your changes are not saved. You will lose all your changes.\nSave before exit?", fontFamily = comicNeueFamily) },
+            onDismissRequest = { navigateUpAlertDialog = false },
+            confirmButton = {
+                TextButton(onClick = { navigateUpAlertDialog = false; viewModel.save { navigateUp() } }) {
+                    Text("Save", fontFamily = comicNeueFamily)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { navigateUpAlertDialog = false; navigateUp() }) {
+                    Text("Discard", fontFamily = comicNeueFamily)
+                }
+            }
+        )
+    }
     LaunchedEffect(uiState.isSignedIn) {
         logoutAlertDialog = false
         if (!uiState.isSignedIn) navigateAuth()
@@ -144,8 +165,10 @@ fun ProfileScreen(
     CompSciScaffold(
         title = "Profile",
         snackBarHost = { SnackbarHost(hostState = viewModel.snackBarHostState) },
-        isRefreshing = uiState.progressState.isLoading,
-        navigateUp = navigateUp,
+        navigateUp = {
+            if (viewModel.isNotChanged) navigateUp()
+            else navigateUpAlertDialog = true
+        },
         bottomBar = {
             BottomAppBar(
                 actions = {
@@ -185,7 +208,15 @@ fun ProfileScreen(
                 floatingActionButton = {
                     if (!viewModel.isNotChanged) {
                         ExtendedFloatingActionButton(
-                            text = { Text(text = "Save") },
+                            text = {
+                                Text(
+                                    text = "Save",
+                                    fontSize = 20.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = comicNeueFamily,
+                                    maxLines = 1
+                                )
+                            },
                             icon = { Icon(imageVector = Icons.Default.Save, contentDescription = "Save") },
                             containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
                             elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
@@ -196,25 +227,6 @@ fun ProfileScreen(
             )
         },
     ) { contentPadding ->
-
-        if (logoutAlertDialog) {
-            AlertDialog(
-                icon = { Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = "Alert Icon") },
-                title = { Text(text = "LOGOUT", fontFamily = comicNeueFamily) },
-                text = { Text(text = "Do you want to logout?", fontFamily = comicNeueFamily) },
-                onDismissRequest = { logoutAlertDialog = false },
-                confirmButton = {
-                    TextButton(onClick = { viewModel.logout() }) {
-                        Text("Logout", fontFamily = comicNeueFamily)
-                    }
-                },
-                dismissButton = {
-                    TextButton(onClick = { logoutAlertDialog = false }) {
-                        Text("Dismiss", fontFamily = comicNeueFamily)
-                    }
-                }
-            )
-        }
 
         var imageExpanded by remember { mutableStateOf(false) }
 
@@ -282,7 +294,7 @@ fun ProfileScreen(
                         contentDescription = "Profile",
                         contentScale = ContentScale.FillBounds,
                         modifier = Modifier
-                            .shimmerBackground(showShimmer = uiState.progressState.isLoading)
+                            .shimmerBackground(showShimmer = progressState.isLoading)
                             .size(180.dp)
                             .padding(8.dp)
                             .clip(RoundedCornerShape(20.dp))
@@ -306,10 +318,6 @@ fun ProfileScreen(
                 ) {
                     Text(
                         modifier = Modifier
-                            .shimmerBackground(
-                                showShimmer = uiState.progressState.isLoading,
-                                RoundedCornerShape(4.dp)
-                            )
                             .widthIn(min = 80.dp),
                         text = when {
                             userState?.isAdmin == true && uiState.isStudent -> "ADMIN | STUDENT"
@@ -325,11 +333,7 @@ fun ProfileScreen(
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         modifier = Modifier
-                            .widthIn(min = 128.dp)
-                            .shimmerBackground(
-                                uiState.progressState.isLoading,
-                                RoundedCornerShape(4.dp)
-                            ),
+                            .widthIn(min = 128.dp),
                         text = uiState.displayName,
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold,
@@ -338,11 +342,7 @@ fun ProfileScreen(
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         modifier = Modifier
-                            .widthIn(min = 180.dp)
-                            .shimmerBackground(
-                                uiState.progressState.isLoading,
-                                RoundedCornerShape(4.dp)
-                            ),
+                            .widthIn(min = 180.dp),
                         text = userState?.email ?: "",
                         fontSize = 18.sp,
                     )
@@ -350,11 +350,7 @@ fun ProfileScreen(
                     uiState.phone?.let {
                         Text(
                             modifier = Modifier
-                                .widthIn(min = 180.dp)
-                                .shimmerBackground(
-                                    uiState.progressState.isLoading,
-                                    RoundedCornerShape(4.dp)
-                                ),
+                                .widthIn(min = 180.dp),
                             text = it,
                             fontSize = 18.sp,
                         )
@@ -386,11 +382,7 @@ fun ProfileScreen(
                         )
                         Text(
                             modifier = Modifier
-                                .weight(.6f)
-                                .shimmerBackground(
-                                    uiState.progressState.isLoading,
-                                    RoundedCornerShape(4.dp)
-                                ),
+                                .weight(.6f),
                             text = uiState.university,
                             fontSize = 18.sp,
                             fontFamily = comicNeueFamily,
@@ -407,11 +399,7 @@ fun ProfileScreen(
                         )
                         Text(
                             modifier = Modifier
-                                .weight(.6f)
-                                .shimmerBackground(
-                                    uiState.progressState.isLoading,
-                                    RoundedCornerShape(4.dp)
-                                ),
+                                .weight(.6f),
                             text = uiState.school,
                             fontSize = 18.sp,
                             fontFamily = comicNeueFamily,
@@ -428,11 +416,7 @@ fun ProfileScreen(
                         )
                         Text(
                             modifier = Modifier
-                                .weight(.6f)
-                                .shimmerBackground(
-                                    uiState.progressState.isLoading,
-                                    RoundedCornerShape(4.dp)
-                                ),
+                                .weight(.6f),
                             text = uiState.course,
                             fontSize = 18.sp,
                             fontFamily = comicNeueFamily,
@@ -603,4 +587,23 @@ fun ProfileScreen(
             }
         }
     }
+
+    LoadingDialog(
+        message = if (progressState is ProgressState.Loading) (progressState as ProgressState.Loading).message else "",
+        visible = progressState.isLoading,
+        onDismiss = {
+            viewModel.setProgressState(ProgressState.Idle)
+        },
+        onCancel = {
+            viewModel.cancelJob()
+        }
+    )
+    ExceptionDialog(
+        message = (if (progressState is ProgressState.Error) (progressState as ProgressState.Error).message else "")
+            ?:"An unexpected error occurred.",
+        visible = progressState.isError,
+        onDismiss = {
+            viewModel.setProgressState(ProgressState.Idle)
+        }
+    )
 }
