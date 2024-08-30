@@ -44,14 +44,19 @@ internal class AuthService : AuthServiceContrast {
             lastname = getString("lastname"),
             image = getBytes("image").asImage,
             phone = getString("phone"),
-            isAdmin = getBoolean("is_admin"),
-            isStudent = getBoolean("is_student"),
+
             isEmailVerified = getBoolean("is_email_verified"),
+            isStudent = getBoolean("is_student"),
+            university = getString("university"),
+            school = getString("school"),
+            course = getString("course"),
+            isAdmin = getBoolean("is_admin"),
+
         )
     }
 
     override suspend fun registerUser(newUser: NewUser): User = dbQuery(conn) {
-        querySingle("select * from auth.insert_user(?,?,?,?, ?)", { getUser() }) {
+        querySingle("select * from auth.insert_user(?, ?, ?, ?, ?)", { getUser() }) {
             setString(1, newUser.email)
             setString(2, newUser.names)
             setString(3, newUser.lastname)
@@ -60,34 +65,11 @@ internal class AuthService : AuthServiceContrast {
         }
     }
 
-    override suspend fun updateUserImage(id: String, multipartData: MultiPartData): Unit = dbQuery(conn) {
-        multipartData.forEachPart { part ->
-            when (part) {
-                is PartData.FileItem -> {
-//                    fileName = part.originalFileName as String
-                    val imageBytes = part.streamProvider().readBytes()
-                    update("update auth.users set image = ? where id = ?::uuid") {
-                        setBytes(1, imageBytes)
-                        setString(2, id)
-                    }
-                }
-//                is PartData.FormItem -> {
-//                    fileDescription = part.value
-//                }
-//                is PartData.BinaryChannelItem -> {}
-//                is PartData.BinaryItem -> {}
-                else -> {}
-            }
-            part.dispose()
-        }
-    }
-
     override suspend fun googleUser(idTokenString: String): User = dbQuery(conn) {
         val googleToken = googleVerifier.authenticate(idTokenString)
             ?: throw InvalidCredentialsException("Invalid google token.")
 
-
-        querySingleOrNull("select * from auth.users where email like ?", { getUser() }) {
+        querySingleOrNull("select * from auth.get_user_by_email(?)", { getUser() }) {
             setString(1, googleToken.email)
         } ?: let {
             logger.warn("Goggle user does not exists, creating user...")

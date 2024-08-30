@@ -5,30 +5,41 @@ create or replace function auth.insert_user(
     _lastname text,
     _password text default null,
     _image bytea default null,
-    _is_email_verified boolean default false
-) returns auth.users
+    _is_email_verified boolean default false,
+    _phone text default null,
+    _university text default null,
+    _school text default null,
+    _course text default null
+) returns auth.user_row
     language plpgsql
 as
 $code$
 declare
-    _user auth.users;
+    _rec record;
+    _user auth.user_row;
 begin
-    insert into auth.users (email, password, names, lastname, image, is_email_verified)
-    values (lower(_email), ext.crypt(_password, ext.gen_salt('md5')), _names, _lastname, _image, _is_email_verified)
-    returning * into strict _user;
+    insert into auth.users (email, password, names, lastname, image, is_email_verified, phone)
+    values (lower(_email), ext.crypt(_password, ext.gen_salt('md5')), _names,
+            _lastname, _image, _is_email_verified, _phone)
+    returning id into strict _rec;
+
+    if _university notnull and _school notnull and _course notnull then
+        insert into auth.students (id, university, school, course)
+        values (_rec.id, _university, _school, _course);
+    end if;
 
     if not _is_email_verified then
         perform auth.create_otp(_email);
     end if;
 
+    select * into strict _user
+    from auth.get_user_by_email(_email);
     return _user;
 
 exception
     when unique_violation then
         raise exception 'User with email: % already exists', _email
         using hint = 'Login to your account or reset your forgotten password.';
-    when foreign_key_violation then
-        raise exception 'User image does not exist on the database';
 
 end
 $code$;

@@ -31,13 +31,6 @@ interface AuthServiceContrast {
     suspend fun registerUser(newUser: NewUser): User
 
     /**
-     * Update user image on database from multipartDara.
-     * @param id the user unique identifier.
-     * @param multipartData MultiPartData containing the image bytes.
-     */
-    suspend fun updateUserImage(id: String, multipartData: MultiPartData)
-
-    /**
      * Validate the Google id token string and, reads the user information from the database.
      * @param idTokenString the user email.
      * @return [User] the database user record.
