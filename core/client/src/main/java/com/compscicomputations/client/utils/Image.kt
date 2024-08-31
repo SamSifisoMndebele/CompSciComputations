@@ -34,4 +34,9 @@ data class Image(
     override fun hashCode(): Int {
         return bytes.contentHashCode()
     }
+
+    companion object {
+        inline val ByteArray?.asImage: Image?
+            get() = if(this == null || this.isEmpty()) null else Image(this)
+    }
 }

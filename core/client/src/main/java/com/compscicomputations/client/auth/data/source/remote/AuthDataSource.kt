@@ -5,6 +5,7 @@ import com.compscicomputations.client.auth.data.model.AuthCredentials
 import com.compscicomputations.client.auth.data.model.remote.NewPassword
 import com.compscicomputations.client.auth.data.model.remote.NewUser
 import com.compscicomputations.client.auth.data.model.remote.RemoteUser
+import com.compscicomputations.client.auth.data.model.remote.UpdateUser
 import com.compscicomputations.client.auth.data.source.local.UserDataStore.Companion.AuthCredentialsUseCase
 import com.compscicomputations.client.utils.Users
 import com.compscicomputations.client.utils.ktorRequest
@@ -14,6 +15,7 @@ import io.ktor.client.plugins.onDownload
 import io.ktor.client.plugins.onUpload
 import io.ktor.client.plugins.resources.get
 import io.ktor.client.plugins.resources.post
+import io.ktor.client.plugins.resources.put
 import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.headers
@@ -60,6 +62,31 @@ class AuthDataSource @Inject constructor(
         when (response.status) {
             HttpStatusCode.ExpectationFailed -> throw ExpectationFailedException(response.bodyAsText())
             HttpStatusCode.Created -> response.body<RemoteUser>()
+            else -> throw Exception(response.bodyAsText())
+        }
+    }
+
+    /**
+     * @param updateUser [UpdateUser] the new user information.
+     * @param onProgress the image upload progress callback.
+     * @return [RemoteUser] the database user record.
+     * @throws ExpectationFailedException if the was server side error.
+     */
+    internal suspend fun updateUser(
+        updateUser: UpdateUser,
+        onProgress: (bytesSent: Long, totalBytes: Long) -> Unit
+    ): RemoteUser = ktorRequest {
+        val response = client.put(Users.Me()) {
+            contentType(ContentType.Application.Json)
+            setBody(updateUser)
+            onUpload { bytesSentTotal, contentLength ->
+                Log.d(TAG, "on upload image: Sent $bytesSentTotal bytes from $contentLength")
+                onProgress(bytesSentTotal, contentLength)
+            }
+        }
+        when (response.status) {
+            HttpStatusCode.ExpectationFailed -> throw ExpectationFailedException(response.bodyAsText())
+            HttpStatusCode.OK -> response.body<RemoteUser>()
             else -> throw Exception(response.bodyAsText())
         }
     }

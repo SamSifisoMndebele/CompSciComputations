@@ -3,7 +3,6 @@ package com.compscicomputations.client.auth.data.source
 import android.content.Context
 import android.util.Log
 import com.compscicomputations.client.auth.data.model.AuthCredentials
-import com.compscicomputations.client.auth.data.model.Student
 import com.compscicomputations.client.auth.data.source.local.UserDataStore
 import com.compscicomputations.client.auth.data.source.remote.AuthDataSource
 import com.compscicomputations.client.auth.data.source.remote.AuthDataSource.Companion.ExpectationFailedException
@@ -94,21 +93,13 @@ class AuthRepository @Inject constructor(
      * @param onProgress the upload progress callback.
      */
     suspend fun updateUser(
-        id: String,
         updateUser: UpdateUser,
         onProgress: (bytesSent: Long, totalBytes: Long) -> Unit
     ) {
-        if (updateUser.isStudent) {
-            val student = Student(
-                id = id,
-                university = "university",
-                course = "course",
-                school = "school",
-            )
-            //Todo: Save student
-        }
-        //Todo: Save user
-        localDataStore.updateUser(updateUser)
+        remoteDataSource.updateUser(updateUser, onProgress)
+            .let { user ->
+                localDataStore.saveUser(user.asUser)
+            }
     }
 
     suspend fun requestOtp(email: String) = remoteDataSource.requestOtp(email)

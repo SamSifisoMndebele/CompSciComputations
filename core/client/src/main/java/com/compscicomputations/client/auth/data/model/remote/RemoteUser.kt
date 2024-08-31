@@ -14,12 +14,25 @@ internal data class RemoteUser(
     val lastname: String,
     val image: Image?,
     val phone: String?,
-    @SerialName("is_admin")
-    val isAdmin: Boolean,
-    @SerialName("is_student")
-    val isStudent: Boolean,
+//    @SerialName("created_at")
+//    val created_at: String,
+//    @SerialName("updated_at")
+//    val updated_at: String?,
     @SerialName("is_email_verified")
     val isEmailVerified: Boolean,
+    @SerialName("is_student")
+    val isStudent: Boolean,
+    val university: String?,
+    val school: String?,
+    val course: String?,
+    @SerialName("is_admin")
+    val isAdmin: Boolean,
+    @SerialName("is_super_admin")
+    val isSuperAdmin: Boolean,
+//    @SerialName("admin_since")
+//    val admin_since: String?,
+//    @SerialName("admin_assigned_by")
+//    val admin_assigned_by: String?,
 ) {
     val asUser: User
         get() = User(
@@ -32,8 +45,8 @@ internal data class RemoteUser(
             isAdmin = isAdmin,
             isStudent = isStudent,
             isEmailVerified = isEmailVerified,
-            university = null,
-            school = null,
-            course = null,
+            university = university,
+            school = school,
+            course = course,
         )
 }

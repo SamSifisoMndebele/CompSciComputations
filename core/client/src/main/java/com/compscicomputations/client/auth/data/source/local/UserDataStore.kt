@@ -5,7 +5,6 @@ import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.dataStore
 import com.compscicomputations.client.auth.data.model.AuthCredentials
-import com.compscicomputations.client.auth.data.model.Student
 import com.compscicomputations.client.auth.data.model.local.UserSerializer.asUser
 import com.compscicomputations.client.auth.data.model.User
 import com.compscicomputations.client.auth.data.model.local.LocalUser
@@ -61,21 +60,6 @@ class UserDataStore @Inject constructor(
                 .setSchool(user.school ?: "")
                 .setCourse(user.course ?: "")
             user.imageBitmap?.let { builder.setImageBytes(it.asByteString) }
-            builder.build()
-        }
-    }
-
-    internal suspend fun updateUser(user: UpdateUser) {
-        context.userDataStore.updateData { currentUser ->
-            val builder = currentUser.toBuilder()
-                .setNames(user.names)
-                .setLastname(user.lastname)
-                .setPhone(user.phone ?: "")
-                .setIsStudent(user.isStudent)
-                .setUniversity(user.university ?: "")
-                .setSchool(user.school ?: "")
-                .setCourse(user.course ?: "")
-            user.image?.bytes?.let { builder.setImageBytes(it.asByteString) }
             builder.build()
         }
     }

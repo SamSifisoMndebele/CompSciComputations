@@ -5,10 +5,13 @@ import android.util.Log
 import androidx.compose.material3.SnackbarHostState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.compscicomputations.client.auth.data.model.Student
 import com.compscicomputations.client.auth.data.model.User
 import com.compscicomputations.client.auth.data.model.remote.UpdateUser
 import com.compscicomputations.client.auth.data.source.AuthRepository
+import com.compscicomputations.client.utils.Image.Companion.asImage
+import com.compscicomputations.client.utils.ScaledByteArrayUseCase
+import com.compscicomputations.client.utils.asBitmap
+import com.compscicomputations.client.utils.asByteArray
 import com.compscicomputations.di.IoDispatcher
 import com.compscicomputations.theme.namesRegex
 import com.compscicomputations.ui.utils.ProgressState
@@ -37,6 +40,7 @@ import kotlin.math.roundToInt
 class ProfileViewModel @Inject constructor(
     private val authRepository: AuthRepository,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+    private val scaledByteArray: ScaledByteArrayUseCase,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(ProfileUiState())
     private val _userState = MutableStateFlow<User?>(null)
@@ -179,12 +183,15 @@ class ProfileViewModel @Inject constructor(
         _progressState.value = ProgressState.Loading("Saving...")
         job = viewModelScope.launch(ioDispatcher) {
             authRepository.updateUser(
-                id = _uiState.value.id,
                 UpdateUser(
+                    id = _uiState.value.id,
                     names = _uiState.value.names,
                     lastname = _uiState.value.lastname,
+                    image = _uiState.value.imageUri?.let { scaledByteArray(it).asImage } ?:
+                    _userState.value?.imageBitmap?.asByteArray.asImage,
                     phone = _uiState.value.phone,
                     isStudent = _uiState.value.isStudent,
+                    isEmailVerified = _userState.value?.isEmailVerified ?: false,
                     university = _uiState.value.university,
                     school = _uiState.value.school,
                     course = _uiState.value.course,
