@@ -58,12 +58,13 @@ internal class AuthService : AuthServiceContrast {
     }
 
     override suspend fun registerUser(newUser: NewUser): User = dbQuery(conn) {
-        querySingle("select * from auth.insert_user(?, ?, ?, ?, ?)", { getUser() }) {
+        querySingle("select * from auth.insert_user(?, ?, ?, ?, ?, ?)", { getUser() }) {
             setString(1, newUser.email)
-            setString(2, newUser.names)
-            setString(3, newUser.lastname)
-            setString(4, newUser.password)
-            setBytes(5, newUser.image?.bytes)
+            setString(1, newUser.otp)
+            setString(3, newUser.names)
+            setString(4, newUser.lastname)
+            setString(5, newUser.password)
+            setBytes(6, newUser.image?.bytes)
         }
     }
 

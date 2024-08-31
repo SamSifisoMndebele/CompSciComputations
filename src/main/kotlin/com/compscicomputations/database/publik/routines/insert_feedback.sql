@@ -4,7 +4,7 @@ create or replace procedure public.insert_feedback(
     _message text,
     _suggestion text default '',
     _image bytea default null,
-    _user_email uuid default null
+    _user_email text default null
 )
     language plpgsql
 as

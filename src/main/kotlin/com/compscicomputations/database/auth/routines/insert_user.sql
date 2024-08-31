@@ -1,6 +1,7 @@
 drop function if exists auth.insert_user;
 create or replace function auth.insert_user(
     _email text,
+    _otp text,
     _names text,
     _lastname text,
     _password text default null,
@@ -18,6 +19,8 @@ declare
     _rec record;
     _user auth.user_row;
 begin
+    call auth.validate_otp(_email, _otp);
+
     insert into auth.users (email, password, names, lastname, image, is_email_verified, phone)
     values (lower(_email), ext.crypt(_password, ext.gen_salt('md5')), _names,
             _lastname, _image, _is_email_verified, _phone)
