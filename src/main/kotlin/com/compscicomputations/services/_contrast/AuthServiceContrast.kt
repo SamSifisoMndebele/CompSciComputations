@@ -1,8 +1,8 @@
 package com.compscicomputations.services._contrast
 
 import com.compscicomputations.services.auth.models.OTP
-import com.compscicomputations.services.auth.models.requests.NewPassword
 import com.compscicomputations.services.auth.models.requests.NewUser
+import com.compscicomputations.services.auth.models.requests.ResetPassword
 import com.compscicomputations.services.auth.models.requests.UpdateUser
 import com.compscicomputations.services.auth.models.response.User
 import io.ktor.http.content.*
@@ -56,15 +56,16 @@ interface AuthServiceContrast {
     /**
      * Get a new reset password OTP
      * @param email user email to reset password.
+     * @param isUser true is the email is for existing user.
      * @return [OTP] the raw otp to be sent by email.
      */
-    suspend fun getOTP(email: String): OTP
+    suspend fun getOTP(email: String, isUser: Boolean? = null): OTP
 
     /**
      * Reset the user password using OTP or old password.
      * @param newPassword [NewPassword] the user new password values from a request.
      */
-    suspend fun passwordReset(newPassword: NewPassword)
+    suspend fun passwordReset(resetPassword: ResetPassword)
 
     /**
     * Deletes the user on a database.

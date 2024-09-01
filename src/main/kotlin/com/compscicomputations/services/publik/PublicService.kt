@@ -41,8 +41,8 @@ class PublicService : PublicServiceContrast {
             insert into public.onboarding_items(title, description, image) 
             values (?, ?, ?)
         """.trimIndent()) {
-            setString(1, item.title)
-            setString(2, item.description)
+            setString(1, item.title.trim())
+            setString(2, item.description?.trim())
             setBytes(3, item.image?.bytes)
         }
     }
@@ -64,11 +64,11 @@ class PublicService : PublicServiceContrast {
 
     suspend fun createFeedback(feedback: NewFeedback): Unit = dbQuery(conn) {
         update("call public.insert_feedback(?, ?, ?, ?, ?)") {
-            setString(1, feedback.subject)
-            setString(2, feedback.message)
-            setString(3, feedback.suggestion)
+            setString(1, feedback.subject.trim())
+            setString(2, feedback.message.trim())
+            setString(3, feedback.suggestion.trim())
             setBytes(4, feedback.image?.bytes)
-            setString(5, feedback.userEmail)
+            setString(5, feedback.userEmail?.trim())
         }
     }
 

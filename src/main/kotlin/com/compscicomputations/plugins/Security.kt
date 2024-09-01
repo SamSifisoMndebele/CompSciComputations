@@ -1,11 +1,14 @@
 package com.compscicomputations.plugins
 
 import com.compscicomputations.services.auth.AuthService
+import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
+import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import org.apache.http.auth.InvalidCredentialsException
 import org.koin.ktor.ext.inject
+import org.postgresql.util.PSQLException
 import org.slf4j.LoggerFactory
 
 internal fun Application.configureSecurity() {
@@ -18,8 +21,11 @@ internal fun Application.configureSecurity() {
             authenticate {
                 try {
                     authService.googleUser(it.token)
+                } catch (e: PSQLException) {
+                    logger.warn("PSQLException: "+ e.serverErrorMessage)
+                    null
                 } catch (e: Exception) {
-                    logger.warn("GoggleBearer", e)
+                    logger.warn("Exception", e)
                     null
                 }
             }
@@ -45,8 +51,11 @@ internal fun Application.configureSecurity() {
                         if (user.isAdmin) user
                         else throw InvalidCredentialsException("User with email: ${user.email} is not an admin.")
                     }
+                } catch (e: PSQLException) {
+                    logger.warn("PSQLException: ${e.serverErrorMessage}")
+                    null
                 } catch (e: Exception) {
-                    logger.warn("GoggleBearer", e)
+                    logger.warn("Exception", e)
                     null
                 }
             }

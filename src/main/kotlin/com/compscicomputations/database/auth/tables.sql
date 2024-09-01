@@ -18,9 +18,9 @@ create table if not exists auth.otps(
     id integer primary key generated always as identity,
     email text not null unique,
     otp text not null,
-    valid_until timestamp default (ext.nowsast() + '5 min'::interval) not null,
+    valid_until timestamp default (ext.nowsast() + '5 min'::interval) not null
 
-    foreign key (email) references auth.users(email) on update cascade on delete cascade
+--     foreign key (email) references auth.users(email) on update cascade on delete cascade
 );
 
 drop table if exists auth.admins;

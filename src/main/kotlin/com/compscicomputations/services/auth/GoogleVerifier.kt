@@ -7,8 +7,8 @@ import com.google.api.client.json.gson.GsonFactory
 
 data class GoogleToken(
     val email: String,
-    val names: String?,
-    val lastname: String?,
+    val names: String,
+    val lastname: String,
     val photoUrl: String?,
     val emailVerified: Boolean,
 )
@@ -25,8 +25,8 @@ internal class GoogleVerifier {
             ?.let {
                 GoogleToken(
                     email = it.email,
-                    names = it["given_name"] as String?,
-                    lastname = it["family_name"] as String?,
+                    names = it["given_name"] as String? ?: "",
+                    lastname = it["family_name"] as String? ?: "",
                     photoUrl = it["picture"] as String?,
                     emailVerified = it.emailVerified,
                 )

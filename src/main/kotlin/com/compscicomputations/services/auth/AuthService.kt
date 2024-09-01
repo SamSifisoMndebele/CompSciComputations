@@ -3,8 +3,8 @@ package com.compscicomputations.services.auth
 import com.compscicomputations.plugins.databaseConnection
 import com.compscicomputations.services._contrast.AuthServiceContrast
 import com.compscicomputations.services.auth.models.OTP
-import com.compscicomputations.services.auth.models.requests.NewPassword
 import com.compscicomputations.services.auth.models.requests.NewUser
+import com.compscicomputations.services.auth.models.requests.ResetPassword
 import com.compscicomputations.services.auth.models.requests.UpdateUser
 import com.compscicomputations.services.auth.models.response.User
 import com.compscicomputations.utils.*
@@ -18,8 +18,10 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.http.content.*
 import org.apache.http.auth.InvalidCredentialsException
+import org.postgresql.util.PSQLException
 import org.slf4j.LoggerFactory
 import java.sql.ResultSet
+import java.sql.Types
 
 
 internal class AuthService : AuthServiceContrast {
@@ -58,13 +60,14 @@ internal class AuthService : AuthServiceContrast {
     }
 
     override suspend fun registerUser(newUser: NewUser): User = dbQuery(conn) {
-        querySingle("select * from auth.insert_user(?, ?, ?, ?, ?, ?)", { getUser() }) {
-            setString(1, newUser.email)
-            setString(1, newUser.otp)
-            setString(3, newUser.names)
-            setString(4, newUser.lastname)
-            setString(5, newUser.password)
-            setBytes(6, newUser.image?.bytes)
+        querySingle("select * from auth.insert_user(?, ?, ?, ?, ?, ?, ?)", { getUser() }) {
+            setString(1, newUser.email.trim())
+            setString(2, newUser.names.trim())
+            setString(3, newUser.lastname.trim())
+            setBytes(4, newUser.image?.bytes)
+            setBoolean(5, true)
+            setString(6, newUser.password)
+            setString(7, newUser.otp)
         }
     }
 
@@ -72,9 +75,13 @@ internal class AuthService : AuthServiceContrast {
         val googleToken = googleVerifier.authenticate(idTokenString)
             ?: throw InvalidCredentialsException("Invalid google token.")
 
-        querySingleOrNull("select * from auth.select_user(_email := ?)", { getUser() }) {
-            setString(1, googleToken.email)
-        } ?: let {
+        try {
+            querySingle("select * from auth.select_user(_email := ?)", { getUser() }) {
+                setString(1, googleToken.email.trim())
+            }
+        } catch (e: PSQLException) {
+            if (e.serverErrorMessage?.hint != "Register a new account.") throw e
+            logger.warn(e.serverErrorMessage.toString())
             logger.warn("Goggle user does not exists, creating user...")
             googleToken.photoUrl?.let { url -> client.get(url) }
                 ?.let { response ->
@@ -84,13 +91,12 @@ internal class AuthService : AuthServiceContrast {
                         null
                     }
                 }.let { bytes ->
-                    querySingle("select * from auth.insert_user(?, ?, ?, ?, ?, ?)", { getUser() }) {
-                        setString(1, googleToken.email)
-                        setString(2, googleToken.names)
-                        setString(3, googleToken.lastname)
-                        setString(4, null)
-                        setBytes(5, bytes)
-                        setBoolean(6, googleToken.emailVerified)
+                    querySingle("select * from auth.insert_user(?, ?, ?, ?, ?)", { getUser() }) {
+                        setString(1, googleToken.email.trim())
+                        setString(2, googleToken.names.trim())
+                        setString(3, googleToken.lastname.trim())
+                        setBytes(4, bytes)
+                        setBoolean(5, googleToken.emailVerified)
                     }
                 }
         }
@@ -98,7 +104,7 @@ internal class AuthService : AuthServiceContrast {
 
     override suspend fun readUser(email: String, password: String): User = dbQuery(conn) {
         querySingle("select * from auth.get_user(?, ?)", { getUser() }){
-            setString(1, email)
+            setString(1, email.trim())
             setString(2, password)
         }
     }
@@ -107,8 +113,8 @@ internal class AuthService : AuthServiceContrast {
         query("select * from auth.users order by users.display_name limit $limit", { getUser() })
     }
 
-    override suspend fun getOTP(email: String): OTP = dbQuery(conn) {
-        querySingle("select * from auth.create_otp(?)",
+    override suspend fun getOTP(email: String, isUser: Boolean?): OTP = dbQuery(conn) {
+        querySingle("select * from auth.create_otp(?, ?)",
             {
                 OTP(
                     getInt("id"),
@@ -118,21 +124,22 @@ internal class AuthService : AuthServiceContrast {
                 )
             }
         ) {
-            setString(1, email)
+            setString(1, email.trim())
+            setObject(2, isUser, Types.BOOLEAN)
         }
     }
 
-    override suspend fun passwordReset(newPassword: NewPassword): Unit = dbQuery(conn) {
+    override suspend fun passwordReset(resetPassword: ResetPassword): Unit = dbQuery(conn) {
         when {
-            !newPassword.otp.isNullOrBlank() -> update("call auth.reset_password_otp(?, ?, ?)") {
-                setString(1, newPassword.email)
-                setString(2, newPassword.password)
-                setString(3, newPassword.otp)
+            !resetPassword.otp.isNullOrBlank() -> update("call auth.reset_password_otp(?, ?, ?)") {
+                setString(1, resetPassword.email.trim())
+                setString(2, resetPassword.newPassword)
+                setString(3, resetPassword.otp)
             }
-            !newPassword.oldPassword.isNullOrBlank() -> update("call auth.reset_password(?, ?, ?)") {
-                setString(1, newPassword.email)
-                setString(2, newPassword.password)
-                setString(3, newPassword.oldPassword)
+            !resetPassword.password.isNullOrBlank() -> update("call auth.reset_password(?, ?, ?)") {
+                setString(1, resetPassword.email.trim())
+                setString(2, resetPassword.newPassword)
+                setString(3, resetPassword.password)
             }
             else -> throw IllegalArgumentException("OTP and old password are null or empty.")
         }
@@ -140,22 +147,22 @@ internal class AuthService : AuthServiceContrast {
 
     override suspend fun deleteUser(email: String): Unit = dbQuery(conn) {
         update("delete from auth.users where email like ?") {
-            setString(1, email)
+            setString(1, email.trim())
         }
     }
 
     override suspend fun updateUser(user: UpdateUser): User = dbQuery(conn) {
         querySingle("select * from auth.update_user(?::uuid, ?, ?, ?, ?, ?, ?, ?, ?, ?)", { getUser() }) {
             setString(1, user.id)
-            setString(2, user.names)
-            setString(3, user.lastname)
+            setString(2, user.names.trim())
+            setString(3, user.lastname.trim())
             setBytes(4, user.image?.bytes)
-            setString(5, user.phone)
+            setString(5, user.phone?.trim())
             setBoolean(6, user.isEmailVerified)
             setBoolean(7, user.isStudent)
-            setString(8, user.university)
-            setString(9, user.school)
-            setString(10, user.course)
+            setString(8, user.university?.trim())
+            setString(9, user.school?.trim())
+            setString(10, user.course?.trim())
         }
     }
 

@@ -1,7 +1,7 @@
 package com.compscicomputations.plugins
 
-import com.compscicomputations.services.auth.models.requests.NewPassword
 import com.compscicomputations.services.auth.models.requests.NewUser
+import com.compscicomputations.services.auth.models.requests.ResetPassword
 import com.compscicomputations.services.auth.models.requests.UpdateUser
 import com.compscicomputations.services.publik.models.requests.NewFeedback
 import com.compscicomputations.utils.isEmailValid
@@ -17,11 +17,11 @@ internal fun Application.configureRequestValidation() {
             when {
                 !userInfo.email.isEmailValid() ->
                     ValidationResult.Invalid("Email is not valid.")
-                userInfo.names.isNullOrBlank() ->
+                userInfo.names.isBlank() ->
                     ValidationResult.Invalid("Names should not be empty.")
-                userInfo.lastname.isNullOrBlank() ->
+                userInfo.lastname.isBlank() ->
                     ValidationResult.Invalid("Lastname should not be empty.")
-                userInfo.password != null && userInfo.password.length < 6 ->
+                userInfo.password.length < 6 ->
                     ValidationResult.Invalid("Password is too short.")
                 else -> ValidationResult.Valid
             }
@@ -36,7 +36,7 @@ internal fun Application.configureRequestValidation() {
                     ValidationResult.Invalid("Lastname should not be empty.")
 //                userInfo.password != null && userInfo.password.length < 6 ->
 //                    ValidationResult.Invalid("Password is too short.")
-                userInfo.phone != null && !userInfo.phone.isPhoneValid() ->
+                !userInfo.phone.isNullOrBlank() && !userInfo.phone.isPhoneValid() ->
                     ValidationResult.Invalid("Phone number is not valid.")
                 userInfo.isStudent && userInfo.university.isNullOrBlank() ->
                     ValidationResult.Invalid("University name is required for students.")
@@ -47,11 +47,11 @@ internal fun Application.configureRequestValidation() {
                 else -> ValidationResult.Valid
             }
         }
-        validate<NewPassword> { request ->
+        validate<ResetPassword> { request ->
             when {
                 !request.email.isEmailValid() -> ValidationResult.Invalid("The email is not valid.")
-                request.password.isBlank() -> ValidationResult.Invalid("Password is blank.")
-                request.otp.isEmailValid() && request.oldPassword.isNullOrBlank() ->
+                request.newPassword.isBlank() -> ValidationResult.Invalid("Password is blank.")
+                request.otp.isEmailValid() && request.password.isNullOrBlank() ->
                     ValidationResult.Invalid("OTP and old password are both null.")
                 else -> ValidationResult.Valid
             }

@@ -3,8 +3,8 @@ package com.compscicomputations.routing
 import com.compscicomputations.services.auth.AuthService
 import com.compscicomputations.plugins.Users
 import com.compscicomputations.plugins.authenticateUser
-import com.compscicomputations.services.auth.models.requests.NewPassword
 import com.compscicomputations.services.auth.models.requests.NewUser
+import com.compscicomputations.services.auth.models.requests.ResetPassword
 import com.compscicomputations.services.auth.models.requests.UpdateUser
 import com.compscicomputations.services.auth.models.response.User
 import com.compscicomputations.utils.EMAIL_VERIFICATION_EMAIL
@@ -22,6 +22,9 @@ import io.ktor.server.resources.delete
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import org.koin.ktor.ext.inject
+import org.postgresql.util.PSQLException
+import java.sql.SQLException
+import java.sql.SQLInvalidAuthorizationSpecException
 
 fun Routing.authRouting() {
     val authService by inject<AuthService>()
@@ -33,7 +36,11 @@ fun Routing.authRouting() {
             val user = authService.registerUser(userInfo)
             call.respond(HttpStatusCode.Created, user)
         } catch (e: Exception) {
-            call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
+            if (e.message?.contains("validate_otp") == true) {
+                call.respondNullable(HttpStatusCode.PreconditionFailed, e.message?.substringBefore("Where:"))
+            } else {
+                call.respondNullable(HttpStatusCode.ExpectationFailed, e.message?.substringBefore("Where:"))
+            }
         }
     }
 
@@ -44,7 +51,7 @@ fun Routing.authRouting() {
             val user = authService.updateUser(userInfo)
             call.respond(HttpStatusCode.OK, user)
         } catch (e: Exception) {
-            call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
+            call.respondNullable(HttpStatusCode.ExpectationFailed, e.message?.substringBefore("Where:"))
         }
     }
 
@@ -56,8 +63,10 @@ fun Routing.authRouting() {
                 return@get call.respond(HttpStatusCode.Unauthorized, "User credentials are incorrect.")
 
                 call.respond(HttpStatusCode.OK, user)
+            } catch (e: PSQLException) {
+                call.respondNullable(HttpStatusCode.PreconditionFailed, e.serverErrorMessage)
             } catch (e: Exception) {
-                call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
+                call.respondNullable(HttpStatusCode.ExpectationFailed, e.message?.substringBefore("Where:"))
             }
         }
 
@@ -70,14 +79,14 @@ fun Routing.authRouting() {
                 authService.deleteUser(user.email)
                 call.respond(HttpStatusCode.OK, user)
             } catch (e: Exception) {
-                call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
+                call.respondNullable(HttpStatusCode.ExpectationFailed, e.message?.substringBefore("Where:"))
             }
         }
     }
 
     get<Users.PasswordReset.Email> {
         try {
-            val passwordOTP = authService.getOTP(it.email)
+            val passwordOTP = authService.getOTP(it.email, isUser = true)
             sendEmail(
                 subject = "Reset your password for CompSci Computations.",
                 htmlMsg = RESET_PASSWORD_EMAIL
@@ -89,13 +98,13 @@ fun Routing.authRouting() {
 
             call.respond(HttpStatusCode.OK, "OTP sent to ${passwordOTP.email}.")
         } catch (e: Exception) {
-            call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
+            call.respondNullable(HttpStatusCode.ExpectationFailed, e.message?.substringBefore("Where:"))
         }
     }
 
     get<Users.Email.Otp> {
         try {
-            val passwordOTP = authService.getOTP(it.parent.email)
+            val passwordOTP = authService.getOTP(it.parent.email, isUser = false)
             sendEmail(
                 subject = "Reset your password for CompSci Computations.",
                 htmlMsg = EMAIL_VERIFICATION_EMAIL
@@ -107,17 +116,17 @@ fun Routing.authRouting() {
 
             call.respond(HttpStatusCode.OK, "OTP sent to ${passwordOTP.email}.")
         } catch (e: Exception) {
-            call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
+            call.respondNullable(HttpStatusCode.ExpectationFailed, e.message?.substringBefore("Where:"))
         }
     }
 
     post<Users.PasswordReset> {
         try {
-            val newPassword = call.receive<NewPassword>()
-            authService.passwordReset(newPassword)
+            val resetPassword = call.receive<ResetPassword>()
+            authService.passwordReset(resetPassword)
             call.respond(HttpStatusCode.OK, "Your password reset was successful!")
         } catch (e: Exception) {
-            call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
+            call.respondNullable(HttpStatusCode.ExpectationFailed, e.message?.substringBefore("Where:"))
         }
     }
 
@@ -158,7 +167,7 @@ fun Routing.authRouting() {
                 val user = authService.updateUser(firebase.id, userRequest)
                 call.respond(HttpStatusCode.OK, user)
             } catch (e: Exception) {
-                call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
+                call.respondNullable(HttpStatusCode.ExpectationFailed, e.message?.substringBefore("Where:"))
             }
         }
     }
@@ -172,7 +181,7 @@ fun Routing.authRouting() {
                 authService.createAdminPin(request)
                 call.respond(HttpStatusCode.Created)
             } catch (e: Exception) {
-                call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
+                call.respondNullable(HttpStatusCode.ExpectationFailed, e.message?.substringBefore("Where:"))
             }
         }
 
@@ -186,7 +195,7 @@ fun Routing.authRouting() {
                     val row = authService.validateAdminPin(it.email, pin)
                     call.respondNullable(row.OKOrNotFound, row)
                 } catch (e: Exception) {
-                    call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
+                    call.respondNullable(HttpStatusCode.ExpectationFailed, e.message?.substringBefore("Where:"))
                 }
             }
         }
@@ -198,7 +207,7 @@ fun Routing.authRouting() {
 //                val user = authService.Codes
 //                call.respond(user.OKOrNotFound, user)
             } catch (e: Exception) {
-                call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
+                call.respondNullable(HttpStatusCode.ExpectationFailed, e.message?.substringBefore("Where:"))
             }
         }
 
@@ -209,7 +218,7 @@ fun Routing.authRouting() {
 //                val user = authService.Codes
 //                call.respond(user.OKOrNotFound, user)
             } catch (e: Exception) {
-                call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
+                call.respondNullable(HttpStatusCode.ExpectationFailed, e.message?.substringBefore("Where:"))
             }
         }
     }*/
