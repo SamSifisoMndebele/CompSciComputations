@@ -13,21 +13,24 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Password
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -55,6 +58,10 @@ import com.compscicomputations.ui.auth.showMessage
 import com.compscicomputations.ui.utils.ProgressState
 import com.compscicomputations.ui.utils.isSuccess
 import com.compscicomputations.ui.utils.ui.CompSciAuthScaffold
+import com.compscicomputations.utils.onVisible
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun PasswordResetScreen(
@@ -71,11 +78,7 @@ fun PasswordResetScreen(
             Toast.makeText(context, "Password reset was successful, please login.", Toast.LENGTH_LONG).show()
         }
     }
-    LaunchedEffect(uiState.otpSent) {
-        if (uiState.otpSent) {
-            Toast.makeText(context, "OTP sent successfully to your email!", Toast.LENGTH_SHORT).show()
-        }
-    }
+    val coroutineScope = rememberCoroutineScope()
 
     val (field1, field2, field3) = remember { FocusRequester.createRefs() }
     CompSciAuthScaffold(
@@ -87,22 +90,71 @@ fun PasswordResetScreen(
         onLoadingDismiss = { viewModel.cancel() },
         onExceptionDismiss = { viewModel.onProgressStateChange(ProgressState.Idle) }
     ) {
+        var showFields by remember { mutableStateOf(false) }
+        LaunchedEffect(showFields) {
+            if (showFields) {
+                Toast.makeText(context, "OTP sent successfully to your email!", Toast.LENGTH_SHORT).show()
+            }
+        }
         OutlinedTextField(
-            enabled = !uiState.otpSent,
+//            enabled = !uiState.otpSent,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 4.dp),
             value = uiState.email,
             onValueChange = { viewModel.onEmailChange(it) },
             label = { Text(text = hintEmail) },
-            shape = RoundedCornerShape(22.dp),
             singleLine = true,
+            trailingIcon = {
+                if (uiState.sendingOtp) {
+                    CircularProgressIndicator(
+                        modifier = Modifier
+                            .size(36.dp)
+                            .padding(8.dp),
+                        color = MaterialTheme.colorScheme.secondary,
+                        trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                    )
+                } else if (showFields) {
+                    var millis by remember { mutableLongStateOf(300000) }
+                    LaunchedEffect(Dispatchers.IO) {
+                        while (millis > 0) {
+                            delay(1000)
+                            millis -= 1000
+                        }
+                        showFields = false
+                    }
+                    val min = millis / 60000
+                    val sec = (millis % 60000) / 1000
+                    Text(
+                        modifier = Modifier.padding(horizontal = 8.dp),
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = comicNeueFamily,
+                        color = MaterialTheme.colorScheme.primary,
+                        text = "$min:" + sec.toString().padStart(2, '0')
+                    )
+                } else {
+                    TextButton(
+                        modifier = Modifier.padding(end = 8.dp),
+                        onClick = {
+                            coroutineScope.launch(Dispatchers.IO) {
+                                viewModel.onSendOtp {
+                                    showFields = true
+                                }
+                            }
+                        }
+                    ) {
+                        Icon(Icons.Filled.Email, "otp")
+                        Text("OTP")
+                    }
+                }
+            },
+            shape = RoundedCornerShape(22.dp),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
             isError = uiState.emailError.isError,
             supportingText = uiState.emailError.showMessage()
         )
 
-        AnimatedVisibility(visible = uiState.otpSent) {
+        AnimatedVisibility(visible = showFields) {
             Column {
                 var showOtp by remember { mutableStateOf(false) }
                 OutlinedTextField(
@@ -111,7 +163,8 @@ fun PasswordResetScreen(
                         .focusProperties { next = field2 }
                         .onFocusChanged { if (!it.isFocused) showOtp = false }
                         .fillMaxWidth()
-                        .padding(vertical = 4.dp),
+                        .padding(vertical = 4.dp)
+                        .onVisible { field1.requestFocus() },
                     value = uiState.otp,
                     onValueChange = { viewModel.onOTPChange(it) },
                     label = { Text(text = hintOtp) },
@@ -174,42 +227,39 @@ fun PasswordResetScreen(
                     isError = uiState.passwordConfirmError.isError,
                     supportingText = uiState.passwordConfirmError.showMessage()
                 )
-            }
-        }
 
-        OutlinedButton(
-            onClick = {
-                if (uiState.otpSent) viewModel.onPasswordReset()
-                else viewModel.onSendOtp()
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(84.dp)
-                .padding(bottom = 8.dp, top = 16.dp),
-            border = BorderStroke(1.dp, Color.LightGray),
-            shape = RoundedCornerShape(24.dp),
-            contentPadding = PaddingValues(vertical = 18.dp),
-            colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.Black),
-        ) {
-            Icon(
-                modifier = Modifier
-                    .padding(start = 4.dp)
-                    .size(64.dp),
-                imageVector = if (uiState.otpSent) Icons.Default.Password else Icons.Default.Email,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
-            )
-            Text(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(end = 68.dp),
-                text = if (uiState.otpSent) "Reset Password" else "Sent OTP",
-                color = MaterialTheme.colorScheme.primary,
-                fontWeight = FontWeight.Bold,
-                fontSize = 22.sp,
-                fontFamily = comicNeueFamily,
-                textAlign = TextAlign.Center
-            )
+                OutlinedButton(
+                    onClick = { viewModel.onPasswordReset() },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(84.dp)
+                        .padding(bottom = 8.dp, top = 16.dp),
+                    border = BorderStroke(1.dp, Color.LightGray),
+                    shape = RoundedCornerShape(24.dp),
+                    contentPadding = PaddingValues(vertical = 18.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.Black),
+                ) {
+                    Icon(
+                        modifier = Modifier
+                            .padding(start = 4.dp)
+                            .size(64.dp),
+                        imageVector = Icons.Default.Email,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                    Text(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(end = 68.dp),
+                        text = "Reset Password",
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 22.sp,
+                        fontFamily = comicNeueFamily,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
         }
     }
 }

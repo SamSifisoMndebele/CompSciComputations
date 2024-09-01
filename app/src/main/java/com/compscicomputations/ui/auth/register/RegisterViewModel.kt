@@ -1,19 +1,24 @@
 package com.compscicomputations.ui.auth.register
 
-import android.content.Context
 import android.net.Uri
 import android.util.Log
 import androidx.credentials.exceptions.CreateCredentialException
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.compscicomputations.client.auth.data.model.remote.NewUser
 import com.compscicomputations.client.auth.data.source.AuthRepository
+import com.compscicomputations.client.auth.data.source.remote.AuthDataSource.Companion.OtpException
+import com.compscicomputations.client.utils.Image
+import com.compscicomputations.client.utils.Image.Companion.asImage
 import com.compscicomputations.client.utils.ScaledByteArrayUseCase
+import com.compscicomputations.di.IoDispatcher
 import com.compscicomputations.theme.emailRegex
 import com.compscicomputations.theme.namesRegex
 import com.compscicomputations.theme.strongPasswordRegex
 import com.compscicomputations.ui.utils.ProgressState
 import com.compscicomputations.utils.notMatches
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,6 +31,7 @@ import kotlin.math.roundToInt
 
 @HiltViewModel
 class RegisterViewModel @Inject constructor(
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     private val authRepository: AuthRepository,
     private val scaledByteArray: ScaledByteArrayUseCase
 ) : ViewModel() {
@@ -44,6 +50,9 @@ class RegisterViewModel @Inject constructor(
     fun onEmailChange(email: String) {
         _uiState.value = _uiState.value.copy(email = email, emailError = null)
     }
+    fun onOtpChange(otp: String) {
+        _uiState.value = _uiState.value.copy(otp = otp, otpError = null)
+    }
     fun onPasswordChange(password: String) {
         _uiState.value = _uiState.value.copy(password = password, passwordError = null)
     }
@@ -59,19 +68,42 @@ class RegisterViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(progressState = progressState)
     }
 
-    private var registerJob: Job? = null
+    suspend fun onSendOtp(success: () -> Unit) {
+        if (_uiState.value.email.isBlank()) {
+            _uiState.value = _uiState.value.copy(emailError = "Enter your email.")
+            return
+        } else if (_uiState.value.email.notMatches(emailRegex)) {
+            _uiState.value = _uiState.value.copy(emailError = "Enter a valid email.")
+            return
+        }
+
+        _uiState.value = _uiState.value.copy(sendingOtp = true)
+        try {
+            authRepository.registerOtp(_uiState.value.email)
+        } catch (e: Exception) {
+            _uiState.value = _uiState.value.copy(sendingOtp = false, progressState  = ProgressState.Error(e.localizedMessage))
+            return
+        }
+        _uiState.value = _uiState.value.copy(sendingOtp = false, otp = "")
+        success()
+    }
+
+    private var job: Job? = null
     fun onRegister(savePassword: suspend (email: String, password: String) -> Unit = {_,_->}) {
         if (!fieldsAreValid()) return
 
         _uiState.value = _uiState.value.copy(progressState = ProgressState.Loading("Creating account..."))
-        registerJob = viewModelScope.launch {
+        job = viewModelScope.launch {
             try {
                 authRepository.createUser(
-                    email = _uiState.value.email,
-                    password = _uiState.value.password,
-                    names = _uiState.value.names,
-                    lastname = _uiState.value.lastname,
-                    imageBytes = _uiState.value.imageUri?.let { scaledByteArray(it) }
+                    NewUser(
+                        email = _uiState.value.email,
+                        otp = _uiState.value.otp,
+                        password = _uiState.value.password,
+                        names = _uiState.value.names,
+                        lastname = _uiState.value.lastname,
+                        image = _uiState.value.imageUri?.let { scaledByteArray(it).asImage }
+                    )
                 ) { bytesSent, totalBytes ->
                     if (bytesSent == totalBytes) {
                         _uiState.value = _uiState.value.copy(progressState = ProgressState.Loading("Creating account..."))
@@ -83,6 +115,8 @@ class RegisterViewModel @Inject constructor(
                 _uiState.value = _uiState.value.copy(progressState = ProgressState.Loading("Done!"))
                 savePassword(_uiState.value.email, _uiState.value.password)
                 _uiState.value = _uiState.value.copy(progressState = ProgressState.Success)
+            } catch (e: OtpException) {
+                _uiState.value = _uiState.value.copy(progressState = ProgressState.Idle, otpError = e.localizedMessage)
             } catch (e: CreateCredentialException) {
                 _uiState.value = _uiState.value.copy(progressState = ProgressState.Success)
                 Log.w(TAG, "onRegister::savePassword", e)
@@ -98,9 +132,9 @@ class RegisterViewModel @Inject constructor(
 
     @OptIn(InternalCoroutinesApi::class)
     fun cancelRegister(handler: () -> Unit = {}) {
-        registerJob?.cancel()
-        registerJob?.invokeOnCompletion(true) {
-            registerJob = null
+        job?.cancel()
+        job?.invokeOnCompletion(true) {
+            job = null
             handler()
             onProgressStateChange(ProgressState.Idle)
         }

@@ -169,6 +169,8 @@ fun ProfileScreen(
             if (viewModel.isNotChanged) navigateUp()
             else navigateUpAlertDialog = true
         },
+        isRefreshing = progressState is ProgressState.Refreshing,
+        onRefresh = { viewModel.onRefresh() },
         bottomBar = {
             BottomAppBar(
                 actions = {
@@ -383,7 +385,7 @@ fun ProfileScreen(
                         Text(
                             modifier = Modifier
                                 .weight(.6f),
-                            text = uiState.university,
+                            text = uiState.university ?: "_",
                             fontSize = 18.sp,
                             fontFamily = comicNeueFamily,
                             fontWeight = FontWeight.Bold
@@ -400,7 +402,7 @@ fun ProfileScreen(
                         Text(
                             modifier = Modifier
                                 .weight(.6f),
-                            text = uiState.school,
+                            text = uiState.school ?: "_",
                             fontSize = 18.sp,
                             fontFamily = comicNeueFamily,
                             fontWeight = FontWeight.Bold
@@ -417,7 +419,7 @@ fun ProfileScreen(
                         Text(
                             modifier = Modifier
                                 .weight(.6f),
-                            text = uiState.course,
+                            text = uiState.course ?: "_",
                             fontSize = 18.sp,
                             fontFamily = comicNeueFamily,
                             fontWeight = FontWeight.Bold
@@ -509,7 +511,7 @@ fun ProfileScreen(
                     modifier = Modifier.padding(top = 16.dp)
                 ) {
                     Text(
-                        text = "I am a RemoteStudent",
+                        text = "I am a Student",
                         modifier = Modifier.weight(1f),
                         color = MaterialTheme.colorScheme.primary,
                         fontSize = 18.sp,
@@ -532,7 +534,7 @@ fun ProfileScreen(
                                 .focusProperties { next = field6 }
                                 .fillMaxWidth()
                                 .padding(vertical = 4.dp),
-                            value = uiState.university,
+                            value = uiState.university ?: "",
                             onValueChange = { viewModel.onUniversityChange(it) },
                             label = { Text(text = hintUniversity) },
                             singleLine = true,
@@ -551,7 +553,7 @@ fun ProfileScreen(
                                 .focusProperties { next = field7 }
                                 .fillMaxWidth()
                                 .padding(vertical = 4.dp),
-                            value = uiState.school,
+                            value = uiState.school ?: "",
                             onValueChange = { viewModel.onSchoolChange(it) },
                             label = { Text(text = hintSchool) },
                             singleLine = true,
@@ -569,7 +571,7 @@ fun ProfileScreen(
                                 .focusRequester(field7)
                                 .fillMaxWidth()
                                 .padding(vertical = 4.dp),
-                            value = uiState.course,
+                            value = uiState.course ?: "",
                             onValueChange = { viewModel.onCourseChange(it) },
                             label = { Text(text = hintCourse) },
                             singleLine = true,

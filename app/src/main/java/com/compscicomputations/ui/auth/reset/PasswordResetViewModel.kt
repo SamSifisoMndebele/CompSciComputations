@@ -1,17 +1,19 @@
 package com.compscicomputations.ui.auth.reset
 
+import android.util.Log
 import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.compscicomputations.client.auth.data.source.AuthRepository
+import com.compscicomputations.client.auth.data.source.remote.AuthDataSource.Companion.OtpException
 import com.compscicomputations.di.IoDispatcher
 import com.compscicomputations.theme.emailRegex
 import com.compscicomputations.theme.strongPasswordRegex
 import com.compscicomputations.ui.utils.ProgressState
 import com.compscicomputations.utils.notMatches
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -45,7 +47,7 @@ class PasswordResetViewModel @Inject constructor(
 
     private var job: Job? = null
 
-    fun onSendOtp() {
+    suspend fun onSendOtp(success: () -> Unit) {
         if (_uiState.value.email.isBlank()) {
             _uiState.value = _uiState.value.copy(emailError = "Enter your email.")
             return
@@ -54,12 +56,15 @@ class PasswordResetViewModel @Inject constructor(
             return
         }
 
-        _uiState.value = _uiState.value.copy(progressState = ProgressState.Loading("Sending OTP..."))
-        job = viewModelScope.launch(ioDispatcher) {
-            authRepository.requestOtp(_uiState.value.email)
-            _uiState.value = _uiState.value.copy(progressState = ProgressState.Idle, otpSent = true)
+        _uiState.value = _uiState.value.copy(sendingOtp = true)
+        try {
+            authRepository.passwordResetOtp(_uiState.value.email)
+        } catch (e: Exception) {
+            _uiState.value = _uiState.value.copy(sendingOtp = false, progressState  = ProgressState.Error(e.localizedMessage))
+            return
         }
-
+        _uiState.value = _uiState.value.copy(sendingOtp = false, otp = "")
+        success()
     }
 
     fun onPasswordReset() {
@@ -67,12 +72,22 @@ class PasswordResetViewModel @Inject constructor(
 
         _uiState.value = _uiState.value.copy(progressState = ProgressState.Loading("Resetting password..."))
         job = viewModelScope.launch {
-            authRepository.passwordReset(
-                email = _uiState.value.email,
-                otp = _uiState.value.otp,
-                password = _uiState.value.password,
-            )
-            _uiState.value = _uiState.value.copy(progressState = ProgressState.Success)
+            try {
+                authRepository.passwordResetOtp(
+                    email = _uiState.value.email,
+                    otp = _uiState.value.otp,
+                    newPassword = _uiState.value.password,
+                )
+                _uiState.value = _uiState.value.copy(progressState = ProgressState.Success)
+            } catch (e: OtpException) {
+                _uiState.value = _uiState.value.copy(progressState = ProgressState.Idle, otpError = e.localizedMessage)
+            } catch (e: CancellationException) {
+                _uiState.value = _uiState.value.copy(progressState = ProgressState.Idle)
+                Log.w(TAG, "onRegister", e)
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(progressState = ProgressState.Error(e.localizedMessage))
+                Log.e(TAG, "onRegister", e)
+            }
         }
     }
 
@@ -116,5 +131,9 @@ class PasswordResetViewModel @Inject constructor(
             valid = false
         }
         return valid
+    }
+
+    companion object {
+        private const val TAG = "PasswordResetViewModel"
     }
 }

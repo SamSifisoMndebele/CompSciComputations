@@ -6,6 +6,7 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -18,9 +19,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -34,6 +37,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -69,6 +73,7 @@ import com.compscicomputations.theme.comicNeueFamily
 import com.compscicomputations.theme.hintEmail
 import com.compscicomputations.theme.hintLastname
 import com.compscicomputations.theme.hintNames
+import com.compscicomputations.theme.hintOtp
 import com.compscicomputations.theme.hintPassword
 import com.compscicomputations.theme.hintPasswordConfirm
 import com.compscicomputations.theme.hintProfileImage
@@ -79,7 +84,9 @@ import com.compscicomputations.ui.utils.isSuccess
 import com.compscicomputations.ui.utils.ui.CompSciAuthScaffold
 import com.compscicomputations.ui.utils.ui.shimmerBackground
 import com.compscicomputations.utils.createImageFile
+import com.compscicomputations.utils.onVisible
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
@@ -114,7 +121,9 @@ fun RegisterScreen(
         else Toast.makeText(context, "Permission Denied", Toast.LENGTH_SHORT).show()
     }
 
-    val (field1, field2, field3, field4, field5) = remember { FocusRequester.createRefs() }
+    val coroutineScope = rememberCoroutineScope()
+
+    val (field1, field2, field3, field4Otp, field5, field6) = remember { FocusRequester.createRefs() }
     CompSciAuthScaffold(
         title = "Register",
         description = "Register your account using your email and password.",
@@ -237,27 +246,106 @@ fun RegisterScreen(
             supportingText = uiState.lastnameError.showMessage()
         )
 
+        var showOtpField by remember { mutableStateOf(false) }
+        LaunchedEffect(showOtpField) {
+            if (showOtpField) {
+                Toast.makeText(context, "OTP sent successfully to your email!", Toast.LENGTH_SHORT).show()
+            }
+        }
         OutlinedTextField(
             modifier = Modifier
                 .focusRequester(field3)
-                .focusProperties { next = field4 }
+                .focusProperties { next = field5 }
                 .fillMaxWidth()
                 .padding(vertical = 4.dp),
             value = uiState.email,
             onValueChange = { viewModel.onEmailChange(it) },
             label = { Text(text = hintEmail) },
             singleLine = true,
+            trailingIcon = {
+                if (uiState.sendingOtp) {
+                    CircularProgressIndicator(
+                        modifier = Modifier
+                            .size(36.dp)
+                            .padding(8.dp),
+                        color = MaterialTheme.colorScheme.secondary,
+                        trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                    )
+                } else if (showOtpField) {
+                    var millis by remember { mutableLongStateOf(300000) }
+                    LaunchedEffect(Dispatchers.IO) {
+                        while (millis > 0) {
+                            delay(1000)
+                            millis -= 1000
+                        }
+                        showOtpField = false
+                    }
+                    val min = millis / 60000
+                    val sec = (millis % 60000) / 1000
+                    Text(
+                        modifier = Modifier.padding(horizontal = 8.dp),
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = comicNeueFamily,
+                        color = MaterialTheme.colorScheme.primary,
+                        text = "$min:" + sec.toString().padStart(2, '0')
+                    )
+                } else {
+                    TextButton(
+                        modifier = Modifier.padding(end = 8.dp),
+                        onClick = {
+                            coroutineScope.launch(Dispatchers.IO) {
+                                viewModel.onSendOtp {
+                                    showOtpField = true
+                                }
+                            }
+                        }
+                    ) {
+                        Icon(Icons.Filled.Email, "otp")
+                        Text("OTP")
+                    }
+                }
+            },
             shape = RoundedCornerShape(22.dp),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
             isError = uiState.emailError.isError,
             supportingText = uiState.emailError.showMessage()
         )
 
+        LaunchedEffect(showOtpField) {
+            if (!showOtpField) { viewModel.onOtpChange("") }
+        }
+        AnimatedVisibility(visible = showOtpField) {
+            var showOtp by remember { mutableStateOf(false) }
+            OutlinedTextField(
+                modifier = Modifier
+                    .focusRequester(field4Otp)
+                    .focusProperties { next = field5 }
+                    .onFocusChanged { if (!it.isFocused) showOtp = false }
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp)
+                    .onVisible { field4Otp.requestFocus() },
+                value = uiState.otp,
+                onValueChange = { viewModel.onOtpChange(it)},
+                label = { Text(text = hintOtp) },
+                singleLine = true,
+                visualTransformation =  if (showOtp) VisualTransformation.None else PasswordVisualTransformation(),
+                trailingIcon = {
+                    IconButton(onClick = { showOtp = !showOtp }) {
+                        Icon(if (showOtp) Icons.Filled.Visibility else Icons.Filled.VisibilityOff, "hide_otp")
+                    }
+                },
+                shape = RoundedCornerShape(22.dp),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword, imeAction = ImeAction.Next),
+                isError = uiState.otpError.isError,
+                supportingText = uiState.otpError.showMessage()
+            )
+        }
+
         var showPassword by remember { mutableStateOf(false) }
         OutlinedTextField(
             modifier = Modifier
-                .focusRequester(field4)
-                .focusProperties { next = field5 }
+                .focusRequester(field5)
+                .focusProperties { next = field6 }
                 .onFocusChanged { if (!it.isFocused) showPassword = false }
                 .fillMaxWidth()
                 .padding(vertical = 4.dp),
@@ -280,7 +368,7 @@ fun RegisterScreen(
         var showPasswordConfirm by remember { mutableStateOf(false) }
         OutlinedTextField(
             modifier = Modifier
-                .focusRequester(field5)
+                .focusRequester(field6)
                 .onFocusChanged { if (!it.isFocused) showPasswordConfirm = false }
                 .fillMaxWidth()
                 .padding(vertical = 4.dp),
@@ -300,7 +388,6 @@ fun RegisterScreen(
             supportingText = uiState.passwordConfirmError.showMessage()
         )
 
-        val coroutineScope = rememberCoroutineScope()
         Row(
             modifier = Modifier.padding(top = 4.dp),
             verticalAlignment = Alignment.CenterVertically
@@ -325,7 +412,7 @@ fun RegisterScreen(
                     CredentialManager.create(activity).createCredential(activity, createPasswordRequest)
                 }
             },
-            enabled = uiState.isValid,
+            enabled = uiState.isValid && showOtpField,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 8.dp, bottom = 16.dp),

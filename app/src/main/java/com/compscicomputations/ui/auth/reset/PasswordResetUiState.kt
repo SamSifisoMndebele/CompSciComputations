@@ -13,6 +13,6 @@ data class PasswordResetUiState(
     val passwordError: String? = null,
     val passwordConfirmError: String? = null,
 
-    val otpSent: Boolean = false,
+    val sendingOtp: Boolean = false,
     val progressState: ProgressState = ProgressState.Idle
 )

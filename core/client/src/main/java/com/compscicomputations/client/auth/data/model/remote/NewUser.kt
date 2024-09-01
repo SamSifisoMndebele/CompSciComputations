@@ -6,8 +6,9 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class NewUser(
     val email: String,
-    val password: String?,
     val names: String,
     val lastname: String,
     val image: Image?,
+    val password: String,
+    val otp: String,
 )

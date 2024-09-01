@@ -2,7 +2,7 @@ package com.compscicomputations.client.auth.data.source.remote
 
 import android.util.Log
 import com.compscicomputations.client.auth.data.model.AuthCredentials
-import com.compscicomputations.client.auth.data.model.remote.NewPassword
+import com.compscicomputations.client.auth.data.model.remote.ResetPassword
 import com.compscicomputations.client.auth.data.model.remote.NewUser
 import com.compscicomputations.client.auth.data.model.remote.RemoteUser
 import com.compscicomputations.client.auth.data.model.remote.UpdateUser
@@ -16,22 +16,18 @@ import io.ktor.client.plugins.onUpload
 import io.ktor.client.plugins.resources.get
 import io.ktor.client.plugins.resources.post
 import io.ktor.client.plugins.resources.put
-import io.ktor.client.request.forms.MultiPartFormDataContent
-import io.ktor.client.request.forms.formData
 import io.ktor.client.request.headers
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
-import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
-import io.ktor.http.append
 import io.ktor.http.contentType
 import javax.inject.Inject
 
 class AuthDataSource @Inject constructor(
     private val client: HttpClient,
-    private val authCredentialsUseCase: AuthCredentialsUseCase
+    private val authCredentials: AuthCredentialsUseCase
 ) {
     companion object {
         const val TAG = "AuthDataSource"
@@ -39,6 +35,7 @@ class AuthDataSource @Inject constructor(
 //        class NotFoundException(message: String? = null): Exception(message)
         class UnauthorizedException: Exception("Invalid credentials!")
         class ExpectationFailedException(message: String? = null): Exception(message)
+        class OtpException(message: String? = null): Exception(message)
     }
 
     /**
@@ -46,6 +43,7 @@ class AuthDataSource @Inject constructor(
      * @param onProgress the image upload progress callback.
      * @return [RemoteUser] the database user record.
      * @throws ExpectationFailedException if the was server side error.
+     * @throws OtpException if the otp was wrong or expired.
      */
     internal suspend fun createUser(
         newUser: NewUser,
@@ -61,6 +59,7 @@ class AuthDataSource @Inject constructor(
         }
         when (response.status) {
             HttpStatusCode.ExpectationFailed -> throw ExpectationFailedException(response.bodyAsText())
+            HttpStatusCode.PreconditionFailed -> throw OtpException(response.bodyAsText())
             HttpStatusCode.Created -> response.body<RemoteUser>()
             else -> throw Exception(response.bodyAsText())
         }
@@ -91,7 +90,7 @@ class AuthDataSource @Inject constructor(
         }
     }
 
-    internal suspend fun requestOtp(email: String): String = ktorRequest {
+    internal suspend fun passwordResetOtp(email: String): String = ktorRequest {
         val response = client.get(Users.PasswordReset.Email(email = email))
         when (response.status) {
             HttpStatusCode.ExpectationFailed -> throw ExpectationFailedException(response.bodyAsText())
@@ -100,10 +99,19 @@ class AuthDataSource @Inject constructor(
         }
     }
 
-    internal suspend fun passwordReset(newPassword: NewPassword): Unit = ktorRequest {
+    internal suspend fun registerOtp(email: String): String = ktorRequest {
+        val response = client.get(Users.Email.Otp(Users.Email(email = email)))
+        when (response.status) {
+            HttpStatusCode.ExpectationFailed -> throw ExpectationFailedException(response.bodyAsText())
+            HttpStatusCode.OK -> response.bodyAsText()
+            else -> throw Exception(response.bodyAsText())
+        }
+    }
+
+    internal suspend fun passwordReset(resetPassword: ResetPassword): Unit = ktorRequest {
         val response = client.post(Users.PasswordReset()) {
             contentType(ContentType.Application.Json)
-            setBody(newPassword)
+            setBody(resetPassword)
         }
         when (response.status) {
             HttpStatusCode.ExpectationFailed -> throw ExpectationFailedException(response.bodyAsText())
@@ -120,12 +128,13 @@ class AuthDataSource @Inject constructor(
      * @throws ExpectationFailedException if the was server side error.
      */
     internal suspend fun getRemoteUser(
-        authCredentials: AuthCredentials,
+        authCredentials: AuthCredentials? = null,
         onProgress: (bytesReceived: Long, totalBytes: Long) -> Unit
     ): RemoteUser = ktorRequest {
+        val credentials = authCredentials ?: this.authCredentials()
         val response = client.get(Users.Me()) {
             headers {
-                append(HttpHeaders.Authorization, authCredentials())
+                append(HttpHeaders.Authorization, credentials())
             }
             onDownload { bytesSentTotal, contentLength ->
                 println("on download image: Received $bytesSentTotal bytes from $contentLength")

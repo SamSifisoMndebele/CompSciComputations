@@ -14,11 +14,14 @@ import com.compscicomputations.client.utils.asBitmap
 import com.compscicomputations.client.utils.asByteArray
 import com.compscicomputations.di.IoDispatcher
 import com.compscicomputations.theme.namesRegex
+import com.compscicomputations.ui.auth.register.RegisterViewModel
+import com.compscicomputations.ui.auth.register.RegisterViewModel.Companion
 import com.compscicomputations.ui.utils.ProgressState
 import com.compscicomputations.utils.isBlankText
 import com.compscicomputations.utils.isPhoneValid
 import com.compscicomputations.utils.notMatches
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.InternalCoroutinesApi
@@ -74,7 +77,7 @@ class ProfileViewModel @Inject constructor(
                         _userState.value = user
                         updateProfile(user)
 
-                        isNotChanged = true
+//                        isNotChanged = true
                     } ?: let {
                         _uiState.value = _uiState.value.copy(isSignedIn = false)
                         _progressState.value = ProgressState.Idle
@@ -86,42 +89,37 @@ class ProfileViewModel @Inject constructor(
 
     private fun updateProfile(user: User) {
         _uiState.value = _uiState.value.copy(
-            id = user.id,
             names = user.names,
             lastname = user.lastname,
-            phone = user.phone,
+            phone = user.phone?.ifBlank { null },
 
             isStudent = user.isStudent,
             university = user.university ?: "",
             course = user.course ?: "",
             school = user.school ?: "",
 
-            isSignedIn = true,
+            imageUri = null,
         )
         _progressState.value = ProgressState.Idle
     }
 
-//    fun onRefresh() {
-//        _uiState.value = _uiState.value.copy(progressState = ProgressState.Loading())
-//        viewModelScope.launch(ioDispatcher) {
-//            authRepository.refreshUserFlow
-//                .flowOn(ioDispatcher)
-//                .catch { e ->
-//                    Log.w("DashboardViewModel", e)
-//                    _uiState.value = _uiState.value.copy(progressState = ProgressState.Error(e.localizedMessage))
-//                }
-//                .firstOrNull()
-//                ?.let { user ->
-//                    updateProfile(user)
-//                }
-//                ?: let {
-//                    _uiState.value = _uiState.value.copy(
-//                        isSignedIn = false,
-//                        progressState = ProgressState.Idle
-//                    )
-//                }
-//        }
-//    }
+    fun onRefresh() {
+        _progressState.value = ProgressState.Refreshing
+        job = viewModelScope.launch(ioDispatcher) {
+            authRepository.refreshUserFlow
+                .flowOn(ioDispatcher)
+                .catch { e ->
+                    Log.w("DashboardViewModel", e)
+                    _progressState.value = ProgressState.Error(e.localizedMessage)
+                }
+                .firstOrNull()
+                ?.let { user ->
+                    _userState.value = user
+                    updateProfile(user)
+                }
+            _progressState.value = ProgressState.Idle
+        }
+    }
 
     fun logout() {
         job = viewModelScope.launch {
@@ -144,16 +142,16 @@ class ProfileViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(lastname = lastname, lastnameError = null)
     }
     fun onPhoneChange(phone: String) {
-        _uiState.value = _uiState.value.copy(phone = phone.takeIf { it.isNotBlank() }, phoneError = null)
+        _uiState.value = _uiState.value.copy(phone = phone.ifBlank { null }, phoneError = null)
     }
     fun onUniversityChange(university: String) {
-        _uiState.value = _uiState.value.copy(university = university, universityError = null)
+        _uiState.value = _uiState.value.copy(university = university.ifBlank { null }, universityError = null)
     }
     fun onSchoolChange(school: String) {
-        _uiState.value = _uiState.value.copy(school = school, schoolError = null)
+        _uiState.value = _uiState.value.copy(school = school.ifBlank { null }, schoolError = null)
     }
     fun onCourseChange(course: String) {
-        _uiState.value = _uiState.value.copy(course = course, courseError = null)
+        _uiState.value = _uiState.value.copy(course = course.ifBlank { null }, courseError = null)
     }
 
     fun setProgressState(progressState: ProgressState) {
@@ -182,27 +180,35 @@ class ProfileViewModel @Inject constructor(
         if (!fieldsAreValid()) return
         _progressState.value = ProgressState.Loading("Saving...")
         job = viewModelScope.launch(ioDispatcher) {
-            authRepository.updateUser(
-                UpdateUser(
-                    id = _uiState.value.id,
-                    names = _uiState.value.names,
-                    lastname = _uiState.value.lastname,
-                    image = _uiState.value.imageUri?.let { scaledByteArray(it).asImage } ?:
-                    _userState.value?.imageBitmap?.asByteArray.asImage,
-                    phone = _uiState.value.phone,
-                    isStudent = _uiState.value.isStudent,
-                    isEmailVerified = _userState.value?.isEmailVerified ?: false,
-                    university = _uiState.value.university,
-                    school = _uiState.value.school,
-                    course = _uiState.value.course,
-                )
-            ) { bytesSent, totalBytes ->
-                if (bytesSent == totalBytes) {
-                    _progressState.value = ProgressState.Loading("Saving...")
-                } else {
-                    _progressState.value = ProgressState.Loading("Uploading image...\n" +
-                            "${(bytesSent/1024.0).roundToInt()}kB/${(totalBytes/1024.0).roundToInt()}kB")
+            try {
+                authRepository.updateUser(
+                    UpdateUser(
+                        id = _userState.value!!.id,
+                        names = _uiState.value.names,
+                        lastname = _uiState.value.lastname,
+                        image = _uiState.value.imageUri?.let { scaledByteArray(it).asImage } ?:
+                        _userState.value?.imageBitmap?.asByteArray.asImage,
+                        phone = _uiState.value.phone,
+                        isStudent = _uiState.value.isStudent,
+                        isEmailVerified = _userState.value?.isEmailVerified ?: false,
+                        university = _uiState.value.university,
+                        school = _uiState.value.school,
+                        course = _uiState.value.course,
+                    )
+                ) { bytesSent, totalBytes ->
+                    if (bytesSent == totalBytes) {
+                        _progressState.value = ProgressState.Loading("Saving...")
+                    } else {
+                        _progressState.value = ProgressState.Loading("Uploading image...\n" +
+                                "${(bytesSent/1024.0).roundToInt()}kB/${(totalBytes/1024.0).roundToInt()}kB")
+                    }
                 }
+            } catch (e: CancellationException) {
+                _progressState.value = ProgressState.Idle
+                Log.w(TAG, "onRegister", e)
+            } catch (e: Exception) {
+                _progressState.value = ProgressState.Error(e.localizedMessage)
+                Log.e(TAG, "onRegister", e)
             }
             _uiState.value = _uiState.value.copy(
                 imageUri = null

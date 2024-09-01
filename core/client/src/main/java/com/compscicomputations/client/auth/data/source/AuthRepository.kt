@@ -9,12 +9,11 @@ import com.compscicomputations.client.auth.data.source.remote.AuthDataSource.Com
 import com.compscicomputations.client.auth.data.source.remote.AuthDataSource.Companion.UnauthorizedException
 import com.compscicomputations.client.auth.data.model.remote.NewUser
 import com.compscicomputations.client.auth.data.model.User
-import com.compscicomputations.client.auth.data.model.remote.NewPassword
+import com.compscicomputations.client.auth.data.model.remote.ResetPassword
 import com.compscicomputations.client.auth.data.model.remote.UpdateUser
+import com.compscicomputations.client.auth.data.source.local.UserDataStore.Companion.AuthCredentialsUseCase
 import com.compscicomputations.client.utils.Image
-import com.compscicomputations.client.utils.asBitmap
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.retry
@@ -24,6 +23,7 @@ class AuthRepository @Inject constructor(
     @ApplicationContext private val context: Context,
     private val remoteDataSource: AuthDataSource,
     private val localDataStore: UserDataStore,
+    private val authCredentials: AuthCredentialsUseCase,
 ) {
     companion object {
         private const val TAG = "AuthRepository"
@@ -35,8 +35,8 @@ class AuthRepository @Inject constructor(
      * @throws ExpectationFailedException if the was server side error.
      */
     suspend fun login(email: String, password: String) {
+        localDataStore.savePasswordCredentials(email, password)
         remoteDataSource.getRemoteUser(AuthCredentials(email, password, null)) { _, _->} .let { user ->
-            localDataStore.savePasswordCredentials(email, password)
             localDataStore.saveUser(user.asUser)
         }
     }
@@ -56,39 +56,22 @@ class AuthRepository @Inject constructor(
 
     /**
      * Register and login a user
-     * @param email user email
-     * @param password user new password
-     * @param names user full names
-     * @param lastname user last names
-     * @param imageBytes user profile image bytearray
+     * @param newUser user information
      * @param onProgress the upload progress callback.
      * @throws ExpectationFailedException if the was server side error.
      */
     suspend fun createUser(
-        email: String,
-        password: String,
-        names: String,
-        lastname: String,
-        imageBytes: ByteArray?,
+        newUser: NewUser,
         onProgress: (bytesSent: Long, totalBytes: Long) -> Unit
     ) {
-        remoteDataSource.createUser(
-            NewUser(
-                email = email,
-                password = password,
-                names = names,
-                lastname = lastname,
-                image = imageBytes?.let { Image(it) }
-            ), onProgress
-        ).let {
+        remoteDataSource.createUser(newUser, onProgress).let {
+            localDataStore.savePasswordCredentials(newUser.email, newUser.password)
             localDataStore.saveUser(it.asUser)
-            localDataStore.savePasswordCredentials(email, password)
         }
     }
 
     /**
      * Update user information
-     * @param id user unique identifier
      * @param updateUser updated user information
      * @param onProgress the upload progress callback.
      */
@@ -102,17 +85,32 @@ class AuthRepository @Inject constructor(
             }
     }
 
-    suspend fun requestOtp(email: String) = remoteDataSource.requestOtp(email)
+    suspend fun passwordResetOtp(email: String) = remoteDataSource.passwordResetOtp(email)
+    suspend fun registerOtp(email: String) = remoteDataSource.registerOtp(email)
+
+    suspend fun passwordResetOtp(
+        email: String,
+        otp: String,
+        newPassword: String,
+    ) = remoteDataSource.passwordReset(
+        ResetPassword(
+            email = email,
+            otp = otp,
+            newPassword = newPassword,
+            password = null
+        )
+    )
 
     suspend fun passwordReset(
         email: String,
-        otp: String,
         password: String,
+        newPassword: String,
     ) = remoteDataSource.passwordReset(
-        NewPassword(
+        ResetPassword(
             email = email,
-            otp = otp,
+            otp = null,
             password = password,
+            newPassword = newPassword,
         )
     )
 
@@ -126,19 +124,16 @@ class AuthRepository @Inject constructor(
     val currentUserFlow: Flow<User?>
         get() = localDataStore.userFlow
 
-//    val refreshUserFlow: Flow<User?>
-//        get() = flow {
-//            remoteDataSource.getRemoteUser { bytesReceived, totalBytes ->
-//                Log.d(TAG, "onDownload User Image: Received $bytesReceived bytes from $totalBytes")
-//            }.asUser
-//                .let { user ->
-//                    localDataStore.saveUser(user)
-//                    emit(user)
-//                }
-//        }.retry(2) {
-//            Log.w(TAG, "Error fetching user, Retrying.", it)
-//            it is ExpectationFailedException
-//        }
-
-
+    val refreshUserFlow: Flow<User?>
+        get() = flow {
+            remoteDataSource.getRemoteUser { bytesReceived, totalBytes ->
+                Log.d(TAG, "onDownload User Image: Received $bytesReceived bytes from $totalBytes")
+            }.asUser.let { user ->
+                localDataStore.saveUser(user)
+                emit(user)
+            }
+        }.retry(2) {
+            Log.w(TAG, "Error fetching user, Retrying.", it)
+            it is ExpectationFailedException
+        }
 }

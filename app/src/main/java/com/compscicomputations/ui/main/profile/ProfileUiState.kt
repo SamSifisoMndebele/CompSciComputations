@@ -6,17 +6,16 @@ import com.compscicomputations.utils.isNotBlankText
 import com.compscicomputations.utils.isPhoneValid
 
 data class ProfileUiState(
-    val id: String = "",
-    val imageUri: Uri? = null,
-
     val names: String = "",
     val lastname: String = "",
     val phone: String? = null,
 
     val isStudent: Boolean = false,
-    val university: String = "",
-    val school: String = "",
-    val course: String = "",
+    val university: String? = null,
+    val school: String? = null,
+    val course: String? = null,
+
+    val imageUri: Uri? = null,
 
     val namesError: String? = null,
     val lastnameError: String? = null,

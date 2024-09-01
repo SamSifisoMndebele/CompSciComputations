@@ -8,6 +8,7 @@ data class RegisterUiState(
     val names: String = "",
     val lastname: String = "",
     val email: String = "",
+    val otp: String = "",
     val password: String = "",
     val passwordConfirm: String = "",
     val termsAccepted: Boolean = false,
@@ -15,10 +16,12 @@ data class RegisterUiState(
     val namesError: String? = null,
     val lastnameError: String? = null,
     val emailError: String? = null,
+    val otpError: String? = null,
     val passwordError: String? = null,
     val passwordConfirmError: String? = null,
     val termsAcceptedError: String? = null,
 
+    val sendingOtp: Boolean = false,
     val progressState: ProgressState = ProgressState.Idle
 ) {
     val isValid: Boolean
