@@ -56,7 +56,7 @@ fun MatrixMethods(
                         icon = {
                             Image(
                                 modifier = Modifier.size(24.dp),
-                                painter = painterResource(id = R.drawable.ic_google_gemini),
+                                painter = painterResource(id = R.drawable.ic_ai),
                                 contentDescription = null
                             )
                         },

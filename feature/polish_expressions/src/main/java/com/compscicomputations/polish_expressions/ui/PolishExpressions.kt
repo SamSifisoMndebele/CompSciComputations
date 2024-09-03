@@ -26,21 +26,26 @@ import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.compscicomputations.R
 import com.compscicomputations.polish_expressions.data.model.CurrentTab
-import com.compscicomputations.polish_expressions.ui.trace_table.RowData
+import com.compscicomputations.polish_expressions.ui.conversion.ConversionScreen
+import com.compscicomputations.polish_expressions.ui.conversion.ConversionViewModel
+import com.compscicomputations.polish_expressions.ui.trace_table.TraceTableViewModel
 import com.compscicomputations.polish_expressions.ui.trace_table.TraceTablesScreen
+import com.compscicomputations.polish_expressions.ui.tree_diagram.TreeDiagramScreen
+import com.compscicomputations.polish_expressions.ui.tree_diagram.TreeDiagramViewModel
 import com.compscicomputations.theme.comicNeueFamily
 import com.compscicomputations.ui.utils.ui.CompSciScaffold
 
@@ -49,38 +54,15 @@ import com.compscicomputations.ui.utils.ui.CompSciScaffold
 fun PolishExpressions(
     navigateUp: () -> Unit,
 ) {
-    var selectedItem by rememberSaveable { mutableIntStateOf(2) }
-    var currentTab by rememberSaveable { mutableStateOf(CurrentTab.TraceTable) }
-    val items = listOf("Conversion", "Tree Diagram", "Trace Table")
+    var currentTab by rememberSaveable { mutableStateOf(CurrentTab.Conversion) }
 
-    val postfixData = listOf(
-        RowData('A', "", "A"),
-        RowData('+', "+", "A"),
-        RowData('(', "+(", "AB"),
-        RowData('B', "+(", "AB"),
-        RowData('-', "+(-", "AB"),
-        RowData('C', "+(-", "ABC"),
-        RowData(')', "+", "ABC-"),
-        RowData('*', "+*", "ABC-"),
-        RowData('A', "+*", "ABC-A"),
-        RowData('-', "-", "ABC-A*+"),
-        RowData('C', "-", "ABC-A*+C"),
-        RowData(' ', "", "ABC-A*+C-"),
-    )
-    val prefixData = listOf(
-        RowData('C', "", "C"),
-        RowData('-', "-", "C"),
-        RowData('A', "-", "AC"),
-        RowData('*', "-*", "AC"),
-        RowData(')', "-*)", "AC"),
-        RowData('C', "-*)", "CAC"),
-        RowData('-', "-*)-", "CAC"),
-        RowData('B', "-*)-", "BCAC"),
-        RowData('(', "-*", "-BCAC"),
-        RowData('+', "-+", "*-BCAC"),
-        RowData('A', "-+", "A*-BCAC"),
-        RowData(' ', "", "-+A*-BCAC"),
-    )
+    val context = LocalContext.current
+
+    val conversionViewModel = ConversionViewModel(context)
+    val treeDiagramViewModel = TreeDiagramViewModel()
+    val traceTableViewModel = TraceTableViewModel()
+
+    val uiState by conversionViewModel.uiState.collectAsStateWithLifecycle()
 
     CompSciScaffold(
         modifier = Modifier.fillMaxSize(),
@@ -90,35 +72,39 @@ fun PolishExpressions(
             BottomAppBar(
                 actions = {
                     IconButton(onClick = {
-
+                        conversionViewModel.clear()
+                        treeDiagramViewModel.onChange("", "", "")
+                        traceTableViewModel.onChange("")
                     }) {
                         Icon(Icons.Outlined.Delete, contentDescription = "Clear fields")
                     }
-                    IconButton(onClick = {
-
-                    }) {
-                        Icon(
-                            Icons.AutoMirrored.Outlined.List,
-                            contentDescription = "Response List",
-                        )
-                    }
+//                    IconButton(onClick = {
+//
+//                    }) {
+//                        Icon(
+//                            Icons.AutoMirrored.Outlined.List,
+//                            contentDescription = "Response List",
+//                        )
+//                    }
                 },
                 floatingActionButton = {
-                    ExtendedFloatingActionButton(
-                        text = { Text(text = "Generate Steps") },
-                        icon = {
-                            Image(
-                                modifier = Modifier.size(24.dp),
-                                painter = painterResource(id = R.drawable.ic_google_gemini),
-                                contentDescription = null
-                            )
-                        },
-                        containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
-                        elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
-                        onClick = {
-
-                        }
-                    )
+                    if (currentTab == CurrentTab.Conversion) {
+//                        ExtendedFloatingActionButton(
+//                            text = { Text(text = "Generate Steps") },
+//                            icon = {
+//                                Image(
+//                                    modifier = Modifier.size(24.dp),
+//                                    painter = painterResource(id = R.drawable.ic_ai),
+//                                    contentDescription = null
+//                                )
+//                            },
+//                            containerColor = BottomAppBarDefaults.bottomAppBarFabColor,
+//                            elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
+//                            onClick = {
+//                                //TODO("Generate on Conversion")
+//                            }
+//                        )
+                    }
                 }
             )
         },
@@ -166,12 +152,22 @@ fun PolishExpressions(
             Spacer(modifier = Modifier.height(16.dp))
 
             when(currentTab) {
-                CurrentTab.Conversion -> Text(text = "Conversion")
-                CurrentTab.TreeDiagram -> Text(text = "Tree Diagram")
-                CurrentTab.TraceTable -> TraceTablesScreen(
-                    postfixData = postfixData,
-                    prefixData = prefixData
+                CurrentTab.Conversion -> ConversionScreen(
+                    viewModel = conversionViewModel,
+                    uiState = uiState
                 )
+                CurrentTab.TreeDiagram -> {
+                    treeDiagramViewModel.onChange(uiState.infix, uiState.prefix, uiState.postfix)
+                    TreeDiagramScreen(
+                        viewModel = treeDiagramViewModel,
+                    )
+                }
+                CurrentTab.TraceTable -> {
+                    traceTableViewModel.onChange(uiState.infix)
+                    TraceTablesScreen(
+                        viewModel = traceTableViewModel
+                    )
+                }
             }
         }
 

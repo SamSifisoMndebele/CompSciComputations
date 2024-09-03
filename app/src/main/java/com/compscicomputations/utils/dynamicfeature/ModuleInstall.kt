@@ -6,8 +6,11 @@ import com.compscicomputations.client.publik.data.model.DynamicFeature
 import com.google.android.play.core.splitinstall.SplitInstallManager
 import com.google.android.play.core.splitinstall.SplitInstallRequest
 import com.google.android.play.core.splitinstall.SplitInstallStateUpdatedListener
-import com.google.android.play.core.splitinstall.model.SplitInstallErrorCode
-import com.google.android.play.core.splitinstall.model.SplitInstallErrorCode.*
+import com.google.android.play.core.splitinstall.model.SplitInstallErrorCode.INSUFFICIENT_STORAGE
+import com.google.android.play.core.splitinstall.model.SplitInstallErrorCode.INTERNAL_ERROR
+import com.google.android.play.core.splitinstall.model.SplitInstallErrorCode.MODULE_UNAVAILABLE
+import com.google.android.play.core.splitinstall.model.SplitInstallErrorCode.NETWORK_ERROR
+import com.google.android.play.core.splitinstall.model.SplitInstallErrorCode.PLAY_STORE_NOT_FOUND
 import com.google.android.play.core.splitinstall.model.SplitInstallSessionStatus
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.tasks.await
@@ -53,6 +56,7 @@ class ModuleInstall @Inject constructor(
                       In order to see this, the application has to be uploaded to the Play Store.
                       Then features can be requested until the confirmation path is triggered.
                      */
+                    @Suppress("DEPRECATION")
                     context.startIntentSender(state.resolutionIntent()?.intentSender, null, 0, 0, 0)
                 }
                 SplitInstallSessionStatus.INSTALLED -> {

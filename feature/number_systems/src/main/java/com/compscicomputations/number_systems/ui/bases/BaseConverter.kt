@@ -94,7 +94,7 @@ object BaseConverter {
             )
         }
         return try {
-            fromRadix(binaryStr, 2)
+            fromRadix(binaryStr, 2).copy(binary = binaryStr)
         } catch (e: NumberFormatException) {
             copy(
                 decimal = "",
@@ -119,7 +119,7 @@ object BaseConverter {
             )
         }
         return try {
-            fromRadix(octalStr, 8)
+            fromRadix(octalStr, 8).copy(octal = octalStr)
         } catch (e: NumberFormatException) {
             copy(
                 decimal = "",
@@ -144,7 +144,7 @@ object BaseConverter {
             )
         }
         return try {
-            fromRadix(hexadecimalStr, 16)
+            fromRadix(hexadecimalStr, 16).copy(hexadecimal = hexadecimalStr)
         } catch (e: NumberFormatException) {
             copy(
                 decimal = "",

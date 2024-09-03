@@ -109,7 +109,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/generate"
-        app:icon="@drawable/ic_google_gemini"
+        app:icon="@drawable/ic_ai"
         app:layout_anchor="@id/bottomAppBar"
         android:backgroundTint="#FFEE2737"
         android:textColor="#ffeeeeee"

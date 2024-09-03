@@ -1,6 +1,7 @@
 package com.compscicomputations.polish_expressions.ui.conversion
 
 import com.compscicomputations.polish_expressions.utils.ExpSigned
+import java.util.EmptyStackException
 import java.util.LinkedList
 import java.util.Queue
 import java.util.Stack
@@ -8,7 +9,7 @@ import kotlin.math.pow
 
 object ExpressionConvert {
 
-    private fun Char.precedence(): Int {
+    internal fun Char.precedence(): Int {
         return when (this){
             '=','≠' -> 1
             '>','≥','≤','<' -> 2
@@ -285,7 +286,7 @@ object ExpressionConvert {
             postfix.add("$e")
         }
 
-        return postfix.joinToString(" ")
+        return postfix.joinToString("")
     }
 
     //Convert Infix to Prefix
@@ -371,7 +372,7 @@ object ExpressionConvert {
             prefix.add("$e")
         }
 
-        return prefix.joinToString(" ").reversed()
+        return prefix.joinToString("").reversed()
     }
 
     //Convert Postfix to Infix
@@ -402,7 +403,7 @@ object ExpressionConvert {
             if (char.isWhitespace()) continue
 
             val right = stack.pop()
-            val left = stack.pop()
+            val left = try { stack.pop() } catch (e: EmptyStackException) { ExpSigned("") }
 
             if (left.operator != null && right.operator != null){
                 if (char.precedence() > left.operator!!.precedence() && char.precedence() > right.operator!!.precedence()){
@@ -432,23 +433,21 @@ object ExpressionConvert {
     }
 
     //Convert Postfix to Prefix
-    fun String.postfixToPrefix(): String {
-        return postfixToInfix().infixToPrefix()
-    }
+    fun String.postfixToPrefix(): String = postfixToInfix().infixToPrefix()
 
     //Convert Prefix to Infix
     fun String.prefixToInfix(): String {
-        val prefixRev = this.reversed()
-        val stack: Stack<ExpSigned> = Stack()
+        val prefixRev = reversed()
+        val stack: Stack<ExpSigned> = Stack()//ds
 
-        val num = StringBuilder()
-        var prevChar = '0'
+        val num = StringBuilder() //ds
+        var prevChar = '0' //d
 
         for (char in prefixRev) {
             if (char.isLetterOrDigit() || char == '.'){
                 num.append(char)
 
-                if (num.isNotEmpty() && prevChar.isLetter() && char.isLetter()){
+                if (num.isNotEmpty() && prevChar.isDigit() && char.isDigit()){
                     stack.push(ExpSigned("$prevChar"))
                     stack.push(ExpSigned(char.toString()))
                     num.clear()
@@ -457,7 +456,7 @@ object ExpressionConvert {
                 continue
             }
             prevChar = '0'
-            if (num.isNotEmpty()){
+            if (num.isNotEmpty()) {
                 stack.push(ExpSigned(num.toString()))
                 num.clear()
             }
@@ -466,22 +465,22 @@ object ExpressionConvert {
             val right = stack.pop()
             val left = stack.pop()
 
-            if (left.operator != null && right.operator != null){
-                if (char.precedence() > left.operator!!.precedence() && char.precedence() > right.operator!!.precedence()){
-                    stack.push(ExpSigned(")${left.string}($char)${right.string}(", char))
-                } else if (char.precedence() > left.operator!!.precedence()){
-                    stack.push(ExpSigned(")${left.string}($char${right.string}", char))
-                } else if (char.precedence() > right.operator!!.precedence()){
-                    stack.push(ExpSigned("${left.string}$char)${right.string}(", char))
-                } else {
-                    stack.push(ExpSigned("${left.string}$char${right.string}", char))
+            when {
+                left.operator != null && right.operator != null -> when {
+                    char.precedence() > left.operator!!.precedence() && char.precedence() > right.operator!!.precedence() -> stack.push(
+                        ExpSigned(")${left.string}($char)${right.string}(", char)
+                    )
+                    char.precedence() > left.operator!!.precedence() -> stack.push(ExpSigned(")${left.string}($char${right.string}", char))
+                    char.precedence() > right.operator!!.precedence() -> stack.push(ExpSigned("${left.string}$char)${right.string}(", char))
+                    else -> stack.push(ExpSigned("${left.string}$char${right.string}", char))
                 }
-            } else if (left.operator != null && char.precedence() > left.operator!!.precedence()){
-                stack.push(ExpSigned(")${left.string}($char${right.string}", char))
-            } else if (right.operator != null && char.precedence() > right.operator!!.precedence()){
-                stack.push(ExpSigned("${left.string}$char)${right.string}(", char))
-            } else {
-                stack.push(ExpSigned("${left.string}$char${right.string}", char))
+                left.operator != null && char.precedence() > left.operator!!.precedence() -> stack.push(
+                    ExpSigned(")${left.string}($char${right.string}", char)
+                )
+                right.operator != null && char.precedence() > right.operator!!.precedence() -> stack.push(
+                    ExpSigned("${left.string}$char)${right.string}(", char)
+                )
+                else -> stack.push(ExpSigned("${left.string}$char${right.string}", char))
             }
         }
 
@@ -493,7 +492,5 @@ object ExpressionConvert {
     }
 
     //Convert Prefix to Postfix
-    fun String.prefixToPostfix(): String {
-        return prefixToInfix().infixToPostfix()
-    }
+    fun String.prefixToPostfix(): String = prefixToInfix().infixToPostfix()
 }

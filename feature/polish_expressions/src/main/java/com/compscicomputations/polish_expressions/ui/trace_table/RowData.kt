@@ -2,7 +2,7 @@ package com.compscicomputations.polish_expressions.ui.trace_table
 
 
 data class RowData(
-    val char: Char,
+    val operand: Char,
     val stack: String,
     val polish : String
 ) {

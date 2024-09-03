@@ -1,5 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Base application theme. -->
+    <style name="Base.Theme.CompSciComputations" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your light theme here. -->
+        <item name="colorPrimary">#FFEE2737</item>
+    </style>
 
     <style name="Theme.CompSciComputations" parent="Theme.AppCompat.DayNight.NoActionBar" />
+
+    <style name="Theme.IntellectCalculator.NodeCard" parent="Widget.MaterialComponents.CardView">
+        <item name="cardBackgroundColor">#99A5D6A7</item>
+    </style>
+
+    <style name="Theme.IntellectCalculator.ParentNodeCard" parent="Widget.MaterialComponents.CardView">
+        <item name="cardBackgroundColor">#81C784</item>
+    </style>
 </resources>

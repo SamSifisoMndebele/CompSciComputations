@@ -42,7 +42,6 @@ android {
 dependencies {
     /**Local database*/
     implementation(libs.androidx.room.runtime)
-    androidTestImplementation(libs.androidx.ui.test.junit4)
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.datastore.preferences)
 
@@ -62,8 +61,9 @@ dependencies {
     implementation(libs.androidx.ui.viewbinding)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-//    testImplementation(libs.junit)
-//    androidTestImplementation(libs.androidx.junit)
-//    androidTestImplementation(libs.androidx.espresso.core)
-//    androidTestImplementation(platform(libs.androidx.compose.bom))
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.ui.test.junit4)
 }

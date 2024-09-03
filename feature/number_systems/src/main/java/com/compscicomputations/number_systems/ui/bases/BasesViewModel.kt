@@ -41,6 +41,8 @@ class BasesViewModel(
     private val generateContent: GenerateContentUseCase,
     val aiResponseDao: AiResponseDao,
 ) : ViewModel() {
+    private val _uiState = MutableStateFlow(BasesUiState())
+    val uiState = _uiState.asStateFlow()
     init {
         viewModelScope.launch {
             BaseNDataStore.lastState(context).first()
@@ -63,8 +65,6 @@ class BasesViewModel(
 
     }
 
-    private val _uiState = MutableStateFlow(BasesUiState())
-    val uiState = _uiState.asStateFlow()
 
     fun setAiState(aiState: AIState) {
         _uiState.value = _uiState.value.copy(aiState = aiState)

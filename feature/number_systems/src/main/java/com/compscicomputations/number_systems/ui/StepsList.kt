@@ -36,7 +36,6 @@ import com.compscicomputations.R
 import com.compscicomputations.number_systems.data.model.ConvertFrom
 import com.compscicomputations.number_systems.data.model.CurrentTab
 import com.compscicomputations.data.source.local.AiResponse
-import com.compscicomputations.number_systems.utils.MODULE_NAME
 import com.compscicomputations.theme.comicNeueFamily
 import kotlinx.coroutines.flow.Flow
 
@@ -120,7 +119,7 @@ fun StepsList(
                                 leadingContent = {
                                     Image(
                                         modifier = Modifier.size(24.dp),
-                                        painter = painterResource(id = R.drawable.ic_google_gemini),
+                                        painter = painterResource(id = R.drawable.ic_ai),
                                         contentDescription = null
                                     )
                                 },
