@@ -1,14 +1,11 @@
 package com.compscicomputations.matrix_methods
 
 import android.os.Bundle
-import android.widget.LinearLayout
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.compscicomputations.CSCActivity
-import com.compscicomputations.matrix_methods.classes.Matrix.toExpressionMatrix
-import com.compscicomputations.matrix_methods.classes.Methods.salveByGaussJordanElimination
 import com.compscicomputations.matrix_methods.ui.MatrixMethods
 import com.compscicomputations.theme.CompSciComputationsTheme
 
