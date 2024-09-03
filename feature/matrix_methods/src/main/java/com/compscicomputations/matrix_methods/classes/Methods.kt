@@ -1,28 +1,15 @@
 package com.compscicomputations.matrix_methods.classes
 
-import android.widget.LinearLayout
-import com.compscicomputations.matrix_methods.classes.Expressions.Expression
-import com.compscicomputations.matrix_methods.classes.Expressions.addLikeTerms
-import com.compscicomputations.matrix_methods.classes.Expressions.divideBy
-import com.compscicomputations.matrix_methods.classes.Expressions.isNumber
-import com.compscicomputations.matrix_methods.classes.Expressions.isOne
-import com.compscicomputations.matrix_methods.classes.Expressions.isZero
-import com.compscicomputations.matrix_methods.classes.Expressions.simplify
-import com.compscicomputations.matrix_methods.classes.Expressions.times
-import com.compscicomputations.matrix_methods.classes.Expressions.add
-import com.compscicomputations.matrix_methods.classes.Expressions.removePlusOnStart
-import com.compscicomputations.matrix_methods.utils.Utils.space
-import com.compscicomputations.matrix_methods.classes.Matrix.printEliminationMatrix
-import com.compscicomputations.matrix_methods.classes.Matrix.printEquations
-import com.compscicomputations.matrix_methods.classes.Matrix.printMatrixAB
-import com.compscicomputations.matrix_methods.classes.Matrix.printX
+import com.compscicomputations.matrix_methods.classes.Matrix.determinant
+import com.compscicomputations.matrix_methods.classes.Matrix.takeForDet
+import com.compscicomputations.matrix_methods.classes.Matrix.toExpressionMatrix
+import com.compscicomputations.matrix_methods.classes.Matrix.transpose
 import com.compscicomputations.matrix_methods.utils.Constants.xVariables
-import com.compscicomputations.matrix_methods.utils.Utils.printLatex
-import com.compscicomputations.matrix_methods.utils.Utils.printText
+import com.compscicomputations.matrix_methods.utils.Utils.toFractionNumber
 
 object Methods {
 
-    fun LinearLayout.salveByGaussJordanElimination(matrixA: Array<Array<Expression>>, matrixB: Array<Array<Expression>>) {
+    /*fun LinearLayout.salveByGaussJordanElimination(matrixA: Array<DoubleArray>, matrixB: Array<DoubleArray>) {
         printText("Gauss-Jordan Elimination Method",16)
         space()
         printEquations(matrixA, matrixB)
@@ -136,11 +123,11 @@ object Methods {
             reducedB = tempB
         }
 
-        var lastRowA = Expression(0)
+        var lastRowA = Double(0)
         for (elem in reducedA[reducedA.size-1]){
             lastRowA = lastRowA.add(elem)
         }
-        var lastRowB = Expression(0)
+        var lastRowB = Double(0)
         for (elem in reducedB[reducedB.size-1]){
             lastRowB = lastRowB.add(elem)
         }
@@ -186,8 +173,8 @@ object Methods {
 
                 val tempA = reducedA.copyOf()
                 val tempB = reducedB.copyOf()
-                tempA[tempA.size-1][tempA[0].size-1] = Expression(1)
-                tempB[tempB.size-1][tempB[0].size-1] = Expression('t')
+                tempA[tempA.size-1][tempA[0].size-1] = Double(1)
+                tempB[tempB.size-1][tempB[0].size-1] = Double('t')
                 printEliminationMatrix(tempA,tempB, null)
 
                 val rowOperations = Array(matrixA.size){""" \space """}
@@ -217,7 +204,7 @@ object Methods {
 
     }
 
-    private fun Expression.parenthesize() : String {
+    private fun Double.parenthesize() : String {
         return if (denominator.isOne() && numerator.size > 1){
             if (toString().startsWith("-")){
                 "-(${(-1).times(this).toString().removePlusOnStart()})"
@@ -225,7 +212,7 @@ object Methods {
                 "+(${toString().removePlusOnStart()})"
             }
         } else toString()
-    }
+    }*/
 
 
 
@@ -334,7 +321,7 @@ object Methods {
                 }
             }
 
-            printEliminationMatrix(lowerTriM.toExpressionMatrix(), Array(lowerTriM.size){ Array(0){Expression()} }, rows)
+            printEliminationMatrix(lowerTriM.toExpressionMatrix(), Array(lowerTriM.size){ Array(0){Double()} }, rows)
         }
 
         printMatrix("U = ", upperTriM)
@@ -398,7 +385,7 @@ object Methods {
 
         space(height = 15)
         printText("So, Ux = y", 20, 6)
-        printMatrixTimesX( upperTriM, xCoefficients.take(upperTriM.size).toTypedArray(), " = ", y, 4)
+        printMatrixTimesX( upperTriM, xVariables().take(upperTriM.size).toTypedArray(), " = ", y, 4)
 
         var lastRowSum = 0.0
         for (elem in upperTriM[upperTriM.size-1]){
@@ -413,7 +400,7 @@ object Methods {
 
                 val equation = StringBuilder()
                 for (col in row until  upperTriM.size) {
-                    equation.append(doubles[col].toSubject(row, xCoefficients[col]))
+                    equation.append(doubles[col].toSubject(row, xVariables()[col]))
                 }
                 equation.append(" = ${y[row][0].toFractionNumber().latex}")
 
@@ -426,7 +413,7 @@ object Methods {
                     answer *= inverse
                 }
                 x[row][0] = answer
-                equation.append("  , ⟹ ${xCoefficients[row]} = ${answer.toFractionNumber().latex}")
+                equation.append("  , ⟹ ${xVariables()[row]} = ${answer.toFractionNumber().latex}")
                 printText(equation.toString(), 16,4)
             }
 
@@ -440,7 +427,7 @@ object Methods {
             space()
             printText("Parametric general solution",18, 4)
 
-            printText("Let ${xCoefficients[upperTriM.size-1]} = t", 16,4)
+            printText("Let ${xVariables()[upperTriM.size-1]} = t", 16,4)
             val t = DoubleArray(upperTriM.size); t[upperTriM.size-1] = 1.0
             x[upperTriM.size-1][0] = 0.0
             val xMatrix = Array(upperTriM.size) { Array(1){""} }
@@ -450,7 +437,7 @@ object Methods {
 
                 val equation = StringBuilder()
                 for (col in row until  upperTriM.size) {
-                    equation.append(doubles[col].toSubject(row, xCoefficients[col]))
+                    equation.append(doubles[col].toSubject(row, xVariables()[col]))
                 }
                 equation.append(" = ${y[row][0].toFractionNumber().latex}")
 
@@ -468,7 +455,7 @@ object Methods {
                 x[row][0] = answer
                 t[row] = tCoef
 
-                equation.append("&ensp;&ensp;⟹&ensp;${xCoefficients[row]} = ")
+                equation.append("&ensp;&ensp;⟹&ensp;${xVariables()[row]} = ")
                 val string = if (tCoef < 0.0){
                     if (tCoef == -1.0) "${answer.toFractionNumber().latex} ‒ t"
                     else "${answer.toFractionNumber().latex} ‒ ${(-tCoef).toFractionNumber().latex}t"
@@ -522,34 +509,34 @@ object Methods {
                 printText("If |A| = 0, and <small>Adj</small>A \times B = 0, then the system is consistent and has infinitely many solutions.",18, 4)
                 space()
                 printText("Parametric general solution",18, 4)
-                printText("Let ${xCoefficients[matrixA.size-1]} = t &ensp;&ensp;⟹", 16,4)
+                printText("Let ${xVariables()[matrixA.size-1]} = t &ensp;&ensp;⟹", 16,4)
 
 
-                val expMatrixB = Array(matrixA.size){Array(1){Expression()} }
+                val expMatrixB = Array(matrixA.size){Array(1){Double()} }
 
                 matrixA.forEachIndexed { row, doubles ->
                     val string = StringBuilder()
 
                     for (col in 0 until doubles.size-1) {
                         val d = doubles[col]
-                        val term = when(xCoefficients[col]) {
+                        val term = when(xVariables()[col]) {
                             "x<sub><small>1</small></sub>" -> {
                                 if (d < 0) {
-                                    if (d == -1.0) "-${xCoefficients[col]}" else "-${(-d).toFractionNumber().latex}${xCoefficients[col]}"
+                                    if (d == -1.0) "-${xVariables()[col]}" else "-${(-d).toFractionNumber().latex}${xVariables()[col]}"
                                 } else if (d == 0.0) {
                                     ""
                                 } else {
-                                    if (d == 1.0) xCoefficients[col] else "${d.toFractionNumber().latex}${xCoefficients[col]}"
+                                    if (d == 1.0) xVariables()[col] else "${d.toFractionNumber().latex}${xVariables()[col]}"
                                 }
                             }
                             "x<sub><small>2</small></sub>", "x<sub><small>3</small></sub>", "x<sub><small>4</small></sub>",
                             "x<sub><small>5</small></sub>", "x<sub><small>6</small></sub>" -> {
                                 if (d < 0) {
-                                    if (d == -1.0) " ‒ ${xCoefficients[col]}" else " ‒ ${(-d).toFractionNumber().latex}${xCoefficients[col]}"
+                                    if (d == -1.0) " ‒ ${xVariables()[col]}" else " ‒ ${(-d).toFractionNumber().latex}${xVariables()[col]}"
                                 } else if (d == 0.0) {
                                     ""
                                 } else {
-                                    if (d == 1.0) " + ${xCoefficients[col]}" else " + ${d.toFractionNumber().latex}${xCoefficients[col]}"
+                                    if (d == 1.0) " + ${xVariables()[col]}" else " + ${d.toFractionNumber().latex}${xVariables()[col]}"
                                 }
                             }
                             else -> {
@@ -563,7 +550,7 @@ object Methods {
                         string.append(term)
                     }
 
-                    expMatrixB[row][0] = Expression(matrixB[row][0], -doubles[doubles.size-1])
+                    expMatrixB[row][0] = Double(matrixB[row][0], -doubles[doubles.size-1])
 
                     string.append(" = ${expMatrixB[row][0]}")
                     printText(string.toString(),18, 4)
@@ -574,16 +561,16 @@ object Methods {
             }
         }
     }
-    private fun LinearLayout.inverseParametricSol(expMatrixA: Array<Array<Expression>>, expMatrixB: Array<Array<Expression>>, excludedRow: Int) {
+    private fun LinearLayout.inverseParametricSol(expMatrixA: Array<DoubleArray>, expMatrixB: Array<DoubleArray>, excludedRow: Int) {
         if (expMatrixA.size == 1) {
-            val x = Array(expMatrixA.size+1) { Array(1){Expression()} }
+            val x = Array(expMatrixA.size+1) { Array(1){Double()} }
             printText("Then we choose any equation and salve for x<sub><small>1</small></sub>. If we choose the first equation then,")
 
             val coef = expMatrixA[0][0]
             printText("x<sub><small><small>1</small></small></sub> = <sup>(${expMatrixB[0][0]})</sup>/<sub>$coef</sub>", 16,4)
 
             x[0][0] = (1/coef.getNumber()).times(expMatrixB[0][0])
-            x[1][0] = Expression(0.0, 1.0)
+            x[1][0] = Double(0.0, 1.0)
             printText("x<sub><small>1</small></sub> = ${x[0][0]}",16,6)
 
             printX(x)
@@ -611,25 +598,25 @@ object Methods {
             printText("X = A<sup>-1</sup> \times B", 18, 8)
             printMatrixMultiplication("X = ", inverse,  expMatrixB)
 
-            val x = Array(expMatrixA.size+1) { Array(1){Expression()} }
+            val x = Array(expMatrixA.size+1) { Array(1){Double()} }
             val xTemp = inverse.times(expMatrixB)
             xTemp.forEachIndexed { index, expressions ->
                 x[index][0] = expressions[0]
             }
-            x[expMatrixA.size][0] = Expression(0.0, 1.0)
+            x[expMatrixA.size][0] = Double(0.0, 1.0)
 
             printX(x)
         }
     }*/
 
-    /*fun LinearLayout.solveByCramersRule(matrixA: Array<DoubleArray>,matrixB: Array<DoubleArray>) {
-        printText("Cramer’s Rule Method", 22)
-        space()
-        printEquations(matrixA,matrixB)
-        printMatrixAB(matrixA, matrixB)
+    fun solveByCramersRule(matrixA: Array<DoubleArray>,matrixB: Array<DoubleArray>) {
+        val answer = StringBuilder()
+        answer.append("## Solve by Cramer's Rule Method")
+//        printEquations(matrixA,matrixB)
+//        printMatrixAB(matrixA, matrixB)
 
         val det = matrixA.determinant()
-        printDetMatrix("D = ", matrixA, det)
+//        printDetMatrix("D = ", matrixA, det)
 
         val determinants = mutableListOf<Double>()
         for (index in matrixA.indices) {
@@ -645,24 +632,24 @@ object Methods {
             }
             val dx = matrix.determinant()
             determinants.add(dx)
-            printDetMatrix("D<sub><small>${xCoefficients[index]}</small></sub> = ", matrix, dx)
+            answer.append("D<sub><small>${xVariables()[index]}</small></sub> = "+ matrix + "=" + dx)
         }
 
         if (det != 0.0){
             val x = Array(matrixA.size) {DoubleArray(1)}
             val string = StringBuilder()
             determinants.forEachIndexed { index, determinant ->
-                string.append("${xCoefficients[index]} = ")
-                string.append("<sup>D<sub><small>${xCoefficients[index]}</small></sub></sup>/<sub>D</sub> = ")
+                string.append("${xVariables()[index]} = ")
+                string.append("<sup>D<sub><small>${xVariables()[index]}</small></sub></sup>/<sub>D</sub> = ")
                 string.append("<sup>${determinant.toFractionNumber().latex}</sup>/<sub>${det.toFractionNumber().latex}</sub> = ")
                 val xValue = determinant/det
                 x[index][0] = xValue
                 string.append(xValue.toFractionNumber().latex)
                 string.append("<br/>")
             }
-            printText(string.toString(), 16, 4)
+            answer.append(string.toString())
 
-            printX(x)
+            answer.append("x = $x")
         }
         else {
             var isNoSolution = false
@@ -672,41 +659,40 @@ object Methods {
                 }
             }
             if (isNoSolution){
-                printText("If |D| = 0, and some D<sub><small>x<sub><small>i</small></sub></small></sub> ≠ 0 then the system is inconsistent. <br/>The system has no solution.",18, 4)
-                space()
+                answer.append("* If |D| = 0, and some D<sub><small>x<sub><small>i</small></sub></small></sub> ≠ 0 then the system is inconsistent. <br/>The system has no solution.")
             }
             else {
-                printText("If |A| = 0, and all D<sub><small>x<sub><small>i</small></sub></small></sub> = 0, then the system is consistent and has infinitely many solutions.",18, 4)
-                space()
-                printText("Parametric general solution",18, 4)
+                answer.append("* If |A| = 0, and all D<sub><small>x<sub><small>i</small></sub></small></sub> = 0, then the system is consistent and has infinitely many solutions.")
 
-                printText("Let ${xCoefficients[matrixA.size-1]} = t &ensp;&ensp;⟹", 16,4)
+                answer.append("* Parametric general solution")
 
-                val expMatrixB = Array(matrixA.size){Array(1){Expression()} }
+                answer.append("* Let ${xVariables()[matrixA.size-1]} = t &ensp;&ensp;⟹")
+
+                val expMatrixB = Array(matrixA.size){ DoubleArray(1){ 0.0 } }
 
                 matrixA.forEachIndexed { row, doubles ->
                     val string = StringBuilder()
 
                     for (col in 0 until doubles.size-1) {
                         val d = doubles[col]
-                        val term = when(xCoefficients[col]) {
+                        val term = when(xVariables()[col]) {
                             "x<sub><small>1</small></sub>" -> {
                                 if (d < 0) {
-                                    if (d == -1.0) "-${xCoefficients[col]}" else "-${(-d).toFractionNumber().latex}${xCoefficients[col]}"
+                                    if (d == -1.0) "-${xVariables()[col]}" else "-${(-d).toFractionNumber().latex}${xVariables()[col]}"
                                 } else if (d == 0.0) {
                                     ""
                                 } else {
-                                    if (d == 1.0) xCoefficients[col] else "${d.toFractionNumber().latex}${xCoefficients[col]}"
+                                    if (d == 1.0) xVariables()[col] else "${d.toFractionNumber().latex}${xVariables()[col]}"
                                 }
                             }
                             "x<sub><small>2</small></sub>", "x<sub><small>3</small></sub>", "x<sub><small>4</small></sub>",
                             "x<sub><small>5</small></sub>", "x<sub><small>6</small></sub>" -> {
                                 if (d < 0) {
-                                    if (d == -1.0) " ‒ ${xCoefficients[col]}" else " ‒ ${(-d).toFractionNumber().latex}${xCoefficients[col]}"
+                                    if (d == -1.0) " ‒ ${xVariables()[col]}" else " ‒ ${(-d).toFractionNumber().latex}${xVariables()[col]}"
                                 } else if (d == 0.0) {
                                     ""
                                 } else {
-                                    if (d == 1.0) " + ${xCoefficients[col]}" else " + ${d.toFractionNumber().latex}${xCoefficients[col]}"
+                                    if (d == 1.0) " + ${xVariables()[col]}" else " + ${d.toFractionNumber().latex}${xVariables()[col]}"
                                 }
                             }
                             else -> {
@@ -720,41 +706,40 @@ object Methods {
                         string.append(term)
                     }
 
-                    expMatrixB[row][0] = Expression(matrixB[row][0], -doubles[doubles.size-1])
+//                    expMatrixB[row][0] = Double(matrixB[row][0], -doubles[doubles.size-1])
 
                     string.append(" = ${expMatrixB[row][0]}")
-                    printText(string.toString(),18, 4)
+                    answer.append("---")
+                    answer.append(string.toString())
                 }
 
-                val matrix = matrixA.toExpressionMatrix().takeForDet(expMatrixB)
+                val matrix = matrixA.takeForDet(expMatrixB)
                 cramersRuleParametricSol(matrix.matrixA, matrix.matrixB, matrix.excludedRow)
             }
         }
-
-        space(height=10)
     }
-    private fun LinearLayout.cramersRuleParametricSol(expMatrixA: Array<Array<Expression>>,expMatrixB: Array<Array<Expression>>, excludedRow: Int){
+    private fun cramersRuleParametricSol(expMatrixA: Array<DoubleArray>, expMatrixB: Array<DoubleArray>, excludedRow: Int){
         if (expMatrixA.size == 1) {
-            val x = Array(expMatrixA.size+1) { Array(1){Expression()} }
-            printText("Then we choose any equation and salve for x<sub><small>1</small></sub>. If we choose the first equation then,")
+            val x = Array(expMatrixA.size+1) { Array(1){ 0.0 } }
+//            printText("Then we choose any equation and salve for x<sub><small>1</small></sub>. If we choose the first equation then,")
 
             val coef = expMatrixA[0][0]
-            printText("x<sub><small><small>1</small></small></sub> = <sup>(${expMatrixB[0][0]})</sup>/<sub>$coef</sub>", 16,4)
+//            printText("x<sub><small><small>1</small></small></sub> = <sup>(${expMatrixB[0][0]})</sup>/<sub>$coef</sub>", 16,4)
 
-            x[0][0] = (1/coef.getNumber()).times(expMatrixB[0][0])
-            x[1][0] = Expression(0.0, 1.0)
-            printText("x<sub><small>1</small></sub> = ${x[0][0]}",16,6)
+            x[0][0] = (1/coef).times(expMatrixB[0][0])
+            x[1][0] = 0.0
+//            printText("x<sub><small>1</small></sub> = ${x[0][0]}",16,6)
 
-            printX(x)
+//            printX(x)
         }
         else {
-            printText("Then we choose any ${expMatrixA.size} system of equations and salve. If we choose to cancel equation $excludedRow then,")
-            printMatrixAB(expMatrixA, expMatrixB)
+//            printText("Then we choose any ${expMatrixA.size} system of equations and salve. If we choose to cancel equation $excludedRow then,")
+//            printMatrixAB(expMatrixA, expMatrixB)
 
             val expDet = expMatrixA.determinant()
-            printDetMatrix("D = ", expMatrixA, expDet)
+//            printDetMatrix("D = ", expMatrixA, expDet)
 
-            val x = Array(expMatrixA.size+1) { Array(1){Expression()} }
+            val x = Array(expMatrixA.size+1) { Array(1){ 0.0 } }
 
             for (index in expMatrixB.indices) {
                 val m = expMatrixA.transpose()
@@ -763,16 +748,14 @@ object Methods {
                 val matrix = m.transpose()
                 val dx = matrix.determinant()
 
-                x[index][0] = (1/expDet.getNumber()).times(dx)
+                x[index][0] = (1/expDet) * dx
 
-                printDetMatrix("D<sub><small>${xCoefficients[index]}</small></sub> = ", matrix, dx)
-                printText("&ensp;&ensp;${xCoefficients[index]} = <sup>D<sub><small>${xCoefficients[index]}</small></sub></sup>/<sub>D</sub> = <sup>($dx)</sup>/<sub>${expDet.getNumber().toFractionNumber().latex}</sub> = ${x[index][0]}", paddingVertical = 4)
-
-                space(height=20)
+//                printDetMatrix("D<sub><small>${xVariables()[index]}</small></sub> = ", matrix, dx)
+//                printText("&ensp;&ensp;${xVariables()[index]} = <sup>D<sub><small>${xVariables()[index]}</small></sub></sup>/<sub>D</sub> = <sup>($dx)</sup>/<sub>${expDet.getNumber().toFractionNumber().latex}</sub> = ${x[index][0]}", paddingVertical = 4)
             }
 
-            x[expMatrixA.size][0] = Expression(0.0, 1.0)
-            printX(x)
+            x[expMatrixA.size][0] = 0.0
+//            printX(x)
         }
-    }*/
+    }
 }

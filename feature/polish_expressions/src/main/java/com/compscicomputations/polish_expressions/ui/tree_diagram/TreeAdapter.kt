@@ -21,11 +21,11 @@ class TreeAdapter(private val colorScheme: ColorScheme) : AbstractGraphAdapter<R
         val view: View?
         return if (viewType == NODE_VIEW) {
             view = LayoutInflater.from(parent.context).inflate(R.layout.node, parent, false)
-            view.backgroundTintList = ColorStateList.valueOf(colorScheme.secondaryContainer.toArgb())
+            view.backgroundTintList = ColorStateList.valueOf(colorScheme.primary.toArgb())
             ViewHolderNode(view)
         } else {
             view = LayoutInflater.from(parent.context).inflate(R.layout.parent_node, parent, false)
-            view.backgroundTintList = ColorStateList.valueOf(colorScheme.secondaryContainer.toArgb())
+            view.backgroundTintList = ColorStateList.valueOf(colorScheme.primary.toArgb())
             ViewHolderParentNode(view)
         }
     }
@@ -35,15 +35,15 @@ class TreeAdapter(private val colorScheme: ColorScheme) : AbstractGraphAdapter<R
             holder as ViewHolderNode
 
             holder.charTextView.text = getNodeOperand(position).toString()
-            holder.charTextView.setTextColor(colorScheme.onSecondaryContainer.toArgb())
+            holder.charTextView.setTextColor(colorScheme.onPrimary.toArgb())
 
         } else {
             holder as ViewHolderParentNode
 
             holder.prefixTextView.text = getNodePrefix(position)
             holder.postfixTextView.text = getNodePostfix(position)
-            holder.prefixTextView.setTextColor(colorScheme.onSecondaryContainer.toArgb())
-            holder.postfixTextView.setTextColor(colorScheme.onSecondaryContainer.toArgb())
+            holder.prefixTextView.setTextColor(colorScheme.onPrimary.toArgb())
+            holder.postfixTextView.setTextColor(colorScheme.onPrimary.toArgb())
         }
     }
 

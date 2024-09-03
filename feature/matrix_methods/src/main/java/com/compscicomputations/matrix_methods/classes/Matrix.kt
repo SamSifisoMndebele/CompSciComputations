@@ -2,7 +2,6 @@ package com.compscicomputations.matrix_methods.classes
 
 import android.widget.LinearLayout
 import androidx.core.text.isDigitsOnly
-import com.compscicomputations.matrix_methods.classes.Expressions.Expression
 import com.compscicomputations.matrix_methods.classes.Expressions.isOne
 import com.compscicomputations.matrix_methods.classes.Expressions.isZero
 import com.compscicomputations.matrix_methods.classes.Expressions.removePlusOnStart
@@ -16,7 +15,7 @@ import kotlin.math.pow
 object Matrix {
     private const val MATRIX_NEW_LINE = """ \\[0.7em] """
 
-    fun LinearLayout.printMatrix(string: String, matrix: Array<Array<Expression>>){
+    fun LinearLayout.printMatrix(string: String, matrix: Array<Array<Double>>){
         val matrixString = StringBuilder().apply{
             append("""$string \begin{pmatrix} """)
         }
@@ -37,7 +36,7 @@ object Matrix {
         printLatex("""\($matrixString\)""")
     }
 
-    fun LinearLayout.printDetMatrix(string: String, matrix: Array<Array<Expression>>, determinant : Double){
+    fun LinearLayout.printDetMatrix(string: String, matrix: Array<Array<Double>>, determinant : Double){
         val matrixString = StringBuilder().apply{
             append("""$string \begin{vmatrix} """)
         }
@@ -59,7 +58,7 @@ object Matrix {
         printLatex("""\($matrixString\)""")
     }
 
-    fun LinearLayout.printMatrixAB(matrixA: Array<Array<Expression>>, matrixB: Array<Array<Expression>>){
+    fun LinearLayout.printMatrixAB(matrixA: Array<Array<Double>>, matrixB: Array<Array<Double>>){
 
         val matrixString = StringBuilder().apply {
             append("""A = \begin{pmatrix} """)
@@ -97,7 +96,7 @@ object Matrix {
 
         printLatex("""\($matrixString\)""")
     }
-    fun LinearLayout.printEquations(matrixA : Array<Array<Expression>>, matrixB : Array<Array<Expression>>) {
+    /*fun LinearLayout.printEquations(matrixA : Array<Array<Double>>, matrixB : Array<Array<Double>>) {
         val xVariables = xVariables(matrixA[0].size)
 
          matrixA.forEachIndexed { row, expressions ->
@@ -130,8 +129,8 @@ object Matrix {
              printLatex("$${equation.toString().removePlusOnStart()}$")
         }
         space()
-    }
-    fun LinearLayout.printEliminationMatrix(matrixA: Array<Array<Expression>>, matrixB: Array<Array<Expression>>,
+    }*/
+    fun LinearLayout.printEliminationMatrix(matrixA: Array<Array<Double>>, matrixB: Array<Array<Double>>,
                                             rowOperations : Array<String>?, string: String = """ \sim """) {
         val matrixString = StringBuilder().apply {
             append("""$string \left ( \left.\begin{matrix} """)
@@ -177,12 +176,12 @@ object Matrix {
         printLatex("""\($matrixString\)""")
     }
 
-    fun LinearLayout.printMatrixMultiplication(string: String, matrix1: Array<Array<Expression>>, matrix2: Array<Array<Expression>>) : Array<Array<Expression>>{
+    fun LinearLayout.printMatrixMultiplication(string: String, matrix1: Array<Array<Double>>, matrix2: Array<Array<Double>>) : Array<Array<Double>>{
 
         return matrix1
     }
 
-    fun LinearLayout.printX(x : Array<Array<Expression>>, str: String = "X = ", withT: Boolean = false) {
+    fun LinearLayout.printX(x : Array<Array<Double>>, str: String = "X = ", withT: Boolean = false) {
         space(height=10)
         printMatrix(str, x)
 
@@ -210,11 +209,11 @@ object Matrix {
 
 
 
-    fun Array<DoubleArray>.toExpressionMatrix(rows : Int = this.size, cols: Int = this[0].size) : Array<Array<Expression>> {
-        val res = Array(rows){ Array(cols){ Expression(0) } }
+    fun Array<DoubleArray>.toExpressionMatrix(rows : Int = this.size, cols: Int = this[0].size) : Array<Array<Double>> {
+        val res = Array(rows){ Array(cols){ 0.0 } }
         for (row in 0 until rows) {
             for (col in 0 until cols) {
-                res[row][col] = Expression(this[row][col])
+                res[row][col] = this[row][col]
             }
         }
         return res
@@ -233,19 +232,19 @@ object Matrix {
 
 
 
-    
 
-    /*fun Array<Array<Expression>>.cofactors(isDetUse : Boolean = false) : Array<Array<Expression>> {
-        val res = Array(this.size) { Array(this[0].size){ Expression(0) } }
+
+    /*fun Array<Array<Double>>.cofactors(isDetUse : Boolean = false) : Array<Array<Double>> {
+        val res = Array(this.size) { Array(this[0].size){ 0.0 } }
         if (this.size == 1){
-            res[0][0] = Expression(1.0)
+            res[0][0] = 1.0
             return res
         }
 
         for (row in this.indices) {
             for (col in this[0].indices) {
                 // To store cofactors
-                val temp = Array(this.size-1) { Array(this[0].size-1){ Expression(0) } }
+                val temp = Array(this.size-1) { Array(this[0].size-1){ 0.0 } }
                 var y = 0
                 var x = 0
                 for (r in this.indices) {
@@ -265,7 +264,7 @@ object Matrix {
         }
         return res
     }*/
-    /*fun Array<Array<Expression>>.determinant(): Expression {
+    /*fun Array<Array<Double>>.determinant(): Double {
         if (this.size == 1) return this[0][0]
         if (this.size == 2) {
             val detA: Double = this[0][0].getNumber() * this[1][1].getNumber() - this[0][1].getNumber() * this[1][0].getNumber()
@@ -274,72 +273,72 @@ object Matrix {
             val detB = detB1 + detB2
             val detC: Double = this[0][0].getB() * this[1][1].getB() - this[0][1].getB() * this[1][0].getB()
 
-            return Expression(detA, detB, detC)
+            return Double(detA, detB, detC)
         }
-        var det = Expression(0)
+        var det = 0.0
         val cofactors = cofactors(true)
         for (row in this.indices) {
             det = det.add(this[0][row].times(cofactors[0][row]))
         }
         return det
     }*/
-    /*fun Array<Array<Expression>>.minus(expM: Array<Array<Expression>>): Array<Array<Expression>> {
-        val res = Array(this.size) { Array(this[0].size){ Expression(0) } }
+    /*fun Array<Array<Double>>.minus(expM: Array<Array<Double>>): Array<Array<Double>> {
+        val res = Array(this.size) { Array(this[0].size){ 0.0 } }
         for (row in this.indices)
             for (col in this[0].indices) {
                 val a = this[row][col].getNumber() - expM[row][col].getNumber()
                 val b = this[row][col].getB() - expM[row][col].getB()
                 val c = this[row][col].getC() - expM[row][col].getC()
-                res[row][col] = Expression(a, b, c)
+                res[row][col] = Double(a, b, c)
             }
         return res
     }*/
-    /*fun Array<Expression>.minus(expA: Array<Expression>): Array<Expression> {
-        val res = Array(this.size){ Expression(0) }
+    /*fun Array<Double>.minus(expA: Array<Double>): Array<Double> {
+        val res = Array(this.size){ 0.0 }
         for (row in this.indices){
             val a = this[row].getNumber() - expA[row].getNumber()
             val b = this[row].getB() - expA[row].getB()
             val c = this[row].getC() - expA[row].getC()
-            res[row] = Expression(a, b, c)
+            res[row] = Double(a, b, c)
         }
         return res
     }*/
-    /*fun Array<Array<Expression>>.add(expM: Array<Array<Expression>>): Array<Array<Expression>> {
-        val res = Array(this.size) { Array(this[0].size){ Expression(0) } }
+    /*fun Array<Array<Double>>.add(expM: Array<Array<Double>>): Array<Array<Double>> {
+        val res = Array(this.size) { Array(this[0].size){ 0.0 } }
         for (row in this.indices)
             for (col in this[0].indices) {
                 val a = this[row][col].getNumber() + expM[row][col].getNumber()
                 val b = this[row][col].getB() + expM[row][col].getB()
                 val c = this[row][col].getC() + expM[row][col].getC()
-                res[row][col] = Expression(a, b, c)
+                res[row][col] = Double(a, b, c)
             }
         return res
     }*/
-    /*fun Array<Expression>.add(expA: Array<Expression>): Array<Expression> {
-        val res = Array(this.size){ Expression(0) }
+    /*fun Array<Double>.add(expA: Array<Double>): Array<Double> {
+        val res = Array(this.size){ 0.0 }
         for (row in this.indices){
             val a = this[row].getNumber() + expA[row].getNumber()
             val b = this[row].getB() + expA[row].getB()
             val c = this[row].getC() + expA[row].getC()
-            res[row] = Expression(a, b, c)
+            res[row] = Double(a, b, c)
         }
         return res
     }*/
-    /*fun Expression.add(exp: Expression): Expression {
+    /*fun Double.add(exp: Double): Double {
         val a = this.getNumber() + exp.getNumber()
         val b = this.getB() + exp.getB()
         val c = this.getC() + exp.getC()
-        return Expression(a, b, c)
+        return Double(a, b, c)
     }*/
-    fun Array<Array<Expression>>.transpose(): Array<Array<Expression>> {
-        val res = Array(this[0].size) { Array(this.size){ Expression(0) } }
+    fun Array<Array<Double>>.transpose(): Array<Array<Double>> {
+        val res = Array(this[0].size) { Array(this.size){ 0.0 } }
         for (row in this.indices)
             for (col in this[0].indices)
                 res[col][row] = this[row][col]
         return res
     }
-    fun Array<Array<Expression>>.flip(): Array<Array<Expression>> {
-        val res = Array(this.size) { Array(this[0].size){ Expression(0) } }
+    fun Array<Array<Double>>.flip(): Array<Array<Double>> {
+        val res = Array(this.size) { Array(this[0].size){ 0.0 } }
         val r = this.size - 1
         val c = this[0].size - 1
         for (row in this.indices)
@@ -347,8 +346,8 @@ object Matrix {
                 res[row][col] = this[r - row][c - col]
         return res
     }
-    fun Array<Array<Expression>>.combine(b: Array<Array<Expression>>): Array<Array<Expression>> {
-        val res = Array(this.size) { Array(this[0].size+b[0].size){ Expression(0) } }
+    fun Array<Array<Double>>.combine(b: Array<Array<Double>>): Array<Array<Double>> {
+        val res = Array(this.size) { Array(this[0].size+b[0].size){ 0.0 } }
         for (row in this.indices) {
             for (col in this[0].indices)
                 res[row][col] = this[row][col]
@@ -357,15 +356,15 @@ object Matrix {
         }
         return res
     }
-    /*fun Array<Array<Expression>>.times(b: Array<Array<Expression>>): *//*Matrix x Matrix*//* Array<Array<Expression>> {
+    /*fun Array<Array<Double>>.times(b: Array<Array<Double>>): *//*Matrix x Matrix*//* Array<Array<Double>> {
         val rows = this.size
         val cols = b[0].size
 
-        val res = Array(rows) { Array(cols){ Expression(0) } }
+        val res = Array(rows) { Array(cols){ 0.0 } }
 
         for (row in 0 until rows) {
             for (col in 0 until cols) {
-                var ret = Expression(0)
+                var ret = 0.0
                 for (x in indices) {
                     ret = ret.add(this[row][x].times(b[x][col]))
                 }
@@ -374,10 +373,10 @@ object Matrix {
         }
         return res
     }*/
-    /*fun Array<Expression>.times(b: Array<Expression>) *//*Row x Col*//* : Array<Expression> {
-        val res = Array(1){ Expression(0) }
+    /*fun Array<Double>.times(b: Array<Double>) *//*Row x Col*//* : Array<Double> {
+        val res = Array(1){ 0.0 }
 
-        var ret = Expression(0)
+        var ret = 0.0
         for (x in indices) {
             ret = ret.add(this[x].times(b[x]))
         }
@@ -385,52 +384,49 @@ object Matrix {
 
         return res
     }*/
-    /*fun Expression.times(a: Array<Array<Expression>>): *//*Expression x Matrix*//* Array<Array<Expression>> {
-        val res = Array(a.size) { Array(a[0].size){ Expression(0) } }
+    /*fun Double.times(a: Array<Array<Double>>): *//*Double x Matrix*//* Array<Array<Double>> {
+        val res = Array(a.size) { Array(a[0].size){ 0.0 } }
         for (row in a.indices)
             for (col in a[0].indices)
                 res[row][col] = this.times(a[row][col])
         return res
     }*/
-    /*fun Expression.times(a: Array<Expression>): *//*Expression x Row*//* Array<Expression> {
-        val res = Array(a.size){ Expression(0) }
+    /*fun Double.times(a: Array<Double>): *//*Double x Row*//* Array<Double> {
+        val res = Array(a.size){ 0.0 }
         for (row in a.indices)
             res[row] = this.times(a[row])
         return res
     }*/
-    /*fun Expression.times(exp : Expression): Expression {
+    /*fun Double.times(exp : Double): Double {
         val a = this.getNumber() * exp.getNumber()
         val b = this.getNumber()*exp.getB() + this.getB()*exp.getNumber()
         val c = this.getB()*exp.getB()
-        return Expression(a, b, c)
+        return Double(a, b, c)
     }*/
-    /*fun Double.times(a: Array<Array<Expression>>):  Array<Array<Expression>> {
-        val res = Array(a.size) { Array(a[0].size){ Expression(0) } }
+    /*fun Double.times(a: Array<Array<Double>>):  Array<Array<Double>> {
+        val res = Array(a.size) { Array(a[0].size){ 0.0 } }
         for (row in a.indices)
             for (col in a[0].indices)
                 res[row][col] = this.times(a[row][col])
         return res
     }*/
-    /*fun Double.times(a: Array<Expression>): *//*Double x Row*//* Array<Expression> {
-        val res =  Array(a.size){ Expression(0) }
+    /*fun Double.times(a: Array<Double>): *//*Double x Row*//* Array<Double> {
+        val res =  Array(a.size){ 0.0 }
         for (row in a.indices)
             res[row] = this.times(a[row])
         return res
     }*/
 
-    fun Double.toExpression(): Expression {
-        return Expression(this)
-    }
-    fun identityExpressionMatrix(size: Int) : Array<Array<Expression>>{
-        val res = Array(size) { Array(size){ Expression(0) } }
+    fun identityExpressionMatrix(size: Int) : Array<Array<Double>>{
+        val res = Array(size) { Array(size){ 0.0 } }
         for (row in 0 until size)
             for (col in 0 until size) {
-                if (row == col) res[row][col] = Expression(1.0)
-                else res[row][col] = Expression(0)
+                if (row == col) res[row][col] = 1.0
+                else res[row][col] = 0.0
             }
         return res
     }
-    /*fun Array<Array<Expression>>.isZero() : Boolean {
+    /*fun Array<Array<Double>>.isZero() : Boolean {
         for (row in this.indices)
             for (col in this[0].indices) {
                 if (this[row][col].getNumber() != 0.0 || this[row][col].getB() != 0.0 || this[row][col].getC() != 0.0){
@@ -439,7 +435,7 @@ object Matrix {
             }
         return true
     }*/
-    /*fun Array<Array<Expression>>.isIdentity() : Boolean {
+    /*fun Array<Array<Double>>.isIdentity() : Boolean {
         for (row in this.indices)
             for (col in this[0].indices) {
                 if (row == col) {
@@ -454,7 +450,7 @@ object Matrix {
             }
         return true
     }*/
-    /*fun Array<Expression>.areLinear() : Boolean {
+    /*fun Array<Double>.areLinear() : Boolean {
         var gotOne = false
         for (row in this.indices)
             if (this[row].getC() != 0.0) {
@@ -463,19 +459,19 @@ object Matrix {
             }
         return false
     }*/
-    /*fun Expression.isLinear() : Boolean {
+    /*fun Double.isLinear() : Boolean {
         return this.getC() == 0.0
     }*/
-    /*fun Expression.isZero() : Boolean {
+    /*fun Double.isZero() : Boolean {
         return (this.getNumber() == 0.0 && this.getB() == 0.0 && this.getC() == 0.0)
     }*/
-    /*fun Expression.isOne() : Boolean {
+    /*fun Double.isOne() : Boolean {
         return (this.getNumber() == 1.0 && this.getB() == 0.0 && this.getC() == 0.0)
     }*/
-    fun Array<Array<Expression>>.take(size: Int = this.size - 1): Array<Array<Expression>> {
+    fun Array<Array<Double>>.take(size: Int = this.size - 1): Array<Array<Double>> {
         val rows = if (this.size > size) size else this.size
         val cols = if (this[0].size > size) size else this[0].size
-        val res = Array(rows) { Array(cols){ Expression(0) } }
+        val res = Array(rows) { Array(cols){ 0.0 } }
         for (row in 0 until rows)
             for (col in 0 until cols)
                 res[row][col] = this[row][col]
@@ -483,7 +479,7 @@ object Matrix {
     }
 
 
-    data class TakeMatrix(var matrixA: Array<Array<Expression>>, var matrixB: Array<Array<Expression>>, val excludedRow: Int) {
+    data class TakeMatrix(var matrixA: Array<DoubleArray>, var matrixB: Array<DoubleArray>, val excludedRow: Int) {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (javaClass != other?.javaClass) return false
@@ -505,10 +501,10 @@ object Matrix {
         }
     }
 
-    fun Array<Array<Expression>>.takeForDet(bM: Array<Array<Expression>>): TakeMatrix {
+    fun Array<DoubleArray>.takeForDet(bM: Array<DoubleArray>): TakeMatrix {
 
-        val res = Array(this.size-1) { Array(this[0].size-1){ Expression(0) } }
-        val b = Array(this.size-1) { Array(1){ Expression(0) } }
+        val res = Array(this.size-1) { DoubleArray(this[0].size-1){ 0.0 } }
+        val b = Array(this.size-1) { DoubleArray(1){ 0.0 } }
         var excludedRow = 3
         for (ro in this.size-1 downTo 0) {
             var y = 0
