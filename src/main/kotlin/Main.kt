@@ -39,17 +39,16 @@ fun main() = application {
         onCloseRequest = ::exitApplication,
         state = WindowState(width = 1280.dp, height = 640.dp),
         title = APP_NAME,
-        icon = painterResource("img/ic_launcher.png"),
+        icon = painterResource("img/logo_desktop.png"),
     ) {
-//
         var action by remember { mutableStateOf("Hello, World!") }
 
         MenuBar {
             Menu("Tasks", mnemonic = 'T') {
                 Item(
-                    "Create new Task",
+                    text = "Create new Task",
+                    shortcut = KeyShortcut(Key.C, ctrl = true),
                     onClick = { action = "Last action: Create new Task" },
-                    shortcut = KeyShortcut(Key.C, ctrl = true)
                 )
             }
         }
