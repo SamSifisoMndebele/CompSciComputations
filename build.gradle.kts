@@ -21,7 +21,7 @@ repositories {
 
 ktor {
     fatJar {
-        archiveFileName.set("ktor-server.jar")
+        archiveFileName.set("server.jar")
     }
     docker {
         jreVersion.set(JavaVersion.VERSION_17)
