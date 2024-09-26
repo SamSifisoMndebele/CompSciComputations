@@ -3,7 +3,7 @@ package com.compscicomputations.karnaugh_maps.kMapView
 import android.content.Context
 import android.util.AttributeSet
 import com.compscicomputations.karnaugh_maps.R
-import com.compscicomputations.karnaugh_maps.utils.ListOfMinterms
+import com.compscicomputations.karnaugh_maps.utils.ListOfMinTerms
 
 class KMap4VariablesImageView : KMapVariablesImageView {
     private fun setParameters() {
@@ -86,7 +86,7 @@ class KMap4VariablesImageView : KMapVariablesImageView {
         )
         alignment.rectWidth = 0.2f
         alignment.rectHeight = 0.2f
-        listOfMinTermsToDraw = ListOfMinterms(4)
+        listOfMinTermsToDraw = ListOfMinTerms(4)
         alignment.inversionConversion =
             intArrayOf(0, 4, 8, 12, 1, 5, 9, 13, 2, 6, 10, 14, 3, 7, 11, 15)
         alignment.drawInversion = intArrayOf(0, 4, 8, 12, 1, 5, 9, 13, 2, 6, 10, 14, 3, 7, 11, 15)

@@ -11,7 +11,6 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults.TrailingIcon
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -30,14 +29,13 @@ import androidx.compose.ui.text.style.Hyphens
 import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.compscicomputations.number_systems.data.model.ConvertFrom
 import com.compscicomputations.number_systems.utils.BinaryArithmetic.dividedBits
 import com.compscicomputations.number_systems.utils.BinaryArithmetic.removedSpaces
 import com.compscicomputations.number_systems.utils.binaryFieldRegex
 import com.compscicomputations.number_systems.utils.bitLength
-import com.compscicomputations.number_systems.utils.errorTextIf
 import com.compscicomputations.number_systems.utils.numberFieldRegex
 import com.compscicomputations.theme.comicNeueFamily
+import com.compscicomputations.ui.utils.ui.errorTextIf
 import com.compscicomputations.utils.notMatches
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -50,51 +48,6 @@ fun ExcessScreen(
         modifier = Modifier
             .fillMaxWidth()
     ) {
-        var expanded by remember { mutableStateOf(false) }
-        ExposedDropdownMenuBox(
-            expanded = expanded,
-            onExpandedChange = { expanded = !expanded }
-        ) {
-            OutlinedTextField(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .menuAnchor()
-                    .clickable { expanded = !expanded }
-                    .focusable(false)
-                    .padding(vertical = 4.dp),
-                value = uiState.convertFrom.name,
-                onValueChange = {},
-                textStyle = TextStyle(
-                    lineBreak = LineBreak.Simple,
-                    hyphens = Hyphens.Auto,
-                    fontSize = 20.sp,
-                    fontFamily = comicNeueFamily,
-                    color = MaterialTheme.colorScheme.onBackground
-                ),
-                label = { Text(text = "Convert from_") },
-                readOnly = true,
-                singleLine = true,
-                shape = RoundedCornerShape(18.dp),
-                trailingIcon = { TrailingIcon(expanded = expanded) },
-            )
-            ExposedDropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
-            ) {
-                ConvertFrom.excessNotation.forEach {
-                    DropdownMenuItem(
-                        text = { Text(text = it.name) },
-                        onClick = {
-                            viewModel.setConvertFrom(it)
-                            expanded = false
-                        }
-                    )
-                }
-            }
-        }
-        HorizontalDivider()
-
-
         var bitsExpanded by remember { mutableStateOf(false) }
         ExposedDropdownMenuBox(
             expanded = bitsExpanded,

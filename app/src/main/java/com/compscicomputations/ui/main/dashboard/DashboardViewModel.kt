@@ -58,7 +58,8 @@ class DashboardViewModel @Inject constructor(
             DynamicFeature(
                 name = "Matrix Methods",
                 module = "matrix_methods",
-                icon = "ic_matrix.png"
+                icon = "ic_matrix.png",
+                isAvailable = false
             ),
         )
     }
@@ -87,10 +88,10 @@ class DashboardViewModel @Inject constructor(
                 }
 
         }
-        val installedFeatures = features.toMutableSet()
+        val installedFeatures = features.filter { it.isAvailable }.toMutableSet()
         installedFeatures.retainAll { splitInstallManager.installedModules.contains(it.module) }
 
-        val notInstalledFeatures = features.toMutableSet()
+        val notInstalledFeatures = features.filter { it.isAvailable }.toMutableSet()
         notInstalledFeatures.removeAll(installedFeatures)
 
         _uiState.value = _uiState.value.copy(
@@ -187,8 +188,8 @@ class DashboardViewModel @Inject constructor(
 //                ?.let { user ->
 //                    _uiState.value = _uiState.value.copy(
 //                        email = user.email,
-//                        isAdmin = user.isAdmin,
-//                        isStudent = user.isStudent,
+//                        is_admin = user.is_admin,
+//                        is_student = user.is_student,
 //                        imageBitmap = user.imageBitmap,
 //                        displayName = user.displayName,
 //                        progressState = ProgressState.Idle

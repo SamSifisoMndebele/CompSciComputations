@@ -66,7 +66,7 @@ fun MatrixMethods(
 
                         }
                     )
-                }
+                },
             )
         }
     ) { contentPadding ->

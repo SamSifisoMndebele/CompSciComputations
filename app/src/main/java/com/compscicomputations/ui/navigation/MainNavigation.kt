@@ -9,6 +9,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
+import com.compscicomputations.client.publik.data.model.DynamicFeature
 import com.compscicomputations.ui.main.dashboard.DashboardScreen
 import com.compscicomputations.ui.main.feedback.FeedbackScreen
 import com.compscicomputations.ui.main.profile.ProfileScreen

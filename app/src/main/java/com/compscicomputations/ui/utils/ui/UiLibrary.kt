@@ -19,18 +19,23 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.platform.InterceptPlatformTextInput
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -41,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.compscicomputations.theme.comicNeueFamily
 import dev.jeziellago.compose.markdowntext.MarkdownText
+import kotlinx.coroutines.awaitCancellation
 
 @Composable
 fun Modifier.shimmerBackground(
@@ -148,42 +154,33 @@ fun AnnotatedText(
     )
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun Demo_DropDownMenu() {
-    var expanded by remember { mutableStateOf(false) }
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentSize(Alignment.TopEnd)
+fun DisableSoftKeyboard(
+    disable: Boolean = true,
+    content: @Composable () -> Unit,
+) {
+    CompositionLocalProvider(
+        LocalSoftwareKeyboardController provides null
     ) {
-        IconButton(onClick = { expanded = !expanded }) {
-            Icon(
-                imageVector = Icons.Default.MoreVert,
-                contentDescription = "More"
-            )
-        }
-
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            DropdownMenuItem(
-                text = { Text("Load") },
-                onClick = {
-
+        InterceptPlatformTextInput(
+            interceptor = { request, nextHandler ->
+                if (!disable) {
+                    nextHandler.startInputMethod(request)
+                } else {
+                    awaitCancellation()
                 }
-            )
-            DropdownMenuItem(
-                text = { Text("Save") },
-                onClick = {
-
-                }
-            )
-        }
+            },
+            content = content,
+        )
     }
 }
 
-
+infix fun String?.errorTextIf(isSelected: Boolean): @Composable (() -> Unit)? {
+    if (!isSelected || this == null) return null
+    return {
+        Text(text = this, color = MaterialTheme.colorScheme.errorContainer)
+    }
+}
 
 

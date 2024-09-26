@@ -1,4 +1,4 @@
-package com.compscicomputations.karnaugh_maps
+package com.compscicomputations.karnaugh_maps.utils
 
 import android.graphics.Color
 

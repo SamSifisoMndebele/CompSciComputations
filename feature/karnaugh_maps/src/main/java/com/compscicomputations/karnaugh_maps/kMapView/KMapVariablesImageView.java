@@ -13,14 +13,13 @@ import android.graphics.Paint;
 import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.View;
 import android.view.animation.LinearInterpolator;
 
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.core.app.NotificationManagerCompat;
 
-import com.compscicomputations.karnaugh_maps.Config;
-import com.compscicomputations.karnaugh_maps.utils.ListOfMinterms;
+import com.compscicomputations.karnaugh_maps.utils.Config;
+import com.compscicomputations.karnaugh_maps.utils.ListOfMinTerms;
 import com.compscicomputations.karnaugh_maps.utils.MinTerm;
 
 import java.util.ArrayList;
@@ -31,7 +30,7 @@ public class KMapVariablesImageView extends AppCompatImageView {
     int imageResource = -1;
     int imageResourceMapInverted = -1;
     private int imageWidthSize = 0;
-    ListOfMinterms listOfMinTermsToDraw;
+    ListOfMinTerms listOfMinTermsToDraw;
     Boolean mapInverted = false;
     private final ArrayList<Integer> minTermIntegersMapLeft = new ArrayList<>();
     private final ArrayList<Integer> minTermIntegersMapRight = new ArrayList<>();
@@ -454,7 +453,7 @@ public class KMapVariablesImageView extends AppCompatImageView {
         }
     }
 
-    public void setMinTerms(int[] iArr, int[] iArr2) {
+    public void setMinTerms(int[] iArr) {
         int i = 0;
         while (true) {
             String[] strArr = this.minTermsString;
@@ -466,9 +465,6 @@ public class KMapVariablesImageView extends AppCompatImageView {
         }
         for (int i2 : iArr) {
             this.minTermsString[i2] = "1";
-        }
-        for (int i3 : iArr2) {
-            this.minTermsString[i3] = "X";
         }
     }
 
@@ -529,7 +525,7 @@ public class KMapVariablesImageView extends AppCompatImageView {
         this.onKmapAnimationListener = onKmapAnimationListener2;
     }
 
-    public void setDrawGroups(ListOfMinterms listOfMinterms) {
+    public void setDrawGroups(ListOfMinTerms listOfMinterms) {
         this.listOfMinTermsToDraw = listOfMinterms;
         if (Config.animation == 0) {
             this.mintermDrawAnimation = this.listOfMinTermsToDraw.size();

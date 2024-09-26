@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.compose.compiler)
     alias(libs.plugins.google.devtools.ksp)
 }
+
 android {
     namespace = "com.compscicomputations.karnaugh_maps"
     compileSdk = 34
@@ -37,9 +38,14 @@ android {
         compose = true
         viewBinding = true
     }
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.1"
+    }
 }
 
 dependencies {
+    implementation(project(":core:keyboard"))
+
     /**Local database*/
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)

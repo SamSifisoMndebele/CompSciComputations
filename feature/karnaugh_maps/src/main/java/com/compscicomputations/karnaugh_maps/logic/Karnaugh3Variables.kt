@@ -1,17 +1,17 @@
 package com.compscicomputations.karnaugh_maps.logic
 
 import com.compscicomputations.karnaugh_maps.utils.BinaryBits
-import com.compscicomputations.karnaugh_maps.utils.ListOfMinterms
+import com.compscicomputations.karnaugh_maps.utils.ListOfMinTerms
 
 class Karnaugh3Variables(iArr: IntArray, iArr2: IntArray?) {
     private val allEssentialMinTerms: ArrayList<Int>
-    private val allMinTerms: ListOfMinterms = ListOfMinterms(iArr, iArr2, 3)
-    private var minTerms0ones: ListOfMinterms
-    private var minTerms1ones: ListOfMinterms
-    private var minTerms2ones: ListOfMinterms
-    private val minTerms3ones: ListOfMinterms
-    private val notPrimeImplicates: ListOfMinterms
-    private val primeImplicates: ListOfMinterms
+    private val allMinTerms: ListOfMinTerms = ListOfMinTerms(iArr, iArr2, 3)
+    private var minTerms0ones: ListOfMinTerms
+    private var minTerms1ones: ListOfMinTerms
+    private var minTerms2ones: ListOfMinTerms
+    private val minTerms3ones: ListOfMinTerms
+    private val notPrimeImplicates: ListOfMinTerms
+    private val primeImplicates: ListOfMinTerms
     private fun intArrayToArrayList(iArr: IntArray): ArrayList<Int> {
         val arrayList = ArrayList<Int>()
         for (valueOf in iArr) {
@@ -20,17 +20,17 @@ class Karnaugh3Variables(iArr: IntArray, iArr2: IntArray?) {
         return arrayList
     }
 
-    fun executeKarnaugh(): ArrayList<ListOfMinterms> {
-        val arrayList = ArrayList<ListOfMinterms>()
+    fun executeKarnaugh(): ArrayList<ListOfMinTerms> {
+        val arrayList = ArrayList<ListOfMinTerms>()
         return if (allEssentialMinTerms.size == 0) {
-            arrayList.add(ListOfMinterms(3))
+            arrayList.add(ListOfMinTerms(3))
             arrayList
         } else if (allMinTerms.size() == 8) {
             val arrayList2: ArrayList<Int> = ArrayList<Int>()
             for (i in 0..7) {
                 arrayList2.add(Integer.valueOf(i))
             }
-            val listOfMinterms = ListOfMinterms(3)
+            val listOfMinterms = ListOfMinTerms(3)
             listOfMinterms.add("---", arrayList2)
             arrayList.add(listOfMinterms)
             arrayList
@@ -78,18 +78,18 @@ class Karnaugh3Variables(iArr: IntArray, iArr2: IntArray?) {
         minTerms1ones = addOneBitDifferences
         minTerms0ones = addOneBitDifferences(minTerms0ones, addOneBitDifferences)
         for (i in 0 until notPrimeImplicates.size()) {
-            primeImplicates.removeString(notPrimeImplicates.getString(i))
+            notPrimeImplicates.getString(i)?.let { primeImplicates.removeString(it) }
         }
         primeImplicates.removeDuplicates()
     }
 
-    private fun findPrimePermutations(listOfMinterms: ListOfMinterms): ArrayList<ListOfMinterms> {
-        val arrayList: ArrayList<ArrayList<Int>> = ArrayList<ArrayList<Int>>()
+    private fun findPrimePermutations(listOfMinterms: ListOfMinTerms): ArrayList<ListOfMinTerms> {
+        val arrayList: ArrayList<ArrayList<Int>> = ArrayList()
         val size = listOfMinterms.size()
         val binaryBits = BinaryBits(size)
         var i = 1000
         for (i2 in 0 until binaryBits.numberOfPermutations()) {
-            val arrayList2: ArrayList<Int> = ArrayList<Int>()
+            val arrayList2: ArrayList<Int> = ArrayList()
             for (i3 in 0 until size) {
                 if (binaryBits.bits[i3]) {
                     arrayList2.addAll(listOfMinterms.getIntegers(i3))
@@ -103,30 +103,30 @@ class Karnaugh3Variables(iArr: IntArray, iArr2: IntArray?) {
             }
             binaryBits.inc()
         }
-        val arrayList3: ArrayList<ArrayList<Int>> = ArrayList<ArrayList<Int>>()
+        val arrayList3: ArrayList<ArrayList<Int>> = ArrayList()
         for (i4 in arrayList.indices) {
             if ((arrayList[i4] as ArrayList<*>).size == i) {
                 arrayList3.add(arrayList[i4])
             }
         }
-        val arrayList4: ArrayList<ListOfMinterms> = ArrayList<ListOfMinterms>()
+        val arrayList4: ArrayList<ListOfMinTerms> = ArrayList()
         var i5 = 0
         for (i6 in arrayList3.indices) {
             val arrayList5 = arrayList3[i6] as ArrayList<*>
-            val listOfMinterms2 = ListOfMinterms(3)
+            val listOfMinTerms2 = ListOfMinTerms(3)
             for (i7 in arrayList5.indices) {
-                listOfMinterms2.add(
+                listOfMinTerms2.add(
                     listOfMinterms.getString((arrayList5[i7] as Int).toInt()),
                     listOfMinterms.getIntegers((arrayList5[i7] as Int).toInt())
                 )
             }
-            val simplicity = listOfMinterms2.simplicity()
+            val simplicity = listOfMinTerms2.simplicity()
             if (simplicity > i5) {
                 i5 = simplicity
             }
-            arrayList4.add(listOfMinterms2)
+            arrayList4.add(listOfMinTerms2)
         }
-        val arrayList6 = ArrayList<ListOfMinterms>()
+        val arrayList6 = ArrayList<ListOfMinTerms>()
         for (i8 in arrayList4.indices) {
             val listOfMinterms3 = arrayList4[i8]
             if (listOfMinterms3.simplicity() == i5) {
@@ -137,33 +137,34 @@ class Karnaugh3Variables(iArr: IntArray, iArr2: IntArray?) {
     }
 
     private fun addOneBitDifferences(
-        listOfMinterms: ListOfMinterms,
-        listOfMinterms2: ListOfMinterms
-    ): ListOfMinterms {
-        val listOfMinterms3 = ListOfMinterms(3)
+        listOfMinterms: ListOfMinTerms,
+        listOfMinTerms2: ListOfMinTerms
+    ): ListOfMinTerms {
+        val listOfMinTerms3 = ListOfMinTerms(3)
         if (listOfMinterms.size() == 1) {
             primeImplicates.add(listOfMinterms.getString(0), listOfMinterms.getIntegers(0))
         }
-        if (listOfMinterms2.size() == 1) {
-            primeImplicates.add(listOfMinterms2.getString(0), listOfMinterms2.getIntegers(0))
+        if (listOfMinTerms2.size() == 1) {
+            primeImplicates.add(listOfMinTerms2.getString(0), listOfMinTerms2.getIntegers(0))
         }
         for (i in 0 until listOfMinterms.size()) {
             var z = true
-            for (i2 in 0 until listOfMinterms2.size()) {
-                val dashes = setDashes(listOfMinterms.getString(i), listOfMinterms2.getString(i2))
+            for (i2 in 0 until listOfMinTerms2.size()) {
+                val dashes = listOfMinterms.getString(i)
+                    ?.let { listOfMinTerms2.getString(i2)?.let { it1 -> setDashes(it, it1) } }
                 if (dashes != "") {
                     notPrimeImplicates.add(
                         listOfMinterms.getString(i),
                         listOfMinterms.getIntegers(i)
                     )
                     notPrimeImplicates.add(
-                        listOfMinterms2.getString(i2),
-                        listOfMinterms2.getIntegers(i2)
+                        listOfMinTerms2.getString(i2),
+                        listOfMinTerms2.getIntegers(i2)
                     )
                     val arrayList: ArrayList<Int> = ArrayList<Int>()
                     arrayList.addAll(listOfMinterms.getIntegers(i))
-                    arrayList.addAll(listOfMinterms2.getIntegers(i2))
-                    listOfMinterms3.add(dashes, arrayList)
+                    arrayList.addAll(listOfMinTerms2.getIntegers(i2))
+                    listOfMinTerms3.add(dashes, arrayList)
                     z = false
                 }
             }
@@ -171,13 +172,14 @@ class Karnaugh3Variables(iArr: IntArray, iArr2: IntArray?) {
                 primeImplicates.add(listOfMinterms.getString(i), listOfMinterms.getIntegers(i))
             }
         }
-        for (i3 in 0 until listOfMinterms2.size()) {
+        for (i3 in 0 until listOfMinTerms2.size()) {
             var z2 = true
             for (i4 in 0 until listOfMinterms.size()) {
-                if (setDashes(listOfMinterms2.getString(i3), listOfMinterms.getString(i4)) != "") {
+                if (listOfMinTerms2.getString(i3)
+                        ?.let { listOfMinterms.getString(i4)?.let { it1 -> setDashes(it, it1) } } != "") {
                     notPrimeImplicates.add(
-                        listOfMinterms2.getString(i3),
-                        listOfMinterms2.getIntegers(i3)
+                        listOfMinTerms2.getString(i3),
+                        listOfMinTerms2.getIntegers(i3)
                     )
                     notPrimeImplicates.add(
                         listOfMinterms.getString(i4),
@@ -187,16 +189,16 @@ class Karnaugh3Variables(iArr: IntArray, iArr2: IntArray?) {
                 }
             }
             if (z2) {
-                primeImplicates.add(listOfMinterms2.getString(i3), listOfMinterms2.getIntegers(i3))
+                primeImplicates.add(listOfMinTerms2.getString(i3), listOfMinTerms2.getIntegers(i3))
             }
         }
-        listOfMinterms3.removeDuplicates()
-        return listOfMinterms3
+        listOfMinTerms3.removeDuplicates()
+        return listOfMinTerms3
     }
 
     private fun splitCubes() {
         for (i in 0 until allMinTerms.size()) {
-            when (numberOfOnes(allMinTerms.getString(i))) {
+            when (allMinTerms.getString(i)?.let { numberOfOnes(it) }) {
                 0 -> {
                     minTerms0ones.add(allMinTerms.getString(i), allMinTerms.getIntegers(i))
                 }
@@ -215,11 +217,11 @@ class Karnaugh3Variables(iArr: IntArray, iArr2: IntArray?) {
 
     init {
         allEssentialMinTerms = intArrayToArrayList(iArr)
-        minTerms0ones = ListOfMinterms(3)
-        minTerms1ones = ListOfMinterms(3)
-        minTerms2ones = ListOfMinterms(3)
-        minTerms3ones = ListOfMinterms(3)
-        notPrimeImplicates = ListOfMinterms(3)
-        primeImplicates = ListOfMinterms(3)
+        minTerms0ones = ListOfMinTerms(3)
+        minTerms1ones = ListOfMinTerms(3)
+        minTerms2ones = ListOfMinTerms(3)
+        minTerms3ones = ListOfMinTerms(3)
+        notPrimeImplicates = ListOfMinTerms(3)
+        primeImplicates = ListOfMinTerms(3)
     }
 }

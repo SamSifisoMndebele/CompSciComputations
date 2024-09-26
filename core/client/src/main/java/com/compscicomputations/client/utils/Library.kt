@@ -40,13 +40,13 @@ internal suspend inline fun <T> ktorRequest(
 //        sendWithoutRequest { true }
 //    }
 //}
-//internal fun HttpClient.bearerCredentialsUpdate(idToken: String) {
+//internal fun HttpClient.bearerCredentialsUpdate(id_token: String) {
 //    val auth = plugin(Auth)
 //    auth.providers.removeIf { it is BearerAuthProvider }
 //    auth.bearer {
 //        loadTokens {
-//            Log.d("IdToken Update", "IdToken: $idToken")
-//            BearerTokens(idToken, "refreshToken")
+//            Log.d("IdToken Update", "IdToken: $id_token")
+//            BearerTokens(id_token, "refreshToken")
 //        }
 //        sendWithoutRequest { request ->
 //            request.url.pathSegments == listOf("users", "google")

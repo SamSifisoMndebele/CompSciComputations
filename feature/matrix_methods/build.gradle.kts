@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.compose.compiler)
     alias(libs.plugins.google.devtools.ksp)
 }
+
 android {
     namespace = "com.compscicomputations.matrix_methods"
     compileSdk = 34

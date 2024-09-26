@@ -3,7 +3,7 @@ package com.compscicomputations.karnaugh_maps.kMapView
 import android.content.Context
 import android.util.AttributeSet
 import com.compscicomputations.karnaugh_maps.R
-import com.compscicomputations.karnaugh_maps.utils.ListOfMinterms
+import com.compscicomputations.karnaugh_maps.utils.ListOfMinTerms
 
 class KMap3VariablesImageView :
     KMapVariablesImageView {
@@ -18,7 +18,7 @@ class KMap3VariablesImageView :
         alignment.rectPosY = floatArrayOf(0.25f, 0.25f, 0.25f, 0.25f, 0.58f, 0.58f, 0.58f, 0.58f)
         alignment.rectWidth = 0.2f
         alignment.rectHeight = 0.33f
-        listOfMinTermsToDraw = ListOfMinterms(3)
+        listOfMinTermsToDraw = ListOfMinTerms(3)
         alignment.inversionConversion = intArrayOf(0, 2, 4, 6, 1, 3, 5, 7)
         alignment.drawInversion = intArrayOf(0, 4, 1, 5, 2, 6, 3, 7)
         alignment.invertBtnposition = 0.15f

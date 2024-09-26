@@ -26,6 +26,7 @@ class MainActivity : CSCActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
             val themeState by themeState.collectAsStateWithLifecycle()
             CompSciComputationsTheme(themeState) {

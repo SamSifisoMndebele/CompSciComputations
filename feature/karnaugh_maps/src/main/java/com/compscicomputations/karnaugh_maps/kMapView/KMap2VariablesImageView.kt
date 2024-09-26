@@ -3,7 +3,7 @@ package com.compscicomputations.karnaugh_maps.kMapView
 import android.content.Context
 import android.util.AttributeSet
 import com.compscicomputations.karnaugh_maps.R
-import com.compscicomputations.karnaugh_maps.utils.ListOfMinterms
+import com.compscicomputations.karnaugh_maps.utils.ListOfMinTerms
 
 class KMap2VariablesImageView :
     KMapVariablesImageView {
@@ -20,7 +20,7 @@ class KMap2VariablesImageView :
         alignment.rectHeight = 0.53f
         alignment.centerX = 0.54f
         alignment.centerY = 0.63f
-        listOfMinTermsToDraw = ListOfMinterms(2)
+        listOfMinTermsToDraw = ListOfMinTerms(2)
         imageResource = R.drawable.kmap_2_var_ab
     }
 

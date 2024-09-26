@@ -3,6 +3,8 @@ package com.compscicomputations.number_systems.ui
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,12 +18,18 @@ import androidx.compose.material.icons.automirrored.outlined.List
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.BottomAppBarDefaults
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults.TrailingIcon
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.PrimaryScrollableTabRow
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
@@ -29,6 +37,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -36,13 +45,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.Hyphens
+import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.compscicomputations.R
+import com.compscicomputations.number_systems.data.model.ConvertFrom
 import com.compscicomputations.number_systems.data.model.CurrentTab
 import com.compscicomputations.number_systems.data.model.CurrentTab.BaseN
 import com.compscicomputations.number_systems.data.model.CurrentTab.Complement
@@ -63,6 +76,8 @@ import com.compscicomputations.number_systems.utils.MODULE_NAME
 import com.compscicomputations.theme.comicNeueFamily
 import com.compscicomputations.ui.main.dynamic_feature.AIState.Idle
 import com.compscicomputations.ui.utils.ui.CompSciScaffold
+import com.compscicomputations.ui.utils.ui.StepsBox
+import com.compscicomputations.ui.utils.ui.StepsList
 import com.compscicomputations.utils.network.ConnectionState.Unavailable
 import com.compscicomputations.utils.rememberConnectivityState
 import kotlinx.coroutines.Dispatchers
@@ -173,7 +188,7 @@ fun NumberSystems(
                 .padding(contentPadding)
                 .fillMaxSize()
         ) {
-            PrimaryScrollableTabRow(
+            ScrollableTabRow(
                 selectedTabIndex = currentTab.ordinal,
                 indicator = { tabPositions ->
                     if (currentTab.ordinal < tabPositions.size) {
@@ -209,6 +224,73 @@ fun NumberSystems(
                 }
             }
             Spacer(modifier = Modifier.height(16.dp))
+
+            var expanded by remember { mutableStateOf(false) }
+            ExposedDropdownMenuBox(
+                expanded = expanded,
+                onExpandedChange = { expanded = !expanded }
+            ) {
+                OutlinedTextField(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .menuAnchor()
+                        .clickable { expanded = !expanded }
+                        .focusable(false)
+                        .padding(vertical = 4.dp),
+                    value = when(currentTab) {
+                        BaseN -> basesUiState.convertFrom.text
+                        Complement -> complementUiState.convertFrom.text
+                        Excess -> excessUiState.convertFrom.text
+                        FloatingPoint -> floatingPointUiState.convertFrom.text
+                    },
+                    onValueChange = {},
+                    textStyle = TextStyle(
+                        lineBreak = LineBreak.Simple,
+                        hyphens = Hyphens.Auto,
+                        fontSize = 20.sp,
+                        fontFamily = comicNeueFamily,
+                        color = MaterialTheme.colorScheme.onBackground
+                    ),
+                    label = { Text(text = "Convert from_") },
+                    readOnly = true,
+                    singleLine = true,
+                    shape = RoundedCornerShape(18.dp),
+                    trailingIcon = { TrailingIcon(expanded = expanded) },
+                )
+
+                ExposedDropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    when(currentTab) {
+                        BaseN -> ConvertFrom.baseN.forEach {
+                            DropdownMenuItem(
+                                text = { Text(text = it.text) },
+                                onClick = { basesViewModel.setConvertFrom(it); expanded = false }
+                            )
+                        }
+                        Complement -> ConvertFrom.complementNotation.forEach {
+                            DropdownMenuItem(
+                                text = { Text(text = it.text) },
+                                onClick = { complementViewModel.setConvertFrom(it); expanded = false }
+                            )
+                        }
+                        Excess -> ConvertFrom.excessNotation.forEach {
+                            DropdownMenuItem(
+                                text = { Text(text = it.text) },
+                                onClick = { excessViewModel.setConvertFrom(it); expanded = false }
+                            )
+                        }
+                        FloatingPoint -> ConvertFrom.floatingPointNotation.forEach {
+                            DropdownMenuItem(
+                                text = { Text(text = it.text) },
+                                onClick = { floatingPointViewModel.setConvertFrom(it); expanded = false }
+                            )
+                        }
+                    }
+                }
+            }
+            HorizontalDivider()
 
             when(currentTab) {
                 BaseN -> BasesScreen(

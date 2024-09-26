@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:padding="8dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:clickable="true"
+    android:focusableInTouchMode="true"
+    android:focusable="true">
+
+    <com.compscicomputations.karnaugh_maps.kMapView.KMap2VariablesImageView
+        android:id="@+id/kMap"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:adjustViewBounds="true" />
+
+    <com.compscicomputations.karnaugh_maps.kMapView.MinTermTextView
+        android:id="@+id/answer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/kMap"
+        android:layout_alignParentBottom="true"
+        android:layout_gravity="start"
+        android:text="@string/outputIsEqualTo"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+</RelativeLayout>
+

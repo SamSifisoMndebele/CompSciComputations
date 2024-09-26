@@ -19,11 +19,4 @@ val octalRegex = Regex("[0-7]+")
 val hexadecimalRegex = Regex("[0-9A-Fa-f]+")
 
 
-infix fun String?.errorTextIf(isSelected: Boolean): @Composable (() -> Unit)? {
-    if (!isSelected || this == null) return null
-    return {
-        Text(text = this, color = MaterialTheme.colorScheme.errorContainer)
-    }
-}
-
 val bitLength = arrayOf(4, 8, 16, 32, 64)

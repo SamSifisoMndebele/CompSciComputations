@@ -12,12 +12,13 @@
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/core" />
             <option value="$PROJECT_DIR$/core/client" />
+            <option value="$PROJECT_DIR$/core/keyboard" />
+            <option value="$PROJECT_DIR$/core/pdf-viewer" />
             <option value="$PROJECT_DIR$/feature" />
             <option value="$PROJECT_DIR$/feature/karnaugh_maps" />
             <option value="$PROJECT_DIR$/feature/matrix_methods" />
             <option value="$PROJECT_DIR$/feature/number_systems" />
             <option value="$PROJECT_DIR$/feature/polish_expressions" />
-            <option value="$PROJECT_DIR$/pdf-viewer" />
           </set>
         </option>
         <option name="resolveExternalAnnotations" value="false" />

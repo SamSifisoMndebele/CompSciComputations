@@ -45,7 +45,7 @@ object BaseConverter {
      * @throws NumberFormatException
      */
     private fun BasesUiState.fromRadix(string: String, base: Int): BasesUiState {
-        val decimal = mutableListOf<String>()
+        val decimal = arrayListOf<String>()
         for (number in string.uppercase().split(" ")) {
             if (number.isBlank()) continue
             decimal.add(java.lang.Long.parseUnsignedLong(number, base).toString())

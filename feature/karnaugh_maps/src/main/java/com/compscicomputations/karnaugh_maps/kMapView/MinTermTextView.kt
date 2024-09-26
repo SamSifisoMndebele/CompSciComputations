@@ -1,9 +1,10 @@
-package com.compscicomputations.karnaugh_maps
+package com.compscicomputations.karnaugh_maps.kMapView
 
 import android.content.Context
 import android.text.Html
 import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatTextView
+import com.compscicomputations.karnaugh_maps.utils.Config
 
 class MinTermTextView : AppCompatTextView {
     private var animation = false

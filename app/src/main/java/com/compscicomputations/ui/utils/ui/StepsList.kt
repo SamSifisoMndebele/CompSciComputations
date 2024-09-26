@@ -1,4 +1,4 @@
-package com.compscicomputations.number_systems.ui
+package com.compscicomputations.ui.utils.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -33,8 +33,6 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.compscicomputations.R
-import com.compscicomputations.number_systems.data.model.ConvertFrom
-import com.compscicomputations.number_systems.data.model.CurrentTab
 import com.compscicomputations.data.source.local.AiResponse
 import com.compscicomputations.theme.comicNeueFamily
 import kotlinx.coroutines.flow.Flow
@@ -51,8 +49,8 @@ fun StepsList(
         val list by listFlow.collectAsState(initial = listOf(
             AiResponse(
             "",
-            CurrentTab.BaseN.name,
-            ConvertFrom.Decimal.name,
+            "",
+            "",
             "Loading...",
             ""
         )

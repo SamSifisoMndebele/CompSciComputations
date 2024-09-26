@@ -20,6 +20,7 @@ import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.PrimaryScrollableTabRow
+import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
@@ -113,8 +114,7 @@ fun PolishExpressions(
             modifier = Modifier
                 .padding(contentPadding)
                 .fillMaxSize()
-        ) {
-            PrimaryScrollableTabRow(
+        ) { ScrollableTabRow(
                 selectedTabIndex = currentTab.ordinal,
                 indicator = { tabPositions ->
                     if (currentTab.ordinal < tabPositions.size) {

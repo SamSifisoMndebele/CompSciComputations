@@ -112,8 +112,9 @@ dependencies {
 //    implementation(libs.firebase.firestore)
 
     /**Local Modules*/
-    implementation(project(":pdf-viewer"))
+    implementation(project(":core:pdf-viewer"))
     implementation(project(":core:client"))
+    implementation(project(":core:keyboard"))
 
     /**Android Modules*/
 //    implementation("com.google.android.play:review:2.0.1")

@@ -22,11 +22,14 @@ dependencyResolutionManagement {
 
 rootProject.name = "CompSci Computations"
 include(":app")
+
 include(":core")
 include(":core:client")
+include(":core:pdf-viewer")
+
 include(":feature")
 include(":feature:karnaugh_maps")
 include(":feature:number_systems")
 include(":feature:polish_expressions")
 include(":feature:matrix_methods")
-include(":pdf-viewer")
+include(":core:keyboard")

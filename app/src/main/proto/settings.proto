@@ -4,11 +4,11 @@ option java_package = "com.compscicomputations.ui.main.settings";
 option java_multiple_files = true;
 
 message SettingsPreferences {
-  enum Themes {
+  enum Theme {
     SYSTEM = 0;
     DARK = 1;
     LIGHT = 2;
   }
-  Themes theme = 1;
-  bool notDynamicColor = 2;
+  Theme theme = 1;
+  bool not_dynamic_color = 2;
 }
