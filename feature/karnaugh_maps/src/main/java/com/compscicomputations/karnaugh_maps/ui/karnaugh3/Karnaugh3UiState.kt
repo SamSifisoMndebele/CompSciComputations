@@ -1,10 +1,10 @@
-package com.compscicomputations.karnaugh_maps.ui.karnaugh4
+package com.compscicomputations.karnaugh_maps.ui.karnaugh3
 
 import com.compscicomputations.karnaugh_maps.data.model.ConvertFrom
 import com.compscicomputations.karnaugh_maps.utils.ListOfMinTerms
 import com.compscicomputations.ui.main.dynamic_feature.AIState
 
-data class Karnaugh4UiState(
+data class Karnaugh3UiState(
     val minTerms: IntArray = intArrayOf(),
 
     val answers: List<ListOfMinTerms> = listOf(ListOfMinTerms(0)),
@@ -18,7 +18,7 @@ data class Karnaugh4UiState(
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as Karnaugh4UiState
+        other as Karnaugh3UiState
 
         if (!minTerms.contentEquals(other.minTerms)) return false
         if (answers != other.answers) return false

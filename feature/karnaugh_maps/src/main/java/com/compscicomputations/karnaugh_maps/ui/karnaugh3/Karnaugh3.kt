@@ -1,4 +1,4 @@
-package com.compscicomputations.karnaugh_maps.ui.karnaugh4
+package com.compscicomputations.karnaugh_maps.ui.karnaugh3
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.clickable
@@ -37,8 +37,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidViewBinding
 import com.compscicomputations.karnaugh_maps.data.model.ConvertFrom
-import com.compscicomputations.karnaugh_maps.data.source.local.datastore.FourVarsDataStore
-import com.compscicomputations.karnaugh_maps.databinding.Karnaugh4Binding
+import com.compscicomputations.karnaugh_maps.data.source.local.datastore.ThreeVarsDataStore
+import com.compscicomputations.karnaugh_maps.databinding.Karnaugh3Binding
 import com.compscicomputations.karnaugh_maps.kMapView.KMapVariablesImageView
 import com.compscicomputations.theme.comicNeueFamily
 import com.compscicomputations.ui.auth.isError
@@ -51,10 +51,10 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("ClickableViewAccessibility")
 @Composable
-fun Karnaugh4Screen(
+fun Karnaugh3Screen(
     modifier: Modifier = Modifier,
-    viewModel: Karnaugh4ViewModel,
-    uiState: Karnaugh4UiState,
+    viewModel: Karnaugh3ViewModel,
+    uiState: Karnaugh3UiState,
     textFieldState: MutableState<TextFieldValue>,
     textFieldFocus: MutableState<Boolean>,
 ) {
@@ -79,7 +79,7 @@ fun Karnaugh4Screen(
                         text = { Text(text = it.text) },
                         onClick = {
                             coroutineScope.launch {
-                                FourVarsDataStore.setConvertFrom(context, it, when(it) {
+                                ThreeVarsDataStore.setConvertFrom(context, it, when(it) {
                                     ConvertFrom.Expression -> textFieldState.value.text
                                     ConvertFrom.Map -> uiState.minTerms.joinToString(";")
                                 })
@@ -128,7 +128,7 @@ fun Karnaugh4Screen(
             LaunchedEffect(textFieldState.value) {
                 if (expressionError == null) viewModel.onExpressionChange(textFieldState.value) else viewModel.onExpressionChange(TextFieldValue())
                 coroutineScope.launch(Dispatchers.IO) {
-                    FourVarsDataStore.setValue(context, textFieldState.value.text)
+                    ThreeVarsDataStore.setValue(context, textFieldState.value.text)
                 }
             }
             DisableSoftKeyboard {
@@ -156,7 +156,7 @@ fun Karnaugh4Screen(
                 )
             }
         }
-        AndroidViewBinding(Karnaugh4Binding::inflate, Modifier.fillMaxWidth()) {
+        AndroidViewBinding(Karnaugh3Binding::inflate, Modifier.fillMaxWidth()) {
             answer.setText(uiState.answers[uiState.selected].toString())
 
             kMap.setMinTerms(uiState.minTerms)
@@ -191,7 +191,7 @@ fun Karnaugh4Screen(
                             kMap.setMinterms(findClosestMinTerm)
                             viewModel.onMinTermsChange(kMap.minterms)
                             coroutineScope.launch(Dispatchers.IO) {
-                                FourVarsDataStore.setValue(context, kMap.minterms.joinToString(";"))
+                                ThreeVarsDataStore.setValue(context, kMap.minterms.joinToString(";"))
                             }
                         }
                         false

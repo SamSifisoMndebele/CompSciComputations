@@ -3,6 +3,7 @@ package com.compscicomputations.keyboard
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -21,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.compscicomputations.keyboard.model.Key
@@ -45,9 +47,7 @@ fun KeyboardButton(
     )
 
     TextButton(
-        onClick = {
-            onClick(key)
-        },
+        onClick = { onClick(key) },
         contentPadding = contentPadding,
         shape = MaterialTheme.shapes.extraSmall,
         modifier = modifier
@@ -55,9 +55,13 @@ fun KeyboardButton(
             .focusable(interactionSource = interactionSource)
             .padding(4.dp)
     ) {
-        if (key is UtilityKey && (key == UtilityKey.Not || key == UtilityKey.Or)) {
+        if (key is UtilityKey && (key == UtilityKey.Not || key == UtilityKey.Or || key == UtilityKey.Action)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
-                Icon(
+                if (key == UtilityKey.Action) Image(
+                    painterResource(key.iconId),
+                    contentDescription = key.value,
+                    modifier = Modifier.size(32.dp)
+                ) else Icon(
                     painterResource(key.iconId),
                     contentDescription = key.value,
                     modifier = Modifier.size(32.dp)
@@ -66,7 +70,8 @@ fun KeyboardButton(
                     text = " "+key.value,
                     style = MaterialTheme.typography.bodyLarge,
                     fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1
                 )
             }
         } else if (key is UtilityKey) {
@@ -84,4 +89,12 @@ fun KeyboardButton(
             )
         }
     }
+}
+
+@Preview
+@Composable
+fun Preview() {
+    KeyboardButton(
+        key = UtilityKey.Action
+    ) { }
 }

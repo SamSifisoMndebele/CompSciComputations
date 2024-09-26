@@ -59,6 +59,10 @@ import com.compscicomputations.karnaugh_maps.data.source.local.datastore.FourVar
 import com.compscicomputations.karnaugh_maps.data.source.local.datastore.ThreeVarsDataStore
 import com.compscicomputations.karnaugh_maps.data.source.local.datastore.TwoVarsDataStore
 import com.compscicomputations.karnaugh_maps.data.source.local.datastore.setLastState
+import com.compscicomputations.karnaugh_maps.ui.karnaugh2.Karnaugh2Screen
+import com.compscicomputations.karnaugh_maps.ui.karnaugh2.Karnaugh2ViewModel
+import com.compscicomputations.karnaugh_maps.ui.karnaugh3.Karnaugh3Screen
+import com.compscicomputations.karnaugh_maps.ui.karnaugh3.Karnaugh3ViewModel
 import com.compscicomputations.karnaugh_maps.ui.karnaugh4.Karnaugh4Screen
 import com.compscicomputations.karnaugh_maps.ui.karnaugh4.Karnaugh4ViewModel
 import com.compscicomputations.keyboard.KarnaughKeyboard
@@ -75,12 +79,12 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 
 @SuppressLint("ClickableViewAccessibility")
-@OptIn(ExperimentalCoroutinesApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 @Composable
 fun KarnaughScreen(
     navigateUp: () -> Unit,
-    karnaugh2ViewModel: Karnaugh4ViewModel,
-    karnaugh3ViewModel: Karnaugh4ViewModel,
+    karnaugh2ViewModel: Karnaugh2ViewModel,
+    karnaugh3ViewModel: Karnaugh3ViewModel,
     karnaugh4ViewModel: Karnaugh4ViewModel,
 ) {
     var currentTab by rememberSaveable { mutableStateOf(FourVars) }
@@ -128,10 +132,15 @@ fun KarnaughScreen(
                         TwoVars -> karnaugh2ViewModel.textFieldState
                         ThreeVars -> karnaugh3ViewModel.textFieldState
                         FourVars -> karnaugh4ViewModel.textFieldState
+                    },
+                    onAction = {
+                        when (currentTab) {
+                            TwoVars -> karnaugh2ViewModel.generateSteps()
+                            ThreeVars -> karnaugh3ViewModel.generateSteps()
+                            FourVars -> karnaugh4ViewModel.generateSteps()
+                        }
                     }
-                ) {
-
-                }
+                ) {}
             } else {
                 BottomAppBar(
                     actions = {
@@ -248,17 +257,25 @@ fun KarnaughScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             when(currentTab) {
-                TwoVars -> Text("TwoVars")
-                ThreeVars -> Text("ThreeVars")
+                TwoVars -> Karnaugh2Screen(
+                    modifier = Modifier.focusRequester(focus),
+                    viewModel = karnaugh2ViewModel,
+                    uiState = karnaugh2UiState,
+                    textFieldState = karnaugh2ViewModel.textFieldState,
+                    textFieldFocus = textFieldFocus
+                )
+                ThreeVars -> Karnaugh3Screen(
+                    modifier = Modifier.focusRequester(focus),
+                    viewModel = karnaugh3ViewModel,
+                    uiState = karnaugh3UiState,
+                    textFieldState = karnaugh3ViewModel.textFieldState,
+                    textFieldFocus = textFieldFocus
+                )
                 FourVars -> Karnaugh4Screen(
                     modifier = Modifier.focusRequester(focus),
                     viewModel = karnaugh4ViewModel,
                     uiState = karnaugh4UiState,
-                    textFieldState = when(currentTab) {
-                        TwoVars -> karnaugh2ViewModel.textFieldState
-                        ThreeVars -> karnaugh3ViewModel.textFieldState
-                        FourVars -> karnaugh4ViewModel.textFieldState
-                    },
+                    textFieldState = karnaugh4ViewModel.textFieldState,
                     textFieldFocus = textFieldFocus
                 )
             }

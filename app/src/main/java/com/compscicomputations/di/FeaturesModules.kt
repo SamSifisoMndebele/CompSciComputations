@@ -22,7 +22,7 @@ object FeaturesModules {
     @Singleton
     fun provideGenerativeModel(): GenerativeModel = GenerativeModel(
         modelName = "gemini-1.5-pro", //flash
-        apiKey = BuildConfig.GENERATIVE_AI_KEY,
+        apiKey = "AIzaSyAL75MjUu3gFqgw9yibD8sWhiy6dTS-NLk",//BuildConfig.GENERATIVE_AI_KEY,
         generationConfig = generationConfig {
             stopSequences = listOf(
                 "Let me know",

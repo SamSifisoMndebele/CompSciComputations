@@ -1,4 +1,4 @@
-package com.compscicomputations.karnaugh_maps.ui.karnaugh4
+package com.compscicomputations.karnaugh_maps.ui.karnaugh2
 
 import android.content.Context
 import android.util.Log
@@ -14,8 +14,8 @@ import com.compscicomputations.karnaugh_maps.data.model.ConvertFrom
 import com.compscicomputations.karnaugh_maps.data.model.ConvertFrom.Expression
 import com.compscicomputations.karnaugh_maps.data.model.ConvertFrom.Map
 import com.compscicomputations.karnaugh_maps.data.model.CurrentTab.FourVars
-import com.compscicomputations.karnaugh_maps.data.source.local.datastore.FourVarsDataStore
-import com.compscicomputations.karnaugh_maps.logic.Karnaugh4Variables
+import com.compscicomputations.karnaugh_maps.data.source.local.datastore.TwoVarsDataStore
+import com.compscicomputations.karnaugh_maps.logic.Karnaugh2Variables
 import com.compscicomputations.karnaugh_maps.ui.MODULE_NAME
 import com.compscicomputations.karnaugh_maps.ui.arrayList
 import com.compscicomputations.karnaugh_maps.ui.position
@@ -34,19 +34,19 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlin.coroutines.cancellation.CancellationException
 
-class Karnaugh4ViewModel(
+class Karnaugh2ViewModel(
     context: Context,
     private val generateContent: GenerateContentUseCase,
     val aiResponseDao: AiResponseDao,
 ): ViewModel() {
-    private val _uiState = MutableStateFlow(Karnaugh4UiState())
+    private val _uiState = MutableStateFlow(Karnaugh2UiState())
     val uiState = _uiState.asStateFlow()
 
     val textFieldState = mutableStateOf(TextFieldValue())
 
     init {
         viewModelScope.launch {
-            FourVarsDataStore.lastState(context).first()
+            TwoVarsDataStore.lastState(context).first()
                 ?.let { state ->
                     if (state.value.isBlank()) return@let
                     try {
@@ -64,7 +64,7 @@ class Karnaugh4ViewModel(
         }
     }
 
-    fun clear() { _uiState.value = Karnaugh4UiState(convertFrom = _uiState.value.convertFrom) }
+    fun clear() { _uiState.value = Karnaugh2UiState(convertFrom = _uiState.value.convertFrom) }
 
     fun setAiState(aiState: AIState) { _uiState.value = _uiState.value.copy(aiState = aiState) }
 
@@ -72,7 +72,7 @@ class Karnaugh4ViewModel(
 
     fun onExpressionChange(textFieldValue: TextFieldValue) {
         if (textFieldValue.text.isBlank()) {
-            _uiState.value = Karnaugh4UiState(convertFrom = _uiState.value.convertFrom)
+            _uiState.value = Karnaugh2UiState(convertFrom = _uiState.value.convertFrom)
             return
         }
         textFieldState.value = textFieldValue
@@ -101,7 +101,7 @@ class Karnaugh4ViewModel(
         val minTerms = minTermsSet.toDecimalArray()
         Log.d(TAG, "minTerms: ${minTerms.joinToString(";")}")
 
-        val answers = Karnaugh4Variables(minTerms,  IntArray(0)).executeKarnaugh()
+        val answers = Karnaugh2Variables(minTerms,  IntArray(0)).executeKarnaugh()
 
         _uiState.value = _uiState.value.copy(
             minTerms = minTerms,
@@ -115,7 +115,7 @@ class Karnaugh4ViewModel(
     fun onMinTermsChange(minTerms: IntArray) {
         Log.d(TAG, "minTerms: ${minTerms.joinToString(";")}")
 
-        val answers = Karnaugh4Variables(minTerms,  IntArray(0)).executeKarnaugh()
+        val answers = Karnaugh2Variables(minTerms,  IntArray(0)).executeKarnaugh()
 
         val expression = answers[0].toString().split("=")[1].trim()
         textFieldState.value = TextFieldValue(expression, TextRange(expression.length))
@@ -205,6 +205,6 @@ class Karnaugh4ViewModel(
     }
 
     companion object {
-        const val TAG = "Karnaugh4ViewModel"
+        const val TAG = "Karnaugh2ViewModel"
     }
 }

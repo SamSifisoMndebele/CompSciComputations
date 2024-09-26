@@ -35,12 +35,13 @@ fun KarnaughKeyboard(
         AlphabetKey.A,
         AlphabetKey.B,
         UtilityKey.Or,
+        UtilityKey.ArrowLeft,
+        UtilityKey.ArrowRight,
         UtilityKey.Backspace,
         AlphabetKey.C,
         AlphabetKey.D,
         UtilityKey.Not,
-        UtilityKey.ArrowLeft,
-        UtilityKey.ArrowRight,
+        UtilityKey.Action
     )
 
     Column(
@@ -52,7 +53,7 @@ fun KarnaughKeyboard(
                 .background(MaterialTheme.colorScheme.surfaceDim, RoundedCornerShape(16.dp))
                 .fillMaxWidth()
                 .wrapContentHeight(),
-            columns = GridCells.Fixed(8)
+            columns = GridCells.Fixed(9)
         ) {
             items(
                 count = keys.size,
