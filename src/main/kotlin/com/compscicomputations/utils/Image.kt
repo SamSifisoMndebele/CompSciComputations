@@ -38,5 +38,10 @@ data class Image(
     companion object {
         inline val ByteArray?.asImage: Image?
             get() = if(this == null || this.isEmpty()) null else Image(this)
+
+        fun Image?.isNotNullOrEmpty(): Boolean {
+            if(this == null) return false
+            return bytes.isNotEmpty()
+        }
     }
 }

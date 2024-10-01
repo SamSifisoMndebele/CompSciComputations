@@ -42,8 +42,12 @@ class Onboarding {
 
 @Resource("feedback")
 class Feedback {
+    @Resource("image/{id}")
+    class Image(val parent: Feedback = Feedback(), val id: Int)
     @Resource("id/{id}")
     class Id(val parent: Feedback = Feedback(), val id: Int)
+    @Resource("email/{email}")
+    class Email(val parent: Feedback = Feedback(), val email: String)
 }
 
 

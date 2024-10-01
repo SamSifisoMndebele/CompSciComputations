@@ -3,30 +3,22 @@ package com.compscicomputations.routing
 import com.compscicomputations.plugins.Feedback
 import com.compscicomputations.plugins.Onboarding
 import com.compscicomputations.plugins.authenticateAdmin
-import com.compscicomputations.plugins.authenticateUser
 import com.compscicomputations.services.auth.AuthService
-import com.compscicomputations.services.auth.models.response.User
 import com.compscicomputations.services.publik.PublicService
 import com.compscicomputations.services.publik.models.requests.NewFeedback
 import com.compscicomputations.services.publik.models.requests.NewOnboardingItem
-import com.compscicomputations.utils.EMAIL_VERIFICATION_EMAIL
 import com.compscicomputations.utils.FEEDBACK_EMAIL
+import com.compscicomputations.utils.Image.Companion.isNotNullOrEmpty
 import com.compscicomputations.utils.sendEmail
 import io.ktor.http.*
 import io.ktor.server.application.*
-import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.resources.*
 import io.ktor.server.resources.post
-import io.ktor.server.resources.put
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
-import org.apache.commons.mail.DefaultAuthenticator
 import org.koin.ktor.ext.inject
-import javax.mail.internet.InternetAddress
+import java.io.File
 
 
 fun Routing.publicRouting() {
@@ -67,9 +59,9 @@ fun Routing.publicRouting() {
     post<Feedback> {
         try {
             val request = call.receive<NewFeedback>()
-            publicService.createFeedback(request)
+            val id = publicService.createFeedback(request)
             sendEmail(
-                subject = "Feedback",
+                subject = "Feedback $id",
                 htmlMsg = FEEDBACK_EMAIL
                     .replaceFirst("{{email_from}}", request.userEmail ?: "Anonymous")
                     .replaceFirst("{{subject}}", request.subject)
@@ -78,9 +70,18 @@ fun Routing.publicRouting() {
                         if (request.suggestion.isNotBlank()) "<hr><p><b>Suggestion:</b></p><p>${request.suggestion}</p>" else ""
                     ),
                 emailTo = null,
-                emailFrom = request.userEmail
+                emailFrom = request.userEmail,
+                imageBytes = request.image?.bytes,
             )
             call.respond(HttpStatusCode.OK)
+        } catch (e: Exception) {
+            call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
+        }
+    }
+    get<Feedback.Image> {
+        try {
+            val image = publicService.getFeedbackImage(it.id) ?: return@get call.respond(HttpStatusCode.NoContent)
+            call.respondBytes(image, ContentType.Image.PNG, HttpStatusCode.OK)
         } catch (e: Exception) {
             call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
         }
@@ -99,6 +100,15 @@ fun Routing.publicRouting() {
             val feedback = publicService.getFeedback(it.id)
             if (feedback == null) call.respond(HttpStatusCode.NotFound)
             else call.respond(HttpStatusCode.OK, feedback)
+        } catch (e: Exception) {
+            call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
+        }
+    }
+    get<Feedback.Email> {
+        try {
+            val feedbacks = publicService.getMyFeedbacks(it.email)
+            if (feedbacks.isEmpty()) call.respond(HttpStatusCode.NotFound)
+            else call.respond(HttpStatusCode.OK, feedbacks)
         } catch (e: Exception) {
             call.respondNullable(HttpStatusCode.ExpectationFailed, e.message)
         }

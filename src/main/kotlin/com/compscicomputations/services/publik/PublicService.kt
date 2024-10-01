@@ -16,24 +16,25 @@ class PublicService : PublicServiceContrast {
     private var conn = databaseConnection()
 
     companion object {
-        private fun ResultSet.getOnboardingItem(): OnboardingItem {
-            return OnboardingItem(
-                id = getInt("id"),
-                title = getString("title"),
-                description = getString("description"),
-                image = getBytes("image").asImage,
-            )
-        }
-        private fun ResultSet.getFeedback(): Feedback {
-            return Feedback(
-                id = getInt("id"),
-                subject = getString("subject"),
-                message = getString("message"),
-                suggestion = getString("suggestion"),
-                image = getBytes("image").asImage,
-                userEmail = getString("user_email"),
-            )
-        }
+        private fun ResultSet.getOnboardingItem() = OnboardingItem(
+            id = getInt("id"),
+            title = getString("title"),
+            description = getString("description"),
+            image = getBytes("image").asImage,
+        )
+        private fun ResultSet.getFeedback() = Feedback(
+            id = getInt("id"),
+            subject = getString("subject"),
+            message = getString("message"),
+            suggestion = getString("suggestion"),
+            image = getBytes("image").asImage,
+            userEmail = getString("user_email"),
+            createdAt = getTimestamp("created_at").toString(),
+            responseMessage = getString("response_message"),
+            responseImage = getBytes("response_image").asImage,
+            respondedAt = getTimestamp("responded_at")?.toString(),
+            respondedByEmail = getString("responded_by_email"),
+        )
     }
 
     override suspend fun createOnboardingItem(item: NewOnboardingItem): Unit = dbQuery(conn) {
@@ -62,8 +63,8 @@ class PublicService : PublicServiceContrast {
 
 
 
-    suspend fun createFeedback(feedback: NewFeedback): Unit = dbQuery(conn) {
-        update("call public.insert_feedback(?, ?, ?, ?, ?)") {
+    suspend fun createFeedback(feedback: NewFeedback): Int = dbQuery(conn) {
+        querySingle("select public.insert_feedback(?, ?, ?, ?, ?) as id", { getInt("id")}) {
             setString(1, feedback.subject.trim())
             setString(2, feedback.message.trim())
             setString(3, feedback.suggestion.trim())
@@ -75,9 +76,22 @@ class PublicService : PublicServiceContrast {
     suspend fun getFeedbacks(): List<Feedback> = dbQuery(conn) {
         query("select * from public.feedbacks", { getFeedback() })
     }
+
     suspend fun getFeedback(id: Int): Feedback? = dbQuery(conn) {
         querySingleOrNull("select * from public.feedbacks where id = ?", { getFeedback() }) {
             setInt(1, id)
+        }
+    }
+
+    suspend fun getFeedbackImage(id: Int): ByteArray? = dbQuery(conn) {
+        querySingleOrNull("select image from public.feedbacks where id = ?", { getBytes("image") }) {
+            setInt(1, id)
+        }
+    }
+
+    suspend fun getMyFeedbacks(email: String): List<Feedback> = dbQuery(conn) {
+        query("select * from public.get_my_feedbacks(?)", { getFeedback() }) {
+            setString(1, email.trim())
         }
     }
 }

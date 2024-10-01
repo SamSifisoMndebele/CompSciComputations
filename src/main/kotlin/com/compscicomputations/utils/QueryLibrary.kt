@@ -1,9 +1,11 @@
 package com.compscicomputations.utils
 
+import com.compscicomputations.utils.Image.Companion.isNotNullOrEmpty
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.apache.commons.mail.DefaultAuthenticator
 import org.intellij.lang.annotations.Language
+import java.io.File
 import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.ResultSet
@@ -21,7 +23,8 @@ suspend inline fun sendEmail(
     htmlMsg: String,
     emailTo: String?,
     emailFrom: String? = null,
-) = withContext(Dispatchers.IO) {
+    imageBytes: ByteArray? = null
+): Unit = withContext(Dispatchers.IO) {
     val emailAddress = System.getenv("EMAIL_ADDR")
     val emailPassword = System.getenv("EMAIL_PASS")
     org.apache.commons.mail.HtmlEmail().apply {
@@ -35,6 +38,11 @@ suspend inline fun sendEmail(
         }
         this.subject = subject
         setHtmlMsg(htmlMsg)
+        if (imageBytes != null) {
+            val file = File.createTempFile("${subject}_image", ".png")
+            file.writeBytes(imageBytes)
+            attach(file)
+        }
         addTo(emailTo ?: emailAddress)
     }.send()
 }

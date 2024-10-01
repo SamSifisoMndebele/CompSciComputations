@@ -25,6 +25,12 @@ create table if not exists public.feedbacks (
     user_email text default null,
     created_at timestamp default ext.nowsast() not null,
 
+    response_message text default null,
+    response_image bytea default null,
+    responded_at timestamp default null,
+    responded_by_email text default null,
+
+
     foreign key (user_email) references auth.users(email) on delete set null on update cascade,
     unique (subject, message, suggestion)
 );
