@@ -35,14 +35,18 @@ inline val Bitmap.asByteString: ByteString
 /**
  * Converts byte array to bitmap
  */
-inline val ByteArray.asBitmap: Bitmap
-    get() = BitmapFactory.decodeByteArray(this, 0, this.size)
+inline val ByteArray?.asBitmap: Bitmap?
+    get() {
+        if (this == null) return null
+        return BitmapFactory.decodeByteArray(this, 0, this.size)
+    }
 
 /**
  * Converts blob to bitmap
  */
-inline val Blob.asBitmap: Bitmap
+inline val Blob?.asBitmap: Bitmap?
     get() {
+        if (this == null) return null
         val bytes = binaryStream.readBytes()
         return BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
     }
@@ -50,12 +54,12 @@ inline val Blob.asBitmap: Bitmap
 /**
  * Converts byte string to bitmap
  */
-inline val ByteString.asBitmap: Bitmap?
+inline val ByteString?.asBitmap: Bitmap?
     get() {
+        if (this == null) return null
         val bytes = toByteArray()
-
-        return if (bytes == null || bytes.isEmpty()) null
-        else bytes.asBitmap
+        if (bytes == null || bytes.isEmpty()) return null
+        return bytes.asBitmap
     }
 
 /**

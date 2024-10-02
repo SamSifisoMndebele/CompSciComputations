@@ -75,7 +75,7 @@ class Karnaugh2ViewModel(
             _uiState.value = Karnaugh2UiState(convertFrom = _uiState.value.convertFrom)
             return
         }
-        textFieldState.value = textFieldValue
+        textFieldState.value = textFieldValue.copy(textFieldValue.text.replace(" ", ""))
 
         val minTermsSet = mutableSetOf<String>()
         val split = textFieldValue.text.trimEnd('+').split("+")
@@ -117,7 +117,7 @@ class Karnaugh2ViewModel(
 
         val answers = Karnaugh2Variables(minTerms,  IntArray(0)).executeKarnaugh()
 
-        val expression = answers[0].toString().split("=")[1].trim()
+        val expression = answers[0].toString().split("=")[1].trim().replace(" ", "")
         textFieldState.value = TextFieldValue(expression, TextRange(expression.length))
         _uiState.value = _uiState.value.copy(
             minTerms = minTerms,

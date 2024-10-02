@@ -1,5 +1,7 @@
 package com.compscicomputations.ui.navigation
 
+import com.compscicomputations.client.publik.data.model.remote.RemoteFeedback
+import com.compscicomputations.client.utils.Feedback
 import kotlinx.serialization.Serializable
 
 

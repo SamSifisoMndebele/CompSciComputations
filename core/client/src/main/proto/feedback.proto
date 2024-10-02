@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+option java_package = "com.compscicomputations.client.publik.data.model.local";
+option java_multiple_files = true;
+
+message FeedbackLocal {
+  int32 id = 1;
+  string subject = 2;
+  string message = 3;
+  string suggestion = 4;
+  bytes image_bytes = 5;
+  string user_email = 6;
+  string created_at = 7;
+  string response_message = 8;
+  bytes response_image_bytes = 9;
+  string responded_at = 10;
+  string responded_by_email = 11;
+}

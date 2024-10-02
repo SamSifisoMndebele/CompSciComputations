@@ -17,6 +17,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.Feedback
+import androidx.compose.material.icons.outlined.QuestionAnswer
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -59,6 +60,7 @@ fun DashboardScreen(
     navigateProfile: () -> Unit,
     navigateFeedback: () -> Unit,
     navigateSettings: () -> Unit,
+//    navigateQuestions: (userId: String, name: String) -> Unit,
     navigateDynamicFeature: (feature: DynamicFeature) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -206,6 +208,14 @@ fun DashboardScreen(
                     }
                 }
             }
+//            item {
+//                OptionButton(
+//                    modifier = Modifier.padding(vertical = 8.dp),
+//                    iconVector = Icons.Outlined.QuestionAnswer,
+//                    text = "Ask a Professional",
+//                    onClick = { navigateQuestions(uiState.userId, uiState.displayName) }
+//                )
+//            }
             item {
                 OptionButton(
                     modifier = Modifier.padding(vertical = 8.dp),

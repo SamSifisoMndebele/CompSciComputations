@@ -13,6 +13,9 @@ import io.ktor.client.plugins.plugin
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import java.util.UUID
 
 internal suspend inline fun <T> ktorRequest(
@@ -21,6 +24,14 @@ internal suspend inline fun <T> ktorRequest(
 ): T = withContext(ioDispatcher) {
     block()
 }
+
+private val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS", Locale.US)
+
+internal val Date?.format: String?
+    get() = this?.let { dateFormat.format(it) }
+internal val String?.parseDate: Date?
+    get() = this?.let { dateFormat.parse(it) }
+
 
 // This method might be computationally expensive
 //internal fun createUUID() : String {

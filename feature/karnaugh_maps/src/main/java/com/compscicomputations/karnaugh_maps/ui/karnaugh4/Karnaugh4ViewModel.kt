@@ -118,7 +118,7 @@ class Karnaugh4ViewModel(
         val answers = Karnaugh4Variables(minTerms,  IntArray(0)).executeKarnaugh()
 
         val expression = answers[0].toString().split("=")[1].trim()
-        textFieldState.value = TextFieldValue(expression, TextRange(expression.length))
+        textFieldState.value = TextFieldValue(expression.replace(" ", ""), TextRange(expression.length))
         _uiState.value = _uiState.value.copy(
             minTerms = minTerms,
             answers = answers,

@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -26,6 +28,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuAnchorType
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
@@ -54,6 +58,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import com.compscicomputations.client.utils.Feedback
 import com.compscicomputations.theme.comicNeueFamily
 import com.compscicomputations.ui.auth.isError
 import com.compscicomputations.ui.auth.showMessage
@@ -84,6 +89,7 @@ fun FeedbackScreen(
 
     val (field1, field2, field3, field4) = remember { FocusRequester.createRefs() }
     CompSciScaffold(
+        modifier = Modifier.fillMaxSize(),
         title = "Feedback",
         navigateUp = navigateUp,
     ) { contentPadding ->
@@ -102,11 +108,11 @@ fun FeedbackScreen(
                         singleLine = true,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .menuAnchor()
+                            .menuAnchor(MenuAnchorType.PrimaryEditable, true)
                             .padding(top = 8.dp)
                             .clickable { dropdown = !dropdown }
                             .focusable(false),
-                        value = uiState.subject.name,
+                        value = uiState.subject.toString(),
                         onValueChange = {},
                         trailingIcon =  {
                             Icon(imageVector = if (dropdown) Icons.Filled.KeyboardArrowUp
@@ -140,7 +146,7 @@ fun FeedbackScreen(
                             .padding(vertical = 4.dp),
                         value = uiState.otherSubject ?: "",
                         onValueChange = { viewModel.onOtherSubjectChange(it.takeIf { it.isNotBlank() }) },
-                        label = { Text(text = "Other subject") },
+                        label = { Text(text = "Other subject *") },
                         singleLine = true,
                         shape = RoundedCornerShape(22.dp),
                         keyboardOptions = KeyboardOptions(
@@ -162,7 +168,7 @@ fun FeedbackScreen(
                         .padding(vertical = 4.dp),
                     value = uiState.message,
                     onValueChange = { viewModel.onMessageChange(it) },
-                    label = { Text(text = "Feedback message") },
+                    label = { Text(text = "Your ${uiState.subject} *") },
                     minLines = 2,
                     shape = RoundedCornerShape(22.dp),
                     keyboardOptions = KeyboardOptions(
@@ -291,7 +297,7 @@ fun FeedbackScreen(
                     contentPadding = PaddingValues(vertical = 18.dp)
                 ) {
                     Text(
-                        text = "Submit Feedback",
+                        text = "Submit ${uiState.subject}",
                         fontWeight = FontWeight.Bold,
                         fontSize = 22.sp,
                         fontFamily = comicNeueFamily

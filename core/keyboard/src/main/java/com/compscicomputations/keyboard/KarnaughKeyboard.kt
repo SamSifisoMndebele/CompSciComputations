@@ -65,16 +65,11 @@ fun KarnaughKeyboard(
                 ) {
                     when(it) {
                         is UtilityKey.Action -> return@KeyboardButton onAction()
-                        is UtilityKey.Backspace -> textFieldState.updateAndRemoveLastChar()
+                        is UtilityKey.Backspace -> textFieldState.backspace()
                         is UtilityKey.Or -> textFieldState.append("+")
                         is UtilityKey.Not -> textFieldState.append("'")
-                        is UtilityKey.ArrowLeft -> {
-//                                val value = textFieldState?.value ?: return@KeyboardButton
-//                                textFieldState.updateWith(TextFieldValue(value.text, TextRange(textFieldState.value.selection.end - 1)))
-                        }
-                        is UtilityKey.ArrowRight -> {
-
-                        }
+                        is UtilityKey.ArrowLeft -> textFieldState.leftArrow()
+                        is UtilityKey.ArrowRight -> textFieldState.rightArrow()
                         is AlphabetKey -> textFieldState.append(it.value)
                     }
                     onClick(it)

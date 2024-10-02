@@ -73,6 +73,7 @@ dependencies {
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.datastore)
+//    implementation(libs.protobuf.java)
     implementation(libs.protobuf.java)
 
     /** Auth */

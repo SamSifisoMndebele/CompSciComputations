@@ -75,6 +75,7 @@ class DashboardViewModel @Inject constructor(
                 .collect {
                     it?.let { user ->
                         _uiState.value = _uiState.value.copy(
+                            userId = user.id,
                             email = user.email,
                             isAdmin = user.isAdmin,
                             isStudent = user.isStudent,

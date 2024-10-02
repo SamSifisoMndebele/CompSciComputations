@@ -58,6 +58,7 @@ androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = 
 androidx-navigation-dynamic-features-fragment = { module = "androidx.navigation:navigation-dynamic-features-fragment", version.ref = "androidxNavigation" }
 androidx-navigation-safe-args-gradle-plugin = { module = "androidx.navigation:navigation-safe-args-gradle-plugin", version.ref = "androidxNavigation" }
 compose-markdown = { module = "com.github.jeziellago:compose-markdown", version.ref = "composeMarkdown" }
+firebase-database = { module = "com.google.firebase:firebase-database" }
 glassmorphic-composables = { module = "com.github.jakhongirmadaminov:glassmorphic-composables", version.ref = "glassmorphicComposables" }
 google-feature-delivery = { module = "com.google.android.play:feature-delivery", version.ref = "googleFeatureDelivery" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -102,6 +103,7 @@ coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose"
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 firebase-analytics = { module = "com.google.firebase:firebase-analytics", name = "firebase-analytics"}
 firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
+firebase-firestore = { module = "com.google.firebase:firebase-firestore" }
 firebase-perf = { module = "com.google.firebase:firebase-perf" }
 firebase-config = { module = "com.google.firebase:firebase-config", name = "firebase-config"}
 glide-compose = { module = "com.github.bumptech.glide:compose", version.ref = "glide" }

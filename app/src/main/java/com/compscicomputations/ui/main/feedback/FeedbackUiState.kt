@@ -7,7 +7,6 @@ enum class Subject {
     Comment,
     Suggestion,
     Complaint,
-    Question,
     BugReport {
         override fun toString(): String = "Bug Report"
     },

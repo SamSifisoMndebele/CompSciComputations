@@ -83,8 +83,14 @@ class FeedbackViewModel @Inject constructor(
                     _uiState.value.imageUri?.let { byteArrayUseCase(it) },
                     if (uiState.value.asAnonymous) null else _uiState.value.email
                 ) { bytesSent, totalBytes ->
-                    _uiState.value = _uiState.value.copy(progressState = ProgressState.Loading("Uploading image...\n" +
-                            "${(bytesSent/1024.0).roundToInt()}kB/${(totalBytes/1024.0).roundToInt()}kB"))
+                    if (bytesSent != totalBytes) {
+                        _uiState.value = _uiState.value.copy(progressState = ProgressState.Loading("Uploading image...\n" +
+                                "${(bytesSent/1024.0).roundToInt()}kB/${(totalBytes/1024.0).roundToInt()}kB"))
+                    } else {
+                        _uiState.value = _uiState.value.copy(progressState = ProgressState.Loading("Sending feedback...\n" +
+                                "Please wait."))
+                    }
+
                 }
                 _uiState.value = _uiState.value.copy(
                     progressState = ProgressState.Success,

@@ -5,6 +5,7 @@ import com.compscicomputations.client.publik.data.model.DynamicFeature
 import com.compscicomputations.ui.utils.ProgressState
 
 data class DashboardUiState(
+    val userId: String = "0",
     val displayName: String = "",
     val email: String = "",
     val imageBitmap: Bitmap? = null,

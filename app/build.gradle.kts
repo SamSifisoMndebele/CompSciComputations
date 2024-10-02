@@ -37,8 +37,8 @@ android {
         applicationId = "com.compscicomputations"
         minSdk = 24
         targetSdk = 34
-        versionCode = 10
-        versionName = "0.10.5"
+        versionCode = 11
+        versionName = "0.11.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables { useSupportLibrary = true }
@@ -67,15 +67,16 @@ android {
         viewBinding = true
     }
     packaging { resources { excludes += "/META-INF/{AL2.0,LGPL2.1}" } }
+    dynamicFeatures += setOf(
+        ":feature:karnaugh_maps",
+        ":feature:number_systems",
+        ":feature:polish_expressions",
+//        ":feature:matrix_methods",
+//        ":feature:questions"
+    )
     ksp {
         arg("room.schemaLocation", "$projectDir/schemas")
     }
-    dynamicFeatures += setOf(
-        ":feature:karnaugh_maps",
-        ":feature:matrix_methods",
-        ":feature:number_systems",
-        ":feature:polish_expressions"
-    )
 }
 
 dependencies {
@@ -107,9 +108,9 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.crashlytics)
+//    implementation(libs.firebase.firestore)
 //    implementation(libs.firebase.config)
 //    implementation(libs.firebase.storage)
-//    implementation(libs.firebase.firestore)
 
     /**Local Modules*/
     implementation(project(":core:pdf-viewer"))

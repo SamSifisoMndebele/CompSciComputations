@@ -45,6 +45,25 @@ class PublicDataSource @Inject constructor(
             else -> throw Exception(response.bodyAsText())
         }
     }
+
+    internal suspend fun getMyFeedbacks(
+        email: String,
+        onDownload: (bytesReceived: Long, totalBytes: Long) -> Unit = {_,_ ->}
+    ): List<RemoteFeedback> = ktorRequest {
+        val response = client.get(Feedback.Email(email = email)) {
+            onDownload { bytesSentTotal, contentLength ->
+                println("onDownload: Received $bytesSentTotal bytes from $contentLength")
+                onDownload(bytesSentTotal, contentLength.takeIf { it != 0L } ?: 1L)
+            }
+        }
+        when (response.status) {
+            HttpStatusCode.ExpectationFailed -> throw ExpectationFailedException(response.bodyAsText())
+            HttpStatusCode.NotFound -> throw NotFoundException("You don't have any feedback, please write to us.")
+            HttpStatusCode.OK -> response.body<List<RemoteFeedback>>()
+            else -> throw Exception(response.bodyAsText())
+        }
+    }
+
     internal suspend fun getFeedbacks(
         onDownload: (bytesReceived: Long, totalBytes: Long) -> Unit = {_,_ ->}
     ): List<RemoteFeedback> = ktorRequest {

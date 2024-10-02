@@ -9,7 +9,6 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
-import com.compscicomputations.client.publik.data.model.DynamicFeature
 import com.compscicomputations.ui.main.dashboard.DashboardScreen
 import com.compscicomputations.ui.main.feedback.FeedbackScreen
 import com.compscicomputations.ui.main.profile.ProfileScreen
@@ -24,6 +23,18 @@ fun NavGraphBuilder.navigationMain(navController: NavHostController) {
                 navigateProfile = { navController.navigate(route = Profile) },
                 navigateFeedback = { navController.navigate(route = Feedback) },
                 navigateSettings = { navController.navigate(route = Settings) },
+//                navigateQuestions = { userId, name ->
+//                    try {
+//                        val activityClass = Class.forName("com.compscicomputations.questions.MainActivity")
+//                        val intent = Intent().setClass(context, activityClass)
+//                        intent.putExtra("userId", userId)
+//                        intent.putExtra("userName", name)
+//                        context.startActivity(intent)
+//                    } catch (e: Exception) {
+//                        Toast.makeText(context, e.message, Toast.LENGTH_LONG).show()
+//                        Log.e("MainNavigation", "navigateQuestions::error", e)
+//                    }
+//                },
                 navigateDynamicFeature = { feature ->
                     try {
                         val activityClass = Class.forName(feature.className)
@@ -49,7 +60,7 @@ fun NavGraphBuilder.navigationMain(navController: NavHostController) {
         }
         composable<Feedback> {
             FeedbackScreen(
-                navigateUp = { navController.navigateUp() }
+                navigateUp = { navController.navigateUp() },
             )
         }
         composable<Settings> {

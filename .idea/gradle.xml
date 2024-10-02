@@ -16,7 +16,6 @@
             <option value="$PROJECT_DIR$/core/pdf-viewer" />
             <option value="$PROJECT_DIR$/feature" />
             <option value="$PROJECT_DIR$/feature/karnaugh_maps" />
-            <option value="$PROJECT_DIR$/feature/matrix_methods" />
             <option value="$PROJECT_DIR$/feature/number_systems" />
             <option value="$PROJECT_DIR$/feature/polish_expressions" />
           </set>

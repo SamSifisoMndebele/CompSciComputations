@@ -15,4 +15,13 @@ data class RemoteFeedback(
     val userEmail: String? = null,
     @SerialName("created_at")
     val createdAt: String? = null,
+
+    @SerialName("response_message")
+    val responseMessage: String? = null,
+    @SerialName("response_image")
+    val responseImage: Image? = null,
+    @SerialName("responded_at")
+    val respondedAt: String? = null,
+    @SerialName("responded_by_email")
+    val respondedByEmail: String? = null,
 )

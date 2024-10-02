@@ -11,12 +11,10 @@ import java.io.OutputStream
 internal object UserSerializer : Serializer<LocalUser> {
     override val defaultValue: LocalUser = LocalUser.getDefaultInstance()
 
-    override suspend fun readFrom(input: InputStream): LocalUser {
-        try {
-            return LocalUser.parseFrom(input)
-        } catch (exception: InvalidProtocolBufferException) {
-            throw CorruptionException("Cannot read proto.", exception)
-        }
+    override suspend fun readFrom(input: InputStream): LocalUser = try {
+        LocalUser.parseFrom(input)
+    } catch (exception: InvalidProtocolBufferException) {
+        throw CorruptionException("Cannot read proto.", exception)
     }
 
     override suspend fun writeTo(t: LocalUser, output: OutputStream) = t.writeTo(output)
@@ -27,7 +25,7 @@ internal object UserSerializer : Serializer<LocalUser> {
             email = email,
             names = names,
             lastname = lastname,
-            imageBitmap = imageBytes?.asBitmap,
+            imageBitmap = imageBytes.asBitmap,
             phone = phone,
             isAdmin = isAdmin,
             isStudent = isStudent,
