@@ -53,7 +53,7 @@ class ProfileViewModel @Inject constructor(
     val progressState: StateFlow<ProgressState> = _progressState.asStateFlow()
     val snackBarHostState: SnackbarHostState = SnackbarHostState()
 
-    var isNotChanged = false
+    val isNotChanged
         get() = _uiState.value.imageUri == null &&
                 _uiState.value.names == _userState.value?.names &&
                 _uiState.value.lastname == _userState.value?.lastname &&

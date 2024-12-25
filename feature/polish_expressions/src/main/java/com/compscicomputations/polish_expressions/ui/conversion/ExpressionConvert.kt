@@ -233,8 +233,8 @@ object ExpressionConvert {
                 num.clear()
             }
 
-            if (char == '(' && ((prevChar.isLetterOrDigit() || prevChar == '.') || prevChar == ')')) {
-                while (stack.isNotEmpty() && '×'.precedence() <= stack.peek().precedence()) {
+            if (char == '(' && (prevChar.isLetterOrDigit() || prevChar == '.' || prevChar == ')')) {
+                while (stack.isNotEmpty() && '×'.precedence() < stack.peek().precedence()) {
                     val element = stack.pop()
                     postfix.add(element.toString())
                 }
