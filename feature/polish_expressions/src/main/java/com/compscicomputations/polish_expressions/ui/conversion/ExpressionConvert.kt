@@ -384,7 +384,7 @@ object ExpressionConvert {
         var prevChar = '0'
 
         for (char in postfix) {
-            if (char.isLetterOrDigit() || char == '.'){
+            if (char.isLetterOrDigit() || char == '.') {
                 num.append(char)
 
                 if (num.isNotEmpty() && prevChar.isLetter() && char.isLetter()){
@@ -406,7 +406,7 @@ object ExpressionConvert {
             val left = try { stack.pop() } catch (e: EmptyStackException) { ExpSigned("") }
 
             if (left.operator != null && right.operator != null){
-                if (char.precedence() > left.operator!!.precedence() && char.precedence() > right.operator!!.precedence()){
+                if (char.precedence() > left.operator!!.precedence() && char.precedence() > right.operator!!.precedence()) {
                     stack.push(ExpSigned("(${left.string})$char(${right.string})", char))
                 } else if (char.precedence() > left.operator!!.precedence()){
                     stack.push(ExpSigned("(${left.string})$char${right.string}", char))
@@ -415,7 +415,7 @@ object ExpressionConvert {
                 } else {
                     stack.push(ExpSigned("${left.string}$char${right.string}", char))
                 }
-            } else if (left.operator != null && char.precedence() > left.operator!!.precedence()){
+            } else if (left.operator != null && char.precedence() > left.operator!!.precedence()) {
                 stack.push(ExpSigned("(${left.string})$char${right.string}", char))
             } else if (right.operator != null && char.precedence() > right.operator!!.precedence()){
                 stack.push(ExpSigned("${left.string}$char(${right.string})", char))
