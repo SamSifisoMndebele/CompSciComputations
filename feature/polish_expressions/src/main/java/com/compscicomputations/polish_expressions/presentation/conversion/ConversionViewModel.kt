@@ -104,7 +104,7 @@ class ConversionViewModel(
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(postfix = "", prefix = "", error = e.message)
             }
-            PolishDataStore.setLastState(viewModelScope.coroutineContext, Infix, infix)
+            PolishDataStore.setLastState(context, Infix, infix)
         }
     }
 

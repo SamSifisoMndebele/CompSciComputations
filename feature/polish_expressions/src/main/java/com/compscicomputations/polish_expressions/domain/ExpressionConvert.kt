@@ -29,13 +29,22 @@ internal fun List<Token>.infixToPostfix(): PostfixResults {
     val table = mutableListOf<RowData>()
     val postfix: Queue<Token> = LinkedList()
     val stack: Stack<Token> = Stack()
+    var brackets = 0
 
     var prevToken: Token? = null
     for ((i, token) in this.withIndex()) {
         when(token.name) {
             NUMBER, VARIABLE -> postfix.offer(token)
-            LEFT_BR, FUNCTION -> stack.push(token)
+            LEFT_BR, FUNCTION -> {
+                if (token.name == LEFT_BR) brackets++
+                stack.push(token)
+                try { this[i + 1] } catch (e: IndexOutOfBoundsException) {
+                    throw ExpressionException(this.joinToString(" ") { it.lexeme })
+                }
+            }
             RIGHT_BR -> {
+                brackets--
+
                 while (stack.isNotEmpty() && stack.peek().name != LEFT_BR)
                     postfix.offer(stack.pop())
                 try { stack.pop() } catch (e: EmptyStackException) {
@@ -70,9 +79,11 @@ internal fun List<Token>.infixToPostfix(): PostfixResults {
         table.add(RowData(token.lexeme, stack.joinToString(" ") { it.lexeme }, postfix.joinToString(" ") { it.lexeme }))
     }
 
+    if (brackets > 0) throw ExpressionException(brackets.toString(), "Brackets are not balanced.")
+
     while (stack.isNotEmpty()) {
         val token = stack.pop()
-        if (token.name == LEFT_BR || token.name == RIGHT_BR) continue
+        if (token.name == LEFT_BR) continue
         postfix.add(token)
         table.add(RowData("", stack.joinToString(" ") { it.lexeme }, postfix.joinToString(" ") { it.lexeme }))
     }
