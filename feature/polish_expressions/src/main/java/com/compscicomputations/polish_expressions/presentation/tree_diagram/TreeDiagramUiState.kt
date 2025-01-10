@@ -1,6 +1,5 @@
 package com.compscicomputations.polish_expressions.presentation.tree_diagram
 
-import com.compscicomputations.polish_expressions.domain.Token
 import com.compscicomputations.polish_expressions.domain.graphview.models.Graph
 
 data class TreeDiagramUiState(

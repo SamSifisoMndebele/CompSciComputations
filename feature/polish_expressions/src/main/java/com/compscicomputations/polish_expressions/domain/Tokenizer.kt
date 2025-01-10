@@ -81,7 +81,7 @@ private fun Char.isRightBracket(): Boolean = when (this) {
     else -> false
 }
 
-internal fun tokenize(@Language("md") expr: String): List<Token> {
+internal fun tokenizeInfix(@Language("md") expr: String): List<Token> {
     val expression = expr.replace("[ \t\n]".toRegex(), "")
         .replace("!=", "≠")
         .replace(">=", "≥")

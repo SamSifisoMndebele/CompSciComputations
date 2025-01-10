@@ -2,10 +2,9 @@ package com.compscicomputations.polish_expressions.presentation.trace_table
 
 import androidx.lifecycle.ViewModel
 import com.compscicomputations.polish_expressions.data.model.ConvertTo
-import com.compscicomputations.polish_expressions.domain.Token
 import com.compscicomputations.polish_expressions.domain.infixToPostfix
 import com.compscicomputations.polish_expressions.domain.infixToPrefix
-import com.compscicomputations.polish_expressions.domain.tokenize
+import com.compscicomputations.polish_expressions.domain.tokenizeInfix
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
@@ -18,7 +17,7 @@ class TraceTableViewModel : ViewModel() {
     }
 
     fun onChange(infixStr: String) {
-        val infix = tokenize(infixStr)
+        val infix = tokenizeInfix(infixStr)
         _uiState.value = _uiState.value.copy(
             infix = infixStr,
             postfixData = infix.infixToPostfix().table,

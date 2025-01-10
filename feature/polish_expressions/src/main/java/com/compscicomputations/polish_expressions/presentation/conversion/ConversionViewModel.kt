@@ -8,8 +8,6 @@ import com.compscicomputations.polish_expressions.data.model.ConvertFrom.Infix
 import com.compscicomputations.polish_expressions.data.model.ConvertFrom.Postfix
 import com.compscicomputations.polish_expressions.data.model.ConvertFrom.Prefix
 import com.compscicomputations.polish_expressions.data.source.local.datastore.PolishDataStore
-import com.compscicomputations.polish_expressions.domain.ExpressionException
-import com.compscicomputations.polish_expressions.domain.Token
 import com.compscicomputations.polish_expressions.domain.asString
 import com.compscicomputations.polish_expressions.domain.infixToPostfix
 import com.compscicomputations.polish_expressions.domain.infixToPrefix
@@ -17,7 +15,7 @@ import com.compscicomputations.polish_expressions.domain.postfixToInfix
 import com.compscicomputations.polish_expressions.domain.postfixToPrefix
 import com.compscicomputations.polish_expressions.domain.prefixToInfix
 import com.compscicomputations.polish_expressions.domain.prefixToPostfix
-import com.compscicomputations.polish_expressions.domain.tokenize
+import com.compscicomputations.polish_expressions.domain.tokenizeInfix
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -35,7 +33,7 @@ class ConversionViewModel(
             PolishDataStore.lastState(context).first()
                 ?.let {
                     try {
-                        val tokens = tokenize(it.fromValue)
+                        val tokens = tokenizeInfix(it.fromValue)
                         when (it.convertFrom) {
                             Infix -> _uiState.value = _uiState.value.copy(
                                 infix = it.fromValue,
@@ -97,7 +95,7 @@ class ConversionViewModel(
         _uiState.value = _uiState.value.copy(infix = infix)
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val tokens = tokenize(infix)
+                val tokens = tokenizeInfix(infix)
                 _uiState.value = _uiState.value.copy(
                     postfix = tokens.infixToPostfix().postfix.asString(),
                     prefix = tokens.infixToPrefix().prefix.asString(),
@@ -106,7 +104,7 @@ class ConversionViewModel(
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(postfix = "", prefix = "", error = e.message)
             }
-            PolishDataStore.setLastState(context, Infix, infix)
+            PolishDataStore.setLastState(viewModelScope.coroutineContext, Infix, infix)
         }
     }
 
@@ -114,7 +112,12 @@ class ConversionViewModel(
         _uiState.value = _uiState.value.copy(postfix = postfix)
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val tokens = tokenize(postfix)
+                val tokens = tokenizeInfix(postfix)
+                _uiState.value = _uiState.value.copy(
+                    infix = tokens.postfixToInfix().asString(filterAsterisk = true, spaces = false),
+                    prefix = tokens.postfixToPrefix().prefix.asString(),
+                    error = null
+                )
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(infix = "", prefix = "", error = e.message)
             }
@@ -127,7 +130,12 @@ class ConversionViewModel(
         _uiState.value = _uiState.value.copy(prefix = prefix)
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val tokens = tokenize(prefix)
+                val tokens = tokenizeInfix(prefix)
+                _uiState.value = _uiState.value.copy(
+                    infix = tokens.prefixToInfix().asString(filterAsterisk = true, spaces = false),
+                    postfix = tokens.prefixToPostfix().postfix.asString(),
+                    error = null
+                )
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(infix = "", postfix = "", error = e.message)
             }
