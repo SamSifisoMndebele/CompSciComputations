@@ -20,7 +20,7 @@ data class Token(val name: TokenName, val lexeme: String) {
     constructor(double: Double) : this(NUMBER, double.toString())
 
     val precedence: Int
-        get() = lexeme.precedence(name == TokenName.UNARY_OP)
+        get() = lexeme.precedence(name == UNARY_OP)
 
     override fun toString(): String = "$lexeme\t\t-> $name\t\t\t: $precedence"
 
@@ -30,6 +30,7 @@ data class Token(val name: TokenName, val lexeme: String) {
     }
 }
 
+@Suppress("unused")
 internal fun printTokens(vararg tokens: Token) {
     println()
     var i = 1
