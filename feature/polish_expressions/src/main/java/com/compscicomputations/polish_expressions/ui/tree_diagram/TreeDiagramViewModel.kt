@@ -3,6 +3,7 @@ package com.compscicomputations.polish_expressions.ui.tree_diagram
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.compscicomputations.polish_expressions.data.source.local.datastore.PolishDataStore
+import com.compscicomputations.polish_expressions.ui.Token
 import com.compscicomputations.polish_expressions.ui.tree_diagram.graphview.models.Edge
 import com.compscicomputations.polish_expressions.ui.tree_diagram.graphview.models.Graph
 import com.compscicomputations.polish_expressions.ui.tree_diagram.graphview.models.Node
@@ -16,12 +17,12 @@ class TreeDiagramViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(TreeDiagramUiState())
     val uiState = _uiState.asStateFlow()
 
-    fun onChange(infix: String, prefix: String, postfix: String) {
+    fun onChange(infix: List<Token>, prefix: List<Token>, postfix: List<Token>) {
         _uiState.value = _uiState.value.copy(
             infix = infix,
             prefix = prefix,
             postfix = postfix,
-            graph = postfix.toCharArray().joinToString(" ").drawTree()
+            graph = postfix.joinToString(" ") { it.lexeme }.drawTree()
         )
     }
 

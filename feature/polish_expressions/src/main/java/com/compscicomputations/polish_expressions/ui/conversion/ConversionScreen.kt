@@ -30,6 +30,7 @@ import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.compscicomputations.polish_expressions.data.model.ConvertFrom
+import com.compscicomputations.polish_expressions.ui.asString
 import com.compscicomputations.polish_expressions.utils.errorTextIf
 import com.compscicomputations.theme.comicNeueFamily
 
@@ -92,7 +93,7 @@ fun ConversionScreen(
                 .fillMaxWidth()
                 .padding(vertical = 4.dp),
             enabled = uiState.convertFrom.infix,
-            value = uiState.infix,
+            value = uiState.infix.asString(true),
             onValueChange = { viewModel.onInfixChange(it) },
             textStyle = TextStyle(
                 lineBreak = LineBreak.Simple,
@@ -114,7 +115,7 @@ fun ConversionScreen(
                 .fillMaxWidth()
                 .padding(vertical = 4.dp),
             enabled = uiState.convertFrom.postfix,
-            value = uiState.postfix,
+            value = uiState.postfix.asString(),
             onValueChange = { viewModel.onPostfixChange(it) },
             textStyle = TextStyle(
                 lineBreak = LineBreak.Simple,
@@ -136,7 +137,7 @@ fun ConversionScreen(
                 .fillMaxWidth()
                 .padding(vertical = 4.dp),
             enabled = uiState.convertFrom.prefix,
-            value = uiState.prefix,
+            value = uiState.prefix.asString(),
             onValueChange = { viewModel.onPrefixChange(it) },
             textStyle = TextStyle(
                 lineBreak = LineBreak.Simple,

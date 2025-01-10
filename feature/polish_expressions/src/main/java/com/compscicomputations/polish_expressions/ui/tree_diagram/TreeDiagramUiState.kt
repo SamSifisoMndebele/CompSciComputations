@@ -1,11 +1,12 @@
 package com.compscicomputations.polish_expressions.ui.tree_diagram
 
+import com.compscicomputations.polish_expressions.ui.Token
 import com.compscicomputations.polish_expressions.ui.tree_diagram.graphview.models.Graph
 
 data class TreeDiagramUiState(
-    val infix: String = "",
-    val postfix: String = "",
-    val prefix: String = "",
+    val infix: List<Token> = listOf(),
+    val postfix: List<Token> = listOf(),
+    val prefix: List<Token> = listOf(),
 
     val graph: Graph? = null,
 

@@ -50,7 +50,6 @@ import com.compscicomputations.polish_expressions.ui.tree_diagram.TreeDiagramVie
 import com.compscicomputations.theme.comicNeueFamily
 import com.compscicomputations.ui.utils.ui.CompSciScaffold
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PolishExpressions(
     navigateUp: () -> Unit,
@@ -74,7 +73,7 @@ fun PolishExpressions(
                 actions = {
                     IconButton(onClick = {
                         conversionViewModel.clear()
-                        treeDiagramViewModel.onChange("", "", "")
+                        treeDiagramViewModel.onChange(listOf(), listOf(), listOf())
                         traceTableViewModel.onChange("")
                     }) {
                         Icon(Icons.Outlined.Delete, contentDescription = "Clear fields")

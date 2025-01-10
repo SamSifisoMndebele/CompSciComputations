@@ -17,6 +17,7 @@ import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults.TrailingIcon
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -55,7 +56,7 @@ fun TraceTablesScreen(
             OutlinedTextField(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .menuAnchor()
+                    .menuAnchor(MenuAnchorType.PrimaryEditable, true)
                     .clickable { expanded = !expanded }
                     .focusable(false)
                     .padding(vertical = 4.dp),
@@ -148,7 +149,7 @@ fun TraceTablesScreen(
                 items(uiState.postfixData) {
                     Row {
                         Text(
-                            text = it.operand.toString(),
+                            text = it.token,
                             Modifier
                                 .weight(.15f)
                                 .padding(horizontal = 12.dp, vertical = 6.dp),
@@ -234,7 +235,7 @@ fun TraceTablesScreen(
                 items(uiState.prefixData) {
                     Row {
                         Text(
-                            text = it.operand.toString(),
+                            text = it.token,
                             Modifier
                                 .weight(.15f)
                                 .padding(horizontal = 12.dp, vertical = 6.dp),
