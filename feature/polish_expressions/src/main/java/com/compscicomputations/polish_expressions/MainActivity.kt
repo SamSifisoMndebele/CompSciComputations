@@ -5,7 +5,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.compscicomputations.CSCActivity
-import com.compscicomputations.polish_expressions.ui.PolishExpressions
+import com.compscicomputations.polish_expressions.presentation.PolishExpressions
 import com.compscicomputations.theme.CompSciComputationsTheme
 
 class MainActivity : CSCActivity() {

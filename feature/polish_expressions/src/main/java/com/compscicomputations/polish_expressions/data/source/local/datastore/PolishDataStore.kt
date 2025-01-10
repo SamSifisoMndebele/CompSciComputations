@@ -5,9 +5,9 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.compscicomputations.polish_expressions.data.model.ConvertFrom
-import com.compscicomputations.polish_expressions.ui.Token
-import com.compscicomputations.polish_expressions.ui.asString
-import com.compscicomputations.polish_expressions.ui.tokenize
+import com.compscicomputations.polish_expressions.domain.Token
+import com.compscicomputations.polish_expressions.domain.asString
+import com.compscicomputations.polish_expressions.domain.tokenize
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -22,12 +22,12 @@ object PolishDataStore {
         if (convertFrom.isNullOrBlank()) null
         else LastState(
             convertFrom = ConvertFrom.valueOf(convertFrom),
-            fromValue = preferences[fromValueKey]?.let { tokenize(it) } ?: listOf()
+            fromValue = preferences[fromValueKey] ?: ""
         )
     }
 
-    suspend fun setLastState(context: Context, convertFrom: ConvertFrom, fromValue: List<Token> = listOf()) = context.preferences.edit {
+    suspend fun setLastState(context: Context, convertFrom: ConvertFrom, fromValue: String = "") = context.preferences.edit {
         it[convertFromKey] = convertFrom.toString()
-        it[fromValueKey] = fromValue.asString()
+        it[fromValueKey] = fromValue
     }
 }
