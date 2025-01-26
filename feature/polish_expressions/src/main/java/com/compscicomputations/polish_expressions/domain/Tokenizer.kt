@@ -31,7 +31,7 @@ data class Token(val name: TokenName, val lexeme: String) {
 }
 
 @Suppress("unused")
-internal fun printTokens(vararg tokens: Token) {
+internal fun printTokens(tokens: List<Token>) {
     println()
     var i = 1
     for (token in tokens) {
@@ -185,10 +185,78 @@ internal fun tokenizeInfix(@Language("md") expr: String): List<Token> {
                 }
             }
 
-            else -> {
-                System.err.println("Unrecognized char : $char, the char is ignored.")
-                i++
+            else -> throw ExpressionException(expr, "Invalid character: $char")
+        }
+    }
+
+    return tokens
+}
+
+internal fun tokenizePolish(@Language("md") expr: String): List<Token> {
+    val expression = expr.replace("[ \t\n]".toRegex(), "")
+        .replace("!=", "≠")
+        .replace(">=", "≥")
+        .replace("<=", "≤")
+        .replace('/', '÷') + ' '
+
+    val tokens = mutableListOf<Token>()
+
+    var prevToken: TokenName? = null
+    var i = 0
+    while (i < expression.length - 1) {
+        var char = expression[i]
+        when {
+            char.isLeftBracket() || char.isRightBracket() -> throw ExpressionException(expr, "Brackets in polish expression.")
+            char.isOperator() -> {
+                tokens.add(Token(OPERATOR, if (char == '-') '—' else char))
+                prevToken = OPERATOR
+                char = expression[++i] // Next Char
+
+//                if (char.isOperator() && !(char == '+' || char == '-')) throw ExpressionException(expr, "Invalid Operator")
+//                if (char.isRightBracket()) throw ExpressionException(expr, "Empty Bracket")
             }
+            char.isDigit() || char == '.' || char == ',' -> {
+//                if (prevToken != null && (prevToken == NUMBER || prevToken == VARIABLE || prevToken == RIGHT_BR))
+//                    tokens.add(Token(OPERATOR, '*'))
+
+                val number = buildString {
+                    append(if (char == ',') '.' else char)
+                    char = expression[++i] // Next Char
+                    while (char.isDigit() || char == '.' || char == ',') {
+                        append(if (char == ',') '.' else char)
+                        char = expression[++i] // Next Char
+                    }
+                }
+                tokens.add(Token(NUMBER, number))
+                prevToken = NUMBER
+            }
+            char.isLetter() -> {
+//                if (prevToken != null && (prevToken == NUMBER || prevToken == VARIABLE || prevToken == RIGHT_BR))
+//                    tokens.add(Token(OPERATOR, '*'))
+
+                val literal = buildString {
+                    append(char)
+                    char = expression[++i] // Next Char
+                    while (char.isLetter()) {
+                        append(char)
+                        char = expression[++i] // Next Char
+                    }
+                }
+                if (literal.isFunction()) {
+                    tokens.add(Token(FUNCTION, literal))
+                    prevToken = FUNCTION
+
+//                    if (!char.isLeftBracket()) throw ExpressionException(expr, "Invalid Function Brackets")
+                } else {
+                    var l = literal.length
+                    for (variable in literal) {
+                        tokens.add(Token(VARIABLE, variable))
+                        if (--l != 0) tokens.add(Token(OPERATOR, "*"))
+                    }
+                    prevToken = VARIABLE
+                }
+            }
+            else -> throw ExpressionException(expr, "Invalid character: $char")
         }
     }
 
