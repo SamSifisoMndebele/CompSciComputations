@@ -15,4 +15,6 @@ data class PasswordResetUiState(
 
     val sendingOtp: Boolean = false,
     val progressState: ProgressState = ProgressState.Idle
-)
+) {
+    val isValid get() = email.isNotBlank() && otp.isNotBlank() && password.isNotBlank() && passwordConfirm.isNotBlank()
+}

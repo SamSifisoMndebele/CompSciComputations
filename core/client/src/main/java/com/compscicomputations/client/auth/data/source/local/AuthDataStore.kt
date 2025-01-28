@@ -10,7 +10,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 object AuthDataStore {
-    private const val TAG = "AuthDataStore"
     private val Context.preferencesDataStore: DataStore<Preferences> by preferencesDataStore(name = "auth_datastore")
 
     private val firstLaunchKey = booleanPreferencesKey("first_launch")

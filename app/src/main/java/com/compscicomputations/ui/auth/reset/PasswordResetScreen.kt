@@ -234,6 +234,7 @@ fun PasswordResetScreen(
                         .fillMaxWidth()
                         .height(84.dp)
                         .padding(bottom = 8.dp, top = 16.dp),
+                    enabled = uiState.isValid,
                     border = BorderStroke(1.dp, Color.LightGray),
                     shape = RoundedCornerShape(24.dp),
                     contentPadding = PaddingValues(vertical = 18.dp),
