@@ -5,7 +5,7 @@ plugins {
     alias(libs.plugins.google.protobuf)
     alias(libs.plugins.jetbrains.kotlin.plugin.serialization)
     alias(libs.plugins.google.devtools.ksp)
-    alias(libs.plugins.google.android.libraries.mapsplatform.secrets.gradle.plugin)
+    alias(libs.plugins.google.libraries.mapsplatform.secrets)
 }
 
 android {

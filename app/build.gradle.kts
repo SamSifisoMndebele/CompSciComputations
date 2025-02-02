@@ -1,5 +1,3 @@
-import java.util.Properties
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
@@ -9,19 +7,17 @@ plugins {
     alias(libs.plugins.google.dagger.hilt.android)
     alias(libs.plugins.jetbrains.kotlin.compose.compiler)
     alias(libs.plugins.google.devtools.ksp)
-    alias(libs.plugins.google.android.libraries.mapsplatform.secrets.gradle.plugin)
+    alias(libs.plugins.google.libraries.mapsplatform.secrets)
     id("androidx.navigation.safeargs")
 }
 
 android {
     signingConfigs {
-        val properties = Properties()
-        properties.load(project.rootProject.file("local.properties").inputStream())
         getByName("debug") {
-            storeFile = project.rootProject.file("config\\keystore\\keystore.jks")
-            storePassword = properties.getProperty("STORE_PASS")
-            keyAlias = properties.getProperty("KEY_ALIAS")
-            keyPassword = properties.getProperty("KEY_PASS")
+            storeFile = file("D:\\keystore.jks")
+            keyAlias = "compscicomputationskey"
+            storePassword = "Mn_9903155459080"
+            keyPassword = "CompSciComputations"
         }
     }
     namespace = "com.compscicomputations"

@@ -4,7 +4,7 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.compose.compiler)
     alias(libs.plugins.google.devtools.ksp)
     id("androidx.navigation.safeargs")
-    alias(libs.plugins.google.android.libraries.mapsplatform.secrets.gradle.plugin)
+    alias(libs.plugins.google.libraries.mapsplatform.secrets)
     alias(libs.plugins.jetbrains.kotlin.plugin.serialization)
 }
 android {
