@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.compscicomputations.karnaugh_maps"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         minSdk = 24

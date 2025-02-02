@@ -9,7 +9,7 @@ plugins {
 }
 android {
     namespace = "com.compscicomputations.number_systems"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         minSdk = 24

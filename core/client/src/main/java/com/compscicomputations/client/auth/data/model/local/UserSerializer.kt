@@ -2,9 +2,9 @@ package com.compscicomputations.client.auth.data.model.local
 
 import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.Serializer
-import androidx.datastore.preferences.protobuf.InvalidProtocolBufferException
 import com.compscicomputations.client.auth.data.model.User
 import com.compscicomputations.client.utils.asBitmap
+import com.google.protobuf.InvalidProtocolBufferException
 import java.io.InputStream
 import java.io.OutputStream
 

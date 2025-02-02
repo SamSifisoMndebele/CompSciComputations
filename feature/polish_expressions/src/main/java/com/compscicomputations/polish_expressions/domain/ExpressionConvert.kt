@@ -1,6 +1,5 @@
 package com.compscicomputations.polish_expressions.domain
 
-import androidx.datastore.preferences.protobuf.Empty
 import com.compscicomputations.polish_expressions.domain.TokenName.FUNCTION
 import com.compscicomputations.polish_expressions.domain.TokenName.LEFT_BR
 import com.compscicomputations.polish_expressions.domain.TokenName.NUMBER

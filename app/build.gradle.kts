@@ -25,7 +25,7 @@ android {
         }
     }
     namespace = "com.compscicomputations"
-    compileSdk = 34
+    compileSdk = 35
 
     sourceSets {
         getByName("main") {
@@ -36,7 +36,7 @@ android {
     defaultConfig {
         applicationId = "com.compscicomputations"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 11
         versionName = "0.11.0"
 

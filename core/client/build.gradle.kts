@@ -10,7 +10,7 @@ plugins {
 
 android {
     namespace = "com.compscicomputations.client"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         minSdk = 24

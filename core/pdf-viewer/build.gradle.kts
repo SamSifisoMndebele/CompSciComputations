@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "com.ssmnd.pdf_viewer"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         minSdk = 24

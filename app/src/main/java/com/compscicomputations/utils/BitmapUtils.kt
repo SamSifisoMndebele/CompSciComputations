@@ -6,7 +6,6 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Base64
 import android.util.Log
-import androidx.datastore.preferences.protobuf.ByteString
 import dagger.hilt.android.qualifiers.ApplicationContext
 import okio.ByteString.Companion.toByteString
 import java.io.ByteArrayOutputStream
