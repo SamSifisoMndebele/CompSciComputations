@@ -2,7 +2,6 @@ package com.compscicomputations.di
 
 import android.content.Context
 import androidx.room.Room
-import com.compscicomputations.BuildConfig
 import com.compscicomputations.data.source.local.AiDatabase
 import com.compscicomputations.data.source.local.AiResponseDao
 import com.compscicomputations.ui.main.dynamic_feature.GenerateContentUseCase
